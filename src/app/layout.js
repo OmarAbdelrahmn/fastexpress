@@ -1,5 +1,7 @@
-// File: src/app/layout.js
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "نظام إدارة الخدمات اللوجستية",
@@ -8,8 +10,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ar" dir="rtl">
-      <body style={{ margin: 0 }}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className={`${inter.className} m-0 bg-gray-50 min-h-screen`}>
         {children}
       </body>
     </html>

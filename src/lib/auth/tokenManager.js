@@ -1,4 +1,6 @@
 // File: src/lib/auth/tokenManager.js
+'use client';
+
 export class TokenManager {
   static TOKEN_KEY = 'auth_token';
 

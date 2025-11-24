@@ -23,19 +23,20 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     // Load statistics from different endpoints
     try {
-      const [vehiclesRes, ridersRes] = await Promise.all([
-        get(API_ENDPOINTS.VEHICLES.LIST),
-        get(API_ENDPOINTS.RIDER.LIST),
-      ]);
+      // const [vehiclesRes, ridersRes] = await Promise.all([
+      //   // get(API_ENDPOINTS.VEHICLES.LIST),
+      //   // get(API_ENDPOINTS.RIDER.LIST),
+      // ]);
 
-      setStats({
-        vehicles: vehiclesRes.data?.length || 0,
-        riders: ridersRes.data?.length || 0,
-        trips: 342, // Placeholder
-        companies: 12, // Placeholder
-      });
+      // setStats({
+      //   vehicles: vehiclesRes.data?.length || 0,
+      //   riders: ridersRes.data?.length || 0,
+      //   trips: 342, // Placeholder
+      //   companies: 12, // Placeholder
+      // });
     } catch (error) {
       console.error('Error loading dashboard:', error);
+      
     }
   };
 

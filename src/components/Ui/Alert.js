@@ -1,4 +1,6 @@
 // File: src/components/ui/Alert.js
+
+'use client';
 import { AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 
 export default function Alert({ 
