@@ -1,6 +1,6 @@
 // File: src/components/layout/PageHeader.js
 'use client';
-
+import BackButton from "@/components/Ui/BackButton"
 export default function PageHeader({ 
   title, 
   subtitle, 
@@ -12,7 +12,7 @@ export default function PageHeader({
     <div className="text-white px-6 py-4 shadow-lg sticky top-0 z-50"
       style={{ background: '#090979',
 background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%'
-  }}>
+  }}><BackButton/>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {Icon && (

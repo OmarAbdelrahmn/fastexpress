@@ -97,6 +97,9 @@ export class ApiService {
 
   static async uploadFile(endpoint, file, additionalData = {}) {
     const token = TokenManager.getToken();
+    if (!token) {
+      throw new Error('لا يوجد رمز مصادقة. يرجى تسجيل الدخول مرة أخرى');
+    }
     const formData = new FormData();
     formData.append('excelFile', file);
     
