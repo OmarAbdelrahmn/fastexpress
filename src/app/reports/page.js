@@ -9,6 +9,7 @@ import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { FileText, Calendar, TrendingUp, Users, Building } from 'lucide-react';
+import PageHeader from '@/components/layout/pageheader';
 
 export default function ReportsPage() {
   const { get, loading, error } = useApi();
@@ -105,10 +106,12 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">التقارير والإحصائيات</h1>
-        <p className="text-gray-600 mt-1">عرض وتحليل البيانات</p>
-      </div>
+      <PageHeader
+      title="التقارير والإحصائيات"
+      subtitle="عرض وتحليل البيانات"
+      icon={FileText}
+    />
+
 
       {successMessage && (
         <Alert 

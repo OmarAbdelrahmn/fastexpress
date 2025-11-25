@@ -21,21 +21,21 @@ export default function Sidebar() {
   const isActive = (path) => pathname === path;
 
   return (
-    <aside className="w-64 bg-gray-50 border-l-4 border-orange-500 p-5 overflow-y-auto h-[calc(100vh-64px)]">
+    <aside className="w-64 min-h-screen bg-gradient-to-b from-gray-50 to-white shadow-lg p-4 overflow-y-auto flex-shrink-0">
       <nav>
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {/* Dashboard Home */}
           <li>
             <Link
               href="/dashboard"
-              className={`block w-full text-right px-4 py-2 rounded-lg transition-colors ${
+              className={`block w-full text-right px-5 py-4 rounded-xl transition-all duration-200 text-lg font-medium ${
                 isActive('/dashboard') 
-                  ? 'bg-orange-500 text-white' 
-                  : 'hover:bg-gray-200 text-gray-700'
+                  ? 'bg-gradient-to-r from-[#ebb62b] to-[#e08911] text-white shadow-md transform scale-105' 
+                  : 'hover:bg-white hover:shadow-md text-gray-700'
               }`}
             >
-              <span className="flex items-center gap-2">
-                <span>{navigationConfig.dashboard.icon}</span>
+              <span className="flex items-center gap-3">
+                <span className="text-2xl">{navigationConfig.dashboard.icon}</span>
                 <span>{navigationConfig.dashboard.title}</span>
               </span>
             </Link>
@@ -48,29 +48,33 @@ export default function Sidebar() {
               <li key={key}>
                 <button
                   onClick={() => toggleSection(key)}
-                  className="w-full flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
+                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl transition-all duration-200 text-lg font-bold ${
+                    openSections[key]
+                      ? 'bg-white shadow-md text-[#ebb62b]'
+                      : 'text-black-700 hover:bg-white hover:shadow-md'
+                  }`}
                 >
-                  <span className="flex items-center gap-2">
-                    <span>{section.icon}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="text-2xl">{section.icon}</span>
                     <span>{section.title}</span>
                   </span>
                   {openSections[key] ? (
-                    <ChevronDown size={18} />
+                    <ChevronDown size={22} className="text-[#e08911]" />
                   ) : (
-                    <ChevronLeft size={18} />
+                    <ChevronLeft size={22} />
                   )}
                 </button>
                 
                 {openSections[key] && section.routes && (
-                  <ul className="mr-6 mt-2 space-y-1 border-r-2 border-orange-300 pr-3">
+                  <ul className="mr-8 mt-2 space-y-2 border-r-3 border-[#ebb62b] pr-4">
                     {section.routes.map((route) => (
                       <li key={route.path}>
                         <Link
                           href={route.path}
-                          className={`block w-full text-right px-3 py-1.5 rounded text-sm transition-colors ${
+                          className={`block w-full text-right px-4 py-3 rounded-lg text-lg font-medium transition-all duration-200 ${
                             isActive(route.path)
-                              ? 'bg-orange-100 text-orange-600 font-medium'
-                              : 'text-gray-600 hover:bg-gray-100'
+                              ? 'bg-gradient-to-r from-[#1b428e] to-[#2858b8] text-white font-medium shadow-sm'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-[#1b428e] hover:pr-5'
                           }`}
                         >
                           {route.label}

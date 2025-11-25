@@ -1,4 +1,3 @@
-// File: src/components/ui/Modal.js
 'use client';
 
 import { useEffect } from 'react';
@@ -44,11 +43,11 @@ export default function Modal({
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className={`relative bg-white rounded-lg shadow-xl ${sizes[size]} w-full mx-auto`}>
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-[#1b428e]">
+            <h3 className="text-xl font-bold text-white">{title}</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-200 hover:text-white transition-colors"
             >
               <X size={24} />
             </button>

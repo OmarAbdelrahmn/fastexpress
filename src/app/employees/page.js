@@ -11,7 +11,8 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import { Plus, Search, Edit, Trash2, UserPlus } from 'lucide-react';
-
+import PageHeader from '@/components/layout/pageheader';
+import { Users } from 'lucide-react';
 export default function EmployeesPage() {
   const { get, post, put, delete: del, loading, error } = useApi();
   const [employees, setEmployees] = useState([]);
@@ -158,13 +159,17 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">إدارة الموظفين</h1>
-        <Button onClick={openCreateModal}>
-          <Plus size={18} />
-          إضافة موظف جديد
-        </Button>
-      </div>
+      <PageHeader
+        title="إدارة الموظفين"
+        subtitle="عرض وإدارة جميع بيانات الموظفين"
+        icon={Users}
+        actionButton={{
+          text: 'إضافة موظف جديد',
+          icon: <Plus size={18} />,
+          onClick: openCreateModal,
+        }}
+      />
+
 
       {successMessage && (
         <Alert 

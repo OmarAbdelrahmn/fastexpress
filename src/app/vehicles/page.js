@@ -11,6 +11,8 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import { Plus, Search, Edit, Trash2, Car, CheckCircle, XCircle } from 'lucide-react';
+import PageHeader from '@/components/layout/pageheader';
+
 
 export default function VehiclesPage() {
   const { get, post, put, delete: del, loading, error } = useApi();
@@ -186,16 +188,17 @@ export default function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">إدارة المركبات</h1>
-          <p className="text-gray-600 mt-1">إجمالي المركبات: {stats.total}</p>
-        </div>
-        <Button onClick={openCreateModal}>
-          <Plus size={18} />
-          إضافة مركبة جديدة
-        </Button>
-      </div>
+      <PageHeader
+      title="إدارة المركبات"
+      subtitle={`إجمالي المركبات: ${stats.total}`}
+      icon={Car}
+      actionButton={{
+        text: 'إضافة مركبة جديدة',
+        icon: <Plus size={18} />,
+        onClick: openCreateModal,
+      }}
+    />
+
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

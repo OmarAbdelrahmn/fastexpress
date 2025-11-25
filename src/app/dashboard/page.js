@@ -81,7 +81,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-8 rounded-xl shadow-lg">
+        <div className="bg-gradient-to-r from-blue-500  to-blue-600 text-white p-8 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
         <p className="text-orange-100">نظام إدارة الخدمات اللوجستية</p>
       </div>

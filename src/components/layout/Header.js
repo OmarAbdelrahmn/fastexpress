@@ -1,4 +1,3 @@
-// File: src/components/layout/Header.js
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -34,7 +33,12 @@ export default function Header() {
   }, [logout]);
 
   return (
-    <header className="bg-orange-500 text-white px-6 py-4 shadow-lg sticky top-0 z-50">
+    <header 
+      className="text-white px-6 py-4 shadow-lg sticky top-0 z-50"
+      style={{ background: '#090979',
+background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%'
+  }}
+    >
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">
           شركة الخدمة السريعة للخدمات اللوجستية
@@ -47,7 +51,10 @@ export default function Header() {
               <User size={18} />
               <span>{user.username || user.name}</span>
               {user.role && (
-                <span className="bg-orange-600 px-2 py-0.5 rounded text-xs">
+                <span 
+                  className="px-2 py-0.5 rounded text-xs font-medium"
+                  style={{ backgroundColor: '#ebb62b', color: '#1b428e' }}
+                >
                   {user.role}
                 </span>
               )}
@@ -55,7 +62,10 @@ export default function Header() {
           )}
 
           {/* Session Timer */}
-          <div className="flex items-center gap-2 text-sm bg-orange-600 px-3 py-1.5 rounded">
+          <div 
+            className="flex items-center gap-2 text-sm px-3 py-1.5 rounded"
+            style={{ backgroundColor: '#f53232ff' }}
+          >
             <Clock size={16} />
             <span>باقي: {remainingTime}</span>
           </div>
@@ -63,7 +73,10 @@ export default function Header() {
           {/* Logout Button */}
           <button 
             onClick={logout}
-            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+            style={{ backgroundColor: '#e08911' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ebb62b'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e08911'}
           >
             <LogOut size={18} />
             <span>تسجيل الخروج</span>

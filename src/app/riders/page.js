@@ -11,6 +11,7 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import { Plus, Search, Edit, Trash2, UserCheck } from 'lucide-react';
+import PageHeader from '@/components/layout/pageheader';
 
 export default function RidersPage() {
   const { get, post, put, delete: del, loading, error } = useApi();
@@ -147,16 +148,17 @@ export default function RidersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">إدارة السائقين</h1>
-          <p className="text-gray-600 mt-1">إجمالي السائقين: {riders.length}</p>
-        </div>
-        <Button onClick={openCreateModal}>
-          <Plus size={18} />
-          إضافة سائق جديد
-        </Button>
-      </div>
+      <PageHeader
+        title="إدارة السائقين"
+        subtitle={`إجمالي السائقين: ${riders.length}`}
+        icon={UserCheck}
+        actionButton={{
+          text: 'إضافة سائق جديد',
+          icon: <Plus size={18} />,
+          onClick: openCreateModal,
+        }}
+      />
+
 
       {successMessage && (
         <Alert 

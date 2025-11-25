@@ -1,5 +1,3 @@
-// File: src/components/ui/Input.js
-
 'use client';
 export default function Input({ 
   label, 
@@ -17,8 +15,8 @@ export default function Input({
         </label>
       )}
       <input
-        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-          error ? 'border-red-500' : 'text-purple-700'
+        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b428e] focus:border-transparent ${
+          error ? 'border-red-500' : 'border-gray-300'
         } ${className}`}
         {...props}
       />
