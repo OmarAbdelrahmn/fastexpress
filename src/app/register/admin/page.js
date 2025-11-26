@@ -21,6 +21,13 @@ export default function AdminRegisterPage() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+      const token = TokenManager.getToken();
+      if (!token || !TokenManager.isTokenValid()) {
+        router.push('/login');
+      }
+    }, [router]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,

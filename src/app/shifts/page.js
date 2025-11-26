@@ -11,7 +11,7 @@ export default function ShiftsPage() {
   const [uploadFile, setUploadFile] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const API_BASE = 'http://localhost:5148/api';
+  const API_BASE = 'http://fastexpress.tryasp.net';
 
   // Load shifts for selected date
   const loadShifts = async () => {

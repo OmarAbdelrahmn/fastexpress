@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     const token = TokenManager.getToken();
     if (!token || !TokenManager.isTokenValid()) {
-      // router.push('/login');
+      router.push('/login');
     } else {
       router.push('/dashboard');
     }

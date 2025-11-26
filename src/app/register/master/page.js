@@ -24,12 +24,12 @@ export default function MasterRegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Check if user is authenticated (required for registration)
-//   useEffect(() => {
-//     const token = TokenManager.getToken();
-//     if (!token || !TokenManager.isTokenValid()) {
-//       router.push('/login');
-//     }
-//   }, [router]);
+  useEffect(() => {
+    const token = TokenManager.getToken();
+    if (!token || !TokenManager.isTokenValid()) {
+      router.push('/login');
+    }
+  }, [router]);
 
   const handleChange = (e) => {
     setFormData({

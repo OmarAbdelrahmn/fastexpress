@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     if (!isValid && typeof window !== 'undefined') {
       TokenManager.clearToken();
       if (window.location.pathname !== '/login') {
-        // router.push('/login');
+        router.push('/login');
       }
     }
   };
@@ -37,13 +37,13 @@ export function AuthProvider({ children }) {
   const login = (token) => {
     TokenManager.setToken(token);
     setIsAuthenticated(true);
-    // router.push('/dashboard');
+    router.push('/dashboard');
   };
 
   const logout = () => {
     TokenManager.clearToken();
     setIsAuthenticated(false);
-    // router.push('/login');
+    router.push('/login');
   };
 
   return (

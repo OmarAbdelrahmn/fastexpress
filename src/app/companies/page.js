@@ -20,7 +20,7 @@ export default function CompaniesPage() {
     email: ''
   });
 
-  const API_BASE = 'http://localhost:5148/api';
+  const API_BASE = 'http://fastexpress.tryasp.net/';
 
   useEffect(() => {
     loadCompanies();

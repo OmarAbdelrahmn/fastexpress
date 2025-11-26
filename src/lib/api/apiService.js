@@ -3,7 +3,7 @@
 
 import { TokenManager } from '../auth/tokenManager';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = 'http://fastexpress.tryasp.net';
 
 export class ApiService {
   static async request(endpoint, options = {}) {
@@ -22,13 +22,13 @@ export class ApiService {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
       
       // Handle 401 Unauthorized
-      // if (response.status === 401) {
-      //   TokenManager.clearToken();
-      //   if (typeof window !== 'undefined') {
-      //     window.location.href = '/login';
-      //   }
-      //   throw new Error('انتهت صلاحية الجلسة');
-      // }
+      if (response.status === 401) {
+        TokenManager.clearToken();
+        if (typeof window !== 'undefined') {
+          window.location.href = 'api/login';
+        }
+        throw new Error('انتهت صلاحية الجلسة');
+      }
 
       // Parse response
       const data = await response.json().catch(() => null);
@@ -116,13 +116,13 @@ export class ApiService {
         body: formData,
       });
 
-      // if (response.status === 401) {
-      //   TokenManager.clearToken();
-      //   if (typeof window !== 'undefined') {
-      //     window.location.href = '/login';
-      //   }
-      //   throw new Error('انتهت صلاحية الجلسة');
-      // }
+      if (response.status === 401) {
+        TokenManager.clearToken();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        throw new Error('انتهت صلاحية الجلسة');
+      }
 
       const data = await response.json().catch(() => null);
 
