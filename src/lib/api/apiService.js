@@ -3,7 +3,7 @@
 
 import { TokenManager } from '../auth/tokenManager';
 
-const API_BASE_URL = 'http://fastexpress.tryasp.net';
+const API_BASE_URL = 'https://fastexpress.tryasp.net';
 
 export class ApiService {
   static async request(endpoint, options = {}) {
@@ -21,22 +21,44 @@ export class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
       
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        TokenManager.clearToken();
-        if (typeof window !== 'undefined') {
-          window.location.href = 'api/login';
-        }
-        throw new Error('انتهت صلاحية الجلسة');
-      }
-
       // Parse response
       const data = await response.json().catch(() => null);
 
-      // Handle error responses with backend format
+      // Handle 401 Unauthorized - but NOT on login endpoint
+      if (response.status === 401) {
+        // Check if this is a login attempt
+        const isLoginEndpoint = endpoint.includes('/login') || endpoint.includes('/auth/login');
+        
+        if (isLoginEndpoint) {
+          // For login endpoint, just throw error without redirecting or clearing token
+          const errorMessage = data?.title || 
+                             data?.error?.description || 
+                             data?.detail || 
+                             'اسم المستخدم أو كلمة المرور غير صحيحة';
+          
+          const error = new Error(errorMessage);
+          error.status = response.status;
+          error.detail = data?.detail;
+          error.errorCode = data?.error?.code;
+          error.errorDescription = data?.error?.description;
+          error.fullError = data;
+          
+          throw error;
+        } else {
+          // For other endpoints, clear token and redirect
+          TokenManager.clearToken();
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
+          throw new Error('انتهت صلاحية الجلسة');
+        }
+      }
+
+      // Handle other error responses with backend format
       if (!response.ok) {
         // Backend error format: { title, status, detail, error: { code, description } }
         const errorMessage = data?.title || 
+                           data?.error?.description || 
                            data?.error?.code || 
                            data?.detail || 
                            `خطأ في الطلب: ${response.status}`;
@@ -53,7 +75,10 @@ export class ApiService {
 
       return data;
     } catch (error) {
-      console.error('API Error:', error);
+      // Only log non-401 errors or 401 errors that are not from login
+      if (error.status !== 401 || error.message === 'انتهت صلاحية الجلسة') {
+        console.error('API Error:', error);
+      }
       throw error;
     }
   }
@@ -78,7 +103,7 @@ export class ApiService {
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
     return this.request(url, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: data ? JSON.stringify(data) : undefined,
     });
   }
 
@@ -115,14 +140,6 @@ export class ApiService {
         },
         body: formData,
       });
-
-      if (response.status === 401) {
-        TokenManager.clearToken();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
-        throw new Error('انتهت صلاحية الجلسة');
-      }
 
       const data = await response.json().catch(() => null);
 

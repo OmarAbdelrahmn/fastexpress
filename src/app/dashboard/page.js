@@ -23,16 +23,18 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     // Load statistics from different endpoints
     try {
-      const [vehiclesRes, ridersRes] = await Promise.all([
+      const [vehiclesRes, ridersRes,users,companies] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
         get(API_ENDPOINTS.RIDER.LIST),
+        get(API_ENDPOINTS.ADMIN.USERS),
+        get(API_ENDPOINTS.COMPANY.LIST)
       ]);
 
       setStats({
         vehicles: vehiclesRes.data?.length || 0,
         riders: ridersRes.data?.length || 0,
-        trips: 342, // Placeholder
-        companies: 12, // Placeholder
+        users: users.data?.length || 0, // Placeholder
+        companies: companies.data.length || 0 // Placeholder
       });
     } catch (error) {
       console.error('Error loading dashboard:', error);
@@ -56,9 +58,9 @@ export default function DashboardPage() {
       color: 'green',
     },
     {
-      title: 'الرحلات اليوم',
-      value: stats.trips,
-      subtitle: 'رحلة مكتملة',
+      title: 'المستخدمين',
+      value: stats.users,
+      subtitle: 'المستخدمين',
       icon: TrendingUp,
       color: 'orange',
     },

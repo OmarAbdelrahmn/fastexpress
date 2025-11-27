@@ -1,7 +1,7 @@
 // File: src/app/login/page.js
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TokenManager } from '@/lib/auth/tokenManager';
 import { ApiService } from '@/lib/api/apiService';
@@ -21,16 +21,32 @@ export default function LoginPage() {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Check if already logged in
+  useEffect(() => {
+    const token = TokenManager.getToken();
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError(null);
+    // Clear error when user starts typing
+    if (error) {
+      setError(null);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent double submission
+    if (loading) return;
+    
     setLoading(true);
     setError(null);
 
@@ -39,13 +55,28 @@ export default function LoginPage() {
       
       if (response?.token) {
         TokenManager.setToken(response.token);
-        router.push('/dashboard');
+        // Small delay to ensure token is saved
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
       } else {
         setError('فشل تسجيل الدخول - لم يتم استلام رمز الوصول');
+        setLoading(false);
       }
     } catch (err) {
-      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
-    } finally {
+      console.error('Login error:', err);
+      
+      // Handle different error types
+      if (err.status === 401) {
+        setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+      } else if (err.status === 400) {
+        setError('الرجاء إدخال اسم المستخدم وكلمة المرور');
+      } else if (err.status === 500) {
+        setError('خطأ في الخادم. الرجاء المحاولة لاحقاً');
+      } else {
+        setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
+      }
+      
       setLoading(false);
     }
   };
@@ -66,16 +97,18 @@ export default function LoginPage() {
 
         {/* Error Alert */}
         {error && (
-          <Alert 
-            type="error" 
-            title="خطأ في تسجيل الدخول"
-            message={error}
-            onClose={() => setError(null)}
-          />
+          <div className="mb-4">
+            <Alert 
+              type="error" 
+              title="خطأ في تسجيل الدخول"
+              message={error}
+              onClose={() => setError(null)}
+            />
+          </div>
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <Input
             label="اسم المستخدم"
             type="text"
@@ -85,6 +118,7 @@ export default function LoginPage() {
             required
             placeholder="أدخل اسم المستخدم"
             disabled={loading}
+            autoComplete="username"
           />
 
           <div className="relative">
@@ -97,12 +131,14 @@ export default function LoginPage() {
               required
               placeholder="أدخل كلمة المرور"
               disabled={loading}
+              autoComplete="current-password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
               title={showPassword ? "إخفاء كلمة المرور" : "عرض كلمة المرور"}
+              disabled={loading}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -111,7 +147,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             loading={loading}
-            disabled={loading}
+            disabled={loading || !formData.username || !formData.password}
             className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg"
           >
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}

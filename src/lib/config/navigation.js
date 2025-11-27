@@ -63,6 +63,8 @@ export const navigationConfig = {
       { path: "housing", label: "جميع السكنات" },
       { path: "housing/create", label: "إضافة سكن" },
       { path: "housing/manage", label: "إدارة السكن" },
+      { path: "housing/add-employee", label: "اضافة موظف الى السكنات" },
+      { path: "housing/move-employee", label: "نقل موظف بين السكنات" },
     ],
   },
 
