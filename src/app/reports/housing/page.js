@@ -20,7 +20,7 @@ export default function HousingReportsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedHousing, setSelectedHousing] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const [hasSearched, setHasSearched] = useState(false);
   useEffect(() => {
     loadHousings();
   }, []);

@@ -86,6 +86,7 @@ export class ApiService {
   static get(endpoint, params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+    // console.log(params);
     return this.request(url, { method: 'GET' });
   }
 

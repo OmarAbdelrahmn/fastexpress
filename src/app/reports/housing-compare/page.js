@@ -9,6 +9,7 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Building } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
+import {ApiService} from '@/lib/api/apiService'
 
 export default function HousingComparePage() {
   const { get, loading, error } = useApi();
@@ -23,7 +24,7 @@ export default function HousingComparePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await get(API_ENDPOINTS.REPORTS.HOUSING_COMPARE_PERIOD, {
+      const result = await ApiService.get(API_ENDPOINTS.REPORTS.HOUSING_COMPARE_PERIOD, {
         startDate: form.startDate,
         endDate: form.endDate,
       });

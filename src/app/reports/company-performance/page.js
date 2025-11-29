@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Building2, Search, TrendingUp, Users } from 'lucide-react';
+import { Building2, Search, TrendingUp, Users ,AlertCircle  } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -18,6 +18,7 @@ export default function CompanyPerformancePage() {
   const [endDate, setEndDate] = useState('');
   const [report, setReport] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [hasSearched, setHasSearched] = useState(false); // أضف هذا
 
   useEffect(() => {
     loadCompanies();
@@ -32,28 +33,44 @@ export default function CompanyPerformancePage() {
     }
   };
 
-  const loadReport = async () => {
-    if (!selectedCompany || !startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد جميع الحقول' });
-      return;
-    }
+const loadReport = async () => {
+  if (!selectedCompany || !startDate || !endDate) {
+    setMessage({ type: 'error', text: 'الرجاء تحديد جميع الحقول' });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.COMPANY_PERFORMANCE,
-        { companyName: selectedCompany, startDate, endDate }
-      );
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReport(null);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.COMPANY_PERFORMANCE,
+      { companyName: selectedCompany, startDate, endDate }
+    );
+    
+    if (!data) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد بيانات للشركة ${selectedCompany} في الفترة المحددة` 
+      });
+      setReport(null);
+    } else {
       setReport(data);
       setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
-      setReport(null);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReport(null);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'فشل في تحميل التقرير' 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
@@ -120,7 +137,24 @@ export default function CompanyPerformancePage() {
           </div>
         </div>
       </div>
-
+      {!loading && !report && hasSearched && (
+      <div className="m-6 bg-white rounded-xl shadow-md p-12">
+        <div className="text-center space-y-4">
+          <AlertCircle size={64} className="mx-auto text-orange-400" />
+          <div>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">
+              لا توجد بيانات
+            </h3>
+            <p className="text-gray-500 mb-4">
+              لم يتم العثور على تقرير للشركة {selectedCompany}
+            </p>
+            <p className="text-sm text-gray-400">
+              تأكد من وجود ورديات مسجلة للشركة في الفترة من {startDate} إلى {endDate}
+            </p>
+          </div>
+          </div>
+        </div>
+      )}
       {/* Report Display */}
       {report && (
         <div className="m-6 space-y-6">
@@ -186,10 +220,6 @@ export default function CompanyPerformancePage() {
               <div>
                 <p className="text-sm text-gray-500">الطلبات المرفوضة</p>
                 <p className="text-2xl font-bold text-red-600">{report.totalRejectedOrders}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">إجمالي الغرامات</p>
-                <p className="text-2xl font-bold text-red-600">{report.totalPenaltyAmount.toFixed(2)} ر.س</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">نسبة الإنجاز</p>

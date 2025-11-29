@@ -10,6 +10,8 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Award, Trophy, Medal } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
+import {ApiService} from '@/lib/api/apiService'
+
 
 export default function TopRidersMonthlyPage() {
   const { get, loading, error } = useApi();
@@ -43,8 +45,9 @@ export default function TopRidersMonthlyPage() {
       topCount: safeTopCount
     });
 
+    
     try {
-      const result = await get(API_ENDPOINTS.REPORTS.TOP_RIDERS_MONTHLY, {
+      const result = await ApiService.get(API_ENDPOINTS.REPORTS.TOP_RIDERS_MONTHLY, {
         year: safeYear,
         month: safeMonth, 
         topCount: safeTopCount,

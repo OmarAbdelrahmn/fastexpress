@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Search, FileText, TrendingUp, AlertCircle } from 'lucide-react';
+import { Calendar, Search, FileText, TrendingUp, AlertCircle  } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -19,45 +19,84 @@ export default function MonthlyReportsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedReport, setSelectedReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const [hasSearched, setHasSearched] = useState(false); // أضف هذا السطر
+  
   const loadAllRiders = async () => {
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.MONTHLY_ALL,
-        { year, month }
-      );
-      setReports(Array.isArray(data) ? data : []);
-      setMessage({ type: 'success', text: `تم تحميل ${data.length} تقرير شهري` });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقارير' });
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.MONTHLY_ALL,
+      { year, month }
+    );
+    
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد تقارير شهرية للشهر ${month}/${year}` 
+      });
+      setReports([]);
+    } else {
+      const reportsArray = Array.isArray(data) ? data : [data];
+      setReports(reportsArray);
+      setMessage({ 
+        type: 'success', 
+        text: `تم تحميل ${reportsArray.length} تقرير شهري` 
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'فشل في تحميل التقارير' 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadSingleRider = async () => {
-    if (!workingId) {
-      setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
-      return;
-    }
+  if (!workingId) {
+    setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.MONTHLY(workingId),
-        { year, month }
-      );
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.MONTHLY(workingId),
+      { year, month }
+    );
+    
+    if (!data) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد بيانات للمندوب #${workingId} في ${month}/${year}` 
+      });
+      setReports([]);
+    } else {
       setReports([data]);
       setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || `فشل في تحميل تقرير المندوب #${workingId}` 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const viewDetails = (report) => {
     setSelectedReport(report);

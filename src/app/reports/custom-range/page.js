@@ -19,54 +19,93 @@ export default function CustomRangeReportsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedReport, setSelectedReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false); // أضف هذا
 
   const loadAllRiders = async () => {
-    if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
-      return;
-    }
+  if (!startDate || !endDate) {
+    setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL,
-        { startDate, endDate }
-      );
-      setReports(Array.isArray(data) ? data : []);
-      setMessage({ type: 'success', text: `تم تحميل ${data.length} تقرير` });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقارير' });
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL,
+      { startDate, endDate }
+    );
+    
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد تقارير من ${startDate} إلى ${endDate}` 
+      });
+      setReports([]);
+    } else {
+      const reportsArray = Array.isArray(data) ? data : [data];
+      setReports(reportsArray);
+      setMessage({ 
+        type: 'success', 
+        text: `تم تحميل ${reportsArray.length} تقرير` 
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'فشل في تحميل التقارير' 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadSingleRider = async () => {
-    if (!workingId) {
-      setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
-      return;
-    }
-    if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
-      return;
-    }
+  if (!workingId) {
+    setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
+    return;
+  }
+  if (!startDate || !endDate) {
+    setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.CUSTOM_PERIOD(workingId),
-        { startDate, endDate }
-      );
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.CUSTOM_PERIOD(workingId),
+      { startDate, endDate }
+    );
+    
+    if (!data) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد بيانات للمندوب #${workingId} في الفترة المحددة` 
+      });
+      setReports([]);
+    } else {
       setReports([data]);
       setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'فشل في تحميل التقرير' 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const viewDetails = (report) => {
     setSelectedReport(report);

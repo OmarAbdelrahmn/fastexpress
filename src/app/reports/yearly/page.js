@@ -18,46 +18,84 @@ export default function YearlyReportsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedReport, setSelectedReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false); // أضف هذا
 
   const loadAllRiders = async () => {
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.YEARLY_ALL,
-        { year }
-      );
-      setReports(Array.isArray(data) ? data : []);
-      setMessage({ type: 'success', text: `تم تحميل ${data.length} تقرير سنوي` });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقارير' });
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.YEARLY_ALL,
+      { year }
+    );
+    
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد تقارير سنوية للعام ${year}` 
+      });
+      setReports([]);
+    } else {
+      const reportsArray = Array.isArray(data) ? data : [data];
+      setReports(reportsArray);
+      setMessage({ 
+        type: 'success', 
+        text: `تم تحميل ${reportsArray.length} تقرير سنوي` 
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || 'فشل في تحميل التقارير' 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadSingleRider = async () => {
-    if (!workingId) {
-      setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
-      return;
-    }
+  if (!workingId) {
+    setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-    try {
-      const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.YEARLY(workingId),
-        { year }
-      );
+  setLoading(true);
+  setHasSearched(true);
+  setMessage({ type: '', text: '' });
+  setReports([]);
+  
+  try {
+    const data = await ApiService.get(
+      API_ENDPOINTS.REPORTS.YEARLY(workingId),
+      { year }
+    );
+    
+    if (!data) {
+      setMessage({ 
+        type: 'warning', 
+        text: `لا توجد بيانات للمندوب #${workingId} في العام ${year}` 
+      });
+      setReports([]);
+    } else {
       setReports([data]);
       setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
-    } finally {
-      setLoading(false);
     }
-  };
-
+  } catch (error) {
+    console.error('Error:', error);
+    setReports([]);
+    setMessage({ 
+      type: 'error', 
+      text: error.message || `فشل في تحميل تقرير المندوب #${workingId}` 
+    });
+  } finally {
+    setLoading(false);
+  }
+};
   const viewDetails = (report) => {
     setSelectedReport(report);
     setShowModal(true);

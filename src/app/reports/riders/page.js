@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Search, Filter } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Users, Search } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -9,16 +10,15 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
-import Modal from '@/components/Ui/Model';
 
 export default function RidersReportPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const loadReports = async () => {
     if (!startDate || !endDate) {
@@ -27,25 +27,44 @@ export default function RidersReportPage() {
     }
 
     setLoading(true);
+    setHasSearched(true);
     setMessage({ type: '', text: '' });
+    setReports([]);
+    
     try {
       const data = await ApiService.get(
         API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL,
         { startDate, endDate }
       );
-      setReports(Array.isArray(data) ? data : []);
-      setMessage({ type: 'success', text: `تم تحميل ${data.length} تقرير` });
+      
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        setMessage({ 
+          type: 'warning', 
+          text: 'لا توجد تقارير للفترة المحددة' 
+        });
+        setReports([]);
+      } else {
+        const reportsArray = Array.isArray(data) ? data : [data];
+        setReports(reportsArray);
+        setMessage({ 
+          type: 'success', 
+          text: `تم تحميل ${reportsArray.length} تقرير` 
+        });
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقارير' });
+      console.error('Error:', error);
       setReports([]);
+      setMessage({ 
+        type: 'error', 
+        text: error.message || 'فشل في تحميل التقارير' 
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const viewDetails = (report) => {
-    setSelectedReport(report);
-    setShowModal(true);
+    router.push(`/reports/riders/${report.workingId}?startDate=${startDate}&endDate=${endDate}`);
   };
 
   const exportToCSV = () => {
@@ -134,7 +153,7 @@ export default function RidersReportPage() {
 
       {/* Summary Cards */}
       {reports.length > 0 && (
-        <div className="m-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="m-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <div className="text-center">
               <p className="text-gray-500 text-sm mb-2">إجمالي المناديب</p>
@@ -156,15 +175,6 @@ export default function RidersReportPage() {
               <p className="text-gray-500 text-sm mb-2">متوسط الأداء</p>
               <p className="text-3xl font-bold text-purple-600">
                 {(reports.reduce((sum, r) => sum + r.overallPerformanceScore, 0) / reports.length).toFixed(1)}%
-              </p>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">إجمالي الغرامات</p>
-              <p className="text-3xl font-bold text-red-600">
-                {reports.reduce((sum, r) => sum + r.totalPenaltyAmount, 0).toFixed(2)} ر.س
               </p>
             </div>
           </Card>
@@ -243,80 +253,6 @@ export default function RidersReportPage() {
           )}
         </div>
       </div>
-
-      {/* Details Modal */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title="تفاصيل تقرير المندوب"
-        size="xl"
-      >
-        {selectedReport && (
-          <div className="space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">اسم المندوب</p>
-                <p className="text-lg font-bold">{selectedReport.riderName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">رقم العمل</p>
-                <p className="text-lg font-bold">{selectedReport.workingId}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">من تاريخ</p>
-                <p className="text-lg font-bold">{selectedReport.startDate}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">إلى تاريخ</p>
-                <p className="text-lg font-bold">{selectedReport.endDate}</p>
-              </div>
-            </div>
-
-            {/* Performance Stats */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-bold mb-3">إحصائيات الأداء</h4>
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">أيام العمل</p>
-                  <p className="text-2xl font-bold text-blue-600">{selectedReport.totalWorkingDays}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">ورديات مكتملة</p>
-                  <p className="text-2xl font-bold text-green-600">{selectedReport.completedShifts}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">ورديات غير مكتملة</p>
-                  <p className="text-2xl font-bold text-yellow-600">{selectedReport.incompleteShifts}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">ورديات فاشلة</p>
-                  <p className="text-2xl font-bold text-red-600">{selectedReport.failedShifts}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Company Breakdowns */}
-            {selectedReport.companyBreakdowns && selectedReport.companyBreakdowns.length > 0 && (
-              <div>
-                <h4 className="font-bold mb-3">توزيع الشركات</h4>
-                <div className="space-y-2">
-                  {selectedReport.companyBreakdowns.map((company, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium">{company.companyName}</span>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-600">أيام: {company.workingDays}</span>
-                        <span className="text-sm text-green-600">طلبات: {company.totalAcceptedOrders}</span>
-                        <span className="text-sm font-bold">{company.performanceScore.toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }
