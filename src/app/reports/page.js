@@ -1,305 +1,168 @@
-// File: src/app/reports/page.js
 'use client';
 
-import { useState } from 'react';
-import { useApi } from '@/hooks/useApi';
+import { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, Users, Package, Home, Calendar, Award } from 'lucide-react';
+import PageHeader from "@/components/layout/pageheader";
+import Link from 'next/link';
+import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Input from '@/components/Ui/Input';
-import Alert from '@/components/Ui/Alert';
-import { FileText, Calendar, TrendingUp, Users, Building } from 'lucide-react';
-import PageHeader from '@/components/layout/pageheader';
 
 export default function ReportsPage() {
-  const { get, loading, error } = useApi();
-  const [reportData, setReportData] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [reportType, setReportType] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState(null);
 
-  const [monthlyForm, setMonthlyForm] = useState({
-    workingId: '',
-    year: new Date().getFullYear(),
-    month: new Date().getMonth() + 1,
-  });
+  useEffect(() => {
+    loadDashboard();
+  }, []);
 
-  const [yearlyForm, setYearlyForm] = useState({
-    workingId: '',
-    year: new Date().getFullYear(),
-  });
-
-  const [dateRangeForm, setDateRangeForm] = useState({
-    startDate: '',
-    endDate: '',
-  });
-
-  const handleMonthlyReport = async () => {
+  const loadDashboard = async () => {
+    setLoading(true);
     try {
-      const result = await get(
-        API_ENDPOINTS.REPORTS.MONTHLY(monthlyForm.workingId),
-        { year: monthlyForm.year, month: monthlyForm.month }
-      );
-      if (result.data) {
-        setReportData(result.data);
-        setReportType('monthly');
-        setSuccessMessage('تم جلب التقرير الشهري بنجاح');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      }
-    } catch (err) {
-      console.error('Error fetching monthly report:', err);
+      const data = await ApiService.get(API_ENDPOINTS.REPORTS.DASHBOARD);
+      setDashboardData(data);
+    } catch (error) {
+      console.error('Failed to load dashboard:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleYearlyReport = async () => {
-    try {
-      const result = await get(
-        API_ENDPOINTS.REPORTS.YEARLY(yearlyForm.workingId),
-        { year: yearlyForm.year }
-      );
-      if (result.data) {
-        setReportData(result.data);
-        setReportType('yearly');
-        setSuccessMessage('تم جلب التقرير السنوي بنجاح');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      }
-    } catch (err) {
-      console.error('Error fetching yearly report:', err);
-    }
-  };
+  const reportCategories = [
+    {
+      title: 'تقارير الفترات',
+      icon: Calendar,
+      color: 'from-blue-500 to-blue-600',
+      reports: [
+        { name: 'تقارير شهرية', path: '/reports/monthly', desc: 'تقارير المناديب الشهرية' },
+        { name: 'تقارير سنوية', path: '/reports/yearly', desc: 'تقارير المناديب السنوية' },
+        { name: 'تقارير مخصصة', path: '/reports/custom-range', desc: 'تقارير حسب الفترة الزمنية' }
+      ]
+    },
+    {
+      title: 'تقارير الشركات',
+      icon: Package,
+      color: 'from-green-500 to-green-600',
+      reports: [
+        { name: 'أداء الشركة', path: '/reports/company-performance', desc: 'تحليل أداء الشركات' },
+        { name: 'مقارنة الشركات', path: '/reports/compare-company', desc: 'مقارنة أداء الشركات بين فترتين' }
+      ]
+    },
+    {
+      title: 'تقارير المناديب',
+      icon: Users,
+      color: 'from-purple-500 to-purple-600',
+      reports: [
+        { name: 'تقارير المناديب', path: '/reports/riders', desc: 'عرض تقارير جميع المناديب' },
+        { name: 'مقارنة سائق محدد', path: '/reports/top-riders', desc: 'مقارنة سائق محدد بين فترتين' },
+        { name: 'مقارنة المناديب', path: '/reports/compare-riders', desc: 'مقارنة أداء المناديب بين فترتين' },
+        { name: 'أفضل المناديب حسب الشركة', path: '/reports/top-riders-company', desc: 'ترتيب أفضل المناديب' },
+        { name: 'افضل المناديب سنويا', path: '/reports/top-riders-yearly', desc: 'ترتيب أفضل المناديب بشكل سنوي' },
+        { name: 'افضل المناديب شهريا', path: '/reports/top-riders-monthly', desc: 'ترتيب أفضل المناديب بشكل شهري' }
 
-  const handleAllRidersMonthly = async () => {
-    try {
-      const result = await get(
-        API_ENDPOINTS.REPORTS.MONTHLY_ALL,
-        { year: monthlyForm.year, month: monthlyForm.month }
-      );
-      if (result.data) {
-        setReportData(result.data);
-        setReportType('all-monthly');
-        setSuccessMessage('تم جلب التقرير الشهري لجميع السائقين بنجاح');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      }
-    } catch (err) {
-      console.error('Error fetching all riders monthly report:', err);
+      ]
+    },
+    {
+      title: 'تقارير السكن',
+      icon: Home,
+      color: 'from-orange-500 to-orange-600',
+      reports: [
+        { name: 'تقارير السكن لفترة', path: '/reports/housing-period', desc: 'تحليل أداء السكنات' },
+        { name: 'مقارنة تقارير السكن', path: '/reports/housing-compare', desc: 'تحليل أداء السكنات' }
+      ]
+    },
+    {
+      title: 'تقارير أخرى',
+      icon: BarChart3,
+      color: 'from-red-500 to-red-600',
+      reports: [
+        { name: 'تقارير المشاكل', path: '/reports/problems', desc: 'الورديات ذات المشاكل' },
+        { name: 'التوصيلات المكدسة', path: '/reports/stacked', desc: 'تقارير التوصيلات المكدسة للجميع' },
+        { name: 'التوصيلات المكدسة لسائق', path: '/reports/stacked/rider', desc: 'تقارير التوصيلات المكدسة لسائق معين' }
+      ]
     }
-  };
-
-  const handleDashboard = async () => {
-    try {
-      const params = {};
-      if (dateRangeForm.startDate && dateRangeForm.endDate) {
-        params.startDate = dateRangeForm.startDate;
-        params.endDate = dateRangeForm.endDate;
-      }
-      
-      const result = await get(API_ENDPOINTS.REPORTS.DASHBOARD, params);
-      if (result.data) {
-        setReportData(result.data);
-        setReportType('dashboard');
-        setSuccessMessage('تم جلب بيانات لوحة المعلومات بنجاح');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      }
-    } catch (err) {
-      console.error('Error fetching dashboard:', err);
-    }
-  };
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
-      title="التقارير والإحصائيات"
-      subtitle="عرض وتحليل البيانات"
-      icon={FileText}
-    />
+        title="مركز التقارير"
+        subtitle="عرض وتحليل جميع تقارير النظام"
+        icon={BarChart3}
+      />
 
+      {/* Dashboard Summary */}
+      {dashboardData && (
+        <div className="m-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">إجمالي الشركات</p>
+                <p className="text-3xl font-bold text-blue-600">{dashboardData.companies?.totalCompanies || 0}</p>
+              </div>
+              <Package className="text-blue-500" size={40} />
+            </div>
+          </div>
 
-      {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
-          message={successMessage}
-          onClose={() => setSuccessMessage('')}
-        />
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">إجمالي المناديب</p>
+                <p className="text-3xl font-bold text-green-600">{dashboardData.riders?.totalRiders || 0}</p>
+              </div>
+              <Users className="text-green-500" size={40} />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">إجمالي الطلبات</p>
+                <p className="text-3xl font-bold text-purple-600">{dashboardData.orders?.totalAcceptedOrders || 0}</p>
+              </div>
+              <TrendingUp className="text-purple-500" size={40} />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm">معدل الأداء</p>
+                <p className="text-3xl font-bold text-orange-600">
+                  {dashboardData.performance?.overallPerformanceScore?.toFixed(1) || 0}%
+                </p>
+              </div>
+              <Award className="text-orange-500" size={40} />
+            </div>
+          </div>
+        </div>
       )}
 
-      {error && (
-        <Alert type="error" title="خطأ" message={error} />
-      )}
-
-      {/* Report Type Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Dashboard Report */}
-        <Card title="لوحة المعلومات الشاملة">
-          <div className="space-y-4">
-            <FileText className="text-orange-500" size={32} />
-            <p className="text-sm text-gray-600">
-              عرض إحصائيات شاملة للنظام
-            </p>
-            <div className="space-y-2">
-              <Input
-                label="تاريخ البداية (اختياري)"
-                type="date"
-                value={dateRangeForm.startDate}
-                onChange={(e) => setDateRangeForm({
-                  ...dateRangeForm,
-                  startDate: e.target.value
-                })}
-              />
-              <Input
-                label="تاريخ النهاية (اختياري)"
-                type="date"
-                value={dateRangeForm.endDate}
-                onChange={(e) => setDateRangeForm({
-                  ...dateRangeForm,
-                  endDate: e.target.value
-                })}
-              />
+      {/* Report Categories */}
+      <div className="m-6 space-y-6">
+        {reportCategories.map((category, idx) => (
+          <div key={idx} className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className={`bg-gradient-to-r ${category.color} px-6 py-4 flex items-center gap-3`}>
+              <category.icon className="text-white" size={28} />
+              <h2 className="text-xl font-bold text-white">{category.title}</h2>
             </div>
-            <Button 
-              onClick={handleDashboard}
-              loading={loading}
-              className="w-full"
-            >
-              عرض لوحة المعلومات
-            </Button>
-          </div>
-        </Card>
-
-        {/* Monthly Report */}
-        <Card title="التقرير الشهري">
-          <div className="space-y-4">
-            <Calendar className="text-blue-500" size={32} />
-            <p className="text-sm text-gray-600">
-              تقرير شهري لسائق محدد
-            </p>
-            <Input
-              label="رقم العمل"
-              type="number"
-              value={monthlyForm.workingId}
-              onChange={(e) => setMonthlyForm({
-                ...monthlyForm,
-                workingId: e.target.value
-              })}
-              placeholder="أدخل رقم العمل"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                label="السنة"
-                type="number"
-                value={monthlyForm.year}
-                onChange={(e) => setMonthlyForm({
-                  ...monthlyForm,
-                  year: e.target.value
-                })}
-              />
-              <Input
-                label="الشهر"
-                type="number"
-                min="1"
-                max="12"
-                value={monthlyForm.month}
-                onChange={(e) => setMonthlyForm({
-                  ...monthlyForm,
-                  month: e.target.value
-                })}
-              />
+            
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {category.reports.map((report, reportIdx) => (
+                <Link
+                  key={reportIdx}
+                  href={report.path}
+                  className="group block p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 mb-2">
+                    {report.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{report.desc}</p>
+                </Link>
+              ))}
             </div>
-            <Button 
-              onClick={handleMonthlyReport}
-              loading={loading}
-              className="w-full"
-            >
-              عرض التقرير
-            </Button>
           </div>
-        </Card>
-
-        {/* All Riders Monthly */}
-        <Card title="التقرير الشهري - جميع السائقين">
-          <div className="space-y-4">
-            <Users className="text-green-500" size={32} />
-            <p className="text-sm text-gray-600">
-              تقرير شهري لجميع السائقين
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                label="السنة"
-                type="number"
-                value={monthlyForm.year}
-                onChange={(e) => setMonthlyForm({
-                  ...monthlyForm,
-                  year: e.target.value
-                })}
-              />
-              <Input
-                label="الشهر"
-                type="number"
-                min="1"
-                max="12"
-                value={monthlyForm.month}
-                onChange={(e) => setMonthlyForm({
-                  ...monthlyForm,
-                  month: e.target.value
-                })}
-              />
-            </div>
-            <Button 
-              onClick={handleAllRidersMonthly}
-              loading={loading}
-              className="w-full"
-            >
-              عرض التقرير
-            </Button>
-          </div>
-        </Card>
-
-        {/* Yearly Report */}
-        <Card title="التقرير السنوي">
-          <div className="space-y-4">
-            <TrendingUp className="text-purple-500" size={32} />
-            <p className="text-sm text-gray-600">
-              تقرير سنوي لسائق محدد
-            </p>
-            <Input
-              label="رقم العمل"
-              type="number"
-              value={yearlyForm.workingId}
-              onChange={(e) => setYearlyForm({
-                ...yearlyForm,
-                workingId: e.target.value
-              })}
-              placeholder="أدخل رقم العمل"
-            />
-            <Input
-              label="السنة"
-              type="number"
-              value={yearlyForm.year}
-              onChange={(e) => setYearlyForm({
-                ...yearlyForm,
-                year: e.target.value
-              })}
-            />
-            <Button 
-              onClick={handleYearlyReport}
-              loading={loading}
-              className="w-full"
-            >
-              عرض التقرير
-            </Button>
-          </div>
-        </Card>
+        ))}
       </div>
-
-      {/* Report Display */}
-      {reportData && (
-        <Card title={`نتائج التقرير - ${reportType}`}>
-          <div className="overflow-auto">
-            <pre className="bg-gray-50 p-4 rounded-lg text-sm">
-              {JSON.stringify(reportData, null, 2)}
-            </pre>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
