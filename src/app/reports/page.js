@@ -66,8 +66,9 @@ export default function ReportsPage() {
       icon: Home,
       color: 'from-orange-500 to-orange-600',
       reports: [
-        { name: 'تقارير السكن لفترة', path: '/reports/housing-period', desc: 'تحليل أداء السكنات' },
-        { name: 'مقارنة تقارير السكن', path: '/reports/housing-compare', desc: 'تحليل أداء السكنات' }
+        { name: 'تقارير السكن ', path: '/reports/housing', desc: 'تحليل أداء السكنات' },
+        { name: ' مقارنة تقارير السكن', path: '/reports/housing-compare', desc: 'تحليل أداء السكنات' },
+        { name: 'مقارنة السكن للمندوبين', path: '/reports/housing-rider-compare', desc: 'تحليل أداء السكنات' },
       ]
     },
     {
@@ -77,8 +78,7 @@ export default function ReportsPage() {
       reports: [
         { name: 'تقارير المشاكل', path: '/reports/problems', desc: 'الورديات ذات المشاكل' },
         { name: 'التوصيلات المكدسة', path: '/reports/stacked', desc: 'تقارير التوصيلات المكدسة للجميع' },
-        { name: 'التوصيلات المكدسة لسائق', path: '/reports/stacked/rider', desc: 'تقارير التوصيلات المكدسة لسائق معين' }
-      ]
+        { name: 'التوصيلات المكدسة لسائق', path: '/reports/stacked', desc: 'تقارير التوصيلات المكدسة لسائق معين' }      ]
     }
   ];
 

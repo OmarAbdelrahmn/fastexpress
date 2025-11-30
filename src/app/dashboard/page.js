@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
-import { Car, Users, TrendingUp, Package } from 'lucide-react';
-
+import { Car, Users, TrendingUp, Package  } from 'lucide-react';
+import Link from 'next/link';
 export default function DashboardPage() {
   const { get, loading } = useApi();
   const [stats, setStats] = useState({
@@ -111,18 +111,28 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <Card title="إجراءات سريعة">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-            <Car className="mx-auto mb-2 text-orange-500" size={32} />
-            <p className="font-medium">إضافة مركبة</p>
-          </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-            <Users className="mx-auto mb-2 text-orange-500" size={32} />
-            <p className="font-medium">إضافة سائق</p>
-          </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors">
-            <TrendingUp className="mx-auto mb-2 text-orange-500" size={32} />
-            <p className="font-medium">عرض التقارير</p>
-          </button>
+          <Link 
+          href="/vehicles"
+          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors block text-center"
+        >
+          <Car className="mx-auto mb-2 text-orange-500" size={32} />
+          <p className="font-medium">إضافة مركبة</p>
+        </Link>
+
+        <Link 
+          href="/riders"
+          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors block text-center"
+        >
+          <Users className="mx-auto mb-2 text-orange-500" size={32} />
+          <p className="font-medium">إضافة سائق</p>
+        </Link>
+          <Link 
+          href="/reports"
+          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors"
+        >
+          <TrendingUp className="mx-auto mb-2 text-orange-500" size={32} />
+          <p className="font-medium">عرض التقارير</p>
+        </Link>
         </div>
       </Card>
     </div>

@@ -161,5 +161,6 @@ export const API_ENDPOINTS = {
     TOP_RIDERS_MONTHLY: "/api/Report/top-riders/monthly",
     TOP_RIDERS_COMPANY: "/api/Report/top-riders/company",
     STACKED: (workingId) => `/api/Report/stacked/${workingId}`,
+    STACKEDd:"/api/Report/stacked",
   },
 };

@@ -110,7 +110,7 @@ export default function ProblemsReportPage() {
 
       {/* Summary Cards */}
       {problems.length > 0 && (
-        <div className="m-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="m-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <div className="text-center">
               <p className="text-gray-500 text-sm mb-2">إجمالي المشاكل</p>
@@ -132,15 +132,6 @@ export default function ProblemsReportPage() {
               <p className="text-gray-500 text-sm mb-2">ورديات غير مكتملة</p>
               <p className="text-3xl font-bold text-yellow-600">
                 {problems.filter(p => p.status === 'Incomplete').length}
-              </p>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">إجمالي الغرامات</p>
-              <p className="text-3xl font-bold text-orange-600">
-                {getTotalPenalty().toFixed(2)} ر.س
               </p>
             </div>
           </Card>
@@ -179,7 +170,6 @@ export default function ProblemsReportPage() {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طلبات مقبولة</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طلبات مرفوضة</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الغرامة</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وصف المشكلة</th>
                 </tr>
               </thead>
@@ -216,11 +206,6 @@ export default function ProblemsReportPage() {
                         getStatusColor(problem.status)
                       }`}>
                         {problem.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-orange-600 font-bold">
-                        {problem.penaltyAmount.toFixed(2)} ر.س
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -276,7 +261,6 @@ export default function ProblemsReportPage() {
                     </div>
                     <div className="text-left">
                       <p className="text-lg font-bold text-red-600">{rider.count} مشكلة</p>
-                      <p className="text-sm text-orange-600">غرامة: {rider.penalty.toFixed(2)} ر.س</p>
                     </div>
                   </div>
                 ))}
