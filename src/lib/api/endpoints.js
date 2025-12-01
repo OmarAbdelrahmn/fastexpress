@@ -138,6 +138,15 @@ export const API_ENDPOINTS = {
     GROUP_BY_STATUS: "/api/vehicles/group-by-status",
   },
 
+  TEMP: {
+    VEHICLES: {
+      REQUEST_RETURN: "/api/temp/vehicle-request-return",
+      REQUEST_TAKE: "/api/temp/vehicle-request-take",
+      REQUEST_PROBLEM: "/api/temp/vehicle-request-problem",
+      GET_PENDING: "/api/temp/vehicles",
+      RESOLVE: "/api/temp/vehicle-resolve",
+    },
+  },
   // Reports
   REPORTS: {
     DASHBOARD: "/api/Report",

@@ -70,6 +70,14 @@ export default function VehicleAdminDashboard() {
 
   const quickActions = [
     {
+    title: 'جميع المركبات',
+    description: 'عرض شامل للمركبات والسائقين',
+    icon: Users,
+    color: 'purple',
+    path: '/vehicles/admin/with-riders',
+    count: totalVehicles
+  },
+    {
       title: 'إدارة المركبات',
       description: 'عرض وتعديل بيانات المركبات',
       icon: Car,
@@ -78,19 +86,11 @@ export default function VehicleAdminDashboard() {
       count: totalVehicles
     },
     {
-      title: 'المركبات المتاحة',
-      description: 'المركبات الجاهزة للاستخدام',
-      icon: CheckCircle,
-      color: 'green',
-      path: '/vehicles/admin/available',
-      count: stats.availableCount
-    },
-    {
-      title: 'المركبات المستخدمة',
-      description: 'المركبات مع الموظفين',
+      title: 'طلبات المشرفين',
+      description: 'طلبات المشرفين للموافقة',
       icon: Users,
       color: 'blue',
-      path: '/vehicles/admin/taken',
+      path: '/vehicles/admin/users-requests',
       count: stats.takenCount
     },
     {
@@ -156,14 +156,6 @@ export default function VehicleAdminDashboard() {
     color: 'orange',
     path: '/vehicles/admin/return',
     count: null
-  },
-  {
-    title: 'جميع المركبات',
-    description: 'عرض شامل للمركبات والسائقين',
-    icon: Users,
-    color: 'purple',
-    path: '/vehicles/admin/with-riders',
-    count: totalVehicles
   },
   {
     title: 'سجل المركبات',
@@ -319,7 +311,7 @@ export default function VehicleAdminDashboard() {
       {/* Quick Actions Grid */}
       <Card>
         <h2 className="text-xl font-bold text-gray-800 mb-6">الإجراءات السريعة</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
             const colors = getColorClasses(action.color);

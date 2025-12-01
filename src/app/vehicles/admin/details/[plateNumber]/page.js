@@ -367,14 +367,14 @@ export default function VehicleDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Button
+            {/* <Button
             
               onClick={() => router.push(`/vehicles/admin/history/${vehicle.plateNumberA}`)}
               variant="secondary"
             >
               <FileText size={18} className="ml-2" />
               السجل
-            </Button>
+            </Button> */}
             <Button
               onClick={() => router.push('/vehicles/admin/change-location')}
               variant="secondary"
