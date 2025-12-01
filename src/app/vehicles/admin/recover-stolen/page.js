@@ -28,7 +28,7 @@ export default function RecoverStolenPage() {
   const loadStolenVehicles = async () => {
     setLoadingVehicles(true);
     try {
-      const data = await ApiService.get('/api/vehicles/taken?statusFilter=stolen');
+      const data = await ApiService.get('/api/vehicles/stolen');
       if (data && data.vehicles) {
         setStolenVehicles(data.vehicles);
       }

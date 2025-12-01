@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -9,7 +9,7 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Shield, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-
+import { TokenManager } from '@/lib/auth/tokenManager';
 export default function AdminRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
