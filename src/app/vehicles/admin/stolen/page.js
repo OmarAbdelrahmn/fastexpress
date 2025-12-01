@@ -40,7 +40,7 @@ export default function StolenVehiclesPage() {
     setLoadingVehicles(true);
     try {
       const [stolenData, availableData] = await Promise.all([
-        ApiService.get('/api/vehicles/taken?statusFilter=stolen'),
+        ApiService.get('/api/vehicles/srolen'),
         ApiService.get('/api/vehicles/available')
       ]);
       

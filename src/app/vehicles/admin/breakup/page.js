@@ -32,7 +32,7 @@ export default function BreakUpVehiclesPage() {
     setLoading(true);
     try {
       const [breakUpData, availableData] = await Promise.all([
-        ApiService.get('/api/vehicles/taken?statusFilter=breakup'),
+        ApiService.get('/api/vehicles/breakup'),
         ApiService.get('/api/vehicles/available')
       ]);
       

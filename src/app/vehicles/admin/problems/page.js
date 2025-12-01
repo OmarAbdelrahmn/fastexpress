@@ -25,7 +25,7 @@ export default function ProblemsVehiclesPage() {
   const loadProblemVehicles = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get('/api/vehicles/taken?statusFilter=problem');
+      const data = await ApiService.get('/api/vehicles/problem');
       if (data && data.vehicles) {
         setProblemVehicles(data.vehicles);
       }
