@@ -49,38 +49,43 @@ export default function PendingVehicleRequestsPage() {
   };
 
   const handleResolve = async (request, isApproved) => {
-    setResolving(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+  setResolving(true);
+  setErrorMessage('');
+  setSuccessMessage('');
 
-    try {
-      const params = new URLSearchParams({
-        VehiclePlateNumber: request.vehiclePlateNumber,
-        EmployeeIqamaNo: request.employeeIqamaNo.toString(),
-        OperationType: request.operationType,
-        IsApproved: isApproved.toString(),
-      });
+  try {
+    // resolution value (string)
+    const resolutionValue = isApproved ? "Approved" : "Rejected";
+    // Body to match backend schema
+    const requestBody = {
+      riderIqamaNo: parseInt(request?.riderIqamaNo),
+      Resolution: resolutionValue,
+      ResolvedBy: (request?.riderIqamaNo || "").toString(),   // Or logged-in user ID if available
+      Plate: request.vehiclePlateNumber
+    };
 
-      if (note) {
-        params.append('note', note);
-      }
+    // Query string (only note)
+    const query = note ? `?note=${encodeURIComponent(note)}` : "";
 
-      await ApiService.get(`/api/temp/vehicle-resolve?${params.toString()}`);
-      
-      setSuccessMessage(`تم ${isApproved ? 'قبول' : 'رفض'} الطلب بنجاح`);
-      setShowResolveModal(false);
-      setSelectedRequest(null);
-      setNote('');
-      loadPendingRequests();
-      
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (err) {
-      console.error('Error resolving request:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء معالجة الطلب');
-    } finally {
-      setResolving(false);
-    }
-  };
+    // POST instead of GET (should use POST when body exists)
+    await ApiService.put(`/api/temp/vehicle-resolve${query}`, requestBody);
+
+    setSuccessMessage(`تم ${isApproved ? 'قبول' : 'رفض'} الطلب بنجاح`);
+    setShowResolveModal(false);
+    setSelectedRequest(null);
+    setNote('');
+
+    loadPendingRequests();
+
+    setTimeout(() => setSuccessMessage(''), 3000);
+  } catch (err) {
+    console.error('Error resolving request:', err);
+    setErrorMessage(err?.message || 'حدث خطأ أثناء معالجة الطلب');
+  } finally {
+    setResolving(false);
+  }
+};
+
 
   const openResolveModal = (request) => {
     setSelectedRequest(request);
@@ -90,7 +95,7 @@ export default function PendingVehicleRequestsPage() {
 
   const getOperationTypeLabel = (type) => {
     switch (type?.toLowerCase()) {
-      case 'take': return 'طلب استلام مركبة';
+      case 'taken': return 'طلب استلام مركبة';
       case 'return': return 'طلب إرجاع مركبة';
       case 'problem': return 'الإبلاغ عن مشكلة';
       default: return type;
@@ -99,7 +104,7 @@ export default function PendingVehicleRequestsPage() {
 
   const getOperationTypeColor = (type) => {
     switch (type?.toLowerCase()) {
-      case 'take': return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600', badge: 'bg-green-600' };
+      case 'taken': return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600', badge: 'bg-green-600' };
       case 'return': return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', badge: 'bg-blue-600' };
       case 'problem': return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-600', badge: 'bg-orange-600' };
       default: return { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-600', badge: 'bg-gray-600' };
@@ -108,7 +113,7 @@ export default function PendingVehicleRequestsPage() {
 
   const getOperationIcon = (type) => {
     switch (type?.toLowerCase()) {
-      case 'take': return Car;
+      case 'taken': return Car;
       case 'return': return RefreshCw;
       case 'problem': return AlertTriangle;
       default: return Package;
@@ -121,7 +126,7 @@ export default function PendingVehicleRequestsPage() {
 
   const stats = {
     total: pendingRequests.length,
-    take: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'take').length,
+    take: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'taken').length,
     return: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'return').length,
     problem: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'problem').length,
   };
@@ -221,9 +226,9 @@ export default function PendingVehicleRequestsPage() {
               الكل ({stats.total})
             </button>
             <button
-              onClick={() => setFilterType('take')}
+              onClick={() => setFilterType('taken')}
               className={`px-4 py-2 rounded-lg font-medium transition ${
-                filterType === 'take'
+                filterType === 'taken'
                   ? 'bg-green-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
@@ -301,7 +306,7 @@ export default function PendingVehicleRequestsPage() {
                       <div className="flex items-center gap-2 text-gray-700">
                         <User size={14} />
                         <span className="text-gray-600">رقم الإقامة:</span>
-                        <span className="font-medium">{request.employeeIqamaNo}</span>
+                        <span className="font-medium">{request.riderIqamaNo}</span>
                       </div>
 
                       {request.requestedBy && (
@@ -316,7 +321,7 @@ export default function PendingVehicleRequestsPage() {
                         <Clock size={14} />
                         <span className="text-gray-600">التاريخ:</span>
                         <span className="text-xs font-medium">
-                          {new Date(request.requestedAt || Date.now()).toLocaleString('ar-SA')}
+                          {new Date(request.requestedAt || Date.now()).toLocaleString('en-Us')}
                         </span>
                       </div>
 
@@ -383,7 +388,7 @@ export default function PendingVehicleRequestsPage() {
                       </div>
                       <div>
                         <p className="text-gray-600 mb-1">رقم إقامة الموظف</p>
-                        <p className="font-medium text-gray-800">{selectedRequest.employeeIqamaNo}</p>
+                        <p className="font-medium text-gray-800">{selectedRequest.riderIqamaNo}</p>
                       </div>
                       {selectedRequest.requestedBy && (
                         <div>
