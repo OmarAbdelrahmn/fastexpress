@@ -18,8 +18,8 @@ export const navigationConfig = {
     title: "المركبات",
     icon: "🚗",
     routes: [
-      { path: "vehicles/admin", label: "جميع المركبات" },
-      { path: "vehicles/user", label: "المركبات المتاحة" },
+      { path: "vehicles/admin", label: "عمليات الادمن" },
+      { path: "vehicles/user", label: "عمليات المشرف" },
     ],
   },
 

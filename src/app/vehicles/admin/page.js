@@ -21,7 +21,8 @@ import {
   BarChart3,
   ArrowRight,
   TrendingUp,
-  Calendar
+  Calendar,
+  FileText
 } from 'lucide-react';
 
 export default function VehicleAdminDashboard() {
@@ -139,7 +140,39 @@ export default function VehicleAdminDashboard() {
       color: 'emerald',
       path: '/vehicles/admin/recover-stolen',
       count: null
-    }
+    },
+    {
+    title: 'أخذ مركبة',
+    description: 'تسجيل استلام مركبة للسائق',
+    icon: Car,
+    color: 'green',
+    path: '/vehicles/admin/take',
+    count: null
+  },
+  {
+    title: 'إرجاع مركبة',
+    description: 'تسجيل إرجاع مركبة من السائق',
+    icon: RefreshCw,
+    color: 'orange',
+    path: '/vehicles/admin/return',
+    count: null
+  },
+  {
+    title: 'جميع المركبات',
+    description: 'عرض شامل للمركبات والسائقين',
+    icon: Users,
+    color: 'purple',
+    path: '/vehicles/admin/with-riders',
+    count: totalVehicles
+  },
+  {
+    title: 'سجل المركبات',
+    description: 'تاريخ وسجلات المركبات',
+    icon: FileText,
+    color: 'indigo',
+    path: '/vehicles/admin/history',
+    count: null
+  }
   ];
 
   const getColorClasses = (color) => {
@@ -371,7 +404,7 @@ export default function VehicleAdminDashboard() {
               </div>
             </div>
 
-            <div>
+            <div className="p-10">
               <h3 className="font-bold text-gray-700 mb-3">إحصائيات سريعة</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
