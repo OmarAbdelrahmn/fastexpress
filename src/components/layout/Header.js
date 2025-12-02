@@ -34,10 +34,9 @@ export default function Header() {
 
   return (
     <header 
-      className="text-white px-6 py-4 shadow-lg sticky top-0 z-50"
-      style={{ background: '#090979',
-background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%'
-  }}
+      className = "text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600"
+  //     style={{ background: '#090979',background: 'linear-gradient(196deg,rgba(163, 163, 163, 1) 0%, rgba(136, 146, 156, 1) 35%, rgba(208, 208, 208, 1) 100%'
+  // }}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">
@@ -53,7 +52,7 @@ background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%
               {user.role && (
                 <span 
                   className="px-2 py-0.5 rounded text-xs font-medium"
-                  style={{ backgroundColor: '#ebb62b', color: '#1b428e' }}
+                  style={{ backgroundColor: '#463aeeff', color: '#1b428e' }}
                 >
                   {user.role}
                 </span>
@@ -62,21 +61,21 @@ background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%
           )}
 
           {/* Session Timer */}
-          <div 
+          {/* <div 
             className="flex items-center gap-2 text-sm px-3 py-1.5 rounded"
             style={{ backgroundColor: '#f53232ff' }}
           >
             <Clock size={16} />
             <span>باقي: {remainingTime}</span>
-          </div>
+          </div> */}
 
           {/* Logout Button */}
           <button 
             onClick={logout}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-            style={{ backgroundColor: '#e08911' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ebb62b'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e08911'}
+            style={{ backgroundColor: '#180e0eff' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f53232ff'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#17006bff'}
           >
             <LogOut size={18} />
             <span>تسجيل الخروج</span>

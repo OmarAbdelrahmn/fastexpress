@@ -367,7 +367,7 @@ export default function VehiclesWithRidersPage() {
                               إقامة: {vehicle.currentRider.employeeIqamaNo}
                             </p>
                             <p className="text-xs text-gray-600">
-                              منذ: {new Date(vehicle.currentRider.takenDate).toLocaleDateString('ar-SA')}
+                              منذ: {new Date(vehicle.currentRider.takenDate).toLocaleDateString('en-US')}
                             </p>
                           </div>
                         </div>

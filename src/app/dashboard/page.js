@@ -1,19 +1,141 @@
-// File: src/app/dashboard/page.js
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useApi } from '@/hooks/useApi';
-import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import Card from '@/components/Ui/Card';
-import { Car, Users, TrendingUp, Package  } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { 
+  Car, Users, TrendingUp, Package, Building2, Home, 
+  Calendar, Activity, AlertTriangle, CheckCircle, Clock,
+  ArrowUp, ArrowDown, Minus, BarChart3
+} from 'lucide-react';
 import Link from 'next/link';
-export default function DashboardPage() {
+// Real API imports
+const TokenManager = {
+  getToken: () => typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+};
+
+const API_BASE_URL = 'https://fastexpress.tryasp.net';
+
+class ApiService {
+  static async request(endpoint, options = {}) {
+    const token = TokenManager.getToken();
+    
+    const config = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers,
+      },
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      const data = await response.json().catch(() => null);
+
+      if (response.status === 401) {
+        TokenManager.clearToken?.();
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+        throw new Error('انتهت صلاحية الجلسة');
+      }
+
+      if (!response.ok) {
+        const errorMessage = data?.title || data?.error?.description || data?.detail || `خطأ في الطلب: ${response.status}`;
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+
+  static get(endpoint) {
+    return this.request(endpoint, { method: 'GET' });
+  }
+}
+
+// Real API hook
+const useApi = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const get = useCallback(async (endpoint) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await ApiService.get(endpoint);
+      setLoading(false);
+      return { data, error: null };
+    } catch (err) {
+      setError(err.message || 'حدث خطأ');
+      setLoading(false);
+      return { data: null, error: err.message };
+    }
+  }, []);
+
+  return { get, loading, error };
+};
+
+const API_ENDPOINTS = {
+  VEHICLES: { 
+    LIST: '/api/vehicles',
+    GROUP_BY_STATUS: '/api/vehicles/group-by-status',
+    AVAILABLE: '/api/vehicles/available',
+    TAKEN: '/api/vehicles/taken',
+    PROBLEM: '/api/vehicles/problem'
+  },
+  RIDER: { 
+    LIST: '/api/rider',
+    INACTIVE: '/api/Rider/inactive'
+  },
+  ADMIN: { USERS: '/api/admin/users' },
+  COMPANY: { LIST: '/api/company/employees' },
+  HOUSING: { LIST: '/api/housing' },
+  SHIFT: { 
+    LIST: '/api/shift/range',
+    BY_DATE: '/api/shift/date'
+  },
+  EMPLOYEE: { LIST: '/api/employee' },
+  REPORTS: { DASHBOARD: '/api/Report' },
+  TEMP: {
+    VEHICLES: {
+      GET_PENDING: '/api/temp/vehicles'
+    }
+  }
+};
+
+export default function EnhancedDashboard() {
   const { get, loading } = useApi();
   const [stats, setStats] = useState({
     vehicles: 0,
+    availableVehicles: 0,
+    takenVehicles: 0,
+    problemVehicles: 0,
     riders: 0,
-    trips: 0,
+    activeRiders: 0,
+    inactiveRiders: 0,
+    users: 0,
     companies: 0,
+    housing: 0,
+    housingOccupancy: 0,
+    todayShifts: 0,
+    activeShifts: 0,
+    employees: 0,
+    pendingRequests: 0,
+    vehicleUtilization: 0,
+    riderEfficiency: 0
+  });
+
+  const [trends, setTrends] = useState({
+    vehicles: 5.2,
+    riders: 3.1,
+    shifts: -2.4,
+    housing: 8.3
   });
 
   useEffect(() => {
@@ -21,120 +143,512 @@ export default function DashboardPage() {
   }, []);
 
   const loadDashboardData = async () => {
-    // Load statistics from different endpoints
     try {
-      const [vehiclesRes, ridersRes,users,companies] = await Promise.all([
+      // Fetch all required data from real API endpoints
+      const [
+        vehiclesRes, 
+        vehicleStatusRes,
+        ridersRes,
+        inactiveRidersRes,
+        usersRes, 
+        companiesRes, 
+        housingRes,
+        employeesRes,
+        pendingRequestsRes
+      ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
+        get(API_ENDPOINTS.VEHICLES.GROUP_BY_STATUS),
         get(API_ENDPOINTS.RIDER.LIST),
+        get(API_ENDPOINTS.RIDER.INACTIVE),
         get(API_ENDPOINTS.ADMIN.USERS),
-        get(API_ENDPOINTS.COMPANY.LIST)
+        get(API_ENDPOINTS.COMPANY.LIST),
+        get(API_ENDPOINTS.HOUSING.LIST),
+        get(API_ENDPOINTS.EMPLOYEE.LIST),
+        get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING)
       ]);
 
+      // VEHICLES - Use real data from group-by-status endpoint
+      const vehiclesSummary = vehicleStatusRes.data?.summary || {};
+      const totalVehicles = vehicleStatusRes.data?.totalVehicles || vehiclesRes.data?.length || 0;
+      const availableVehicles = vehiclesSummary.availableCount || 0;
+      const takenVehicles = vehiclesSummary.takenCount || 0;
+      const problemVehicles = vehiclesSummary.problemCount || 0;
+      
+      // RIDERS - Use real data from API
+      const allRiders = ridersRes.data || [];
+      const totalRiders = allRiders.length;
+      const inactiveRiders = inactiveRidersRes.data?.length || 0;
+      const activeRiders = totalRiders - inactiveRiders; // Real calculation: total - inactive
+      
+      // HOUSING - Calculate real occupancy from API data
+      const housingData = Array.isArray(housingRes.data) ? housingRes.data : [housingRes.data].filter(Boolean);
+      const totalHousingCapacity = housingData.reduce((sum, h) => sum + (h.capacity || 0), 0);
+      const totalHousingOccupied = housingData.reduce((sum, h) => sum + (h.currentOccupancy || 0), 0);
+      const realOccupancyRate = totalHousingCapacity > 0 
+        ? Math.round((totalHousingOccupied / totalHousingCapacity) * 100) 
+        : 0;
+
+      // COMPANIES, USERS, EMPLOYEES - Direct from API
+      const totalCompanies = companiesRes.data?.length || 0;
+      const totalUsers = usersRes.data?.length || 0;
+      const totalEmployees = employeesRes.data?.length || 0;
+
+      // PENDING REQUESTS - Real count
+      const pendingRequests = Array.isArray(pendingRequestsRes.data) 
+        ? pendingRequestsRes.data.length 
+        : 0;
+
+      // Get today's date for shift filtering
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Try to get today's shifts - if endpoint requires parameters, handle gracefully
+      let todayShiftsCount = 0;
+      let activeShiftsCount = 0;
+      try {
+        const shiftsRes = await get(`${API_ENDPOINTS.SHIFT.BY_DATE}?date=${today}`);
+        const todayShifts = shiftsRes.data || [];
+        todayShiftsCount = todayShifts.length;
+        activeShiftsCount = todayShifts.filter(s => s.isActive !== false).length;
+      } catch (err) {
+        console.log('Shifts data not available:', err.message);
+      }
+
+      // Calculate real vehicle utilization percentage
+      const vehicleUtilization = totalVehicles > 0 
+        ? ((takenVehicles / totalVehicles) * 100).toFixed(1)
+        : 0;
+
+      // Calculate real rider efficiency
+      const riderEfficiency = totalRiders > 0
+        ? ((activeRiders / totalRiders) * 100).toFixed(1)
+        : 0;
+
+      // Set all real statistics
       setStats({
-        vehicles: vehiclesRes.data?.length || 0,
-        riders: ridersRes.data?.length || 0,
-        users: users.data?.length || 0, // Placeholder
-        companies: companies.data.length || 0 // Placeholder
+        vehicles: totalVehicles,
+        availableVehicles: availableVehicles,
+        takenVehicles: takenVehicles,
+        problemVehicles: problemVehicles,
+        riders: totalRiders,
+        activeRiders: activeRiders,
+        inactiveRiders: inactiveRiders,
+        users: totalUsers,
+        companies: totalCompanies,
+        housing: housingData.length,
+        housingOccupancy: realOccupancyRate,
+        todayShifts: todayShiftsCount,
+        activeShifts: activeShiftsCount,
+        employees: totalEmployees,
+        pendingRequests: pendingRequests,
+        vehicleUtilization: parseFloat(vehicleUtilization),
+        riderEfficiency: parseFloat(riderEfficiency)
+      });
+
+      // Calculate trends - these can be compared to previous period if you have historical data
+      // For now, we'll set basic trends based on current utilization
+      setTrends({
+        vehicles: parseFloat(vehicleUtilization) > 70 ? 5.2 : -3.1,
+        riders: parseFloat(riderEfficiency) > 80 ? 3.1 : -2.4,
+        shifts: todayShiftsCount > 30 ? 2.8 : -1.5,
+        housing: realOccupancyRate > 75 ? 8.3 : -3.2
       });
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      
     }
   };
 
-  const statCards = [
-    {
-      title: 'المركبات',
-      value: stats.vehicles,
-      subtitle: 'إجمالي المركبات',
-      icon: Car,
-      color: 'blue',
-    },
-    {
-      title: 'السائقين',
-      value: stats.riders,
-      subtitle: 'سائق نشط',
-      icon: Users,
-      color: 'green',
-    },
-    {
-      title: 'المستخدمين',
-      value: stats.users,
-      subtitle: 'المستخدمين',
-      icon: TrendingUp,
-      color: 'orange',
-    },
-    {
-      title: 'الشركات',
-      value: stats.companies,
-      subtitle: 'شركة مسجلة',
-      icon: Package,
-      color: 'purple',
-    },
-  ];
+  const StatCard = ({ title, value, subtitle, icon: Icon, color, trend, linkText }) => {
+    const colorClasses = {
+      blue: 'from-blue-500 to-blue-600 border-blue-400',
+      green: 'from-green-500 to-green-600 border-green-400',
+      orange: 'from-orange-500 to-orange-600 border-orange-400',
+      purple: 'from-purple-500 to-purple-600 border-purple-400',
+      teal: 'from-teal-500 to-teal-600 border-teal-400',
+      indigo: 'from-indigo-500 to-indigo-600 border-indigo-400',
+      rose: 'from-rose-500 to-rose-600 border-rose-400',
+      amber: 'from-amber-500 to-amber-600 border-amber-400'
+    };
 
-  const colors = {
-    blue: 'bg-blue-50 border-blue-500 text-blue-600',
-    green: 'bg-green-50 border-green-500 text-green-600',
-    orange: 'bg-orange-50 border-orange-500 text-orange-600',
-    purple: 'bg-purple-50 border-purple-500 text-purple-600',
+    const getTrendIcon = () => {
+      if (!trend) return null;
+      if (trend > 0) return <ArrowUp size={14} />;
+      if (trend < 0) return <ArrowDown size={14} />;
+      return <Minus size={14} />;
+    };
+
+    const getTrendColor = () => {
+      if (!trend) return 'text-gray-400';
+      if (trend > 0) return 'text-green-400';
+      if (trend < 0) return 'text-red-400';
+      return 'text-gray-400';
+    };
+
+    return (
+      <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-xl shadow-lg border border-opacity-50 hover:shadow-2xl transition-all duration-300 hover:scale-105`}>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="bg-white bg-opacity-20 p-3 rounded-xl backdrop-blur-sm">
+              <Icon size={28} className="text-white" />
+            </div>
+            {trend !== undefined && (
+              <div className={`flex items-center gap-1 ${getTrendColor()} bg-white bg-opacity-20 px-3 py-1 rounded-full backdrop-blur-sm`}>
+                {getTrendIcon()}
+                <span className="text-sm font-bold">{Math.abs(trend)}%</span>
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <p className="text-white text-opacity-90 text-sm font-medium mb-2">{title}</p>
+            <p className="text-white text-4xl font-bold mb-2">
+              {loading ? '...' : value}
+            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-white text-opacity-80 text-xs">{subtitle}</p>
+              {linkText && (
+                <button className="text-white text-opacity-90 text-xs hover:text-opacity-100 underline">
+                  {linkText}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const MiniStatCard = ({ icon: Icon, label, value, color }) => {
+    const colorClasses = {
+      blue: 'bg-blue-50 border-blue-200 text-blue-700',
+      green: 'bg-green-50 border-green-200 text-green-700',
+      orange: 'bg-orange-50 border-orange-200 text-orange-700',
+      red: 'bg-red-50 border-red-200 text-red-700',
+      purple: 'bg-purple-50 border-purple-200 text-purple-700',
+      teal: 'bg-teal-50 border-teal-200 text-teal-700'
+    };
+
+    return (
+      <div className={`${colorClasses[color]} border-2 rounded-lg p-4 hover:shadow-md transition-all`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium opacity-75 mb-1">{label}</p>
+            <p className="text-2xl font-bold">{loading ? '...' : value}</p>
+          </div>
+          <Icon size={24} className="opacity-60" />
+        </div>
+      </div>
+    );
+  };
+
+  const QuickActionCard = ({ icon: Icon, title, description, color, onClick }) => {
+    const colorClasses = {
+      blue: 'hover:bg-blue-50 border-blue-200 text-blue-600',
+      green: 'hover:bg-green-50 border-green-200 text-green-600',
+      orange: 'hover:bg-orange-50 border-orange-200 text-orange-600',
+      purple: 'hover:bg-purple-50 border-purple-200 text-purple-600'
+    };
+
+    return (
+      <button
+        onClick={onClick}
+        className={`w-full p-6 border-2 border-dashed ${colorClasses[color]} rounded-xl transition-all hover:border-solid hover:shadow-lg text-left`}
+      >
+        <Icon className="mb-3" size={32} />
+        <p className="font-bold text-lg mb-1">{title}</p>
+        <p className="text-sm opacity-75">{description}</p>
+      </button>
+    );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-500  to-blue-600 text-white p-8 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
-        <p className="text-orange-100">نظام إدارة الخدمات اللوجستية</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6" dir="rtl">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white rounded-2xl shadow-2xl p-8 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-3 flex items-center gap-3">
+                <Activity size={40} />
+                لوحة التحكم الرئيسية
+              </h1>
+              <p className="text-blue-100 text-lg">نظام إدارة الخدمات اللوجستية المتكامل</p>
+              <div className="flex items-center gap-4 mt-4 text-sm">
+                <div className="flex items-center gap-2  bg-opacity-20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <Calendar size={16} />
+                  <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+                <div className="flex items-center gap-2  bg-opacity-20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <Clock size={16} />
+                  <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+              </div>
+            </div>
+            <div className="hidden lg:flex flex-col items-end gap-2">
+              <div className=" bg-opacity-20 px-6 py-3 rounded-lg backdrop-blur-sm">
+                <p className="text-m text-blue-100">الحالة العامة للنظام</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-lg font-bold">نشط</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={index}
-              className={`${colors[stat.color]} p-6 rounded-lg border-r-4 shadow-md`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <Icon size={32} />
-                <h3 className="text-lg font-bold">{stat.title}</h3>
-              </div>
-              <p className="text-4xl font-bold mb-2">{loading ? '...' : stat.value}</p>
-              <p className="text-sm opacity-80">{stat.subtitle}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <Link href="/vehicles/admin">
+        <StatCard
+          title="إجمالي المركبات"
+          value={stats.vehicles}
+          subtitle="مركبة في الأسطول"
+          icon={Car}
+          color="blue"
+          linkText="عرض التفاصيل"
+        />
+        </Link>
+        <Link href="/riders/">
+        <StatCard
+          title="السائقين النشطين"
+          value={stats.activeRiders}
+          subtitle={`من ${stats.riders} سائق`}
+          icon={Users}
+          color="green"
+          linkText="إدارة السائقين"
+        />
+        </Link>
+        <Link href="shifts/">
+        <StatCard
+          title="الورديات اليوم"
+          value={stats.activeShifts}
+          subtitle={`من ${stats.todayShifts} وردية`}
+          icon={Calendar}
+          color="purple"
+          linkText="جدول الورديات"
+        />
+        </Link>
+        <Link href="employees/">
+        <StatCard
+          title="إجمالي الموظفين"
+          value={stats.employees}
+          subtitle="موظف نشط"
+          icon={Package}
+          color="orange"
+          linkText="قائمة الموظفين"
+        />
+        </Link>
+      </div>
+
+      {/* Detailed Statistics Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Vehicles Breakdown */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <Car size={24} className="text-blue-600" />
             </div>
-          );
-        })}
+            <h3 className="text-lg font-bold text-gray-800">تفصيل المركبات</h3>
+          </div>
+          <div className="space-y-3">
+            <MiniStatCard
+              icon={CheckCircle}
+              label="متاحة"
+              value={stats.availableVehicles}
+              color="green"
+            />
+            <MiniStatCard
+              icon={Users}
+              label="قيد الاستخدام"
+              value={stats.takenVehicles}
+              color="blue"
+            />
+            <MiniStatCard
+              icon={AlertTriangle}
+              label="تحتاج صيانة"
+              value={stats.problemVehicles}
+              color="orange"
+            />
+          </div>
+        </div>
+
+        {/* Riders Status */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-green-100 p-3 rounded-lg">
+              <Users size={24} className="text-green-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">حالة السائقين</h3>
+          </div>
+          <div className="space-y-3">
+            <MiniStatCard
+              icon={CheckCircle}
+              label="نشط"
+              value={stats.activeRiders}
+              color="green"
+            />
+            <MiniStatCard
+              icon={Clock}
+              label="غير نشط"
+              value={stats.inactiveRiders}
+              color="red"
+            />
+            <MiniStatCard
+              icon={TrendingUp}
+              label="معدل الأداء"
+              value={`${stats.riderEfficiency.toFixed(0)}%`}
+              color="purple"
+            />
+          </div>
+        </div>
+
+        {/* System Overview */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-purple-100 p-3 rounded-lg">
+              <BarChart3 size={24} className="text-purple-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">نظرة عامة</h3>
+          </div>
+          <div className="space-y-3">
+            <MiniStatCard
+              icon={Building2}
+              label="الشركات"
+              value={stats.companies}
+              color="blue"
+            />
+            <MiniStatCard
+              icon={Home}
+              label="السكنات"
+              value={stats.housing}
+              color="teal"
+            />
+            <MiniStatCard
+              icon={Users}
+              label="المستخدمين"
+              value={stats.users}
+              color="purple"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <Card title="إجراءات سريعة">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link 
-          href="/vehicles"
-          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors block text-center"
-        >
-          <Car className="mx-auto mb-2 text-orange-500" size={32} />
-          <p className="font-medium">إضافة مركبة</p>
-        </Link>
-
-        <Link 
-          href="/riders"
-          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors block text-center"
-        >
-          <Users className="mx-auto mb-2 text-orange-500" size={32} />
-          <p className="font-medium">إضافة سائق</p>
-        </Link>
-          <Link 
-          href="/reports"
-          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors"
-        >
-          <TrendingUp className="mx-auto mb-2 text-orange-500" size={32} />
-          <p className="font-medium">عرض التقارير</p>
-        </Link>
+      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <Activity size={24} className="text-indigo-600" />
+          إجراءات سريعة
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link href="/vehicles/admin/manage">
+          <QuickActionCard
+            icon={Car}
+            title="إضافة مركبة"
+            description="تسجيل مركبة جديدة"
+            color="blue"
+            onClick={() => console.log('Add vehicle')}
+          />
+          </Link>
+          <Link href="/riders/add">
+          <QuickActionCard
+            icon={Users}
+            title="إضافة سائق"
+            description="تسجيل سائق جديد"
+            color="green"
+            onClick={() => console.log('Add rider')}
+          />
+          </Link>
+          <Link href="/shifts/">
+          <QuickActionCard
+            icon={Calendar}
+            title="جدولة وردية"
+            description="إنشاء وردية جديدة"
+            color="purple"
+            onClick={() => console.log('Schedule shift')}
+          />
+          </Link>
+          <Link href="/reports/">
+          <QuickActionCard
+            icon={BarChart3}
+            title="عرض التقارير"
+            description="تقارير الأداء التفصيلية"
+            color="orange"
+            onClick={() => console.log('View reports')}
+          />
+          </Link>
         </div>
-      </Card>
+      </div>
+
+      {/* System Health & Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        {/* Performance Metrics */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-indigo-100 p-3 rounded-lg">
+              <TrendingUp size={24} className="text-indigo-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">مؤشرات الأداء</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">استخدام المركبات</span>
+                <span className="text-sm font-bold text-indigo-600">{stats.vehicleUtilization.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-3 rounded-full transition-all duration-500" style={{width: `${Math.min(stats.vehicleUtilization, 100)}%`}}></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">كفاءة السائقين</span>
+                <span className="text-sm font-bold text-green-600">{stats.riderEfficiency.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500" style={{width: `${Math.min(stats.riderEfficiency, 100)}%`}}></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600">إشغال السكنات</span>
+                <span className="text-sm font-bold text-purple-600">{stats.housingOccupancy}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-500" style={{width: `${Math.min(stats.housingOccupancy, 100)}%`}}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        {/* <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-orange-100 p-3 rounded-lg">
+              <Activity size={24} className="text-orange-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800">النشاط الأخير</h3>
+          </div>
+          <div className="space-y-3">
+            {[
+              { icon: Car, text: 'تم إضافة مركبة جديدة رقم ABC-123', time: 'منذ 5 دقائق', color: 'blue' },
+              { icon: Users, text: 'تسجيل سائق جديد أحمد محمد', time: 'منذ 15 دقيقة', color: 'green' },
+              { icon: Calendar, text: 'تحديث جدول الورديات لليوم', time: 'منذ ساعة', color: 'purple' },
+              { icon: AlertTriangle, text: 'تقرير مشكلة في مركبة XYZ-789', time: 'منذ ساعتين', color: 'orange' }
+            ].map((activity, index) => (
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className={`bg-${activity.color}-100 p-2 rounded-lg mt-1`}>
+                  <activity.icon size={16} className={`text-${activity.color}-600`} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-800">{activity.text}</p>
+                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div> */}
+      </div>
     </div>
   );
 }
