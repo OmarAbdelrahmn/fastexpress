@@ -149,7 +149,7 @@ export default function RidersReportPage() {
         String(report.workingId).toLowerCase().includes(filterWorkingId.toLowerCase());
       
       const matchesIqamaNo = !filterIqamaNo || 
-        (report.IqamaNo && String(report.IqamaNo).toLowerCase().includes(filterIqamaNo.toLowerCase()));
+        (report.iqamaNo && String(report.iqamaNo).toLowerCase().includes(filterIqamaNo.toLowerCase()));
 
       return matchesWorkingId && matchesIqamaNo;
     });
@@ -383,7 +383,7 @@ export default function RidersReportPage() {
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap font-medium">{report.workingId}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {report.IqamaNo || '-'}
+                      {report.iqamaNo || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{report.riderName}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingDays}</td>

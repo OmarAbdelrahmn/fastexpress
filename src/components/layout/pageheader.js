@@ -10,10 +10,9 @@ export default function PageHeader({
   stats
 }) {
   return (
-    <div className="text-white px-6 py-4 shadow-lg sticky top-0 z-50"
-      style={{ background: '#090979',
-background: 'linear-gradient(196deg,rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%'
-  }}>  <div className="flex justify-end">
+    <div className = "text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600">
+      
+    <div className="flex justify-end">
         <Breadcrumb />
       </div>
       <div className="flex items-center justify-between">

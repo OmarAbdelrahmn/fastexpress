@@ -35,8 +35,6 @@ export default function Header() {
   return (
     <header 
       className = "text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600"
-  //     style={{ background: '#090979',background: 'linear-gradient(196deg,rgba(163, 163, 163, 1) 0%, rgba(136, 146, 156, 1) 35%, rgba(208, 208, 208, 1) 100%'
-  // }}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">
@@ -59,16 +57,6 @@ export default function Header() {
               )}
             </div>
           )}
-
-          {/* Session Timer */}
-          {/* <div 
-            className="flex items-center gap-2 text-sm px-3 py-1.5 rounded"
-            style={{ backgroundColor: '#f53232ff' }}
-          >
-            <Clock size={16} />
-            <span>باقي: {remainingTime}</span>
-          </div> */}
-
           {/* Logout Button */}
           <button 
             onClick={logout}
