@@ -125,7 +125,7 @@ export default function HousingManagePage() {
         </div>
       )
     },
-    { header: 'رقم إقامة المدير', accessor: 'managerIqamaNo' },
+    { header: 'رقم إقامة المدير', accessor: 'manageriqamaNo' },
     { 
       header: 'الإجراءات',
       render: (row) => (

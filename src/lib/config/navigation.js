@@ -84,7 +84,6 @@ export const navigationConfig = {
     routes: [
       { path: "companies", label: "جميع الشركات" },
       { path: "companies/create", label: "إضافة شركة" },
-      { path: "companies/manage", label: "إدارة الشركات" },
     ],
   },
 
@@ -97,8 +96,6 @@ export const navigationConfig = {
       { path: "register/master", label: "اضافة مدير جديد" },
       { path: "admin/users", label: "إدارة المستخدمين" },
       { path: "admin/roles", label: "الصلاحيات" },
-      { path: "admin/settings", label: "الإعدادات" },
-      { path: "admin/logs", label: "سجل النشاطات" },
       { path : "admin/system-health", label: "صحة النظام" },
 
     ],
