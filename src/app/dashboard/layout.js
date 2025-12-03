@@ -18,7 +18,7 @@ function DashboardLayoutContent({ children }) {
   }
 
   return (
-<div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-600" dir="rtl">
+<div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-400" dir="rtl">
       <Header />
       <div className="flex">
         

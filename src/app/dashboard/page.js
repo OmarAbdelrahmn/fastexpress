@@ -550,7 +550,7 @@ export default function EnhancedDashboard() {
             onClick={() => console.log('Add vehicle')}
           />
           </Link>
-          <Link href="/riders/add">
+          <Link href="/riders/create">
           <QuickActionCard
             icon={Users}
             title="إضافة سائق"

@@ -11,7 +11,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Edit, ArrowRight, Save } from 'lucide-react';
 
-export default function EditRiderPage() {
+export default function EditEmployeePage() {
   const router = useRouter();
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
@@ -20,7 +20,6 @@ export default function EditRiderPage() {
   const [loadingData, setLoadingData] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [companies, setCompanies] = useState([]);
   const [originalData, setOriginalData] = useState(null);
   
   const [formData, setFormData] = useState({
@@ -29,6 +28,7 @@ export default function EditRiderPage() {
     passportNo: '',
     passportEnd: '',
     sponsor: '',
+    sponsorNo: '',
     jobTitle: '',
     nameAR: '',
     nameEN: '',
@@ -37,63 +37,46 @@ export default function EditRiderPage() {
     dateOfBirth: '',
     status: '',
     iban: '',
-    inksa: false,
-    workingId: '',
-    tshirtSize: '',
-    licenseNumber: '',
-    companyName: ''
+    inksa: false
   });
 
   useEffect(() => {
     if (iqamaNo) {
-      loadRiderData();
-      loadCompanies();
+      loadEmployeeData();
     }
   }, [iqamaNo]);
 
-  const loadCompanies = async () => {
-    try {
-      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
-      setCompanies(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Error loading companies:', err);
-    }
-  };
-
-  const loadRiderData = async () => {
+  const loadEmployeeData = async () => {
     setLoadingData(true);
     setErrorMessage('');
     try {
-      const data = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(iqamaNo));
+      const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA(iqamaNo));
       
       if (data && data.length > 0) {
-        const rider = data[0];
-        setOriginalData(rider);
+        const employee = data[0];
+        setOriginalData(employee);
         
         setFormData({
-          iqamaEndM: rider.iqamaEndM?.split('T')[0] || '',
-          iqamaEndH: rider.iqamaEndH?.split('T')[0] || '',
-          passportNo: rider.passportNo || '',
-          passportEnd: rider.passportEnd?.split('T')[0] || '',
-          sponsor: rider.sponsor || '',
-          jobTitle: rider.jobTitle || '',
-          nameAR: rider.nameAR || '',
-          nameEN: rider.nameEN || '',
-          country: rider.country || '',
-          phone: rider.phone || '',
-          dateOfBirth: rider.dateOfBirth?.split('T')[0] || '',
-          status: rider.status || '',
-          iban: rider.iban || '',
-          inksa: rider.inksa || false,
-          workingId: rider.workingId?.toString() || '',
-          tshirtSize: rider.tshirtSize || '',
-          licenseNumber: rider.licenseNumber || '',
-          companyName: rider.companyName || ''
+          iqamaEndM: employee.iqamaEndM?.split('T')[0] || '',
+          iqamaEndH: employee.iqamaEndH || '',
+          passportNo: employee.passportNo || '',
+          passportEnd: employee.passportEnd?.split('T')[0] || '',
+          sponsor: employee.sponsor || '',
+          sponsorNo: employee.sponsorNo?.toString() || '',
+          jobTitle: employee.jobTitle || '',
+          nameAR: employee.nameAR || '',
+          nameEN: employee.nameEN || '',
+          country: employee.country || '',
+          phone: employee.phone || '',
+          dateOfBirth: employee.dateOfBirth?.split('T')[0] || '',
+          status: employee.status || '',
+          iban: employee.iban || '',
+          inksa: employee.inksa || false
         });
       }
     } catch (err) {
-      console.error('Error loading rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات المندوب');
+      console.error('Error loading employee:', err);
+      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات الموظف');
     } finally {
       setLoadingData(false);
     }
@@ -114,14 +97,14 @@ export default function EditRiderPage() {
     setSuccessMessage('');
 
     try {
-      // Only send changed fields (URiderRequest allows partial updates)
+      // Only send changed fields (UEmpolyeeRequest allows partial updates)
       const requestData = {};
       
       // Compare and add only changed fields
       if (formData.iqamaEndM && formData.iqamaEndM !== originalData?.iqamaEndM?.split('T')[0]) {
         requestData.iqamaEndM = formData.iqamaEndM;
       }
-      if (formData.iqamaEndH && formData.iqamaEndH !== originalData?.iqamaEndH?.split('T')[0]) {
+      if (formData.iqamaEndH && formData.iqamaEndH !== originalData?.iqamaEndH) {
         requestData.iqamaEndH = formData.iqamaEndH;
       }
       if (formData.passportNo !== originalData?.passportNo) {
@@ -132,6 +115,9 @@ export default function EditRiderPage() {
       }
       if (formData.sponsor !== originalData?.sponsor) {
         requestData.sponsor = formData.sponsor;
+      }
+      if (formData.sponsorNo && parseInt(formData.sponsorNo) !== originalData?.sponsorNo) {
+        requestData.sponserNo = parseInt(formData.sponsorNo);
       }
       if (formData.jobTitle !== originalData?.jobTitle) {
         requestData.jobTitle = formData.jobTitle;
@@ -160,28 +146,16 @@ export default function EditRiderPage() {
       if (formData.inksa !== originalData?.inksa) {
         requestData.inksa = formData.inksa;
       }
-      if (formData.workingId && parseInt(formData.workingId) !== originalData?.workingId) {
-        requestData.workingId = parseInt(formData.workingId);
-      }
-      if (formData.tshirtSize !== originalData?.tshirtSize) {
-        requestData.tshirtSize = formData.tshirtSize;
-      }
-      if (formData.licenseNumber !== originalData?.licenseNumber) {
-        requestData.licenseNumber = formData.licenseNumber;
-      }
-      if (formData.companyName !== originalData?.companyName) {
-        requestData.companyName = formData.companyName;
-      }
 
-      await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
+      await ApiService.put(API_ENDPOINTS.EMPLOYEE.UPDATE(iqamaNo), requestData);
       
-      setSuccessMessage('تم تحديث بيانات المندوب بنجاح');
+      setSuccessMessage('تم تحديث بيانات الموظف بنجاح');
       setTimeout(() => {
-        router.push('/riders');
+        router.push('/employees/admin');
       }, 2000);
     } catch (err) {
-      console.error('Error updating rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء تحديث بيانات المندوب');
+      console.error('Error updating employee:', err);
+      setErrorMessage(err?.message || 'حدث خطأ أثناء تحديث بيانات الموظف');
     } finally {
       setLoading(false);
     }
@@ -191,7 +165,7 @@ export default function EditRiderPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تعديل بيانات المندوب"
+          title="تعديل بيانات الموظف"
           subtitle="جاري التحميل..."
           icon={Edit}
         />
@@ -208,13 +182,13 @@ export default function EditRiderPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تعديل بيانات المندوب"
+        title="تعديل بيانات الموظف"
         subtitle={`رقم الإقامة: ${iqamaNo}`}
         icon={Edit}
         actionButton={{
           text: 'العودة للقائمة',
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push('/riders'),
+          onClick: () => router.push('/employees/admin'),
           variant: 'secondary'
         }}
       />
@@ -326,10 +300,12 @@ export default function EditRiderPage() {
 
             <Input
               label="تاريخ انتهاء الإقامة (هجري)"
-              type="date"
+              type="text"
               name="iqamaEndH"
+              placeholder="مثال: 25-10-1425"
               value={formData.iqamaEndH}
               onChange={handleInputChange}
+              dir="rtl"
             />
 
             <Input
@@ -345,7 +321,16 @@ export default function EditRiderPage() {
         {/* Sponsor Information */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات الكفالة</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              label="رقم الكفيل"
+              type="number"
+              name="sponsorNo"
+              value={formData.sponsorNo}
+              onChange={handleInputChange}
+              placeholder="أدخل رقم الكفيل"
+            />
+
             <Input
               label="الكفيل"
               type="text"
@@ -361,7 +346,7 @@ export default function EditRiderPage() {
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
-              placeholder="مثال: مندوب توصيل"
+              placeholder="مثال: موظف إداري"
             />
           </div>
         </Card>
@@ -394,76 +379,13 @@ export default function EditRiderPage() {
           </div>
         </Card>
 
-        {/* Rider Specific Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات المندوب</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Input
-              label="رقم العمل"
-              type="number"
-              name="workingId"
-              value={formData.workingId}
-              onChange={handleInputChange}
-              placeholder="أدخل رقم العمل"
-            />
-
-            <Input
-              label="رقم الرخصة"
-              type="text"
-              name="licenseNumber"
-              value={formData.licenseNumber}
-              onChange={handleInputChange}
-              placeholder="أدخل رقم الرخصة"
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                مقاس التيشرت
-              </label>
-              <select
-                name="tshirtSize"
-                value={formData.tshirtSize}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">اختر المقاس</option>
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-                <option value="XXXL">XXXL</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                الشركة
-              </label>
-              <select
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">اختر الشركة</option>
-                {companies.map((company) => (
-                  <option key={company.name} value={company.name}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </Card>
-
         {/* Submit Buttons */}
         <Card>
           <div className="flex gap-3 justify-end">
             <Button
               type="button"
               variant="secondary"
-              onClick={() => router.push('/riders')}
+              onClick={() => router.push('/employees/admin')}
               disabled={loading}
             >
               إلغاء

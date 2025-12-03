@@ -64,13 +64,13 @@ export default function HousingMoveEmployeePage() {
     try {
       // PUT /api/Housing/{IqamaNo}/change/{oldHousingName}/{NewHousingName}
       await ApiService.put(
-        `/Housing/${formData.iqamaNo}/change/${formData.oldHousingName}/${formData.newHousingName}`,
+        `/api/Housing/${formData.iqamaNo}/change/${formData.oldHousingName}/${formData.newHousingName}`,
         null
       );
       
       setSuccessMessage('تم نقل الموظف بنجاح');
       setTimeout(() => {
-        router.push(`/manage`);
+        router.push(`/housing/manage`);
       }, 1500);
     } catch (err) {
       console.error('Error moving employee:', err);
@@ -97,7 +97,7 @@ export default function HousingMoveEmployeePage() {
         actionButton={{
           text: 'العودة للقائمة',
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push(`/manage`),
+          onClick: () => router.push(`/housing/manage`),
           variant: 'secondary'
         }}
       />
@@ -137,7 +137,7 @@ export default function HousingMoveEmployeePage() {
             <div>
               <p className="text-sm text-green-600 mb-1">إجمالي السعة المتاحة</p>
               <p className="text-3xl font-bold text-green-700">
-                {housings.reduce((sum, h) => sum + (h.capacity - (h.currentOccupancy || 0)), 0)}
+                {housings.reduce((sum, h) => sum + (h.capacity - (h.employees.length  || 0)), 0)}
               </p>
             </div>
             <Users className="text-green-500" size={40} />
@@ -190,7 +190,7 @@ export default function HousingMoveEmployeePage() {
                     <option value="">اختر السكن الحالي</option>
                     {housings.map((housing) => (
                       <option key={housing.name} value={housing.name}>
-                        {housing.name} - الإشغال: {housing.currentOccupancy || 0}/{housing.capacity}
+                        {housing.name} - الإشغال: {housing.employees.length  || 0}/{housing.capacity}
                       </option>
                     ))}
                   </select>
@@ -212,8 +212,8 @@ export default function HousingMoveEmployeePage() {
                       .filter(housing => housing.name !== formData.oldHousingName)
                       .map((housing) => (
                         <option key={housing.name} value={housing.name}>
-                          {housing.name} - الإشغال: {housing.currentOccupancy || 0}/{housing.capacity}
-                          {housing.currentOccupancy >= housing.capacity && ' (ممتلئ)'}
+                          {housing.name} - الإشغال: {housing.employees.length  || 0}/{housing.capacity}
+                          {housing.employees.length  >= housing.capacity && ' (ممتلئ)'}
                         </option>
                       ))}
                   </select>
@@ -240,7 +240,7 @@ export default function HousingMoveEmployeePage() {
                       <div>
                         <p className="text-sm text-red-600 mb-1">الإشغال</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.oldHousingName).currentOccupancy || 0} / 
+                          {housings.find(h => h.name === formData.oldHousingName).employees.length  || 0} / 
                           {housings.find(h => h.name === formData.oldHousingName).capacity}
                         </p>
                       </div>
@@ -265,7 +265,7 @@ export default function HousingMoveEmployeePage() {
                       <div>
                         <p className="text-sm text-green-600 mb-1">الإشغال</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.newHousingName).currentOccupancy || 0} / 
+                          {housings.find(h => h.name === formData.newHousingName).employees.length  || 0} / 
                           {housings.find(h => h.name === formData.newHousingName).capacity}
                         </p>
                       </div>

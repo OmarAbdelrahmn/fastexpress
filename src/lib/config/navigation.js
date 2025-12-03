@@ -29,8 +29,7 @@ export const navigationConfig = {
     routes: [
       { path: "riders", label: "جميع المناديب" },
       { path: "riders/create", label: "إضافة المناديب" },
-      { path: "riders/search", label: "البحث عن المناديب" },
-      { path: "riders/performance", label: "أداء المناديب" },
+      { path: "riders/search", label: "البحث عن المناديب" }
     ],
   },
 
@@ -38,9 +37,8 @@ export const navigationConfig = {
     title: "الموظفين",
     icon: "👔",
     routes: [
-      { path: "employees", label: "جميع الموظفين" },
-      { path: "employees/create", label: "إضافة موظف" },
-      { path: "employees/search", label: "البحث عن موظف" },
+      { path: "employees/admin", label: "الموظفين للادمن" },
+      { path: "employees/user", label: "الموظفين للمشرف" },
     ],
   },
 

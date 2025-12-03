@@ -55,15 +55,14 @@ export default function HousingAddEmployeePage() {
     setLoading(true);
 
     try {
-      // PUT /api/Housing/{IqamaNo}/add/{HousingName}
       await ApiService.put(
-        `/Housing/${formData.iqamaNo}/add/${formData.housingName}`,
+        `/api/Housing/${formData.iqamaNo}/add/${formData.housingName}`,
         null
       );
       
       setSuccessMessage('تم إضافة الموظف إلى السكن بنجاح');
       setTimeout(() => {
-        router.push(`${API_BASE}/housing/manage`);
+        router.push(`/housing/manage`);
       }, 1500);
     } catch (err) {
       console.error('Error adding employee to housing:', err);
@@ -90,7 +89,7 @@ export default function HousingAddEmployeePage() {
         actionButton={{
           text: 'العودة للقائمة',
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push(`${API_BASE}/housing/manage`),
+          onClick: () => router.push(`housing/manage`),
           variant: 'secondary'
         }}
       />
@@ -182,8 +181,8 @@ export default function HousingAddEmployeePage() {
                   <option value="">اختر السكن</option>
                   {housings.map((housing) => (
                     <option key={housing.name} value={housing.name}>
-                      {housing.name} - السعة: {housing.currentOccupancy || 0}/{housing.capacity}
-                      {housing.currentOccupancy >= housing.capacity && ' (ممتلئ)'}
+                      {housing.name} - السعة: {housing.employees.length || 0}/{housing.capacity}
+                      {housing.employees.length >= housing.capacity && ' (ممتلئ)'}
                     </option>
                   ))}
                 </select>
@@ -210,12 +209,12 @@ export default function HousingAddEmployeePage() {
                     <div>
                       <p className="text-sm text-gray-600 mb-1">الإشغال الحالي</p>
                       <p className={`font-medium ${
-                        housings.find(h => h.name === formData.housingName).currentOccupancy >= 
+                        housings.find(h => h.name === formData.housingName).employees.length  >= 
                         housings.find(h => h.name === formData.housingName).capacity 
                           ? 'text-red-600' 
                           : 'text-green-600'
                       }`}>
-                        {housings.find(h => h.name === formData.housingName).currentOccupancy || 0} / 
+                        {housings.find(h => h.name === formData.housingName).employees.length  || 0} / 
                         {housings.find(h => h.name === formData.housingName).capacity}
                       </p>
                     </div>
@@ -228,7 +227,7 @@ export default function HousingAddEmployeePage() {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => router.push(`${API_BASE}/housing/manage`)}
+                onClick={() => router.push(`/housing/manage`)}
                 disabled={loading}
               >
                 إلغاء

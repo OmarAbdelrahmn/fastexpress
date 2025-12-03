@@ -1,5 +1,6 @@
 // File: src/lib/api/endpoints.js
 "use client";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export const API_ENDPOINTS = {
   // Auth
@@ -37,6 +38,7 @@ export const API_ENDPOINTS = {
 
   // Employee
   EMPLOYEE: {
+    DELETED: "/api/employee/deleted",
     LIST: "/api/employee",
     CREATE: "/api/employee",
     BY_IQAMA: (iqamaNo) => `/api/employee/${iqamaNo}`,
@@ -145,6 +147,13 @@ export const API_ENDPOINTS = {
       REQUEST_PROBLEM: "/api/temp/vehicle-request-problem",
       GET_PENDING: "/api/temp/vehicles",
       RESOLVE: "/api/temp/vehicle-resolve",
+      // EMPLOYEES: `${BASE_URL}/api/Temp/employees`,
+      // RESOLVE_EMPLOYEES: `${BASE_URL}/api/Temp/employees`,
+      // IMPORT_EXCEL: `${BASE_URL}/api/Temp/import-employees`,
+      // REQUEST_ENABLE: (iqamaNo) => `${BASE_URL}/api/Temp/employee-request-enable/${iqamaNo}`,
+      // REQUEST_DISABLE: (iqamaNo) => `${BASE_URL}/api/Temp/employee-request-disable/${iqamaNo}`,
+      // PENDING_STATUS_CHANGES: `${BASE_URL}/api/Temp/employee-pending-status-changes`,
+      // RESOLVE_STATUS_CHANGES: `${BASE_URL}/api/Temp/employee-resolve-status-changes`,
     },
   },
   // Reports

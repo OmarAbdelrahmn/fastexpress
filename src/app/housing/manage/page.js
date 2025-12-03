@@ -113,11 +113,11 @@ export default function HousingManagePage() {
       render: (row) => (
         <div className="flex items-center gap-2">
           <span className={`font-medium ${
-            row.currentOccupancy >= row.capacity ? 'text-red-600' : 'text-green-600'
+            row.employees.length  >= row.capacity ? 'text-red-600' : 'text-green-600'
           }`}>
-            {row.currentOccupancy || 0} / {row.capacity}
+            {row.employees.length  || 0} / {row.capacity}
           </span>
-          {row.currentOccupancy >= row.capacity && (
+          {row.employees.length  >= row.capacity && (
             <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">
               ممتلئ
             </span>
@@ -285,7 +285,7 @@ export default function HousingManagePage() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">الإشغال الحالي</p>
                   <p className="font-medium text-gray-800">
-                    {selectedHousing.currentOccupancy || 0} / {selectedHousing.capacity}
+                    {selectedHousing.employees.length  || 0} / {selectedHousing.capacity}
                   </p>
                 </div>
                 <div>
