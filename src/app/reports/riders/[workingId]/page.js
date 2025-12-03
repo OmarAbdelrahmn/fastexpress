@@ -59,10 +59,6 @@ export default function RiderDetailPage({ params }) {
         setReport(null);
       } else {
         const reportsArray = Array.isArray(data) ? data : [data];
-        // console.log('Looking for workingId:', workingId);
-        // console.log('Available reports:', reportsArray.map(r => r.workingId));
-        // console.log("workingId from URL:", workingId, typeof workingId);
-        // console.log("workingId from reports:", reportsArray.map(r => [r.workingId, typeof r.workingId]));
         const riderReport = reportsArray.find(r => String(r.workingId) === String(workingId));
         
         if (!riderReport) {

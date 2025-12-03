@@ -94,7 +94,7 @@ const API_ENDPOINTS = {
     INACTIVE: '/api/Rider/inactive'
   },
   ADMIN: { USERS: '/api/admin/users' },
-  COMPANY: { LIST: '/api/company/employees' },
+  COMPANY: { LIST: '/api/company/' },
   HOUSING: { LIST: '/api/housing' },
   SHIFT: { 
     LIST: '/api/shift/range',
@@ -205,7 +205,7 @@ export default function EnhancedDashboard() {
       let todayShiftsCount = 0;
       let activeShiftsCount = 0;
       try {
-        const shiftsRes = await get(`${API_ENDPOINTS.SHIFT.BY_DATE}?date=${today}`);
+        const shiftsRes = await get(`${API_ENDPOINTS.SHIFT.BY_DATE}?shiftDate=${today}`);
         const todayShifts = shiftsRes.data || [];
         todayShiftsCount = todayShifts.length;
         activeShiftsCount = todayShifts.filter(s => s.isActive !== false).length;

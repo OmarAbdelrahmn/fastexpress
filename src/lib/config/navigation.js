@@ -58,11 +58,9 @@ export const navigationConfig = {
     title: "الورديات",
     icon: "📅",
     routes: [
-      { path: "shifts", label: "جميع الورديات" },
-      { path: "shifts/create", label: "إضافة وردية" },
-      { path: "shifts/import", label: "استيراد ورديات" },
+      { path: "shifts", label: "ادارة الورديات" },
       { path: "shifts/comparisons", label: "المقارنات" },
-      { path: "shifts/date-range", label: "الورديات حسب الفترة" },
+      { path: "shifts/date-range", label: "الورديات في فترة" },
     ],
   },
 
