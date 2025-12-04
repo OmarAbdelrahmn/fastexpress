@@ -43,7 +43,7 @@ export default function Header() {
         </h1>
         
         <div className="flex items-center gap-6">
-          <LanguageSwitcher />
+          {/* <LanguageSwitcher /> */}
           
           {/* User Info */}
           {user && (
