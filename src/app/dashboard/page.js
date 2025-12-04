@@ -408,9 +408,9 @@ export default function EnhancedDashboard() {
         </Link>
         <Link href="/riders/">
           <StatCard
-            title="السائقين النشطين"
+            title="جميع السائقين"
             value={stats.activeRiders}
-            subtitle={`من ${stats.riders} سائق`}
+            subtitle={`من ${stats.totalRiders} سائق`}
             icon={Users}
             color="green"
             linkText="إدارة السائقين"

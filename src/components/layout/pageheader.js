@@ -1,5 +1,5 @@
-// File: src/components/layout/PageHeader.js
 'use client';
+import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Ui/Breadcrumbs';
 
 export default function PageHeader({ 
@@ -9,10 +9,34 @@ export default function PageHeader({
   icon: Icon,
   stats
 }) {
-  return (
-    <div className = "text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600">
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
       
-    <div className="flex justify-end">
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  return (
+    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
+      
+      <div className="flex justify-end">
         <Breadcrumb />
       </div>
       <div className="flex items-center justify-between">

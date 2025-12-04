@@ -121,23 +121,23 @@ export default function EmployeeDetailsPage() {
 
       {/* Status Banner */}
       <div className={`p-6 rounded-lg ${
-        employee.status === 'Enable' 
+        employee.status === 'enable' 
           ? 'bg-green-50 border-r-4 border-green-500' 
           : 'bg-red-50 border-r-4 border-red-500'
       }`}>
         <div className="flex items-center gap-4">
           <div className={`p-3 rounded-xl ${
-            employee.status === 'Enable' ? 'bg-green-100' : 'bg-red-100'
+            employee.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
           }`}>
-            <Shield className={employee.status === 'Enable' ? 'text-green-600' : 'text-red-600'} size={32} />
+            <Shield className={employee.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={32} />
           </div>
           <div>
             <h2 className={`text-2xl font-bold ${
-              employee.status === 'Enable' ? 'text-green-800' : 'text-red-800'
+              employee.status === 'enable' ? 'text-green-800' : 'text-red-800'
             }`}>
-              {employee.status === 'Enable' ? 'موظف نشط' : 'غير نشط'}
+              {employee.status === 'enable' ? 'موظف نشط' : 'غير نشط'}
             </h2>
-            <p className={employee.status === 'Enable' ? 'text-green-600' : 'text-red-600'}>
+            <p className={employee.status === 'enable' ? 'text-green-600' : 'text-red-600'}>
               الحالة الحالية للموظف
             </p>
           </div>

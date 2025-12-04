@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { LogOut, Clock, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
-import LanguageSwitcher from '@/components/Ui/LanguageSwitcher';
-
+// import LanguageSwitcher from '../Ui/LanguageSwitcher';
 export default function Header() {
   const { logout } = useAuth();
   const [remainingTime, setRemainingTime] = useState('');
   const [user, setUser] = useState(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const userData = TokenManager.getUserFromToken();
@@ -33,9 +34,34 @@ export default function Header() {
     return () => clearInterval(interval);
   }, [logout]);
 
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < 10) {
+        // Always show at top
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   return (
     <header 
-      className = "text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600"
+      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">

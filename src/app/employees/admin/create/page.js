@@ -74,7 +74,7 @@ export default function CreateEmployeePage() {
       
       setSuccessMessage('تم إضافة الموظف بنجاح');
       setTimeout(() => {
-        router.push('/employee/admin');
+        router.push('/employees/admin');
       }, 1000);
     } catch (err) {
       console.error('Error creating employee:', err);
@@ -93,7 +93,7 @@ export default function CreateEmployeePage() {
         actionButton={{
           text: 'العودة للقائمة',
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push('/employee/admin'),
+          onClick: () => router.push('/employees/admin'),
           variant: 'secondary'
         }}
       />
