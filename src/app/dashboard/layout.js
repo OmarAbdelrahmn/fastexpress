@@ -18,12 +18,11 @@ function DashboardLayoutContent({ children }) {
   }
 
   return (
-<div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-400" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-400" dir="rtl">
       <Header />
       <div className="flex">
-        
-        <Sidebar  />
-        <main className="flex-1 p-6 overflow-auto">
+        <Sidebar />
+        <main className="flex-1 p-4 lg:p-6 overflow-auto w-full">
           {children}
         </main>
       </div>
