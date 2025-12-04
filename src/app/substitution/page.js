@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ArrowRightLeft, Plus, Clock, CheckCircle, XCircle, History, Users, AlertCircle } from 'lucide-react';
-
+import PageHeader from '@/components/layout/pageheader';
 const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function SubstitutionsPage() {
@@ -13,8 +13,9 @@ export default function SubstitutionsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [stats, setStats] = useState({ active: 0, inactive: 0, total: 0 });
 
+  // Updated form data to match API request structure
   const [formData, setFormData] = useState({
-    actualRiderId: '',
+    actualRiderWorkingId: '',
     substituteWorkingId: '',
     reason: '',
     createdBy: ''
@@ -84,13 +85,21 @@ export default function SubstitutionsPage() {
     setLoading(true);
 
     try {
+      // Convert string inputs to integers before sending
+      const requestPayload = {
+        actualRiderWorkingId: parseInt(formData.actualRiderWorkingId),
+        substituteWorkingId: parseInt(formData.substituteWorkingId),
+        reason: formData.reason,
+        createdBy: formData.createdBy || null
+      };
+
       const response = await fetch(`${API_BASE}/substitution`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(requestPayload)
       });
 
       const data = await response.json();
@@ -98,7 +107,12 @@ export default function SubstitutionsPage() {
       if (response.ok) {
         setMessage({ type: 'success', text: 'تم إضافة البديل بنجاح' });
         setShowAddModal(false);
-        setFormData({ actualRiderId: '', substituteWorkingId: '', reason: '', createdBy: '' });
+        setFormData({ 
+          actualRiderWorkingId: '', 
+          substituteWorkingId: '', 
+          reason: '', 
+          createdBy: '' 
+        });
         loadSubstitutions();
       } else {
         const errorMessage = data.detail || data.error?.description || data.title || 'فشلت العملية';
@@ -112,7 +126,7 @@ export default function SubstitutionsPage() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -130,28 +144,19 @@ export default function SubstitutionsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white px-6 py-6 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/20 p-3 rounded-lg">
-              <ArrowRightLeft size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">إدارة البدلاء</h1>
-              <p className="text-blue-100 text-sm">عرض وإدارة بدلاء المناديب</p>
-            </div>
-          </div>
-          <button
+          
+      <PageHeader
+              title="إدارة البدلاء"
+              subtitle="عرض وإدارة بدلاء المناديب"
+              icon={ArrowRightLeft}
+            />
+      {/* <button
             onClick={() => setShowAddModal(true)}
-            className="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 flex items-center gap-2 transition-colors shadow-lg"
+            className="bg-white text-blue-600 px-10 py-5 rounded-lg font-bold hover:bg-blue-50 flex items-center gap-2 transition-colors shadow-lg mt-5"
           >
             <Plus size={20} />
             إضافة بديل
-          </button>
-        </div>
-      </div>
-
+          </button> */}
       <div className="p-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -231,8 +236,9 @@ export default function SubstitutionsPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">اسم المندوب</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المندوب الأصلي</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">رقم العمل الأصلي</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المندوب البديل</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">رقم العمل البديل</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">السبب</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">تاريخ البدء</th>
@@ -252,6 +258,9 @@ export default function SubstitutionsPage() {
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                             {sub.actualRiderWorkingId}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-gray-900">{sub.substituteRiderName}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-bold">
@@ -303,7 +312,7 @@ export default function SubstitutionsPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                         <History size={48} className="mx-auto mb-4 text-gray-300" />
                         لا توجد بيانات للعرض حالياً
                       </td>
@@ -344,14 +353,14 @@ export default function SubstitutionsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    رقم المندوب الأصلي (ID) <span className="text-red-500">*</span>
+                    رقم العمل الأصلي <span className="text-red-500">*</span>
                   </label>
                   <input
                     required
                     type="number"
                     placeholder="مثال: 1025"
-                    value={formData.actualRiderId}
-                    onChange={(e) => setFormData({...formData, actualRiderId: e.target.value})}
+                    value={formData.actualRiderWorkingId}
+                    onChange={(e) => setFormData({...formData, actualRiderWorkingId: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

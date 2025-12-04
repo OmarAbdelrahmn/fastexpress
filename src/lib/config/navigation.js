@@ -70,8 +70,6 @@ export const navigationConfig = {
     routes: [
       { path: "substitution", label: "جميع البدلاء" },
       { path: "substitution/new", label: "اضافة تبديل" },
-      { path: "substitution/active", label: "البدلاء النشطين" },
-      { path: "substitution/inactive", label: "البدلاء غير النشطين" },
       { path: "substitution/history", label: "سجل البدلاء" },
     ],
   },

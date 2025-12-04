@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
+  "dev": "next dev",
+  "build": "next build",
+  "export": "next export",
+  "start": "next start",
+  "lint": "eslint"
+}
+,
   "dependencies": {
     "lucide-react": "^0.554.0",
     "moment-hijri": "^3.0.0",

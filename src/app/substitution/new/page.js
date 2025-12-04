@@ -9,8 +9,10 @@ const AddSubstitutionPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  
+  // Updated form data to match API request structure
   const [formData, setFormData] = useState({
-    actualRiderId: '',
+    actualRiderWorkingId: '',
     substituteWorkingId: '',
     reason: '',
     createdBy: ''
@@ -19,18 +21,26 @@ const AddSubstitutionPage = () => {
   const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // منع إعادة تحميل الصفحة الافتراضي
+    e.preventDefault();
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
+      // Convert string inputs to integers before sending
+      const requestPayload = {
+        actualRiderWorkingId: parseInt(formData.actualRiderWorkingId),
+        substituteWorkingId: parseInt(formData.substituteWorkingId),
+        reason: formData.reason,
+        createdBy: formData.createdBy || null
+      };
+
       const response = await fetch(`${API_BASE}/substitution`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(requestPayload)
       });
 
       const data = await response.json();
@@ -38,9 +48,8 @@ const AddSubstitutionPage = () => {
       if (response.ok) {
         setMessage({ type: 'success', text: 'تم إضافة البديل بنجاح، جاري التحويل...' });
         
-        // إعادة التوجيه إلى الصفحة الرئيسية بعد ثانية ونصف
         setTimeout(() => {
-          router.push('/substitutions');
+          router.push('/substitution');
         }, 1500);
       } else {
         const errorMessage = data.detail || data.error?.description || data.title || 'فشلت العملية';
@@ -96,16 +105,17 @@ const AddSubstitutionPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    رقم المندوب الأصلي (ID) <span className="text-red-500">*</span>
+                    رقم العمل الأصلي <span className="text-red-500">*</span>
                   </label>
                   <input
                     required
                     type="number"
                     placeholder="مثال: 1025"
-                    value={formData.actualRiderId}
-                    onChange={(e) => setFormData({...formData, actualRiderId: e.target.value})}
+                    value={formData.actualRiderWorkingId}
+                    onChange={(e) => setFormData({...formData, actualRiderWorkingId: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   />
+                  <p className="text-xs text-gray-500 mt-1">رقم العمل للمندوب الأصلي</p>
                 </div>
                 
                 <div>
@@ -120,6 +130,7 @@ const AddSubstitutionPage = () => {
                     onChange={(e) => setFormData({...formData, substituteWorkingId: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   />
+                  <p className="text-xs text-gray-500 mt-1">رقم العمل الذي سيحل محل المندوب الأصلي</p>
                 </div>
               </div>
 
