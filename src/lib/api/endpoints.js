@@ -29,7 +29,7 @@ export const API_ENDPOINTS = {
 
   // Company
   COMPANY: {
-    LIST: "/api/company/employees",
+    LIST: "/api/company/",
     CREATE: "/api/company",
     BY_NAME: (name) => `/api/company/${name}`,
     UPDATE: (name) => `/api/company/${name}`,

@@ -9,6 +9,7 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import ExportButtons from '@/components/Ui/ExportButtons';
 
 export default function CompanyPerformancePage() {
   const [loading, setLoading] = useState(false);
@@ -38,11 +39,12 @@ const loadReport = async () => {
     setMessage({ type: 'error', text: 'الرجاء تحديد جميع الحقول' });
     return;
   }
-
+  
   setLoading(true);
   setHasSearched(true);
   setMessage({ type: '', text: '' });
   setReport(null);
+  
   
   try {
     const data = await ApiService.get(
@@ -71,7 +73,7 @@ const loadReport = async () => {
     setLoading(false);
   }
 };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
@@ -157,7 +159,12 @@ const loadReport = async () => {
       )}
       {/* Report Display */}
       {report && (
+        
         <div className="m-6 space-y-6">
+          <div className="m-6 flex justify-end">
+    <ExportButtons
+    />
+  </div>
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -281,6 +288,7 @@ const loadReport = async () => {
           </Card>
         </div>
       )}
+      
     </div>
   );
 }
