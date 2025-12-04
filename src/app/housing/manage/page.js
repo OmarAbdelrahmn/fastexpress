@@ -22,27 +22,29 @@ export default function HousingManagePage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    loadHousings();
-    
-    // Check for success/error messages from URL params
-    const success = searchParams.get('success');
-    const error = searchParams.get('error');
+
+useEffect(() => {
+  try {
+    const success = searchParams?.get('success');
+    const error = searchParams?.get('error');
     
     if (success) {
       setSuccessMessage(decodeURIComponent(success));
       setTimeout(() => setSuccessMessage(''), 3000);
-      // Clean URL
       router.replace('/housing/manage');
     }
     
     if (error) {
       setErrorMessage(decodeURIComponent(error));
       setTimeout(() => setErrorMessage(''), 5000);
-      // Clean URL
       router.replace('/housing/manage');
     }
-  }, [searchParams]);
+  } catch (err) {
+    console.error('Error reading search params:', err);
+  }
+  
+  loadHousings();
+}, []);
 
   const loadHousings = async () => {
     setLoading(true);
