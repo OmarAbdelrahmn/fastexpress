@@ -1,0 +1,25 @@
+{
+  "common": {
+    "search": "Search",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "dashboard": {
+    "title": "Main Dashboard",
+    "subtitle": "Integrated Logistics Management System"
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "total": "Total Vehicles",
+    "available": "Available",
+    "taken": "In Use"
+  }
+}

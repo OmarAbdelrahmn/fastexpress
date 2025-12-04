@@ -85,7 +85,7 @@ export const navigationConfig = {
 
   admin: {
     title: "الإدارة",
-    icon: "⚙️",
+    icon: "👨‍✈️",
     routes: [      
       { path: "register", label: "اضافة مشرف جديد" },
       { path: "register/admin", label: "اضافة ادمن جديد" },
@@ -104,5 +104,13 @@ export const navigationConfig = {
       { path: "account/profile", label: "الملف الشخصي" },
       { path: "account/change-password", label: "تغيير كلمة المرور" },
     ],
+    
   },
+
+  sittings: {
+    title: "الاعدادات",
+    icon: "⚙️",
+    routes: [
+      { path: "/language", label: "الللغات" },
+    ],}
 };

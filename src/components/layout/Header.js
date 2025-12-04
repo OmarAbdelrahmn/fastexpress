@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { LogOut, Clock, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
+import LanguageSwitcher from '@/components/Ui/LanguageSwitcher';
 
 export default function Header() {
   const { logout } = useAuth();
@@ -42,6 +43,8 @@ export default function Header() {
         </h1>
         
         <div className="flex items-center gap-6">
+          <LanguageSwitcher />
+          
           {/* User Info */}
           {user && (
             <div className="flex items-center gap-2 text-sm">

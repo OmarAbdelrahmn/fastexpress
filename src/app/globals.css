@@ -39,3 +39,21 @@
   border-radius: 1rem;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Flip margins and paddings for RTL */
+[dir="rtl"] .ml-auto {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-left: auto;
+  margin-right: 0;
+}

@@ -7,6 +7,7 @@ import {
   ArrowUp, ArrowDown, Minus, BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 // Real API imports
 const TokenManager = {
@@ -111,6 +112,8 @@ const API_ENDPOINTS = {
 };
 
 export default function EnhancedDashboard() {
+    const { t } = useLanguage();
+
   const { get, loading } = useApi();
   const [stats, setStats] = useState({
     vehicles: 0,
@@ -364,7 +367,7 @@ export default function EnhancedDashboard() {
             <div>
               <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 flex items-center gap-2 md:gap-3">
                 <Activity size={28} className="md:w-10 md:h-10" />
-                لوحة التحكم الرئيسية
+                {t('dashboard.title')}
               </h1>
               <p className="text-blue-100 text-sm md:text-lg">نظام إدارة الخدمات اللوجستية المتكامل</p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4 mt-3 md:mt-4 text-xs md:text-sm">
