@@ -46,11 +46,11 @@ export default function EmployeeSmartSearchPage() {
   };
 
   const handleViewDetails = (iqamaNo) => {
-    router.push(`/employee/admin/${iqamaNo}/details`);
+    router.push(`/employees/admin/${iqamaNo}/details`);
   };
 
   const handleEdit = (iqamaNo) => {
-    router.push(`/employee/admin/${iqamaNo}/edit`);
+    router.push(`/employees/admin/${iqamaNo}/edit`);
   };
 
   return (
