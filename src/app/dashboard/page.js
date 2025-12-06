@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { 
   Car, Users, TrendingUp, Package, Building2, Home, 
   Calendar, Activity, AlertTriangle, CheckCircle, Clock,
-  ArrowUp, ArrowDown, Minus, BarChart3
+  ArrowUp, ArrowDown, Minus, BarChart3,ShoppingBag , AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/context/LanguageContext';
