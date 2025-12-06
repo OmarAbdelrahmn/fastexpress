@@ -34,7 +34,7 @@ export default function CreateRiderPage() {
     country: '',
     phone: '',
     dateOfBirth: '',
-    status: '',
+    status: 'enable',
     iban: '',
     inksa: false,
     workingId: '',
