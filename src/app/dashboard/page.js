@@ -100,7 +100,8 @@ const API_ENDPOINTS = {
   HOUSING: { LIST: '/api/housing' },
   SHIFT: { 
     LIST: '/api/shift/range',
-    BY_DATE: '/api/shift/date'
+    BY_DATE: '/api/shift/date',
+    PREVIOUS_DAY_ACCEPTED: '/api/shift/accepted/previous-day'
   },
   EMPLOYEE: { LIST: '/api/employee' },
   REPORTS: { DASHBOARD: '/api/Report' },
@@ -132,7 +133,8 @@ export default function EnhancedDashboard() {
     employees: 0,
     pendingRequests: 0,
     vehicleUtilization: 0,
-    riderEfficiency: 0
+    riderEfficiency: 0,
+    previousDayTotalOrders: 0,
   });
 
   const [trends, setTrends] = useState({
@@ -157,7 +159,8 @@ export default function EnhancedDashboard() {
         companiesRes, 
         housingRes,
         employeesRes,
-        pendingRequestsRes
+        pendingRequestsRes,
+        previousDayOrdersRes
       ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
         get(API_ENDPOINTS.VEHICLES.GROUP_BY_STATUS),
@@ -167,7 +170,8 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.COMPANY.LIST),
         get(API_ENDPOINTS.HOUSING.LIST),
         get(API_ENDPOINTS.EMPLOYEE.LIST),
-        get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING)
+        get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING),
+        get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED)
       ]);
 
       const vehiclesSummary = vehicleStatusRes.data?.summary || {};
@@ -216,7 +220,17 @@ export default function EnhancedDashboard() {
       const riderEfficiency = totalRiders > 0
         ? ((activeRiders / totalRiders) * 100).toFixed(1)
         : 0;
+      
+      let previousDayTotal = 0;
+      let previousDayRiders = 0;
 
+        if (previousDayOrdersRes.data && Array.isArray(previousDayOrdersRes.data)) {
+      previousDayTotal = previousDayOrdersRes.data.reduce(
+        (sum, shift) => sum + (shift.acceptedDailyOrders || 0), 
+        0
+      );
+      previousDayRiders = previousDayOrdersRes.data.length;
+    }
       setStats({
         vehicles: totalVehicles,
         availableVehicles: availableVehicles,
@@ -234,7 +248,9 @@ export default function EnhancedDashboard() {
         employees: totalEmployees,
         pendingRequests: pendingRequests,
         vehicleUtilization: parseFloat(vehicleUtilization),
-        riderEfficiency: parseFloat(riderEfficiency)
+        riderEfficiency: parseFloat(riderEfficiency),
+        previousDayTotalOrders: previousDayTotal,
+        previousDayTotalRiders: previousDayRiders
       });
 
       setTrends({
@@ -416,6 +432,26 @@ export default function EnhancedDashboard() {
             linkText="إدارة المناديب"
           />
         </Link>
+        <Link href="/shifts/">
+        <StatCard
+          title="طلبات الأمس المقبولة"
+          value={stats.previousDayTotalOrders}
+          subtitle={`طلب`}
+          icon={ShoppingBag}
+          color="teal"
+          linkText="عرض التفاصيل"
+        />
+      </Link>
+      <Link href="vehicles/admin/users-requests">
+        <StatCard
+          title="طلبات تحتاج موافقة"
+          value={stats.pendingRequests}
+          subtitle={stats.pendingRequests > 0 ? "يوجد طلبات معلقة" : "لا توجد طلبات"}
+          icon={AlertCircle}
+          color={stats.pendingRequests > 0 ? "red" : "green"}
+          linkText="عرض الطلبات"
+        />
+      </Link>
         <Link href="shifts/">
           <StatCard
             title="الورديات اليوم"
