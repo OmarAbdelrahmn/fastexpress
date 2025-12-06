@@ -160,8 +160,8 @@ export default function EditRiderPage() {
       if (formData.inksa !== originalData?.inksa) {
         requestData.inksa = formData.inksa;
       }
-      if (formData.workingId && parseInt(formData.workingId) !== originalData?.workingId) {
-        requestData.workingId = parseInt(formData.workingId);
+      if (formData.workingId && formData.workingId !== originalData?.workingId) {
+        requestData.workingId = formData.workingId; 
       }
       if (formData.tshirtSize !== originalData?.tshirtSize) {
         requestData.tshirtSize = formData.tshirtSize;

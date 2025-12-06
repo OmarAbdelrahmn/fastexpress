@@ -408,12 +408,12 @@ export default function EnhancedDashboard() {
         </Link>
         <Link href="/riders/">
           <StatCard
-            title="جميع السائقين"
-            value={stats.activeRiders}
-            subtitle={`من ${stats.totalRiders} سائق`}
+            title="جميع المناديب"
+            value={stats.riders}
+            subtitle={`من ${stats.riders} مندوب`}
             icon={Users}
             color="green"
-            linkText="إدارة السائقين"
+            linkText="إدارة المناديب"
           />
         </Link>
         <Link href="shifts/">
@@ -461,7 +461,7 @@ export default function EnhancedDashboard() {
             <div className="bg-green-100 p-2 md:p-3 rounded-lg">
               <Users size={20} className="text-green-600 md:w-6 md:h-6" />
             </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800">حالة السائقين</h3>
+            <h3 className="text-base md:text-lg font-bold text-gray-800">حالة المناديب</h3>
           </div>
           <div className="space-y-2 md:space-y-3">
             <MiniStatCard icon={CheckCircle} label="نشط" value={stats.activeRiders} color="green" />
@@ -497,7 +497,7 @@ export default function EnhancedDashboard() {
             <QuickActionCard icon={Car} title="إضافة مركبة" description="تسجيل مركبة جديدة" color="blue" onClick={() => console.log('Add vehicle')} />
           </Link>
           <Link href="/riders/create">
-            <QuickActionCard icon={Users} title="إضافة سائق" description="تسجيل سائق جديد" color="green" onClick={() => console.log('Add rider')} />
+            <QuickActionCard icon={Users} title="إضافة مندوب" description="تسجيل مندوب جديد" color="green" onClick={() => console.log('Add rider')} />
           </Link>
           <Link href="/shifts/">
             <QuickActionCard icon={Calendar} title="جدولة وردية" description="إنشاء وردية جديدة" color="purple" onClick={() => console.log('Schedule shift')} />
@@ -528,7 +528,7 @@ export default function EnhancedDashboard() {
           </div>
           <div>
             <div className="flex justify-between mb-2">
-              <span className="text-xs md:text-sm font-medium text-gray-600">كفاءة السائقين</span>
+              <span className="text-xs md:text-sm font-medium text-gray-600">كفاءة المناديب</span>
               <span className="text-xs md:text-sm font-bold text-green-600">{stats.riderEfficiency.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">

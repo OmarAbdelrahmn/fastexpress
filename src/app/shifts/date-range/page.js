@@ -193,7 +193,7 @@ export default function ShiftRangeViewerPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">رقم العمل (اختياري)</label>
               <input
-                type="number"
+                type="text"
                 value={workingId}
                 onChange={(e) => setWorkingId(e.target.value)}
                 placeholder="جميع المناديب"

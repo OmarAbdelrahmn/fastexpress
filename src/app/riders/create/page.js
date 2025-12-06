@@ -91,7 +91,7 @@ export default function CreateRiderPage() {
         iban: formData.iban,
         inksa: formData.inksa,
         // Rider specific
-        workingId: parseInt(formData.workingId),
+        workingId: formData.workingId,
         tshirtSize: formData.tshirtSize,
         licenseNumber: formData.licenseNumber,
         companyName: formData.companyName
@@ -342,7 +342,7 @@ export default function CreateRiderPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label="رقم العمل"
-              type="number"
+              type="text"
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}

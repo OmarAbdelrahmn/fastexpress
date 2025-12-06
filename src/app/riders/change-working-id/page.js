@@ -127,7 +127,7 @@ export default function ChangeWorkingIdPage() {
             <div>
               <Input
                 label="رقم العمل الحالي"
-                type="number"
+                type="text"
                 name="oldWorkingId"
                 value={formData.oldWorkingId}
                 onChange={handleInputChange}
@@ -142,7 +142,7 @@ export default function ChangeWorkingIdPage() {
             <div>
               <Input
                 label="رقم العمل الجديد"
-                type="number"
+                type="text"
                 name="newWorkingId"
                 value={formData.newWorkingId}
                 onChange={handleInputChange}

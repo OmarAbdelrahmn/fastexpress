@@ -52,7 +52,7 @@ export default function CreateEmployeePage() {
 
     try {
       const requestData = {
-        iqamaNo: parseInt(formData.iqamaNo),
+        iqamaNo: formData.iqamaNo,
         iqamaEndM: formData.iqamaEndM,
         iqamaEndH: formData.iqamaEndH,
         passportNo: formData.passportNo,

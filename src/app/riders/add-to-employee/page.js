@@ -98,7 +98,7 @@ export default function AddRiderToEmployeePage() {
 
     try {
       const requestData = {
-        workingId: parseInt(formData.workingId),
+        workingId: formData.workingId,
         tshirtSize: formData.tshirtSize,
         licenseNumber: formData.licenseNumber,
         companyName: formData.companyName
@@ -235,7 +235,7 @@ export default function AddRiderToEmployeePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="رقم العمل"
-                type="number"
+                type="text"
                 name="workingId"
                 value={formData.workingId}
                 onChange={handleInputChange}

@@ -87,8 +87,8 @@ export default function SubstitutionsPage() {
     try {
       // Convert string inputs to integers before sending
       const requestPayload = {
-        actualRiderWorkingId: parseInt(formData.actualRiderWorkingId),
-        substituteWorkingId: parseInt(formData.substituteWorkingId),
+        actualRiderWorkingId: formData.actualRiderWorkingId,
+        substituteWorkingId: formData.substituteWorkingId,
         reason: formData.reason,
         createdBy: formData.createdBy || null
       };
@@ -357,7 +357,7 @@ export default function SubstitutionsPage() {
                   </label>
                   <input
                     required
-                    type="number"
+                    type="text"
                     placeholder="مثال: 1025"
                     value={formData.actualRiderWorkingId}
                     onChange={(e) => setFormData({...formData, actualRiderWorkingId: e.target.value})}
@@ -371,7 +371,7 @@ export default function SubstitutionsPage() {
                   </label>
                   <input
                     required
-                    type="number"
+                    type="text"
                     placeholder="مثال: 9901"
                     value={formData.substituteWorkingId}
                     onChange={(e) => setFormData({...formData, substituteWorkingId: e.target.value})}

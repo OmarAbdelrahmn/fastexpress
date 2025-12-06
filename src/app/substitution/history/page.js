@@ -112,7 +112,7 @@ export default function SubstitutionHistoryPage() {
               </label>
               <div className="flex gap-3">
                 <input
-                  type="number"
+                  type="text"
                   placeholder="أدخل رقم العمل للبحث..."
                   value={workingId}
                   onChange={(e) => setWorkingId(e.target.value)}
@@ -202,7 +202,7 @@ export default function SubstitutionHistoryPage() {
                         <tr 
                           key={item.id} 
                           className={`hover:bg-blue-50/50 transition-colors ${
-                            item.actualRiderWorkingId === parseInt(workingId) ? 'bg-yellow-50/30' : ''
+                            item.actualRiderWorkingId === workingId ? 'bg-yellow-50/30' : ''
                           }`}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -213,7 +213,7 @@ export default function SubstitutionHistoryPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              item.actualRiderWorkingId === parseInt(workingId)
+                              item.actualRiderWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-blue-100 text-blue-800'
                             }`}>
@@ -225,7 +225,7 @@ export default function SubstitutionHistoryPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                              item.substituteWorkingId === parseInt(workingId)
+                              item.substituteWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-purple-100 text-purple-800'
                             }`}>

@@ -281,7 +281,7 @@ export default function RequestProblemPage() {
                     <div>
                       <p className="text-green-600 mb-1">تاريخ الاستلام</p>
                       <p className="font-medium text-gray-800">
-                        {new Date(selectedVehicle.currentRider.takenDate).toLocaleDateString('ar-SA')}
+                        {new Date(selectedVehicle.currentRider.takenDate).toLocaleDateString('en-US')}
                       </p>
                     </div>
                   </div>
@@ -441,7 +441,7 @@ export default function RequestProblemPage() {
                         <Clock size={14} />
                         <span className="text-gray-600">منذ:</span>
                         <span className="font-medium text-xs">
-                          {new Date(vehicle.since).toLocaleDateString('ar-SA')}
+                          {new Date(vehicle.since).toLocaleDateString('en-US')}
                         </span>
                       </div>
                     </div>

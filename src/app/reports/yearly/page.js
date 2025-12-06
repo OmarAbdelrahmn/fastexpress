@@ -137,7 +137,7 @@ export default function YearlyReportsPage() {
           />
 
           <Input
-            type="number"
+            type="text"
             label="رقم العمل (اختياري)"
             value={workingId}
             onChange={(e) => setWorkingId(e.target.value)}
