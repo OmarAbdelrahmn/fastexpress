@@ -428,30 +428,10 @@ export default function EnhancedDashboard() {
             value={stats.riders}
             subtitle={`من ${stats.riders} مندوب`}
             icon={Users}
-            color="green"
+            color="yellow"
             linkText="إدارة المناديب"
           />
         </Link>
-        <Link href="/shifts/">
-        <StatCard
-          title="طلبات الأمس المقبولة"
-          value={stats.previousDayTotalOrders}
-          subtitle={`طلب`}
-          icon={ShoppingBag}
-          color="teal"
-          linkText="عرض التفاصيل"
-        />
-      </Link>
-      <Link href="vehicles/admin/users-requests">
-        <StatCard
-          title="طلبات تحتاج موافقة"
-          value={stats.pendingRequests}
-          subtitle={stats.pendingRequests > 0 ? "يوجد طلبات معلقة" : "لا توجد طلبات"}
-          icon={AlertCircle}
-          color={stats.pendingRequests > 0 ? "red" : "green"}
-          linkText="عرض الطلبات"
-        />
-      </Link>
         <Link href="shifts/">
           <StatCard
             title="الورديات اليوم"
@@ -462,7 +442,17 @@ export default function EnhancedDashboard() {
             linkText="جدول الورديات"
           />
         </Link>
-        <Link href="employees/">
+        <Link href="/reports/dashboard">
+        <StatCard
+          title="طلبات الأمس المقبولة"
+          value={stats.previousDayTotalOrders}
+          subtitle={`طلب`}
+          icon={ShoppingBag}
+          color="teal"
+          linkText="عرض التفاصيل"
+        />
+      </Link>
+        <Link href="employees/admin">
           <StatCard
             title="إجمالي الموظفين"
             value={stats.employees}
@@ -472,6 +462,16 @@ export default function EnhancedDashboard() {
             linkText="قائمة الموظفين"
           />
         </Link>
+        <Link href="vehicles/admin/users-requests">
+        <StatCard
+          title="تعميدات تحتاج موافقة"
+          value={stats.pendingRequests}
+          subtitle={stats.pendingRequests > 0 ? "يوجد تعميدات معلقة" : "لا توجد تعميدات"}
+          icon={AlertCircle}
+          color={stats.pendingRequests > 0 ? "text-red-600" : "text-green-600"}
+          linkText="عرض الطلبات"
+        />
+      </Link>
       </div>
 
       {/* Detailed Statistics Grid - Mobile Optimized */}
