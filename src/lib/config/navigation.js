@@ -91,9 +91,7 @@ export const navigationConfig = {
       { path: "register/admin", label: "اضافة ادمن جديد" },
       { path: "register/master", label: "اضافة مدير جديد" },
       { path: "admin/users", label: "إدارة المستخدمين" },
-      { path: "admin/roles", label: "الصلاحيات" },
       { path : "admin/system-health", label: "صحة النظام" },
-
     ],
   },
 
@@ -101,8 +99,8 @@ export const navigationConfig = {
     title: "الحساب",
     icon: "👤",
     routes: [
-      { path: "account/profile", label: "الملف الشخصي" },
-      { path: "account/change-password", label: "تغيير كلمة المرور" },
+      { path: "profile", label: "الملف الشخصي" },
+      { path: "profile/change-password", label: "تغيير كلمة المرور" },
     ],
     
   },
