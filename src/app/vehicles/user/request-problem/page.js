@@ -1,24 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import Input from '@/components/Ui/Input';
-import PageHeader from '@/components/layout/pageheader';
-import { AlertTriangle, Search, CheckCircle, AlertCircle, Car, User, Clock, MapPin, Package } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import Input from "@/components/Ui/Input";
+import PageHeader from "@/components/layout/pageheader";
+import {
+  AlertTriangle,
+  Search,
+  CheckCircle,
+  AlertCircle,
+  Car,
+  User,
+  Clock,
+  MapPin,
+  Package,
+} from "lucide-react";
 
 export default function RequestProblemPage() {
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [takenVehicles, setTakenVehicles] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [employeeIqama, setEmployeeIqama] = useState('');
-  const [problemDescription, setProblemDescription] = useState('');
+  const [employeeIqama, setEmployeeIqama] = useState("");
+  const [problemDescription, setProblemDescription] = useState("");
 
   useEffect(() => {
     loadTakenVehicles();
@@ -27,13 +37,15 @@ export default function RequestProblemPage() {
   const loadTakenVehicles = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get('/api/vehicles/taken?statusFilter=unavailable');
+      const data = await ApiService.get(
+        "/api/vehicles/taken?statusFilter=unavailable"
+      );
       if (data && data.vehicles) {
         setTakenVehicles(data.vehicles);
       }
     } catch (err) {
-      console.error('Error loading vehicles:', err);
-      setErrorMessage('حدث خطأ في تحميل المركبات المستخدمة');
+      console.error("Error loading vehicles:", err);
+      setErrorMessage("حدث خطأ في تحميل المركبات المستخدمة");
     } finally {
       setLoading(false);
     }
@@ -41,27 +53,29 @@ export default function RequestProblemPage() {
 
   const searchVehicle = async () => {
     if (!searchTerm.trim()) {
-      setErrorMessage('الرجاء إدخال رقم اللوحة للبحث');
+      setErrorMessage("الرجاء إدخال رقم اللوحة للبحث");
       return;
     }
 
     setSearchLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
     try {
-      const data = await ApiService.get(`/api/vehicles/with-rider/${searchTerm}`);
+      const data = await ApiService.get(
+        `/api/vehicles/with-rider/${searchTerm}`
+      );
       if (data) {
         setSelectedVehicle(data);
         if (data.currentRider) {
-          setEmployeeIqama(data.currentRider.employeeIqamaNo?.toString() || '');
+          setEmployeeIqama(data.currentRider.employeeIqamaNo?.toString() || "");
         }
-        setErrorMessage('');
+        setErrorMessage("");
       } else {
-        setErrorMessage('لم يتم العثور على المركبة');
+        setErrorMessage("لم يتم العثور على المركبة");
         setSelectedVehicle(null);
       }
     } catch (err) {
-      console.error('Error searching vehicle:', err);
-      setErrorMessage('المركبة غير موجودة');
+      console.error("Error searching vehicle:", err);
+      setErrorMessage("المركبة غير موجودة");
       setSelectedVehicle(null);
     } finally {
       setSearchLoading(false);
@@ -70,55 +84,63 @@ export default function RequestProblemPage() {
 
   const handleSubmitRequest = async () => {
     if (!selectedVehicle) {
-      setErrorMessage('الرجاء اختيار المركبة أولاً');
+      setErrorMessage("الرجاء اختيار المركبة أولاً");
       return;
     }
 
     if (!employeeIqama.trim()) {
-      setErrorMessage('الرجاء إدخال رقم الإقامة');
+      setErrorMessage("الرجاء إدخال رقم الإقامة");
       return;
     }
 
     if (!problemDescription.trim()) {
-      setErrorMessage('الرجاء وصف المشكلة بالتفصيل');
+      setErrorMessage("الرجاء وصف المشكلة بالتفصيل");
       return;
     }
 
     setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const requestBody = {
         Plate: selectedVehicle.plateNumberA,
         riderIqamaNo: parseInt(employeeIqama, 10), // Parse as integer
-        resolvedBy: employeeIqama.toString()
+        resolvedBy: employeeIqama.toString(),
       };
 
-      await ApiService.post(`/api/temp/vehicle-request-problem?reason=${encodeURIComponent(problemDescription)}`, requestBody);
-      
-      setSuccessMessage('تم إرسال تقرير المشكلة بنجاح. سيتم مراجعته من قبل الإدارة.');
+      await ApiService.post(
+        `/api/temp/vehicle-request-problem?reason=${encodeURIComponent(
+          problemDescription
+        )}`,
+        requestBody
+      );
+
+      setSuccessMessage(
+        "تم إرسال تقرير المشكلة بنجاح. سيتم مراجعته من قبل الإدارة."
+      );
       setTimeout(() => {
         setSelectedVehicle(null);
-        setSearchTerm('');
-        setEmployeeIqama('');
-        setProblemDescription('');
+        setSearchTerm("");
+        setEmployeeIqama("");
+        setProblemDescription("");
         loadTakenVehicles();
       }, 2000);
     } catch (err) {
-      console.error('Error submitting request:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء إرسال التقرير');
+      console.error("Error submitting request:", err);
+      setErrorMessage(err?.message || "حدث خطأ أثناء إرسال التقرير");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredVehicles = takenVehicles.filter(v =>
-    v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.serialNumber?.toString().includes(searchTerm) ||
-    v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = takenVehicles.filter(
+    (v) =>
+      v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.serialNumber?.toString().includes(searchTerm) ||
+      v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -131,20 +153,20 @@ export default function RequestProblemPage() {
 
       <div className="px-6 space-y-6">
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title="خطأ"
             message={errorMessage}
-            onClose={() => setErrorMessage('')}
+            onClose={() => setErrorMessage("")}
           />
         )}
 
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title="نجاح"
             message={successMessage}
-            onClose={() => setSuccessMessage('')}
+            onClose={() => setSuccessMessage("")}
           />
         )}
 
@@ -152,7 +174,9 @@ export default function RequestProblemPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="text-red-600 mt-1" size={24} />
             <div>
-              <h3 className="font-semibold text-red-800 mb-1">إرشادات الإبلاغ</h3>
+              <h3 className="font-semibold text-red-800 mb-1">
+                إرشادات الإبلاغ
+              </h3>
               <ul className="text-sm text-red-600 space-y-1 list-disc list-inside">
                 <li>قدم وصفاً دقيقاً ومفصلاً للمشكلة</li>
                 <li>اذكر متى لاحظت المشكلة لأول مرة</li>
@@ -168,7 +192,9 @@ export default function RequestProblemPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 mb-1">مركبات مستخدمة</p>
-                <p className="text-2xl font-bold text-blue-700">{takenVehicles.length}</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {takenVehicles.length}
+                </p>
               </div>
               <Car className="text-blue-500" size={36} />
             </div>
@@ -179,7 +205,7 @@ export default function RequestProblemPage() {
               <div>
                 <p className="text-sm text-orange-600 mb-1">تقارير نشطة</p>
                 <p className="text-2xl font-bold text-orange-700">
-                  {takenVehicles.filter(v => v.problemsCount > 0).length}
+                  {takenVehicles.filter((v) => v.problemsCount > 0).length}
                 </p>
               </div>
               <AlertTriangle className="text-orange-500" size={36} />
@@ -190,7 +216,9 @@ export default function RequestProblemPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-600 mb-1">نتائج البحث</p>
-                <p className="text-2xl font-bold text-purple-700">{filteredVehicles.length}</p>
+                <p className="text-2xl font-bold text-purple-700">
+                  {filteredVehicles.length}
+                </p>
               </div>
               <Search className="text-purple-500" size={36} />
             </div>
@@ -203,7 +231,7 @@ export default function RequestProblemPage() {
               <Search size={20} />
               البحث عن المركبة
             </h3>
-            
+
             <div className="flex gap-3">
               <div className="flex-1">
                 <Input
@@ -211,10 +239,10 @@ export default function RequestProblemPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="أدخل رقم اللوحة..."
-                  onKeyPress={(e) => e.key === 'Enter' && searchVehicle()}
+                  onKeyPress={(e) => e.key === "Enter" && searchVehicle()}
                 />
               </div>
-              <Button 
+              <Button
                 onClick={searchVehicle}
                 loading={searchLoading}
                 disabled={searchLoading}
@@ -231,34 +259,46 @@ export default function RequestProblemPage() {
                 <Car size={18} />
                 معلومات المركبة المحددة
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
                 <div>
                   <p className="text-blue-600 mb-1">رقم اللوحة (عربي)</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.plateNumberA}
+                  </p>
                 </div>
                 <div>
                   <p className="text-blue-600 mb-1">الرقم التسلسلي</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.serialNumber}
+                  </p>
                 </div>
                 <div>
                   <p className="text-blue-600 mb-1">نوع المركبة</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.vehicleType}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.vehicleType}
+                  </p>
                 </div>
                 <div>
                   <p className="text-blue-600 mb-1">رقم المركبة</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.vehicleNumber}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.vehicleNumber}
+                  </p>
                 </div>
                 {selectedVehicle.location && (
                   <div>
                     <p className="text-blue-600 mb-1">الموقع</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.location}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.location}
+                    </p>
                   </div>
                 )}
                 {selectedVehicle.manufacturer && (
                   <div>
                     <p className="text-blue-600 mb-1">الشركة المصنعة</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.manufacturer}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.manufacturer}
+                    </p>
                   </div>
                 )}
               </div>
@@ -267,21 +307,27 @@ export default function RequestProblemPage() {
                 <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
                   <h5 className="font-bold text-green-800 mb-2 flex items-center gap-2">
                     <User size={16} />
-                    معلومات السائق الحالي
+                    معلومات المندوب الحالي
                   </h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div>
                       <p className="text-green-600 mb-1">رقم الإقامة</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.currentRider.employeeIqamaNo}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.currentRider.employeeIqamaNo}
+                      </p>
                     </div>
                     <div>
                       <p className="text-green-600 mb-1">الاسم (عربي)</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.currentRider.riderName}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.currentRider.riderName}
+                      </p>
                     </div>
                     <div>
                       <p className="text-green-600 mb-1">تاريخ الاستلام</p>
                       <p className="font-medium text-gray-800">
-                        {new Date(selectedVehicle.currentRider.takenDate).toLocaleDateString('en-US')}
+                        {new Date(
+                          selectedVehicle.currentRider.takenDate
+                        ).toLocaleDateString("en-US")}
                       </p>
                     </div>
                   </div>
@@ -293,7 +339,8 @@ export default function RequestProblemPage() {
                   <div className="flex items-center gap-2 text-orange-800">
                     <AlertTriangle size={16} />
                     <p className="text-sm font-bold">
-                      تحذير: توجد {selectedVehicle.activeProblemsCount} مشكلة نشطة لهذه المركبة
+                      تحذير: توجد {selectedVehicle.activeProblemsCount} مشكلة
+                      نشطة لهذه المركبة
                     </p>
                   </div>
                 </div>
@@ -334,7 +381,10 @@ export default function RequestProblemPage() {
                   <AlertCircle className="text-yellow-600 mt-0.5" size={16} />
                   <div className="text-xs text-yellow-700">
                     <p className="font-bold mb-1">ملاحظة هامة:</p>
-                    <p>إذا كانت المشكلة خطيرة وتؤثر على السلامة، يُرجى التوقف عن استخدام المركبة فوراً والاتصال بالإدارة مباشرة.</p>
+                    <p>
+                      إذا كانت المشكلة خطيرة وتؤثر على السلامة، يُرجى التوقف عن
+                      استخدام المركبة فوراً والاتصال بالإدارة مباشرة.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -345,15 +395,19 @@ export default function RequestProblemPage() {
                   variant="secondary"
                   onClick={() => {
                     setSelectedVehicle(null);
-                    setSearchTerm('');
-                    setEmployeeIqama('');
-                    setProblemDescription('');
+                    setSearchTerm("");
+                    setEmployeeIqama("");
+                    setProblemDescription("");
                   }}
                   disabled={loading}
                 >
                   إلغاء
                 </Button>
-                <Button onClick={handleSubmitRequest} loading={loading} disabled={loading}>
+                <Button
+                  onClick={handleSubmitRequest}
+                  loading={loading}
+                  disabled={loading}
+                >
                   <AlertTriangle size={18} className="ml-2" />
                   إرسال التقرير
                 </Button>
@@ -364,8 +418,10 @@ export default function RequestProblemPage() {
 
         {!selectedVehicle && (
           <Card>
-            <h3 className="text-lg font-bold text-gray-800 mb-4">المركبات المستخدمة</h3>
-            
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              المركبات المستخدمة
+            </h3>
+
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
@@ -382,9 +438,9 @@ export default function RequestProblemPage() {
                   <div
                     key={vehicle.vehicleNumber}
                     className={`border-2 rounded-lg p-4 hover:shadow-lg transition cursor-pointer ${
-                      vehicle.problemsCount > 0 
-                        ? 'border-orange-300 bg-orange-50' 
-                        : 'border-blue-200 bg-blue-50'
+                      vehicle.problemsCount > 0
+                        ? "border-orange-300 bg-orange-50"
+                        : "border-blue-200 bg-blue-50"
                     }`}
                     onClick={() => {
                       setSearchTerm(vehicle.plateNumberA);
@@ -393,24 +449,41 @@ export default function RequestProblemPage() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          vehicle.problemsCount > 0 ? 'bg-orange-100' : 'bg-blue-100'
-                        }`}>
+                        <div
+                          className={`p-2 rounded-lg ${
+                            vehicle.problemsCount > 0
+                              ? "bg-orange-100"
+                              : "bg-blue-100"
+                          }`}
+                        >
                           {vehicle.problemsCount > 0 ? (
-                            <AlertTriangle className="text-orange-600" size={20} />
+                            <AlertTriangle
+                              className="text-orange-600"
+                              size={20}
+                            />
                           ) : (
                             <Car className="text-blue-600" size={20} />
                           )}
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-800">{vehicle.plateNumberA}</h4>
-                          <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                          <h4 className="font-bold text-gray-800">
+                            {vehicle.plateNumberA}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 text-white rounded-full text-xs font-medium ${
-                        vehicle.problemsCount > 0 ? 'bg-orange-600' : 'bg-blue-600'
-                      }`}>
-                        {vehicle.problemsCount > 0 ? `${vehicle.problemsCount} مشكلة` : 'مستخدمة'}
+                      <span
+                        className={`px-3 py-1 text-white rounded-full text-xs font-medium ${
+                          vehicle.problemsCount > 0
+                            ? "bg-orange-600"
+                            : "bg-blue-600"
+                        }`}
+                      >
+                        {vehicle.problemsCount > 0
+                          ? `${vehicle.problemsCount} مشكلة`
+                          : "مستخدمة"}
                       </span>
                     </div>
 
@@ -418,14 +491,18 @@ export default function RequestProblemPage() {
                       <div className="flex items-center gap-2 text-gray-700">
                         <Package size={14} />
                         <span className="text-gray-600">تسلسلي:</span>
-                        <span className="font-medium">{vehicle.serialNumber}</span>
+                        <span className="font-medium">
+                          {vehicle.serialNumber}
+                        </span>
                       </div>
 
-                      {vehicle.riderName && vehicle.riderName !== 'N/A' && (
+                      {vehicle.riderName && vehicle.riderName !== "N/A" && (
                         <div className="bg-green-50 border border-green-200 p-2 rounded">
                           <div className="flex items-center gap-2 text-gray-700">
                             <User size={14} className="text-green-600" />
-                            <span className="font-medium">{vehicle.riderName}</span>
+                            <span className="font-medium">
+                              {vehicle.riderName}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -433,7 +510,9 @@ export default function RequestProblemPage() {
                       {vehicle.location && (
                         <div className="flex items-center gap-2 text-gray-700">
                           <MapPin size={14} />
-                          <span className="font-medium">{vehicle.location}</span>
+                          <span className="font-medium">
+                            {vehicle.location}
+                          </span>
                         </div>
                       )}
 
@@ -441,7 +520,7 @@ export default function RequestProblemPage() {
                         <Clock size={14} />
                         <span className="text-gray-600">منذ:</span>
                         <span className="font-medium text-xs">
-                          {new Date(vehicle.since).toLocaleDateString('en-US')}
+                          {new Date(vehicle.since).toLocaleDateString("en-US")}
                         </span>
                       </div>
                     </div>

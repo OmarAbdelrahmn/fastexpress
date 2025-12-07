@@ -1,19 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import PageHeader from '@/components/layout/pageheader';
-import { AlertTriangle, Car, User, Clock, Wrench, Search, Eye } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import PageHeader from "@/components/layout/pageheader";
+import {
+  AlertTriangle,
+  Car,
+  User,
+  Clock,
+  Wrench,
+  Search,
+  Eye,
+} from "lucide-react";
 
 export default function ProblemsVehiclesPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [problemVehicles, setProblemVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -25,13 +33,13 @@ export default function ProblemsVehiclesPage() {
   const loadProblemVehicles = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get('/api/vehicles/problem');
+      const data = await ApiService.get("/api/vehicles/problem");
       if (data && data.vehicles) {
         setProblemVehicles(data.vehicles);
       }
     } catch (err) {
-      console.error('Error loading problem vehicles:', err);
-      setErrorMessage('حدث خطأ في تحميل المركبات التي بها مشاكل');
+      console.error("Error loading problem vehicles:", err);
+      setErrorMessage("حدث خطأ في تحميل المركبات التي بها مشاكل");
     } finally {
       setLoading(false);
     }
@@ -46,14 +54,18 @@ export default function ProblemsVehiclesPage() {
     router.push(`/vehicles/admin/fix-problems?plate=${vehicle.plateNumberA}`);
   };
 
-  const filteredVehicles = problemVehicles.filter(v =>
-    v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.reason?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = problemVehicles.filter(
+    (v) =>
+      v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.reason?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalProblems = problemVehicles.reduce((sum, v) => sum + (v.problemsCount || 0), 0);
+  const totalProblems = problemVehicles.reduce(
+    (sum, v) => sum + (v.problemsCount || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -62,19 +74,19 @@ export default function ProblemsVehiclesPage() {
         subtitle={`${filteredVehicles.length} مركبة تحتاج إلى صيانة`}
         icon={AlertTriangle}
         actionButton={{
-          text: 'تحديث البيانات',
+          text: "تحديث البيانات",
           icon: <AlertTriangle size={18} />,
           onClick: loadProblemVehicles,
-          variant: 'secondary'
+          variant: "secondary",
         }}
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
-          onClose={() => setErrorMessage('')}
+          onClose={() => setErrorMessage("")}
         />
       )}
 
@@ -84,7 +96,9 @@ export default function ProblemsVehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-orange-600 mb-1">مركبات بها مشاكل</p>
-              <p className="text-3xl font-bold text-orange-700">{problemVehicles.length}</p>
+              <p className="text-3xl font-bold text-orange-700">
+                {problemVehicles.length}
+              </p>
             </div>
             <AlertTriangle className="text-orange-500" size={40} />
           </div>
@@ -104,7 +118,9 @@ export default function ProblemsVehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-purple-600 mb-1">النتائج المعروضة</p>
-              <p className="text-3xl font-bold text-purple-700">{filteredVehicles.length}</p>
+              <p className="text-3xl font-bold text-purple-700">
+                {filteredVehicles.length}
+              </p>
             </div>
             <Search className="text-purple-500" size={40} />
           </div>
@@ -114,10 +130,13 @@ export default function ProblemsVehiclesPage() {
       {/* Search */}
       <Card>
         <div className="relative">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
-            placeholder="البحث برقم اللوحة، اسم السائق، أو سبب المشكلة..."
+            placeholder="البحث برقم اللوحة، اسم المندوب، أو سبب المشكلة..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -140,7 +159,9 @@ export default function ProblemsVehiclesPage() {
         ) : filteredVehicles.length === 0 ? (
           <div className="text-center py-12">
             <Wrench className="mx-auto text-green-500 mb-4" size={48} />
-            <p className="text-gray-600">لا توجد مركبات تحتاج إلى صيانة حالياً</p>
+            <p className="text-gray-600">
+              لا توجد مركبات تحتاج إلى صيانة حالياً
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -155,8 +176,12 @@ export default function ProblemsVehiclesPage() {
                       <AlertTriangle className="text-orange-600" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-800">{vehicle.plateNumberA}</h4>
-                      <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                      <h4 className="font-bold text-gray-800">
+                        {vehicle.plateNumberA}
+                      </h4>
+                      <p className="text-xs text-gray-500">
+                        {vehicle.vehicleType}
+                      </p>
                     </div>
                   </div>
                   <span className="px-3 py-1 bg-orange-600 text-white rounded-full text-xs font-medium">
@@ -167,20 +192,26 @@ export default function ProblemsVehiclesPage() {
                 <div className="space-y-2 text-sm mb-4">
                   <div className="flex items-center gap-2 text-gray-700">
                     <Car size={14} />
-                    <span className="text-xs">رقم تسلسلي: {vehicle.serialNumber}</span>
+                    <span className="text-xs">
+                      رقم تسلسلي: {vehicle.serialNumber}
+                    </span>
                   </div>
 
-                  {vehicle.riderName && vehicle.riderName !== 'N/A' && vehicle.riderName !== 'Unknown' && (
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <User size={14} />
-                      <span className="text-xs">آخر سائق: {vehicle.riderName}</span>
-                    </div>
-                  )}
+                  {vehicle.riderName &&
+                    vehicle.riderName !== "N/A" &&
+                    vehicle.riderName !== "Unknown" && (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <User size={14} />
+                        <span className="text-xs">
+                          آخر مندوب: {vehicle.riderName}
+                        </span>
+                      </div>
+                    )}
 
                   <div className="flex items-center gap-2 text-gray-700">
                     <Clock size={14} />
                     <span className="text-xs">
-                      منذ: {new Date(vehicle.since).toLocaleDateString('ar-SA')}
+                      منذ: {new Date(vehicle.since).toLocaleDateString("ar-SA")}
                     </span>
                   </div>
 
@@ -222,13 +253,25 @@ export default function ProblemsVehiclesPage() {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">تفاصيل المركبة</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  تفاصيل المركبة
+                </h2>
                 <button
                   onClick={() => setShowDetailsModal(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -239,14 +282,19 @@ export default function ProblemsVehiclesPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="text-orange-600" size={20} />
                     <h3 className="font-bold text-orange-800">
-                      حالة المشكلة - {selectedVehicle.problemsCount || 1} مشكلة نشطة
+                      حالة المشكلة - {selectedVehicle.problemsCount || 1} مشكلة
+                      نشطة
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-700">منذ: {new Date(selectedVehicle.since).toLocaleString('ar-SA')}</p>
+                  <p className="text-sm text-gray-700">
+                    منذ:{" "}
+                    {new Date(selectedVehicle.since).toLocaleString("ar-SA")}
+                  </p>
                   {selectedVehicle.reason && (
                     <div className="mt-3 bg-orange-100 p-3 rounded">
                       <p className="text-sm text-orange-900">
-                        <strong>وصف المشكلة:</strong><br />
+                        <strong>وصف المشكلة:</strong>
+                        <br />
                         {selectedVehicle.reason}
                       </p>
                     </div>
@@ -255,65 +303,91 @@ export default function ProblemsVehiclesPage() {
 
                 {/* Vehicle Info */}
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-gray-800 mb-3">معلومات المركبة</h3>
+                  <h3 className="font-bold text-gray-800 mb-3">
+                    معلومات المركبة
+                  </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-gray-600 mb-1">رقم اللوحة</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.plateNumberA}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-600 mb-1">الرقم التسلسلي</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.serialNumber}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-600 mb-1">نوع المركبة</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.vehicleType}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.vehicleType}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-600 mb-1">رقم المركبة</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.vehicleNumber}</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedVehicle.vehicleNumber}
+                      </p>
                     </div>
                     {selectedVehicle.location && (
                       <div className="col-span-2">
                         <p className="text-gray-600 mb-1">الموقع</p>
-                        <p className="font-medium text-gray-800">{selectedVehicle.location}</p>
+                        <p className="font-medium text-gray-800">
+                          {selectedVehicle.location}
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Last Rider Info */}
-                {selectedVehicle.riderName && selectedVehicle.riderName !== 'N/A' && selectedVehicle.riderName !== 'Unknown' && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-blue-800 mb-3">معلومات آخر سائق</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-blue-600 mb-1">اسم السائق</p>
-                        <p className="font-medium text-gray-800">{selectedVehicle.riderName}</p>
-                      </div>
-                      {selectedVehicle.riderIqamaNo && (
+                {selectedVehicle.riderName &&
+                  selectedVehicle.riderName !== "N/A" &&
+                  selectedVehicle.riderName !== "Unknown" && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="font-bold text-blue-800 mb-3">
+                        معلومات آخر مندوب
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-blue-600 mb-1">رقم الإقامة</p>
-                          <p className="font-medium text-gray-800">{selectedVehicle.riderIqamaNo}</p>
+                          <p className="text-blue-600 mb-1">اسم المندوب</p>
+                          <p className="font-medium text-gray-800">
+                            {selectedVehicle.riderName}
+                          </p>
                         </div>
-                      )}
+                        {selectedVehicle.riderIqamaNo && (
+                          <div>
+                            <p className="text-blue-600 mb-1">رقم الإقامة</p>
+                            <p className="font-medium text-gray-800">
+                              {selectedVehicle.riderIqamaNo}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Manufacturing Info */}
                 {selectedVehicle.manufacturer && (
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-gray-800 mb-3">معلومات التصنيع</h3>
+                    <h3 className="font-bold text-gray-800 mb-3">
+                      معلومات التصنيع
+                    </h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600 mb-1">الشركة المصنعة</p>
-                        <p className="font-medium text-gray-800">{selectedVehicle.manufacturer}</p>
+                        <p className="font-medium text-gray-800">
+                          {selectedVehicle.manufacturer}
+                        </p>
                       </div>
                       {selectedVehicle.manufactureYear && (
                         <div>
                           <p className="text-gray-600 mb-1">سنة الصنع</p>
-                          <p className="font-medium text-gray-800">{selectedVehicle.manufactureYear}</p>
+                          <p className="font-medium text-gray-800">
+                            {selectedVehicle.manufactureYear}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -322,7 +396,10 @@ export default function ProblemsVehiclesPage() {
               </div>
 
               <div className="mt-6 flex gap-3 justify-end">
-                <Button onClick={() => setShowDetailsModal(false)} variant="secondary">
+                <Button
+                  onClick={() => setShowDetailsModal(false)}
+                  variant="secondary"
+                >
                   إغلاق
                 </Button>
                 <Button onClick={() => handleFixRedirect(selectedVehicle)}>

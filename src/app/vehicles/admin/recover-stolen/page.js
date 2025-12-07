@@ -1,25 +1,34 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import Input from '@/components/Ui/Input';
-import PageHeader from '@/components/layout/pageheader';
-import { RefreshCw, Shield, Search, Car, Clock, User, MapPin, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import Input from "@/components/Ui/Input";
+import PageHeader from "@/components/layout/pageheader";
+import {
+  RefreshCw,
+  Shield,
+  Search,
+  Car,
+  Clock,
+  User,
+  MapPin,
+  CheckCircle,
+} from "lucide-react";
 
 export default function RecoverStolenPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [stolenVehicles, setStolenVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [recoveryDetails, setRecoveryDetails] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [recoveryDetails, setRecoveryDetails] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     loadStolenVehicles();
@@ -28,13 +37,13 @@ export default function RecoverStolenPage() {
   const loadStolenVehicles = async () => {
     setLoadingVehicles(true);
     try {
-      const data = await ApiService.get('/api/vehicles/stolen');
+      const data = await ApiService.get("/api/vehicles/stolen");
       if (data && data.vehicles) {
         setStolenVehicles(data.vehicles);
       }
     } catch (err) {
-      console.error('Error loading stolen vehicles:', err);
-      setErrorMessage('حدث خطأ في تحميل المركبات المسروقة');
+      console.error("Error loading stolen vehicles:", err);
+      setErrorMessage("حدث خطأ في تحميل المركبات المسروقة");
     } finally {
       setLoadingVehicles(false);
     }
@@ -42,45 +51,48 @@ export default function RecoverStolenPage() {
 
   const handleRecoverStolen = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedVehicle) {
-      setErrorMessage('الرجاء اختيار المركبة أولاً');
+      setErrorMessage("الرجاء اختيار المركبة أولاً");
       return;
     }
 
     if (!recoveryDetails.trim()) {
-      setErrorMessage('الرجاء إدخال تفاصيل الاسترجاع');
+      setErrorMessage("الرجاء إدخال تفاصيل الاسترجاع");
       return;
     }
 
     setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       await ApiService.put(
-        `/api/vehicles/recover-stolen?plate=${selectedVehicle.plateNumberA}&reason=${encodeURIComponent(recoveryDetails)}`
+        `/api/vehicles/recover-stolen?plate=${
+          selectedVehicle.plateNumberA
+        }&reason=${encodeURIComponent(recoveryDetails)}`
       );
-      
-      setSuccessMessage('تم استرجاع المركبة بنجاح');
+
+      setSuccessMessage("تم استرجاع المركبة بنجاح");
       setTimeout(() => {
         setSelectedVehicle(null);
-        setRecoveryDetails('');
+        setRecoveryDetails("");
         loadStolenVehicles();
       }, 2000);
     } catch (err) {
-      console.error('Error recovering stolen vehicle:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء استرجاع المركبة');
+      console.error("Error recovering stolen vehicle:", err);
+      setErrorMessage(err?.message || "حدث خطأ أثناء استرجاع المركبة");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredVehicles = stolenVehicles.filter(v =>
-    v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.serialNumber?.toString().includes(searchTerm) ||
-    v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = stolenVehicles.filter(
+    (v) =>
+      v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.serialNumber?.toString().includes(searchTerm) ||
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -90,29 +102,29 @@ export default function RecoverStolenPage() {
         subtitle={`${stolenVehicles.length} مركبة مبلغ عن سرقتها`}
         icon={RefreshCw}
         actionButton={{
-          text: 'تحديث',
+          text: "تحديث",
           icon: <RefreshCw size={18} />,
           onClick: loadStolenVehicles,
-          variant: 'secondary'
+          variant: "secondary",
         }}
       />
 
       <div className="px-6 space-y-6">
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title="خطأ"
             message={errorMessage}
-            onClose={() => setErrorMessage('')}
+            onClose={() => setErrorMessage("")}
           />
         )}
 
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title="نجاح"
             message={successMessage}
-            onClose={() => setSuccessMessage('')}
+            onClose={() => setSuccessMessage("")}
           />
         )}
 
@@ -122,7 +134,9 @@ export default function RecoverStolenPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-red-600 mb-1">مركبات مسروقة</p>
-                <p className="text-3xl font-bold text-red-700">{stolenVehicles.length}</p>
+                <p className="text-3xl font-bold text-red-700">
+                  {stolenVehicles.length}
+                </p>
               </div>
               <Shield className="text-red-500" size={40} />
             </div>
@@ -131,7 +145,9 @@ export default function RecoverStolenPage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 mb-1">تم الاسترجاع اليوم</p>
+                <p className="text-sm text-green-600 mb-1">
+                  تم الاسترجاع اليوم
+                </p>
                 <p className="text-3xl font-bold text-green-700">0</p>
               </div>
               <CheckCircle className="text-green-500" size={40} />
@@ -142,7 +158,9 @@ export default function RecoverStolenPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 mb-1">نتائج البحث</p>
-                <p className="text-3xl font-bold text-orange-700">{filteredVehicles.length}</p>
+                <p className="text-3xl font-bold text-orange-700">
+                  {filteredVehicles.length}
+                </p>
               </div>
               <Search className="text-orange-500" size={40} />
             </div>
@@ -153,7 +171,10 @@ export default function RecoverStolenPage() {
         <Card>
           <div className="mb-4">
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="البحث برقم اللوحة، الرقم التسلسلي، أو الموقع..."
@@ -189,8 +210,8 @@ export default function RecoverStolenPage() {
                   key={vehicle.vehicleNumber}
                   className={`border-2 rounded-lg p-4 transition ${
                     selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-red-200 bg-red-50'
+                      ? "border-green-500 bg-green-50"
+                      : "border-red-200 bg-red-50"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -199,8 +220,12 @@ export default function RecoverStolenPage() {
                         <Shield className="text-red-600" size={20} />
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-800">{vehicle.plateNumberA}</h4>
-                        <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                        <h4 className="font-bold text-gray-800">
+                          {vehicle.plateNumberA}
+                        </h4>
+                        <p className="text-xs text-gray-500">
+                          {vehicle.vehicleType}
+                        </p>
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-medium">
@@ -212,13 +237,15 @@ export default function RecoverStolenPage() {
                     <div className="flex items-center gap-2 text-gray-700">
                       <Car size={14} />
                       <span className="text-gray-600">الرقم التسلسلي:</span>
-                      <span className="font-medium">{vehicle.serialNumber}</span>
+                      <span className="font-medium">
+                        {vehicle.serialNumber}
+                      </span>
                     </div>
 
-                    {vehicle.riderName && vehicle.riderName !== 'Unknown' && (
+                    {vehicle.riderName && vehicle.riderName !== "Unknown" && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <User size={14} />
-                        <span className="text-gray-600">آخر سائق:</span>
+                        <span className="text-gray-600">آخر مندوب:</span>
                         <span className="font-medium">{vehicle.riderName}</span>
                       </div>
                     )}
@@ -235,7 +262,7 @@ export default function RecoverStolenPage() {
                       <Clock size={14} />
                       <span className="text-gray-600">تاريخ الإبلاغ:</span>
                       <span className="font-medium">
-                        {new Date(vehicle.since).toLocaleDateString('ar-SA')}
+                        {new Date(vehicle.since).toLocaleDateString("ar-SA")}
                       </span>
                     </div>
 
@@ -251,13 +278,19 @@ export default function RecoverStolenPage() {
                   <Button
                     onClick={() => {
                       setSelectedVehicle(vehicle);
-                      setRecoveryDetails('');
+                      setRecoveryDetails("");
                     }}
-                    variant={selectedVehicle?.vehicleNumber === vehicle.vehicleNumber ? 'primary' : 'secondary'}
+                    variant={
+                      selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
+                        ? "primary"
+                        : "secondary"
+                    }
                     className="w-full"
                   >
                     <RefreshCw size={16} className="ml-2" />
-                    {selectedVehicle?.vehicleNumber === vehicle.vehicleNumber ? 'محددة' : 'استرجاع المركبة'}
+                    {selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
+                      ? "محددة"
+                      : "استرجاع المركبة"}
                   </Button>
                 </div>
               ))}
@@ -273,28 +306,39 @@ export default function RecoverStolenPage() {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="text-green-600 mt-1" size={24} />
                   <div>
-                    <h3 className="font-semibold text-green-800 mb-1">استرجاع مركبة مسروقة</h3>
+                    <h3 className="font-semibold text-green-800 mb-1">
+                      استرجاع مركبة مسروقة
+                    </h3>
                     <p className="text-sm text-green-600">
-                      المركبة المحددة: <strong>{selectedVehicle.plateNumberA}</strong>
+                      المركبة المحددة:{" "}
+                      <strong>{selectedVehicle.plateNumberA}</strong>
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-bold text-gray-800 mb-3">معلومات المركبة</h4>
+                <h4 className="font-bold text-gray-800 mb-3">
+                  معلومات المركبة
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-gray-600 mb-1">رقم اللوحة</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.plateNumberA}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-600 mb-1">الرقم التسلسلي</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.serialNumber}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-600 mb-1">نوع المركبة</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.vehicleType}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.vehicleType}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -319,13 +363,17 @@ export default function RecoverStolenPage() {
                   variant="secondary"
                   onClick={() => {
                     setSelectedVehicle(null);
-                    setRecoveryDetails('');
+                    setRecoveryDetails("");
                   }}
                   disabled={loading}
                 >
                   إلغاء
                 </Button>
-                <Button onClick={handleRecoverStolen} loading={loading} disabled={loading}>
+                <Button
+                  onClick={handleRecoverStolen}
+                  loading={loading}
+                  disabled={loading}
+                >
                   <CheckCircle size={18} className="ml-2" />
                   تأكيد الاسترجاع
                 </Button>

@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import Input from '@/components/Ui/Input';
-import PageHeader from '@/components/layout/pageheader';
-import { RefreshCw, Save, ArrowRight, Home, Users } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import Input from "@/components/Ui/Input";
+import PageHeader from "@/components/layout/pageheader";
+import { RefreshCw, Save, ArrowRight, Home, Users } from "lucide-react";
 
-const API_BASE = 'https://fastexpress.tryasp.net';
+const API_BASE = "https://fastexpress.tryasp.net";
 
 export default function HousingMoveEmployeePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingHousings, setLoadingHousings] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [housings, setHousings] = useState([]);
   const [formData, setFormData] = useState({
-    iqamaNo: '',
-    oldHousingName: '',
-    newHousingName: '',
+    iqamaNo: "",
+    oldHousingName: "",
+    newHousingName: "",
   });
 
   useEffect(() => {
@@ -32,11 +32,11 @@ export default function HousingMoveEmployeePage() {
   const loadHousings = async () => {
     setLoadingHousings(true);
     try {
-      const data = await ApiService.get('/api/Housing');
+      const data = await ApiService.get("/api/Housing");
       setHousings(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Error loading housings:', err);
-      setErrorMessage('حدث خطأ في تحميل قائمة السكنات');
+      console.error("Error loading housings:", err);
+      setErrorMessage("حدث خطأ في تحميل قائمة السكنات");
     } finally {
       setLoadingHousings(false);
     }
@@ -51,14 +51,14 @@ export default function HousingMoveEmployeePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.oldHousingName === formData.newHousingName) {
-      setErrorMessage('يجب أن يكون السكن الجديد مختلفاً عن السكن القديم');
+      setErrorMessage("يجب أن يكون السكن الجديد مختلفاً عن السكن القديم");
       return;
     }
 
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
     setLoading(true);
 
     try {
@@ -67,21 +67,23 @@ export default function HousingMoveEmployeePage() {
         `/api/Housing/${formData.iqamaNo}/change/${formData.oldHousingName}/${formData.newHousingName}`,
         null
       );
-      
-      setSuccessMessage('تم نقل الموظف بنجاح');
+
+      setSuccessMessage("تم نقل الموظف بنجاح");
       setTimeout(() => {
         router.push(`/housing/manage`);
       }, 1500);
     } catch (err) {
-      console.error('Error moving employee:', err);
+      console.error("Error moving employee:", err);
       if (err?.status === 404) {
-        setErrorMessage('الموظف أو السكن غير موجود');
+        setErrorMessage("الموظف أو السكن غير موجود");
       } else if (err?.status === 400) {
-        setErrorMessage('بيانات غير صحيحة. الرجاء التحقق من المدخلات.');
+        setErrorMessage("بيانات غير صحيحة. الرجاء التحقق من المدخلات.");
       } else if (err?.status === 409) {
-        setErrorMessage('تعارض في البيانات');
+        setErrorMessage("تعارض في البيانات");
       } else {
-        setErrorMessage(err?.message || 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.');
+        setErrorMessage(
+          err?.message || "حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى."
+        );
       }
     } finally {
       setLoading(false);
@@ -95,28 +97,28 @@ export default function HousingMoveEmployeePage() {
         subtitle="قم بنقل موظف من سكن إلى آخر"
         icon={RefreshCw}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: "العودة للقائمة",
           icon: <ArrowRight size={18} />,
           onClick: () => router.push(`/housing/manage`),
-          variant: 'secondary'
+          variant: "secondary",
         }}
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
-          onClose={() => setErrorMessage('')}
+          onClose={() => setErrorMessage("")}
         />
       )}
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجاح" 
+        <Alert
+          type="success"
+          title="نجاح"
           message={successMessage}
-          onClose={() => setSuccessMessage('')}
+          onClose={() => setSuccessMessage("")}
         />
       )}
 
@@ -125,8 +127,12 @@ export default function HousingMoveEmployeePage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 mb-1">إجمالي السكنات المتاحة</p>
-              <p className="text-3xl font-bold text-blue-700">{housings.length}</p>
+              <p className="text-sm text-blue-600 mb-1">
+                إجمالي السكنات الجاهزة للتسليم
+              </p>
+              <p className="text-3xl font-bold text-blue-700">
+                {housings.length}
+              </p>
             </div>
             <Home className="text-blue-500" size={40} />
           </div>
@@ -135,9 +141,14 @@ export default function HousingMoveEmployeePage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 mb-1">إجمالي السعة المتاحة</p>
+              <p className="text-sm text-green-600 mb-1">
+                إجمالي السعة الجاهزة للتسليم
+              </p>
               <p className="text-3xl font-bold text-green-700">
-                {housings.reduce((sum, h) => sum + (h.capacity - (h.employees.length  || 0)), 0)}
+                {housings.reduce(
+                  (sum, h) => sum + (h.capacity - (h.employees.length || 0)),
+                  0
+                )}
               </p>
             </div>
             <Users className="text-green-500" size={40} />
@@ -156,9 +167,12 @@ export default function HousingMoveEmployeePage() {
               <div className="flex items-start gap-3">
                 <RefreshCw className="text-orange-600 mt-1" size={24} />
                 <div>
-                  <h3 className="font-semibold text-orange-800 mb-1">نقل الموظف</h3>
+                  <h3 className="font-semibold text-orange-800 mb-1">
+                    نقل الموظف
+                  </h3>
                   <p className="text-sm text-orange-600">
-                    الرجاء إدخال رقم إقامة الموظف واختيار السكن الحالي والسكن الجديد
+                    الرجاء إدخال رقم إقامة الموظف واختيار السكن الحالي والسكن
+                    الجديد
                   </p>
                 </div>
               </div>
@@ -190,7 +204,8 @@ export default function HousingMoveEmployeePage() {
                     <option value="">اختر السكن الحالي</option>
                     {housings.map((housing) => (
                       <option key={housing.name} value={housing.name}>
-                        {housing.name} - الإشغال: {housing.employees.length  || 0}/{housing.capacity}
+                        {housing.name} - الإشغال:{" "}
+                        {housing.employees.length || 0}/{housing.capacity}
                       </option>
                     ))}
                   </select>
@@ -209,11 +224,15 @@ export default function HousingMoveEmployeePage() {
                   >
                     <option value="">اختر السكن الجديد</option>
                     {housings
-                      .filter(housing => housing.name !== formData.oldHousingName)
+                      .filter(
+                        (housing) => housing.name !== formData.oldHousingName
+                      )
                       .map((housing) => (
                         <option key={housing.name} value={housing.name}>
-                          {housing.name} - الإشغال: {housing.employees.length  || 0}/{housing.capacity}
-                          {housing.employees.length  >= housing.capacity && ' (ممتلئ)'}
+                          {housing.name} - الإشغال:{" "}
+                          {housing.employees.length || 0}/{housing.capacity}
+                          {housing.employees.length >= housing.capacity &&
+                            " (ممتلئ)"}
                         </option>
                       ))}
                   </select>
@@ -229,19 +248,30 @@ export default function HousingMoveEmployeePage() {
                     <Home size={18} />
                     السكن الحالي
                   </h3>
-                  {housings.find(h => h.name === formData.oldHousingName) && (
+                  {housings.find((h) => h.name === formData.oldHousingName) && (
                     <div className="space-y-2">
                       <div>
                         <p className="text-sm text-red-600 mb-1">العنوان</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.oldHousingName).address}
+                          {
+                            housings.find(
+                              (h) => h.name === formData.oldHousingName
+                            ).address
+                          }
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-red-600 mb-1">الإشغال</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.oldHousingName).employees.length  || 0} / 
-                          {housings.find(h => h.name === formData.oldHousingName).capacity}
+                          {housings.find(
+                            (h) => h.name === formData.oldHousingName
+                          ).employees.length || 0}{" "}
+                          /
+                          {
+                            housings.find(
+                              (h) => h.name === formData.oldHousingName
+                            ).capacity
+                          }
                         </p>
                       </div>
                     </div>
@@ -254,19 +284,30 @@ export default function HousingMoveEmployeePage() {
                     <Home size={18} />
                     السكن الجديد
                   </h3>
-                  {housings.find(h => h.name === formData.newHousingName) && (
+                  {housings.find((h) => h.name === formData.newHousingName) && (
                     <div className="space-y-2">
                       <div>
                         <p className="text-sm text-green-600 mb-1">العنوان</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.newHousingName).address}
+                          {
+                            housings.find(
+                              (h) => h.name === formData.newHousingName
+                            ).address
+                          }
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-green-600 mb-1">الإشغال</p>
                         <p className="font-medium text-gray-800">
-                          {housings.find(h => h.name === formData.newHousingName).employees.length  || 0} / 
-                          {housings.find(h => h.name === formData.newHousingName).capacity}
+                          {housings.find(
+                            (h) => h.name === formData.newHousingName
+                          ).employees.length || 0}{" "}
+                          /
+                          {
+                            housings.find(
+                              (h) => h.name === formData.newHousingName
+                            ).capacity
+                          }
                         </p>
                       </div>
                     </div>

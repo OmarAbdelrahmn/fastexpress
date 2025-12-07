@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import PageHeader from '@/components/layout/pageheader';
-import Link from 'next/link';
-import { 
-  Car, 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import PageHeader from "@/components/layout/pageheader";
+import Link from "next/link";
+import {
+  Car,
   RefreshCw,
   AlertTriangle,
   CheckCircle,
@@ -17,13 +17,13 @@ import {
   User,
   ArrowRight,
   Package,
-  FileText
-} from 'lucide-react';
+  FileText,
+} from "lucide-react";
 
 export default function VehiclesUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [availableVehicles, setAvailableVehicles] = useState([]);
   const [takenVehicles, setTakenVehicles] = useState([]);
   const [problemVehicles, setProblemVehicles] = useState([]);
@@ -36,17 +36,17 @@ export default function VehiclesUserPage() {
     setLoading(true);
     try {
       const [availableData, takenData, problemData] = await Promise.all([
-        ApiService.get('/api/vehicles/available'),
-        ApiService.get('/api/vehicles/taken'),
-        ApiService.get('/api/vehicles/problem')
+        ApiService.get("/api/vehicles/available"),
+        ApiService.get("/api/vehicles/taken"),
+        ApiService.get("/api/vehicles/problem"),
       ]);
-      
+
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
       setTakenVehicles(takenData?.vehicles || []);
       setProblemVehicles(problemData?.vehicles || []);
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
-      setErrorMessage('حدث خطأ في تحميل البيانات');
+      console.error("Error loading dashboard data:", err);
+      setErrorMessage("حدث خطأ في تحميل البيانات");
     } finally {
       setLoading(false);
     }
@@ -54,54 +54,54 @@ export default function VehiclesUserPage() {
 
   const quickActions = [
     {
-      title: 'طلب استلام مركبة',
-      description: 'قدم طلب لاستلام مركبة متاحة',
+      title: "طلب استلام مركبة",
+      description: "قدم طلب لاستلام مركبة جاهزة للتسليم",
       icon: Car,
-      color: 'green',
-      path: '/vehicles/user/request-take',
-      count: availableVehicles.length
+      color: "green",
+      path: "/vehicles/user/request-take",
+      count: availableVehicles.length,
     },
     {
-      title: 'طلب إرجاع مركبة',
-      description: 'قدم طلب لإرجاع مركبة مستخدمة',
+      title: "طلب إرجاع مركبة",
+      description: "قدم طلب لإرجاع مركبة مستخدمة",
       icon: RefreshCw,
-      color: 'blue',
-      path: '/vehicles/user/request-return',
-      count: takenVehicles.length
+      color: "blue",
+      path: "/vehicles/user/request-return",
+      count: takenVehicles.length,
     },
     {
-      title: 'الإبلاغ عن مشكلة',
-      description: 'أبلغ عن مشكلة في مركبة',
+      title: "الإبلاغ عن مشكلة",
+      description: "أبلغ عن مشكلة في مركبة",
       icon: AlertTriangle,
-      color: 'orange',
-      path: '/vehicles/user/request-problem',
-      count: null
-    }
+      color: "orange",
+      path: "/vehicles/user/request-problem",
+      count: null,
+    },
   ];
 
   const getColorClasses = (color) => {
     const colors = {
-      green: { 
-        bg: 'bg-green-50', 
-        light: 'bg-green-100', 
-        text: 'text-green-600', 
-        border: 'border-green-200',
-        badge: 'bg-green-600'
+      green: {
+        bg: "bg-green-50",
+        light: "bg-green-100",
+        text: "text-green-600",
+        border: "border-green-200",
+        badge: "bg-green-600",
       },
-      blue: { 
-        bg: 'bg-blue-50', 
-        light: 'bg-blue-100', 
-        text: 'text-blue-600', 
-        border: 'border-blue-200',
-        badge: 'bg-blue-600'
+      blue: {
+        bg: "bg-blue-50",
+        light: "bg-blue-100",
+        text: "text-blue-600",
+        border: "border-blue-200",
+        badge: "bg-blue-600",
       },
-      orange: { 
-        bg: 'bg-orange-50', 
-        light: 'bg-orange-100', 
-        text: 'text-orange-600', 
-        border: 'border-orange-200',
-        badge: 'bg-orange-600'
-      }
+      orange: {
+        bg: "bg-orange-50",
+        light: "bg-orange-100",
+        text: "text-orange-600",
+        border: "border-orange-200",
+        badge: "bg-orange-600",
+      },
     };
     return colors[color] || colors.blue;
   };
@@ -113,19 +113,19 @@ export default function VehiclesUserPage() {
         subtitle="قدم طلبات الاستلام والإرجاع والإبلاغ عن المشاكل"
         icon={Car}
         actionButton={{
-          text: 'تحديث البيانات',
+          text: "تحديث البيانات",
           icon: <RefreshCw size={18} />,
           onClick: loadDashboardData,
-          variant: 'secondary'
+          variant: "secondary",
         }}
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
-          onClose={() => setErrorMessage('')}
+          onClose={() => setErrorMessage("")}
         />
       )}
 
@@ -134,7 +134,9 @@ export default function VehiclesUserPage() {
         <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-green-100 text-sm mb-1">مركبات متاحة</p>
+              <p className="text-green-100 text-sm mb-1">
+                مركبات جاهزة للتسليم
+              </p>
               <p className="text-4xl font-bold">{availableVehicles.length}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -159,7 +161,7 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-blue-100 text-sm">
             <User size={16} />
-            <span>قيد الاستخدام</span>
+            <span>في الخدمة</span>
           </div>
         </div>
 
@@ -175,7 +177,7 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-orange-100 text-sm">
             <AlertTriangle size={16} />
-            <span>تحتاج صيانة</span>
+            <span>في الصيانة</span>
           </div>
         </div>
 
@@ -184,7 +186,9 @@ export default function VehiclesUserPage() {
             <div>
               <p className="text-purple-100 text-sm mb-1">إجمالي المركبات</p>
               <p className="text-4xl font-bold">
-                {availableVehicles.length + takenVehicles.length + problemVehicles.length}
+                {availableVehicles.length +
+                  takenVehicles.length +
+                  problemVehicles.length}
               </p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -203,12 +207,25 @@ export default function VehiclesUserPage() {
         <div className="flex items-start gap-3">
           <FileText className="text-blue-600 mt-1" size={24} />
           <div>
-            <h3 className="font-semibold text-blue-800 mb-2">كيفية استخدام النظام</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">
+              كيفية استخدام النظام
+            </h3>
             <ul className="text-sm text-blue-600 space-y-1">
-              <li>• لاستلام مركبة: اختر "طلب استلام مركبة" وابحث عن المركبة المتاحة</li>
-              <li>• لإرجاع مركبة: اختر "طلب إرجاع مركبة" وحدد المركبة التي تريد إرجاعها</li>
-              <li>• للإبلاغ عن مشكلة: اختر "الإبلاغ عن مشكلة" واكتب وصفاً تفصيلياً للمشكلة</li>
-              <li>• سيتم مراجعة جميع الطلبات من قبل الإدارة قبل الموافقة عليها</li>
+              <li>
+                • لاستلام مركبة: اختر "طلب استلام مركبة" وابحث عن المركبة
+                الجاهزة للتسليم
+              </li>
+              <li>
+                • لإرجاع مركبة: اختر "طلب إرجاع مركبة" وحدد المركبة التي تريد
+                إرجاعها
+              </li>
+              <li>
+                • للإبلاغ عن مشكلة: اختر "الإبلاغ عن مشكلة" واكتب وصفاً تفصيلياً
+                للمشكلة
+              </li>
+              <li>
+                • سيتم مراجعة جميع الطلبات من قبل الإدارة قبل الموافقة عليها
+              </li>
             </ul>
           </div>
         </div>
@@ -216,27 +233,37 @@ export default function VehiclesUserPage() {
 
       {/* Quick Actions Grid */}
       <Card>
-        <h2 className="text-xl font-bold text-gray-800 mb-6">الإجراءات السريعة</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-6">
+          الإجراءات السريعة
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {quickActions.map((action) => {
             const Icon = action.icon;
             const colors = getColorClasses(action.color);
-            
+
             return (
               <Link key={action.path} href={action.path}>
-                <div className={`border-2 ${colors.border} rounded-xl p-6 hover:shadow-xl transition cursor-pointer bg-white`}>
+                <div
+                  className={`border-2 ${colors.border} rounded-xl p-6 hover:shadow-xl transition cursor-pointer bg-white`}
+                >
                   <div className="flex items-start justify-between mb-4">
                     <div className={`${colors.light} p-4 rounded-lg`}>
                       <Icon className={colors.text} size={28} />
                     </div>
                     {action.count !== null && (
-                      <span className={`px-4 py-1.5 ${colors.badge} text-white rounded-full text-sm font-bold`}>
+                      <span
+                        className={`px-4 py-1.5 ${colors.badge} text-white rounded-full text-sm font-bold`}
+                      >
                         {action.count}
                       </span>
                     )}
                   </div>
-                  <h3 className="font-bold text-gray-800 mb-2 text-lg">{action.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{action.description}</p>
+                  <h3 className="font-bold text-gray-800 mb-2 text-lg">
+                    {action.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {action.description}
+                  </p>
                   <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
                     <span>الانتقال</span>
                     <ArrowRight size={16} />
@@ -263,7 +290,7 @@ export default function VehiclesUserPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <CheckCircle size={20} className="text-green-600" />
-                مركبات متاحة للاستلام
+                مركبات جاهزة للتسليم للاستلام
               </h3>
               <Link href="/vehicles/user/request-take">
                 <Button variant="secondary" className="text-sm">
@@ -272,11 +299,13 @@ export default function VehiclesUserPage() {
                 </Button>
               </Link>
             </div>
-            
+
             {availableVehicles.length === 0 ? (
               <div className="text-center py-8">
                 <Car className="mx-auto text-gray-400 mb-3" size={40} />
-                <p className="text-gray-600 text-sm">لا توجد مركبات متاحة حالياً</p>
+                <p className="text-gray-600 text-sm">
+                  لا توجد مركبات جاهزة للتسليم حالياً
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -291,12 +320,16 @@ export default function VehiclesUserPage() {
                           <Car className="text-green-600" size={18} />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-800">{vehicle.plateNumberA}</p>
-                          <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                          <p className="font-bold text-gray-800">
+                            {vehicle.plateNumberA}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                        متاحة
+                        جاهزة للتسليم
                       </span>
                     </div>
                   </div>
@@ -315,7 +348,7 @@ export default function VehiclesUserPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <User size={20} className="text-blue-600" />
-                مركبات قيد الاستخدام
+                مركبات في الخدمة
               </h3>
               <Link href="/vehicles/user/request-return">
                 <Button variant="secondary" className="text-sm">
@@ -324,11 +357,13 @@ export default function VehiclesUserPage() {
                 </Button>
               </Link>
             </div>
-            
+
             {takenVehicles.length === 0 ? (
               <div className="text-center py-8">
                 <User className="mx-auto text-gray-400 mb-3" size={40} />
-                <p className="text-gray-600 text-sm">لا توجد مركبات مستخدمة حالياً</p>
+                <p className="text-gray-600 text-sm">
+                  لا توجد مركبات مستخدمة حالياً
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -343,15 +378,19 @@ export default function VehiclesUserPage() {
                           <Car className="text-blue-600" size={18} />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-800">{vehicle.plateNumberA}</p>
-                          <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                          <p className="font-bold text-gray-800">
+                            {vehicle.plateNumberA}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-medium">
                         مستخدمة
                       </span>
                     </div>
-                    {vehicle.riderName && vehicle.riderName !== 'N/A' && (
+                    {vehicle.riderName && vehicle.riderName !== "N/A" && (
                       <div className="flex items-center gap-2 text-xs text-gray-600 mt-2">
                         <User size={12} />
                         <span>{vehicle.riderName}</span>
@@ -381,7 +420,8 @@ export default function VehiclesUserPage() {
                   مركبات تحتاج إلى انتباه
                 </h3>
                 <p className="text-sm text-orange-600 mb-3">
-                  يوجد {problemVehicles.length} مركبة مبلغ عنها بمشاكل. تأكد من عدم استخدامها حتى يتم إصلاحها.
+                  يوجد {problemVehicles.length} مركبة مبلغ عنها بمشاكل. تأكد من
+                  عدم استخدامها حتى يتم إصلاحها.
                 </p>
                 <Link href="/vehicles/user/request-problem">
                   <Button variant="secondary" className="text-sm">
@@ -397,7 +437,9 @@ export default function VehiclesUserPage() {
 
       {/* Usage Tips */}
       <Card>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">نصائح الاستخدام</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          نصائح الاستخدام
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-start gap-3">
@@ -406,11 +448,13 @@ export default function VehiclesUserPage() {
               </div>
               <div>
                 <h4 className="font-bold text-gray-800 mb-1">عند الاستلام</h4>
-                <p className="text-sm text-gray-600">تأكد من فحص المركبة والتأكد من عدم وجود أضرار قبل الاستلام</p>
+                <p className="text-sm text-gray-600">
+                  تأكد من فحص المركبة والتأكد من عدم وجود أضرار قبل الاستلام
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-start gap-3">
               <div className="bg-green-100 p-2 rounded-lg mt-1">
@@ -418,23 +462,30 @@ export default function VehiclesUserPage() {
               </div>
               <div>
                 <h4 className="font-bold text-gray-800 mb-1">عند الإرجاع</h4>
-                <p className="text-sm text-gray-600">تأكد من إرجاع المركبة نظيفة وبنفس الحالة التي استلمتها بها</p>
+                <p className="text-sm text-gray-600">
+                  تأكد من إرجاع المركبة نظيفة وبنفس الحالة التي استلمتها بها
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-start gap-3">
               <div className="bg-orange-100 p-2 rounded-lg mt-1">
                 <AlertTriangle className="text-orange-600" size={18} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800 mb-1">عند ملاحظة مشكلة</h4>
-                <p className="text-sm text-gray-600">أبلغ فوراً عن أي مشكلة ولا تستخدم المركبة إذا كانت المشكلة خطيرة</p>
+                <h4 className="font-bold text-gray-800 mb-1">
+                  عند ملاحظة مشكلة
+                </h4>
+                <p className="text-sm text-gray-600">
+                  أبلغ فوراً عن أي مشكلة ولا تستخدم المركبة إذا كانت المشكلة
+                  خطيرة
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-start gap-3">
               <div className="bg-purple-100 p-2 rounded-lg mt-1">
@@ -442,7 +493,9 @@ export default function VehiclesUserPage() {
               </div>
               <div>
                 <h4 className="font-bold text-gray-800 mb-1">أوقات المعالجة</h4>
-                <p className="text-sm text-gray-600">ستتم مراجعة طلبك خلال 24 ساعة من تقديمه</p>
+                <p className="text-sm text-gray-600">
+                  ستتم مراجعة طلبك خلال 24 ساعة من تقديمه
+                </p>
               </div>
             </div>
           </div>

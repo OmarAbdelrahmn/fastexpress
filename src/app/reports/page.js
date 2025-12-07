@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Users, Package, Home, Calendar, Award } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Package,
+  Home,
+  Calendar,
+  Award,
+} from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
-import Link from 'next/link';
-import { ApiService } from '@/lib/api/apiService';
-import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import Link from "next/link";
+import { ApiService } from "@/lib/api/apiService";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +29,7 @@ export default function ReportsPage() {
       const data = await ApiService.get(API_ENDPOINTS.REPORTS.DASHBOARD);
       setDashboardData(data);
     } catch (error) {
-      console.error('Failed to load dashboard:', error);
+      console.error("Failed to load dashboard:", error);
     } finally {
       setLoading(false);
     }
@@ -29,61 +37,132 @@ export default function ReportsPage() {
 
   const reportCategories = [
     {
-      title: 'تقارير الفترات',
+      title: "تقارير الفترات",
       icon: Calendar,
-      color: 'from-blue-500 to-blue-600',
+      color: "from-blue-500 to-blue-600",
       reports: [
-        { name: 'تقارير شهرية', path: '/reports/monthly', desc: 'تقارير المناديب الشهرية' },
-        { name: 'تقارير سنوية', path: '/reports/yearly', desc: 'تقارير المناديب السنوية' },
-        { name: 'تقارير مخصصة', path: '/reports/custom-range', desc: 'تقارير حسب الفترة الزمنية' }
-      ]
+        {
+          name: "تقارير شهرية",
+          path: "/reports/monthly",
+          desc: "تقارير المناديب الشهرية",
+        },
+        {
+          name: "تقارير سنوية",
+          path: "/reports/yearly",
+          desc: "تقارير المناديب السنوية",
+        },
+        {
+          name: "تقارير مخصصة",
+          path: "/reports/custom-range",
+          desc: "تقارير حسب الفترة الزمنية",
+        },
+      ],
     },
     {
-      title: 'تقارير الشركات',
+      title: "تقارير الشركات",
       icon: Package,
-      color: 'from-green-500 to-green-600',
+      color: "from-green-500 to-green-600",
       reports: [
-        { name: 'أداء الشركة', path: '/reports/company-performance', desc: 'تحليل أداء الشركات' },
-        { name: 'مقارنة الشركات', path: '/reports/compare-company', desc: 'مقارنة أداء الشركات بين فترتين' }
-      ]
+        {
+          name: "أداء الشركة",
+          path: "/reports/company-performance",
+          desc: "تحليل أداء الشركات",
+        },
+        {
+          name: "مقارنة الشركات",
+          path: "/reports/compare-company",
+          desc: "مقارنة أداء الشركات بين فترتين",
+        },
+      ],
     },
     {
-      title: 'تقارير المناديب',
+      title: "تقارير المناديب",
       icon: Users,
-      color: 'from-purple-500 to-purple-600',
+      color: "from-purple-500 to-purple-600",
       reports: [
-        { name: 'تقارير المناديب', path: '/reports/riders', desc: 'عرض تقارير جميع المناديب' },
-        { name: 'مقارنة سائق محدد', path: '/reports/top-riders', desc: 'مقارنة سائق محدد بين فترتين' },
-        { name: 'مقارنة المناديب', path: '/reports/compare-riders', desc: 'مقارنة أداء المناديب بين فترتين' },
-        { name: 'أفضل المناديب حسب الشركة', path: '/reports/top-riders-company', desc: 'ترتيب أفضل المناديب' },
-        { name: 'افضل المناديب سنويا', path: '/reports/top-riders-yearly', desc: 'ترتيب أفضل المناديب بشكل سنوي' },
-        { name: 'افضل المناديب شهريا', path: '/reports/top-riders-monthly', desc: 'ترتيب أفضل المناديب بشكل شهري' }
-
-      ]
+        {
+          name: "تقارير المناديب",
+          path: "/reports/riders",
+          desc: "عرض تقارير جميع المناديب",
+        },
+        {
+          name: "مقارنة مندوب محدد",
+          path: "/reports/top-riders",
+          desc: "مقارنة مندوب محدد بين فترتين",
+        },
+        {
+          name: "مقارنة المناديب",
+          path: "/reports/compare-riders",
+          desc: "مقارنة أداء المناديب بين فترتين",
+        },
+        {
+          name: "أفضل المناديب حسب الشركة",
+          path: "/reports/top-riders-company",
+          desc: "ترتيب أفضل المناديب",
+        },
+        {
+          name: "افضل المناديب سنويا",
+          path: "/reports/top-riders-yearly",
+          desc: "ترتيب أفضل المناديب بشكل سنوي",
+        },
+        {
+          name: "افضل المناديب شهريا",
+          path: "/reports/top-riders-monthly",
+          desc: "ترتيب أفضل المناديب بشكل شهري",
+        },
+      ],
     },
     {
-      title: 'تقارير السكن',
+      title: "تقارير السكن",
       icon: Home,
-      color: 'from-orange-500 to-orange-600',
+      color: "from-orange-500 to-orange-600",
       reports: [
-        { name: 'تقارير السكن ', path: '/reports/housing', desc: 'تحليل أداء السكنات' },
-        { name: ' مقارنة تقارير السكن', path: '/reports/housing-compare', desc: 'تحليل أداء السكنات' },
-        { name: 'مقارنة السكن للمندوبين', path: '/reports/housing-rider-compare', desc: 'تحليل أداء السكنات' },
-      ]
+        {
+          name: "تقارير السكن ",
+          path: "/reports/housing",
+          desc: "تحليل أداء السكنات",
+        },
+        {
+          name: " مقارنة تقارير السكن",
+          path: "/reports/housing-compare",
+          desc: "تحليل أداء السكنات",
+        },
+        {
+          name: "مقارنة السكن للمندوبين",
+          path: "/reports/housing-rider-compare",
+          desc: "تحليل أداء السكنات",
+        },
+      ],
     },
     {
-      title: 'تقارير أخرى',
+      title: "تقارير أخرى",
       icon: BarChart3,
-      color: 'from-red-500 to-red-600',
+      color: "from-red-500 to-red-600",
       reports: [
-        { name: 'تقارير المشاكل', path: '/reports/problems', desc: 'الورديات ذات المشاكل' },
-        { name: 'التوصيلات المكدسة', path: '/reports/stacked', desc: 'تقارير التوصيلات المكدسة للجميع' },
-        { name: 'التوصيلات المكدسة لسائق', path: '/reports/stacked', desc: 'تقارير التوصيلات المكدسة لسائق معين' }      ]
-    }
+        {
+          name: "تقارير المشاكل",
+          path: "/reports/problems",
+          desc: "الورديات ذات المشاكل",
+        },
+        {
+          name: "التوصيلات المكدسة",
+          path: "/reports/stacked",
+          desc: "تقارير التوصيلات المكدسة للجميع",
+        },
+        {
+          name: "التوصيلات المكدسة لمندوب",
+          path: "/reports/stacked",
+          desc: "تقارير التوصيلات المكدسة لمندوب معين",
+        },
+      ],
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100"
+      dir="rtl"
+    >
       <PageHeader
         title="مركز التقارير"
         subtitle="عرض وتحليل جميع تقارير النظام"
@@ -97,7 +176,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">إجمالي الشركات</p>
-                <p className="text-3xl font-bold text-blue-600">{dashboardData.companies?.totalCompanies || 0}</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  {dashboardData.companies?.totalCompanies || 0}
+                </p>
               </div>
               <Package className="text-blue-500" size={40} />
             </div>
@@ -107,7 +188,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">إجمالي المناديب</p>
-                <p className="text-3xl font-bold text-green-600">{dashboardData.riders?.totalRiders || 0}</p>
+                <p className="text-3xl font-bold text-green-600">
+                  {dashboardData.riders?.totalRiders || 0}
+                </p>
               </div>
               <Users className="text-green-500" size={40} />
             </div>
@@ -117,7 +200,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">إجمالي الطلبات</p>
-                <p className="text-3xl font-bold text-purple-600">{dashboardData.orders?.totalAcceptedOrders || 0}</p>
+                <p className="text-3xl font-bold text-purple-600">
+                  {dashboardData.orders?.totalAcceptedOrders || 0}
+                </p>
               </div>
               <TrendingUp className="text-purple-500" size={40} />
             </div>
@@ -128,7 +213,10 @@ export default function ReportsPage() {
               <div>
                 <p className="text-gray-500 text-sm">معدل الأداء</p>
                 <p className="text-3xl font-bold text-orange-600">
-                  {dashboardData.performance?.overallPerformanceScore?.toFixed(1) || 0}%
+                  {dashboardData.performance?.overallPerformanceScore?.toFixed(
+                    1
+                  ) || 0}
+                  %
                 </p>
               </div>
               <Award className="text-orange-500" size={40} />
@@ -140,12 +228,17 @@ export default function ReportsPage() {
       {/* Report Categories */}
       <div className="m-6 space-y-6">
         {reportCategories.map((category, idx) => (
-          <div key={idx} className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className={`bg-gradient-to-r ${category.color} px-6 py-4 flex items-center gap-3`}>
+          <div
+            key={idx}
+            className="bg-white rounded-xl shadow-md overflow-hidden"
+          >
+            <div
+              className={`bg-gradient-to-r ${category.color} px-6 py-4 flex items-center gap-3`}
+            >
               <category.icon className="text-white" size={28} />
               <h2 className="text-xl font-bold text-white">{category.title}</h2>
             </div>
-            
+
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {category.reports.map((report, reportIdx) => (
                 <Link

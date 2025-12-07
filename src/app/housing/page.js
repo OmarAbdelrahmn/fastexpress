@@ -1,33 +1,33 @@
 // File: src/app/housing/page.js
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import PageHeader from '@/components/layout/pageheader';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import PageHeader from "@/components/layout/pageheader";
+import Link from "next/link";
 
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+const API_BASE = "https://fastexpress.tryasp.net/api";
 
-import { 
-  Home, 
-  Users, 
-  Building2, 
-  UserCheck, 
+import {
+  Home,
+  Users,
+  Building2,
+  UserCheck,
   ArrowRight,
   TrendingUp,
   MapPin,
-  Percent
-} from 'lucide-react';
+  Percent,
+} from "lucide-react";
 
 export default function HousingDashboardPage() {
   const router = useRouter();
   const [housings, setHousings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     loadHousings();
@@ -36,11 +36,11 @@ export default function HousingDashboardPage() {
   const loadHousings = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get('/api/Housing');
+      const data = await ApiService.get("/api/Housing");
       setHousings(Array.isArray(data) ? data : [data]);
     } catch (err) {
-      console.error('Error loading housings:', err);
-      setErrorMessage('حدث خطأ في تحميل البيانات');
+      console.error("Error loading housings:", err);
+      setErrorMessage("حدث خطأ في تحميل البيانات");
     } finally {
       setLoading(false);
     }
@@ -49,20 +49,24 @@ export default function HousingDashboardPage() {
   // Calculate statistics
   const totalHousings = housings.length;
   const totalCapacity = housings.reduce((sum, h) => sum + (h.capacity || 0), 0);
-  const totalEmployees = housings.reduce((sum, h) => sum + (h.employees?.length || 0), 0);
-  const occupancyRate = totalCapacity > 0 ? ((totalEmployees / totalCapacity) * 100).toFixed(1) : 0;
+  const totalEmployees = housings.reduce(
+    (sum, h) => sum + (h.employees?.length || 0),
+    0
+  );
+  const occupancyRate =
+    totalCapacity > 0 ? ((totalEmployees / totalCapacity) * 100).toFixed(1) : 0;
   const availableSpaces = totalCapacity - totalEmployees;
 
   // Housings with high occupancy (>80%)
-  const highOccupancyHousings = housings.filter(h => {
+  const highOccupancyHousings = housings.filter((h) => {
     const empCount = h.employees?.length || 0;
     const occupancy = h.capacity > 0 ? (empCount / h.capacity) * 100 : 0;
     return occupancy > 80;
   }).length;
 
   // Empty housings
-  const emptyHousings = housings.filter(h => 
-    !h.employees || h.employees.length === 0
+  const emptyHousings = housings.filter(
+    (h) => !h.employees || h.employees.length === 0
   ).length;
 
   return (
@@ -74,11 +78,11 @@ export default function HousingDashboardPage() {
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
-          onClose={() => setErrorMessage('')}
+          onClose={() => setErrorMessage("")}
         />
       )}
 
@@ -155,7 +159,9 @@ export default function HousingDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm mb-1">سكنات عالية الإشغال</p>
-              <p className="text-2xl font-bold text-red-600">{highOccupancyHousings}</p>
+              <p className="text-2xl font-bold text-red-600">
+                {highOccupancyHousings}
+              </p>
               <p className="text-xs text-gray-500 mt-1">أكثر من 80% إشغال</p>
             </div>
             <div className="bg-red-50 p-3 rounded-lg">
@@ -168,7 +174,9 @@ export default function HousingDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm mb-1">سكنات فارغة</p>
-              <p className="text-2xl font-bold text-gray-600">{emptyHousings}</p>
+              <p className="text-2xl font-bold text-gray-600">
+                {emptyHousings}
+              </p>
               <p className="text-xs text-gray-500 mt-1">بدون موظفين</p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
@@ -182,7 +190,9 @@ export default function HousingDashboardPage() {
             <div>
               <p className="text-gray-600 text-sm mb-1">متوسط السعة</p>
               <p className="text-2xl font-bold text-blue-600">
-                {totalHousings > 0 ? Math.round(totalCapacity / totalHousings) : 0}
+                {totalHousings > 0
+                  ? Math.round(totalCapacity / totalHousings)
+                  : 0}
               </p>
               <p className="text-xs text-gray-500 mt-1">موظف لكل سكن</p>
             </div>
@@ -196,10 +206,10 @@ export default function HousingDashboardPage() {
       {/* Housing List with Details */}
       <Card>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800">قائمة السكنات التفصيلية</h2>
-          <div className="text-sm text-gray-500">
-            {housings.length} سكن
-          </div>
+          <h2 className="text-xl font-bold text-gray-800">
+            قائمة السكنات التفصيلية
+          </h2>
+          <div className="text-sm text-gray-500">{housings.length} سكن</div>
         </div>
 
         {loading ? (
@@ -210,35 +220,53 @@ export default function HousingDashboardPage() {
         ) : housings.length === 0 ? (
           <div className="text-center py-12">
             <Building2 className="mx-auto text-gray-400 mb-4" size={48} />
-            <p className="text-gray-600">لا توجد سكنات متاحة</p>
+            <p className="text-gray-600">لا توجد سكنات جاهزة للتسليم</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {housings.map((housing) => {
               const employeeCount = housing.employees?.length || 0;
-              const occupancyPercent = housing.capacity > 0 
-                ? ((employeeCount / housing.capacity) * 100).toFixed(1) 
-                : 0;
+              const occupancyPercent =
+                housing.capacity > 0
+                  ? ((employeeCount / housing.capacity) * 100).toFixed(1)
+                  : 0;
               const isFull = employeeCount >= housing.capacity;
               const isHighOccupancy = occupancyPercent > 80;
 
               return (
-                <div 
-                  key={housing.id} 
+                <div
+                  key={housing.id}
                   className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow "
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        isFull ? 'bg-red-100' : isHighOccupancy ? 'bg-orange-100' : 'bg-green-100'
-                      }`}>
-                        <Home className={`${
-                          isFull ? 'text-red-600' : isHighOccupancy ? 'text-orange-600' : 'text-green-600'
-                        }`} size={20} />
+                      <div
+                        className={`p-2 rounded-lg ${
+                          isFull
+                            ? "bg-red-100"
+                            : isHighOccupancy
+                            ? "bg-orange-100"
+                            : "bg-green-100"
+                        }`}
+                      >
+                        <Home
+                          className={`${
+                            isFull
+                              ? "text-red-600"
+                              : isHighOccupancy
+                              ? "text-orange-600"
+                              : "text-green-600"
+                          }`}
+                          size={20}
+                        />
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-800">{housing.name}</h3>
-                        <p className="text-xs text-gray-500">ID: {housing.id}</p>
+                        <h3 className="font-bold text-gray-800">
+                          {housing.name}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          ID: {housing.id}
+                        </p>
                       </div>
                     </div>
                     {isFull && (
@@ -258,13 +286,21 @@ export default function HousingDashboardPage() {
                       <div className="flex items-center gap-2 text-sm">
                         <Users size={16} className="text-gray-400" />
                         <span className="text-gray-600">السعة:</span>
-                        <span className="font-medium text-gray-800">{housing.capacity}</span>
+                        <span className="font-medium text-gray-800">
+                          {housing.capacity}
+                        </span>
                       </div>
                       <div className="text-sm">
                         <span className="text-gray-600">الإشغال:</span>
-                        <span className={`font-bold ml-1 ${
-                          isFull ? 'text-red-600' : isHighOccupancy ? 'text-orange-600' : 'text-green-600'
-                        }`}>
+                        <span
+                          className={`font-bold ml-1 ${
+                            isFull
+                              ? "text-red-600"
+                              : isHighOccupancy
+                              ? "text-orange-600"
+                              : "text-green-600"
+                          }`}
+                        >
                           {employeeCount}
                         </span>
                       </div>
@@ -274,18 +310,30 @@ export default function HousingDashboardPage() {
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-gray-500">نسبة الإشغال</span>
-                        <span className={`font-medium ${
-                          isFull ? 'text-red-600' : isHighOccupancy ? 'text-orange-600' : 'text-green-600'
-                        }`}>
+                        <span
+                          className={`font-medium ${
+                            isFull
+                              ? "text-red-600"
+                              : isHighOccupancy
+                              ? "text-orange-600"
+                              : "text-green-600"
+                          }`}
+                        >
                           {occupancyPercent}%
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className={`h-2 rounded-full transition-all ${
-                            isFull ? 'bg-red-500' : isHighOccupancy ? 'bg-orange-500' : 'bg-green-500'
+                            isFull
+                              ? "bg-red-500"
+                              : isHighOccupancy
+                              ? "bg-orange-500"
+                              : "bg-green-500"
                           }`}
-                          style={{ width: `${Math.min(occupancyPercent, 100)}%` }}
+                          style={{
+                            width: `${Math.min(occupancyPercent, 100)}%`,
+                          }}
                         ></div>
                       </div>
                     </div>
@@ -293,7 +341,8 @@ export default function HousingDashboardPage() {
                     {housing.managerId && (
                       <div className="pt-2 border-t border-gray-100">
                         <p className="text-xs text-gray-500">
-                          <span className="font-medium">رقم إقامة المدير:</span> {housing.managerId}
+                          <span className="font-medium">رقم إقامة المدير:</span>{" "}
+                          {housing.managerId}
                         </p>
                       </div>
                     )}
@@ -313,51 +362,52 @@ export default function HousingDashboardPage() {
         )}
       </Card>
 
-     {/* Action Buttons */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pb-[35px] p-[10px]">
+      {/* Action Buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pb-[35px] p-[10px]">
+        {/* Manage Housing */}
+        <Link href="/housing/manage" className="block">
+          <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-200 p-3 rounded-xl">
+                  <Building2 className="text-blue-700" size={26} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 text-base">
+                    إدارة السكنات
+                  </h3>
+                  <p className="text-gray-600 text-xs">
+                    عرض، تعديل، وحذف السكنات
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="text-gray-400" size={20} />
+            </div>
+          </Card>
+        </Link>
 
-  {/* Manage Housing */}
-  <Link href="/housing/manage" className="block">
-  <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="bg-blue-200 p-3 rounded-xl">
-          <Building2 className="text-blue-700" size={26} />
-        </div>
-        <div>
-          <h3 className="font-semibold text-gray-800 text-base">
-            إدارة السكنات
-          </h3>
-          <p className="text-gray-600 text-xs">عرض، تعديل، وحذف السكنات</p>
-        </div>
+        {/* Create Housing */}
+        <Link href="/housing/create" className="block">
+          <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-200 p-3 rounded-xl">
+                  <Home className="text-green-700" size={26} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 text-base">
+                    إضافة سكن جديد
+                  </h3>
+                  <p className="text-gray-600 text-xs">
+                    إنشاء سكن جديد في النظام
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="text-gray-400" size={20} />
+            </div>
+          </Card>
+        </Link>
       </div>
-      <ArrowRight className="text-gray-400" size={20} />
-    </div>
-  </Card>
-</Link>
-
-{/* Create Housing */}
-<Link href="/housing/create" className="block">
-  <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="bg-green-200 p-3 rounded-xl">
-          <Home className="text-green-700" size={26} />
-        </div>
-        <div>
-          <h3 className="font-semibold text-gray-800 text-base">
-            إضافة سكن جديد
-          </h3>
-          <p className="text-gray-600 text-xs">إنشاء سكن جديد في النظام</p>
-        </div>
-      </div>
-      <ArrowRight className="text-gray-400" size={20} />
-    </div>
-  </Card>
-</Link>
-
-</div>
-
     </div>
   );
 }

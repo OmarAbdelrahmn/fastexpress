@@ -1,24 +1,31 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ApiService } from '@/lib/api/apiService';
-import Card from '@/components/Ui/Card';
-import Button from '@/components/Ui/Button';
-import Alert from '@/components/Ui/Alert';
-import Input from '@/components/Ui/Input';
-import PageHeader from '@/components/layout/pageheader';
-import { Car, Search, CheckCircle, AlertCircle, MapPin, Package } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ApiService } from "@/lib/api/apiService";
+import Card from "@/components/Ui/Card";
+import Button from "@/components/Ui/Button";
+import Alert from "@/components/Ui/Alert";
+import Input from "@/components/Ui/Input";
+import PageHeader from "@/components/layout/pageheader";
+import {
+  Car,
+  Search,
+  CheckCircle,
+  AlertCircle,
+  MapPin,
+  Package,
+} from "lucide-react";
 
 export default function RequestTakeVehiclePage() {
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [availableVehicles, setAvailableVehicles] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [employeeIqama, setEmployeeIqama] = useState('');
-  const [reason, setReason] = useState('');
+  const [employeeIqama, setEmployeeIqama] = useState("");
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     loadAvailableVehicles();
@@ -27,11 +34,11 @@ export default function RequestTakeVehiclePage() {
   const loadAvailableVehicles = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get('/api/vehicles/available');
+      const data = await ApiService.get("/api/vehicles/available");
       setAvailableVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Error loading vehicles:', err);
-      setErrorMessage('حدث خطأ في تحميل المركبات المتاحة');
+      console.error("Error loading vehicles:", err);
+      setErrorMessage("حدث خطأ في تحميل المركبات الجاهزة للتسليم");
     } finally {
       setLoading(false);
     }
@@ -39,31 +46,33 @@ export default function RequestTakeVehiclePage() {
 
   const searchVehicle = async () => {
     if (!searchTerm.trim()) {
-      setErrorMessage('الرجاء إدخال رقم اللوحة للبحث');
+      setErrorMessage("الرجاء إدخال رقم اللوحة للبحث");
       return;
     }
 
     setSearchLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
     try {
       const data = await ApiService.get(`/api/vehicles/plate/${searchTerm}`);
       if (data && data.length > 0) {
         const vehicle = data[0];
-        const checkResult = await ApiService.get(`/api/vehicles/is-available/${vehicle.plateNumberA}`);
+        const checkResult = await ApiService.get(
+          `/api/vehicles/is-available/${vehicle.plateNumberA}`
+        );
         if (checkResult) {
           setSelectedVehicle(vehicle);
-          setErrorMessage('');
+          setErrorMessage("");
         } else {
-          setErrorMessage('المركبة غير متاحة حالياً');
+          setErrorMessage("المركبة غير جاهزة للتسليم حالياً");
           setSelectedVehicle(null);
         }
       } else {
-        setErrorMessage('لم يتم العثور على المركبة');
+        setErrorMessage("لم يتم العثور على المركبة");
         setSelectedVehicle(null);
       }
     } catch (err) {
-      console.error('Error searching vehicle:', err);
-      setErrorMessage('المركبة غير متاحة أو حدث خطأ في البحث');
+      console.error("Error searching vehicle:", err);
+      setErrorMessage("المركبة غير جاهزة للتسليم أو حدث خطأ في البحث");
       setSelectedVehicle(null);
     } finally {
       setSearchLoading(false);
@@ -72,80 +81,86 @@ export default function RequestTakeVehiclePage() {
 
   const handleSubmitRequest = async () => {
     if (!selectedVehicle) {
-      setErrorMessage('الرجاء اختيار المركبة أولاً');
+      setErrorMessage("الرجاء اختيار المركبة أولاً");
       return;
     }
 
     if (!employeeIqama.trim()) {
-      setErrorMessage('الرجاء إدخال رقم الإقامة');
+      setErrorMessage("الرجاء إدخال رقم الإقامة");
       return;
     }
 
     if (!reason.trim()) {
-      setErrorMessage('الرجاء إدخال سبب الطلب');
+      setErrorMessage("الرجاء إدخال سبب الطلب");
       return;
     }
 
     setLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const requestBody = {
         Plate: selectedVehicle.plateNumberA,
         riderIqamaNo: parseInt(employeeIqama, 10), // Parse as integer
-        resolvedBy: employeeIqama.toString()
+        resolvedBy: employeeIqama.toString(),
       };
 
-      await ApiService.post(`/api/temp/vehicle-request-take?reason=${encodeURIComponent(reason)}`, requestBody);
-      
-      setSuccessMessage('تم إرسال طلب استلام المركبة بنجاح. في انتظار الموافقة.');
+      await ApiService.post(
+        `/api/temp/vehicle-request-take?reason=${encodeURIComponent(reason)}`,
+        requestBody
+      );
+
+      setSuccessMessage(
+        "تم إرسال طلب استلام المركبة بنجاح. في انتظار الموافقة."
+      );
       setTimeout(() => {
         setSelectedVehicle(null);
-        setSearchTerm('');
-        setEmployeeIqama('');
-        setReason('');
+        setSearchTerm("");
+        setEmployeeIqama("");
+        setReason("");
         loadAvailableVehicles();
       }, 2000);
     } catch (err) {
-      console.error('Error submitting request:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء إرسال الطلب');
+      console.error("Error submitting request:", err);
+      setErrorMessage(err?.message || "حدث خطأ أثناء إرسال الطلب");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredVehicles = availableVehicles.filter(v =>
-    v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.serialNumber?.toString().includes(searchTerm) ||
-    v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = availableVehicles.filter(
+    (v) =>
+      v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.serialNumber?.toString().includes(searchTerm) ||
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="w-full">
       <PageHeader
         title="طلب استلام مركبة"
-        subtitle="قدم طلب لاستلام مركبة متاحة"
+        subtitle="قدم طلب لاستلام مركبة جاهزة للتسليم"
         icon={Car}
       />
 
       <div className="px-6 space-y-6">
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title="خطأ"
             message={errorMessage}
-            onClose={() => setErrorMessage('')}
+            onClose={() => setErrorMessage("")}
           />
         )}
 
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title="نجاح"
             message={successMessage}
-            onClose={() => setSuccessMessage('')}
+            onClose={() => setSuccessMessage("")}
           />
         )}
 
@@ -155,7 +170,8 @@ export default function RequestTakeVehiclePage() {
             <div>
               <h3 className="font-semibold text-blue-800 mb-1">معلومات مهمة</h3>
               <p className="text-sm text-blue-600">
-                سيتم إرسال طلبك للمسؤول للمراجعة والموافقة. ستتلقى إشعاراً عند معالجة طلبك.
+                سيتم إرسال طلبك للمسؤول للمراجعة والموافقة. ستتلقى إشعاراً عند
+                معالجة طلبك.
               </p>
             </div>
           </div>
@@ -165,8 +181,12 @@ export default function RequestTakeVehiclePage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 mb-1">مركبات متاحة</p>
-                <p className="text-2xl font-bold text-green-700">{availableVehicles.length}</p>
+                <p className="text-sm text-green-600 mb-1">
+                  مركبات جاهزة للتسليم
+                </p>
+                <p className="text-2xl font-bold text-green-700">
+                  {availableVehicles.length}
+                </p>
               </div>
               <CheckCircle className="text-green-500" size={36} />
             </div>
@@ -177,7 +197,7 @@ export default function RequestTakeVehiclePage() {
               <div>
                 <p className="text-sm text-blue-600 mb-1">محددة الموقع</p>
                 <p className="text-2xl font-bold text-blue-700">
-                  {availableVehicles.filter(v => v.location).length}
+                  {availableVehicles.filter((v) => v.location).length}
                 </p>
               </div>
               <MapPin className="text-blue-500" size={36} />
@@ -188,7 +208,9 @@ export default function RequestTakeVehiclePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-600 mb-1">نتائج البحث</p>
-                <p className="text-2xl font-bold text-purple-700">{filteredVehicles.length}</p>
+                <p className="text-2xl font-bold text-purple-700">
+                  {filteredVehicles.length}
+                </p>
               </div>
               <Search className="text-purple-500" size={36} />
             </div>
@@ -201,7 +223,7 @@ export default function RequestTakeVehiclePage() {
               <Search size={20} />
               البحث عن المركبة
             </h3>
-            
+
             <div className="flex gap-3">
               <div className="flex-1">
                 <Input
@@ -209,10 +231,10 @@ export default function RequestTakeVehiclePage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="أدخل رقم اللوحة..."
-                  onKeyPress={(e) => e.key === 'Enter' && searchVehicle()}
+                  onKeyPress={(e) => e.key === "Enter" && searchVehicle()}
                 />
               </div>
-              <Button 
+              <Button
                 onClick={searchVehicle}
                 loading={searchLoading}
                 disabled={searchLoading}
@@ -232,26 +254,36 @@ export default function RequestTakeVehiclePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-green-600 mb-1">رقم اللوحة</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.plateNumberA}
+                  </p>
                 </div>
                 <div>
                   <p className="text-green-600 mb-1">الرقم التسلسلي</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.serialNumber}
+                  </p>
                 </div>
                 <div>
                   <p className="text-green-600 mb-1">نوع المركبة</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.vehicleType}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedVehicle.vehicleType}
+                  </p>
                 </div>
                 {selectedVehicle.location && (
                   <div>
                     <p className="text-green-600 mb-1">الموقع</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.location}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.location}
+                    </p>
                   </div>
                 )}
                 {selectedVehicle.manufacturer && (
                   <div>
                     <p className="text-green-600 mb-1">الشركة المصنعة</p>
-                    <p className="font-medium text-gray-800">{selectedVehicle.manufacturer}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedVehicle.manufacturer}
+                    </p>
                   </div>
                 )}
               </div>
@@ -289,15 +321,19 @@ export default function RequestTakeVehiclePage() {
                   variant="secondary"
                   onClick={() => {
                     setSelectedVehicle(null);
-                    setSearchTerm('');
-                    setEmployeeIqama('');
-                    setReason('');
+                    setSearchTerm("");
+                    setEmployeeIqama("");
+                    setReason("");
                   }}
                   disabled={loading}
                 >
                   إلغاء
                 </Button>
-                <Button onClick={handleSubmitRequest} loading={loading} disabled={loading}>
+                <Button
+                  onClick={handleSubmitRequest}
+                  loading={loading}
+                  disabled={loading}
+                >
                   <CheckCircle size={18} className="ml-2" />
                   إرسال الطلب
                 </Button>
@@ -308,8 +344,10 @@ export default function RequestTakeVehiclePage() {
 
         {!selectedVehicle && (
           <Card>
-            <h3 className="text-lg font-bold text-gray-800 mb-4">المركبات المتاحة</h3>
-            
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              المركبات الجاهزة للتسليم
+            </h3>
+
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
@@ -318,7 +356,9 @@ export default function RequestTakeVehiclePage() {
             ) : filteredVehicles.length === 0 ? (
               <div className="text-center py-12">
                 <Car className="mx-auto text-gray-400 mb-4" size={48} />
-                <p className="text-gray-600">لا توجد مركبات متاحة حالياً</p>
+                <p className="text-gray-600">
+                  لا توجد مركبات جاهزة للتسليم حالياً
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -337,12 +377,16 @@ export default function RequestTakeVehiclePage() {
                           <Car className="text-green-600" size={20} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-800">{vehicle.plateNumberA}</h4>
-                          <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
+                          <h4 className="font-bold text-gray-800">
+                            {vehicle.plateNumberA}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                        متاحة
+                        جاهزة للتسليم
                       </span>
                     </div>
 
@@ -350,12 +394,16 @@ export default function RequestTakeVehiclePage() {
                       <div className="flex items-center gap-2 text-gray-700">
                         <Package size={14} />
                         <span className="text-gray-600">تسلسلي:</span>
-                        <span className="font-medium">{vehicle.serialNumber}</span>
+                        <span className="font-medium">
+                          {vehicle.serialNumber}
+                        </span>
                       </div>
                       {vehicle.location && (
                         <div className="flex items-center gap-2 text-gray-700">
                           <MapPin size={14} />
-                          <span className="font-medium">{vehicle.location}</span>
+                          <span className="font-medium">
+                            {vehicle.location}
+                          </span>
                         </div>
                       )}
                     </div>

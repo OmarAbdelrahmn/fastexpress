@@ -1,11 +1,26 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { Search, Car, User, Package, MapPin, Calendar, AlertTriangle, CheckCircle, Eye, Filter, RefreshCw, Clock, Activity, FileText } from 'lucide-react';
-import { ApiService } from '@/lib/api/apiService';
+import { useState, useEffect } from "react";
+import {
+  Search,
+  Car,
+  User,
+  Package,
+  MapPin,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
+  Eye,
+  Filter,
+  RefreshCw,
+  Clock,
+  Activity,
+  FileText,
+} from "lucide-react";
+import { ApiService } from "@/lib/api/apiService";
 
 export default function VehicleHistory() {
   const [allVehicles, setAllVehicles] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicleHistory, setSelectedVehicleHistory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -19,11 +34,11 @@ export default function VehicleHistory() {
     setLoading(true);
     setError(null);
     try {
-      const data = await ApiService.get('/api/vehicles');
+      const data = await ApiService.get("/api/vehicles");
       setAllVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Error loading vehicles:', err);
-      setError('فشل في تحميل قائمة المركبات');
+      console.error("Error loading vehicles:", err);
+      setError("فشل في تحميل قائمة المركبات");
     } finally {
       setLoading(false);
     }
@@ -33,11 +48,15 @@ export default function VehicleHistory() {
     setLoadingDetails(true);
     setError(null);
     try {
-      const response = await ApiService.get(`/api/vehicles/vehicle-history/${plateNumber}`);
+      const response = await ApiService.get(
+        `/api/vehicles/vehicle-history/${plateNumber}`
+      );
       // Response is an array, so we take all entries
-      setSelectedVehicleHistory(Array.isArray(response) ? response : [response]);
+      setSelectedVehicleHistory(
+        Array.isArray(response) ? response : [response]
+      );
     } catch (err) {
-      setError(err.message || 'فشل في جلب بيانات المركبة');
+      setError(err.message || "فشل في جلب بيانات المركبة");
       setSelectedVehicleHistory(null);
     } finally {
       setLoadingDetails(false);
@@ -48,37 +67,68 @@ export default function VehicleHistory() {
     loadVehicleDetails(vehicle.plateNumberA);
   };
 
-  const filteredVehicles = allVehicles.filter(v => 
-    v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.plateNumberE?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.serialNumber?.toString().includes(searchTerm) ||
-    v.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = allVehicles.filter(
+    (v) =>
+      v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.plateNumberE?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.serialNumber?.toString().includes(searchTerm) ||
+      v.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (statusTypeDisplay) => {
     const status = statusTypeDisplay?.toLowerCase();
-    if (status === 'taken') {
-      return { bg: 'bg-blue-50', border: 'border-blue-300', badge: 'bg-gradient-to-r from-blue-500 to-blue-600', text: 'text-blue-700', icon: 'text-blue-500' };
-    } else if (status === 'available') {
-      return { bg: 'bg-green-50', border: 'border-green-300', badge: 'bg-gradient-to-r from-green-500 to-green-600', text: 'text-green-700', icon: 'text-green-500' };
-    } else if (status === 'stolen') {
-      return { bg: 'bg-red-50', border: 'border-red-300', badge: 'bg-gradient-to-r from-red-500 to-red-600', text: 'text-red-700', icon: 'text-red-500' };
-    } else if (status === 'problem') {
-      return { bg: 'bg-orange-50', border: 'border-orange-300', badge: 'bg-gradient-to-r from-orange-500 to-orange-600', text: 'text-orange-700', icon: 'text-orange-500' };
+    if (status === "taken") {
+      return {
+        bg: "bg-blue-50",
+        border: "border-blue-300",
+        badge: "bg-gradient-to-r from-blue-500 to-blue-600",
+        text: "text-blue-700",
+        icon: "text-blue-500",
+      };
+    } else if (status === "available") {
+      return {
+        bg: "bg-green-50",
+        border: "border-green-300",
+        badge: "bg-gradient-to-r from-green-500 to-green-600",
+        text: "text-green-700",
+        icon: "text-green-500",
+      };
+    } else if (status === "stolen") {
+      return {
+        bg: "bg-red-50",
+        border: "border-red-300",
+        badge: "bg-gradient-to-r from-red-500 to-red-600",
+        text: "text-red-700",
+        icon: "text-red-500",
+      };
+    } else if (status === "problem") {
+      return {
+        bg: "bg-orange-50",
+        border: "border-orange-300",
+        badge: "bg-gradient-to-r from-orange-500 to-orange-600",
+        text: "text-orange-700",
+        icon: "text-orange-500",
+      };
     }
-    return { bg: 'bg-gray-50', border: 'border-gray-300', badge: 'bg-gradient-to-r from-gray-500 to-gray-600', text: 'text-gray-700', icon: 'text-gray-500' };
+    return {
+      bg: "bg-gray-50",
+      border: "border-gray-300",
+      badge: "bg-gradient-to-r from-gray-500 to-gray-600",
+      text: "text-gray-700",
+      icon: "text-gray-500",
+    };
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -96,7 +146,9 @@ export default function VehicleHistory() {
                 <div>
                   <h1 className="text-4xl font-bold">سجل المركبات</h1>
                   <p className="text-blue-100 mt-1">
-                    {loading ? 'جاري التحميل...' : `${allVehicles.length} مركبة متاحة للمراجعة`}
+                    {loading
+                      ? "جاري التحميل..."
+                      : `${allVehicles.length} مركبة جاهزة للتسليم للمراجعة`}
                   </p>
                 </div>
               </div>
@@ -106,7 +158,7 @@ export default function VehicleHistory() {
               disabled={loading}
               className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 backdrop-blur-sm border border-white/20 hover:scale-105 transform"
             >
-              <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
               تحديث
             </button>
           </div>
@@ -140,7 +192,10 @@ export default function VehicleHistory() {
               </div>
 
               <div className="relative">
-                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="text"
                   value={searchTerm}
@@ -156,7 +211,7 @@ export default function VehicleHistory() {
                     النتائج: {filteredVehicles.length} من {allVehicles.length}
                   </span>
                   <button
-                    onClick={() => setSearchTerm('')}
+                    onClick={() => setSearchTerm("")}
                     className="text-blue-600 hover:text-blue-700 font-bold hover:underline"
                   >
                     مسح
@@ -178,50 +233,70 @@ export default function VehicleHistory() {
                 {loading ? (
                   <div className="text-center py-16">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                    <p className="mt-4 text-gray-600 font-medium">جاري تحميل المركبات...</p>
+                    <p className="mt-4 text-gray-600 font-medium">
+                      جاري تحميل المركبات...
+                    </p>
                   </div>
                 ) : filteredVehicles.length === 0 ? (
                   <div className="text-center py-16">
                     <Car className="mx-auto text-gray-300 mb-4" size={64} />
                     <p className="text-gray-600 font-medium">لا توجد نتائج</p>
-                    <p className="text-gray-400 text-sm mt-1">جرب البحث بمعايير مختلفة</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      جرب البحث بمعايير مختلفة
+                    </p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {filteredVehicles.map((vehicle) => {
                       const colors = getStatusColor(vehicle.statusTypeDisplay);
-                      const isSelected = selectedVehicleHistory?.[0]?.plateNumberA === vehicle.plateNumberA;
-                      
+                      const isSelected =
+                        selectedVehicleHistory?.[0]?.plateNumberA ===
+                        vehicle.plateNumberA;
+
                       return (
                         <button
                           key={vehicle.id || vehicle.plateNumberA}
                           onClick={() => handleVehicleClick(vehicle)}
                           className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${
                             isSelected
-                              ? 'bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md'
-                              : ''
+                              ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
+                              : ""
                           }`}
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Car size={18} className={colors.icon} />
-                              <span className="font-bold text-gray-900 text-lg">{vehicle.plateNumberA}</span>
+                              <span className="font-bold text-gray-900 text-lg">
+                                {vehicle.plateNumberA}
+                              </span>
                             </div>
                             {vehicle.statusTypeDisplay && (
-                              <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
-                                vehicle.statusTypeDisplay.toLowerCase() === 'taken' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                                vehicle.statusTypeDisplay.toLowerCase() === 'available' ? 'bg-green-100 text-green-700 border border-green-200' :
-                                vehicle.statusTypeDisplay.toLowerCase() === 'stolen' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                'bg-orange-100 text-orange-700 border border-orange-200'
-                              }`}>
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                                  vehicle.statusTypeDisplay.toLowerCase() ===
+                                  "taken"
+                                    ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                    : vehicle.statusTypeDisplay.toLowerCase() ===
+                                      "available"
+                                    ? "bg-green-100 text-green-700 border border-green-200"
+                                    : vehicle.statusTypeDisplay.toLowerCase() ===
+                                      "stolen"
+                                    ? "bg-red-100 text-red-700 border border-red-200"
+                                    : "bg-orange-100 text-orange-700 border border-orange-200"
+                                }`}
+                              >
                                 {vehicle.statusTypeDisplay}
                               </span>
                             )}
                           </div>
                           <div className="space-y-1">
-                            <p className="text-sm text-gray-700 font-medium">{vehicle.vehicleNumber || 'N/A'}</p>
+                            <p className="text-sm text-gray-700 font-medium">
+                              {vehicle.vehicleNumber || "N/A"}
+                            </p>
                             {vehicle.manufacturer && (
-                              <p className="text-xs text-gray-500">{vehicle.manufacturer}</p>
+                              <p className="text-xs text-gray-500">
+                                {vehicle.manufacturer}
+                              </p>
                             )}
                             {vehicle.location && (
                               <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -245,7 +320,9 @@ export default function VehicleHistory() {
               <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
-                  <p className="mt-6 text-gray-600 font-medium text-lg">جاري تحميل سجل المركبة...</p>
+                  <p className="mt-6 text-gray-600 font-medium text-lg">
+                    جاري تحميل سجل المركبة...
+                  </p>
                 </div>
               </div>
             ) : selectedVehicleHistory && selectedVehicleHistory.length > 0 ? (
@@ -254,7 +331,7 @@ export default function VehicleHistory() {
                 {(() => {
                   const firstRecord = selectedVehicleHistory[0];
                   const colors = getStatusColor(firstRecord.statusTypeDisplay);
-                  
+
                   return (
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
                       {/* Vehicle Header */}
@@ -265,13 +342,21 @@ export default function VehicleHistory() {
                               <Car size={32} />
                             </div>
                             <div>
-                              <h2 className="text-3xl font-bold">{firstRecord.plateNumberA}</h2>
-                              <p className="text-blue-100 mt-1 font-medium">رقم المركبة: {firstRecord.vehicleNumber}</p>
+                              <h2 className="text-3xl font-bold">
+                                {firstRecord.plateNumberA}
+                              </h2>
+                              <p className="text-blue-100 mt-1 font-medium">
+                                رقم المركبة: {firstRecord.vehicleNumber}
+                              </p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-blue-100 text-sm">إجمالي السجلات</p>
-                            <p className="text-3xl font-bold">{selectedVehicleHistory.length}</p>
+                            <p className="text-blue-100 text-sm">
+                              إجمالي السجلات
+                            </p>
+                            <p className="text-3xl font-bold">
+                              {selectedVehicleHistory.length}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -283,9 +368,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Package size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">رقم المركبة</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  رقم المركبة
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.vehicleNumber}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.vehicleNumber}
+                              </p>
                             </div>
                           )}
 
@@ -293,9 +382,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <FileText size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">الرقم التسلسلي</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  الرقم التسلسلي
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.serialNumber}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.serialNumber}
+                              </p>
                             </div>
                           )}
 
@@ -303,9 +396,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Car size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">رقم اللوحة (إنجليزي)</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  رقم اللوحة (إنجليزي)
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.plateNumberE}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.plateNumberE}
+                              </p>
                             </div>
                           )}
 
@@ -313,9 +410,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Car size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">الشركة المصنعة</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  الشركة المصنعة
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.manufacturer}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.manufacturer}
+                              </p>
                             </div>
                           )}
 
@@ -323,9 +424,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Calendar size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">سنة الصنع</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  سنة الصنع
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.manufactureYear}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.manufactureYear}
+                              </p>
                             </div>
                           )}
 
@@ -333,9 +438,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <MapPin size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">الموقع</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  الموقع
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.location}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.location}
+                              </p>
                             </div>
                           )}
 
@@ -343,9 +452,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <User size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">اسم المالك</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  اسم المالك
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.ownerName}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.ownerName}
+                              </p>
                             </div>
                           )}
 
@@ -353,9 +466,13 @@ export default function VehicleHistory() {
                             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Package size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">رقم هوية المالك</span>
+                                <span className="text-xs text-blue-600 font-semibold uppercase">
+                                  رقم هوية المالك
+                                </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">{firstRecord.ownerId}</p>
+                              <p className="text-lg font-bold text-gray-900">
+                                {firstRecord.ownerId}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -371,7 +488,9 @@ export default function VehicleHistory() {
                       <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
                         <Clock size={24} />
                       </div>
-                      <h3 className="text-2xl font-bold">سجل الحركة والأنشطة</h3>
+                      <h3 className="text-2xl font-bold">
+                        سجل الحركة والأنشطة
+                      </h3>
                     </div>
                   </div>
 
@@ -379,16 +498,21 @@ export default function VehicleHistory() {
                     <div className="space-y-4">
                       {selectedVehicleHistory.map((record, index) => {
                         const colors = getStatusColor(record.statusTypeDisplay);
-                        
+
                         return (
-                          <div key={record.id || index} className={`${colors.bg} border-2 ${colors.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}>
+                          <div
+                            key={record.id || index}
+                            className={`${colors.bg} border-2 ${colors.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}
+                          >
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-white rounded-lg shadow-sm">
                                   <Activity className={colors.icon} size={20} />
                                 </div>
                                 <div>
-                                  <span className={`px-4 py-1.5 ${colors.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}>
+                                  <span
+                                    className={`px-4 py-1.5 ${colors.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}
+                                  >
                                     {record.statusTypeDisplay}
                                   </span>
                                   <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
@@ -397,14 +521,16 @@ export default function VehicleHistory() {
                                   </p>
                                 </div>
                               </div>
-                              
-                              <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
-                                record.isActive 
-                                  ? 'bg-green-600 text-white' 
-                                  : 'bg-red-600 text-white'
-                              }`}>
+
+                              <span
+                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
+                                  record.isActive
+                                    ? "bg-green-600 text-white"
+                                    : "bg-red-600 text-white"
+                                }`}
+                              >
                                 <CheckCircle size={14} />
-                                {record.isActive ? 'نشط' : 'غير نشط'}
+                                {record.isActive ? "نشط" : "غير نشط"}
                               </span>
                             </div>
 
@@ -413,9 +539,13 @@ export default function VehicleHistory() {
                                 <div className="bg-white p-3 rounded-lg">
                                   <div className="flex items-center gap-2 mb-1">
                                     <User size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">اسم السائق</span>
+                                    <span className="text-xs text-gray-500 font-semibold">
+                                      اسم المندوب
+                                    </span>
                                   </div>
-                                  <p className="text-sm font-bold text-gray-900">{record.riderName}</p>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {record.riderName}
+                                  </p>
                                 </div>
                               )}
 
@@ -423,29 +553,47 @@ export default function VehicleHistory() {
                                 <div className="bg-white p-3 rounded-lg">
                                   <div className="flex items-center gap-2 mb-1">
                                     <User size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">اسم السائق (إنجليزي)</span>
+                                    <span className="text-xs text-gray-500 font-semibold">
+                                      اسم المندوب (إنجليزي)
+                                    </span>
                                   </div>
-                                  <p className="text-sm font-bold text-gray-900">{record.riderNameE}</p>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {record.riderNameE}
+                                  </p>
                                 </div>
                               )}
 
                               {record.employeeIqamaNo && (
                                 <div className="bg-white p-3 rounded-lg">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <FileText size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">رقم إقامة الموظف</span>
+                                    <FileText
+                                      size={14}
+                                      className="text-gray-500"
+                                    />
+                                    <span className="text-xs text-gray-500 font-semibold">
+                                      رقم إقامة الموظف
+                                    </span>
                                   </div>
-                                  <p className="text-sm font-bold text-gray-900">{record.employeeIqamaNo}</p>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {record.employeeIqamaNo}
+                                  </p>
                                 </div>
                               )}
 
                               {record.reason && (
                                 <div className="bg-white p-3 rounded-lg">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <FileText size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">السبب</span>
+                                    <FileText
+                                      size={14}
+                                      className="text-gray-500"
+                                    />
+                                    <span className="text-xs text-gray-500 font-semibold">
+                                      السبب
+                                    </span>
                                   </div>
-                                  <p className="text-sm font-bold text-gray-900">{record.reason}</p>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {record.reason}
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -462,8 +610,12 @@ export default function VehicleHistory() {
                   <div className="mx-auto mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-32 h-32 flex items-center justify-center">
                     <Eye className="text-blue-400" size={64} />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">اختر مركبة لعرض السجل</h3>
-                  <p className="text-gray-600 text-lg">اختر مركبة من القائمة على اليسار لعرض سجل التفاصيل الكامل</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    اختر مركبة لعرض السجل
+                  </h3>
+                  <p className="text-gray-600 text-lg">
+                    اختر مركبة من القائمة على اليسار لعرض سجل التفاصيل الكامل
+                  </p>
                 </div>
               </div>
             )}
