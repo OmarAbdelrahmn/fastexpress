@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Calendar, Search, Download, Trash2, TrendingUp, Award, AlertCircle, FileText } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function ShiftRangeViewerPage() {
   const [startDate, setStartDate] = useState('');
@@ -21,37 +22,35 @@ export default function ShiftRangeViewerPage() {
     }
 
     setLoading(true);
-    try {
-      const endpoint = workingId 
-        ? `${API_BASE}/shift/rider/${workingId}` 
-        : `${API_BASE}/shift/range?startDate=${startDate}&endDate=${endDate}`;
-      
-      const response = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
+   try {
+  let data;
+  
+  if (workingId) {
+    // Get shifts for specific rider
+    data = await ApiService.get(API_ENDPOINTS.SHIFT.BY_RIDER(workingId));
+    
+    // Filter by date range client-side
+    data = Array.isArray(data) 
+      ? data.filter(s => s.shiftDate >= startDate && s.shiftDate <= endDate)
+      : [];
+  } else {
+    // Get shifts for date range
+    data = await ApiService.get(API_ENDPOINTS.SHIFT.DATE_RANGE, {
+      startDate: startDate,
+      endDate: endDate
+    });
+    
+    data = Array.isArray(data) ? data : [];
+  }
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const shiftsData = Array.isArray(data) ? data : [];
-        
-        // Filter by date range if querying specific rider
-        const filteredShifts = workingId 
-          ? shiftsData.filter(s => s.shiftDate >= startDate && s.shiftDate <= endDate)
-          : shiftsData;
-
-        setShifts(filteredShifts);
-        calculateStats(filteredShifts);
-        setMessage({ type: '', text: '' });
-      } else {
-        setMessage({ type: 'error', text: 'فشل تحميل الورديات' });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  setShifts(data);
+  calculateStats(data);
+  setMessage({ type: '', text: '' });
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال' });
+} finally {
+  setLoading(false);
+}};
 
   const calculateStats = (shiftsData) => {
     if (!shiftsData.length) {
@@ -110,32 +109,33 @@ export default function ShiftRangeViewerPage() {
 
     setLoading(true);
     try {
-      const endpoint = workingId
-        ? `${API_BASE}/shift/rider/${workingId}/range?startDate=${startDate}&endDate=${endDate}`
-        : `${API_BASE}/shift/range?startDate=${startDate}&endDate=${endDate}`;
-
-      const response = await fetch(endpoint, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage({ 
-          type: 'success', 
-          text: `تم حذف ${result.totalDeleted} وردية بنجاح` 
-        });
-        loadShifts();
-      } else {
-        setMessage({ type: 'error', text: 'فشل الحذف' });
+  let result;
+  
+  if (workingId) {
+    result = await ApiService.delete(
+      API_ENDPOINTS.SHIFT.DELETE_RIDER_DATE_RANGE(workingId),
+      {
+        startDate: startDate,
+        endDate: endDate
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء الحذف' });
-    } finally {
-      setLoading(false);
-    }
-  };
+    );
+  } else {
+    result = await ApiService.delete(API_ENDPOINTS.SHIFT.DELETE_DATE_RANGE, {
+      startDate: startDate,
+      endDate: endDate
+    });
+  }
+
+  setMessage({ 
+    type: 'success', 
+    text: `تم حذف ${result.totalDeleted} وردية بنجاح` 
+  });
+  loadShifts();
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ أثناء الحذف' });
+} finally {
+  setLoading(false);
+}};
 
   const getStatusColor = (status) => {
     const colors = {

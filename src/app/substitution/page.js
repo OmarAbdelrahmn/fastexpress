@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowRightLeft, Plus, Clock, CheckCircle, XCircle, History, Users, AlertCircle } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function SubstitutionsPage() {
   const [substitutions, setSubstitutions] = useState([]);
@@ -24,28 +25,30 @@ export default function SubstitutionsPage() {
   const loadSubstitutions = async () => {
     setLoading(true);
     try {
-      const endpoint = filter === 'all' ? '' : `/${filter}`;
-      const response = await fetch(`${API_BASE}/substitution${endpoint}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setSubstitutions(Array.isArray(data) ? data : []);
-        updateStats(data);
-        setMessage({ type: '', text: '' });
-      } else {
-        const errorMessage = data.detail || data.error?.description || data.title || 'فشل تحميل البدلاء';
-        setMessage({ type: 'error', text: errorMessage });
-        setSubstitutions([]);
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم' });
-      setSubstitutions([]);
-    } finally {
-      setLoading(false);
-    }
+  let endpoint;
+  
+  switch(filter) {
+    case 'active':
+      endpoint = API_ENDPOINTS.SUBSTITUTION.ACTIVE;
+      break;
+    case 'inactive':
+      endpoint = API_ENDPOINTS.SUBSTITUTION.INACTIVE;
+      break;
+    default:
+      endpoint = API_ENDPOINTS.SUBSTITUTION.LIST;
+  }
+  
+  const data = await ApiService.get(endpoint);
+  
+  setSubstitutions(Array.isArray(data) ? data : []);
+  updateStats(data);
+  setMessage({ type: '', text: '' });
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم' });
+  setSubstitutions([]);
+} finally {
+  setLoading(false);
+}
   };
 
   const updateStats = (data) => {
@@ -62,22 +65,12 @@ export default function SubstitutionsPage() {
     if (!confirm('هل أنت متأكد من إيقاف هذا البديل؟')) return;
 
     try {
-      const response = await fetch(`${API_BASE}/substitution/${workingId}/stop`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'تم إيقاف البديل بنجاح' });
-        loadSubstitutions();
-      } else {
-        const errorMessage = data.detail || data.error?.description || data.title || 'فشل إيقاف البديل';
-        setMessage({ type: 'error', text: errorMessage });
-      }
+      const data = await ApiService.put(API_ENDPOINTS.SUBSTITUTION.STOP(workingId));
+      
+      setMessage({ type: 'success', text: 'تم إيقاف البديل بنجاح' });
+      loadSubstitutions();
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
+      setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال' });
     }
   };
 

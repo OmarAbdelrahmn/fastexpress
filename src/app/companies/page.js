@@ -6,6 +6,8 @@ import { Building, Plus, Search, Eye, Edit, Trash2, Mail, Phone, MapPin } from '
 import PageHeader from '@/components/layout/pageheader';
 import Card from '@/components/Ui/Card';
 import Alert from '@/components/Ui/Alert';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function CompaniesPage() {
   const router = useRouter();
@@ -14,7 +16,6 @@ export default function CompaniesPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   useEffect(() => {
     loadCompanies();
@@ -23,12 +24,10 @@ export default function CompaniesPage() {
   const loadCompanies = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/company/`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      const data = await response.json();
+      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST); 
       setCompanies(Array.isArray(data) ? data : []);
-    } catch (error) {
+    }
+    catch (error) {
       setMessage({ type: 'error', text: 'فشل تحميل الشركات' });
     } finally {
       setLoading(false);
@@ -39,16 +38,12 @@ export default function CompaniesPage() {
     if (!confirm(`هل أنت متأكد من حذف شركة ${companyName}؟`)) return;
 
     try {
-      const response = await fetch(`${API_BASE}/company/${companyName}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-
-      if (response.ok) {
+      await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyName));
+      
         setMessage({ type: 'success', text: 'تم حذف الشركة بنجاح' });
         loadCompanies();
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-      }
+      
     } catch (error) {
       setMessage({ type: 'error', text: 'فشل حذف الشركة' });
     }

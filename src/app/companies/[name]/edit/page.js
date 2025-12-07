@@ -8,6 +8,8 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function EditCompanyPage() {
   const router = useRouter();
@@ -37,10 +39,7 @@ export default function EditCompanyPage() {
   const loadCompanyData = async () => {
     setLoadingData(true);
     try {
-      const response = await fetch(`${API_BASE}/company`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      const data = await response.json();
+      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
       const companies = Array.isArray(data) ? data : [];
       const foundCompany = companies.find(c => c.name === companyName);
       
@@ -80,24 +79,12 @@ export default function EditCompanyPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`${API_BASE}/company/${companyName}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const data = ApiService.put(API_ENDPOINTS.COMPANY.UPDATE(companyName), formData);
 
-      if (response.ok) {
         setMessage({ type: 'success', text: 'تم تحديث بيانات الشركة بنجاح' });
         setTimeout(() => {
           router.push('/companies');
-        }, 2000);
-      } else {
-        const error = await response.json();
-        setMessage({ type: 'error', text: error.title || 'فشلت العملية' });
-      }
+        }, 2000);      
     } catch (error) {
       setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
     } finally {

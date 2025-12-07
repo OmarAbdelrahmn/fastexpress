@@ -7,6 +7,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { FileSpreadsheet, Upload, AlertCircle, CheckCircle, Download } from 'lucide-react';
+import { ApiService } from '@/lib/api/apiService';
 
 export default function ImportEmployeeExcelPage() {
   const router = useRouter();
@@ -43,11 +44,7 @@ export default function ImportEmployeeExcelPage() {
       const formData = new FormData();
       formData.append('excelFile', selectedFile);
 
-      const response = await fetch('/api/Temp/import-employees', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const response = await ApiService.uploadFile('/api/Temp/import-employees', formData.get('excelFile'));
       if (!response.ok) {
         throw new Error('فشل رفع الملف');
       }

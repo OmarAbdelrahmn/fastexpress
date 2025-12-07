@@ -10,8 +10,6 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Home, Save, ArrowRight } from 'lucide-react';
 
-const API_BASE = 'https://fastexpress.tryasp.net';
-
 export default function HousingCreatePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

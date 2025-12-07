@@ -69,7 +69,7 @@ export default function CreateEmployeePage() {
         iban: formData.iban,
         inksa: formData.inksa
       };
-      console.log('Request Data:', requestData);
+      // console.log('Request Data:', requestData);
       await ApiService.post(API_ENDPOINTS.EMPLOYEE.CREATE, requestData);
       
       setSuccessMessage('تم إضافة الموظف بنجاح');

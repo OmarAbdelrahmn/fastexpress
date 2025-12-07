@@ -325,6 +325,7 @@ export default function EnhancedDashboard() {
       emerald: "from-emerald-500 to-emerald-600",
       sky: "from-sky-500 to-sky-600",
       cyan: "from-cyan-500 to-cyan-600",
+      red: "bg-red-50 border-red-200 text-red-700",
     };
 
     const getTrendIcon = () => {
@@ -532,7 +533,7 @@ export default function EnhancedDashboard() {
                 : "لا توجد تعميدات"
             }
             icon={AlertCircle}
-            color={stats.pendingRequests > 0 ? "green" : "red"}
+            color={"green"}
             linkText="عرض الطلبات"
           />
         </Link>

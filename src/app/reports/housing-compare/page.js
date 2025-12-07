@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Home, Search, Users, Package, TrendingUp, TrendingDown, Award, MapPin, AlertCircle, ArrowUp, ArrowDown, Minus, Lightbulb, Clock, CheckCircle, XCircle } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 const HousingComparisonReport = () => {
   const [loading, setLoading] = useState(false);
@@ -28,45 +28,35 @@ const HousingComparisonReport = () => {
     setMessage({ type: '', text: '' });
     setComparisons(null);
     
-    try {
-      const response = await fetch(
-        `${API_BASE}/Report/housing/compare?startDate=${startDate}&endDate=${endDate}&startDate1=${startDate1}&endDate1=${endDate1}`,
-        {
-          headers: { 
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('فشل في تحميل التقرير');
-      }
-
-      const data = await response.json();
-      
-      if (!data || data.length === 0) {
-        setMessage({ 
-          type: 'warning', 
-          text: 'لا توجد بيانات للمقارنة بين الفترتين' 
-        });
-        setComparisons(null);
-      } else {
-        setComparisons(data);
-        setMessage({ type: 'success', text: `تم تحميل ${data.length} مقارنة للسكنات بنجاح` });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setComparisons(null);
-      setMessage({ 
-        type: 'error', 
-        text: error.message || 'فشل في تحميل التقرير' 
-      });
-    } finally {
-      setLoading(false);
-    }
+   try {
+  const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSING, {
+    startDate: startDate,
+    endDate: endDate,
+    startDate1: startDate1,
+    endDate1: endDate1
+  });
+  
+  if (!data || data.length === 0) {
+    setMessage({ 
+      type: 'warning', 
+      text: 'لا توجد بيانات للمقارنة بين الفترتين' 
+    });
+    setComparisons(null);
+  } else {
+    setComparisons(data);
+    setMessage({ type: 'success', text: `تم تحميل ${data.length} مقارنة للسكنات بنجاح` });
+  }
+} catch (error) {
+  console.error('Error:', error);
+  setComparisons(null);
+  setMessage({ 
+    type: 'error', 
+    text: error.message || 'فشل في تحميل التقرير' 
+  });
+} finally {
+  setLoading(false);
+}
   };
-
   const getChangeIcon = (value) => {
     if (value > 0) return <ArrowUp size={16} className="text-green-600" />;
     if (value < 0) return <ArrowDown size={16} className="text-red-600" />;

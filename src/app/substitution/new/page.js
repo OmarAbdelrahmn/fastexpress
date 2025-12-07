@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowRight, UserPlus } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 const AddSubstitutionPage = () => {
   const router = useRouter();
@@ -18,7 +20,6 @@ const AddSubstitutionPage = () => {
     createdBy: ''
   });
 
-  const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,40 +27,25 @@ const AddSubstitutionPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Convert string inputs to integers before sending
-      const requestPayload = {
-        actualRiderWorkingId: formData.actualRiderWorkingId,
-        substituteWorkingId: formData.substituteWorkingId,
-        reason: formData.reason,
-        createdBy: formData.createdBy || null
-      };
+  const requestPayload = {
+    actualRiderWorkingId: formData.actualRiderWorkingId,
+    substituteWorkingId: formData.substituteWorkingId,
+    reason: formData.reason,
+    createdBy: formData.createdBy || null
+  };
 
-      const response = await fetch(`${API_BASE}/substitution`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(requestPayload)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'تم إضافة البديل بنجاح، جاري التحويل...' });
-        
-        setTimeout(() => {
-          router.push('/substitution');
-        }, 1500);
-      } else {
-        const errorMessage = data.detail || data.error?.description || data.title || 'فشلت العملية';
-        setMessage({ type: 'error', text: errorMessage });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم' });
-    } finally {
-      setLoading(false);
-    }
+  const data = await ApiService.post(API_ENDPOINTS.SUBSTITUTION.CREATE, requestPayload);
+  
+  setMessage({ type: 'success', text: 'تم إضافة البديل بنجاح، جاري التحويل...' });
+  
+  setTimeout(() => {
+    router.push('/substitution');
+  }, 1500);
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم' });
+} finally {
+  setLoading(false);
+}
   };
 
   return (

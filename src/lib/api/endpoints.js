@@ -173,6 +173,7 @@ export const API_ENDPOINTS = {
     COMPARE_RIDER_MONTHLY: (workingId) => `/api/Report/riders/compare-monthly/${workingId}`,
     COMPARE_RIDER_YEARLY: (workingId) => `/api/Report/riders/compare-yearly/${workingId}`,
     COMPARE_HOUSING: "/api/Report/housing/compare",
+    COMPARE_HOUSINGS: "/api/Report/housing",
     HOUSING_RIDERS: "/api/Report/housing/riders",
     HOUSING_RIDERS_COMPARE: "/api/Report/housing/riders-compare",
     TOP_RIDERS_YEARLY: "/api/Report/top-riders/yearly",

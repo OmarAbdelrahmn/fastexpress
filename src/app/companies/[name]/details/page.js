@@ -7,6 +7,8 @@ import PageHeader from '@/components/layout/pageheader';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function CompanyDetailsPage() {
   const router = useRouter();
@@ -17,7 +19,6 @@ export default function CompanyDetailsPage() {
   const [company, setCompany] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   useEffect(() => {
     if (companyName) {
@@ -28,10 +29,7 @@ export default function CompanyDetailsPage() {
   const loadCompanyDetails = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/company`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      const data = await response.json();
+      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
       const companies = Array.isArray(data) ? data : [];
       const foundCompany = companies.find(c => c.name === companyName);
       
@@ -51,18 +49,13 @@ export default function CompanyDetailsPage() {
     if (!confirm(`هل أنت متأكد من حذف شركة ${companyName}؟`)) return;
 
     try {
-      const response = await fetch(`${API_BASE}/company/${companyName}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-
-      if (response.ok) {
-        router.push('/companies');
-      } else {
-        setErrorMessage('فشل حذف الشركة');
-      }
+      await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyName));
+          setMessage({ type: 'success', text: 'تم حذف بيانات الشركة بنجاح' });
+          setTimeout(() => {
+          router.push('/companies');
+        }, 2000);
     } catch (error) {
-      setErrorMessage('حدث خطأ في حذف الشركة');
+      setErrorMessage(`${error}`);
     }
   };
 

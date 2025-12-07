@@ -10,7 +10,6 @@ import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { UserPlus, Save, ArrowRight, Home, Users } from "lucide-react";
 
-const API_BASE = "https://fastexpress.tryasp.net";
 
 export default function HousingAddEmployeePage() {
   const router = useRouter();

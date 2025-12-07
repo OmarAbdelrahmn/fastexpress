@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { Building, Users, Package, Award, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, AlertTriangle, BarChart3, Calendar } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
-const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function HousingPeriodReport() {
   const [loading, setLoading] = useState(false);
@@ -29,37 +30,26 @@ export default function HousingPeriodReport() {
     setSuccessMessage('');
     setReportData(null);
 
-    try {
-      const response = await fetch(
-        `${API_BASE}/Report/housing?startDate=${form.startDate}&endDate=${form.endDate}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('فشل في جلب التقرير');
-      }
-
-      const data = await response.json();
-      
-      if (data && data.housingBreakdowns && data.housingBreakdowns.length > 0) {
-        setReportData(data);
-        setSuccessMessage('تم جلب تقرير الإسكان بنجاح');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        setError('لا توجد بيانات للفترة المحددة');
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message || 'حدث خطأ أثناء جلب التقرير');
-    } finally {
-      setLoading(false);
-    }
-  };
+try {
+  const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSINGS, {
+    startDate: form.startDate,
+    endDate: form.endDate
+  });
+  
+  if (data && data.housingBreakdowns && data.housingBreakdowns.length > 0) {
+    setReportData(data);
+    setSuccessMessage('تم جلب تقرير الإسكان بنجاح');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  } else {
+    setError('لا توجد بيانات للفترة المحددة');
+  }
+} catch (err) {
+  console.error('Error:', err);
+  setError(err.message || 'حدث خطأ أثناء جلب التقرير');
+} finally {
+  setLoading(false);
+}
+};
 
   const Alert = ({ type, message, onClose }) => {
     const styles = {

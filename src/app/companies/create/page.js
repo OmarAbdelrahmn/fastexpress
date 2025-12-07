@@ -8,6 +8,8 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function CreateCompanyPage() {
   const router = useRouter();
@@ -20,8 +22,6 @@ export default function CreateCompanyPage() {
     phone: '',
     email: ''
   });
-
-  const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,24 +40,12 @@ export default function CreateCompanyPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`${API_BASE}/company`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'تم إضافة الشركة بنجاح' });
+      const data = await ApiService.post(API_ENDPOINTS.COMPANY.CREATE, formData);
+       
+      setMessage({ type: 'success', text: 'تم إضافة الشركة بنجاح' });
         setTimeout(() => {
           router.push('/companies');
         }, 2000);
-      } else {
-        const error = await response.json();
-        setMessage({ type: 'error', text: error.title || 'فشلت العملية' });
-      }
     } catch (error) {
       setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
     } finally {

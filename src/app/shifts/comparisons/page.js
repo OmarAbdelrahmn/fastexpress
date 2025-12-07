@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react';
 import { GitCompare, Upload, CheckCircle, XCircle, AlertTriangle, FileText, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { TokenManager } from '@/lib/auth/tokenManager';
+import { Router } from 'next/router';
 const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function ShiftComparisonsPage() {
@@ -16,23 +20,19 @@ export default function ShiftComparisonsPage() {
   const loadPendingComparisons = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/shift/comparisons?shiftDate=${selectedDate}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const data = await ApiService.get(API_ENDPOINTS.SHIFT.COMPARISONS, {
+        shiftDate: selectedDate
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setComparisons(data);
-        setMessage({ type: '', text: '' });
-      } else if (response.status === 404) {
+      
+      setComparisons(data);
+      setMessage({ type: '', text: '' });
+    } catch (error) {
+      if (error.status === 404) {
         setComparisons(null);
         setMessage({ type: 'info', text: 'لا توجد مقارنات معلقة لهذا التاريخ' });
       } else {
-        const error = await response.json();
-        setMessage({ type: 'error', text: error.title || 'فشل التحميل' });
+        setMessage({ type: 'error', text: error.message || 'فشل التحميل' });
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
     } finally {
       setLoading(false);
     }
@@ -53,9 +53,13 @@ export default function ShiftComparisonsPage() {
 
     setLoading(true);
     try {
+        const token = TokenManager.getToken();
+         if (!token) {
+        Router.push('/login');
+       }
       const response = await fetch(`${API_BASE}/shift/comparisons/import?shiftDate=${selectedDate}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
 
@@ -79,39 +83,28 @@ export default function ShiftComparisonsPage() {
   };
 
   const handleResolve = async (choice) => {
-    if (!confirm(`هل أنت متأكد من ${choice === 'KeepOld' ? 'الإبقاء على البيانات الموجودة' : 'استخدام البيانات الجديدة'}؟`)) return;
+    if (!confirm(`هل أنت متأكد من ${choice === '1' ? 'الإبقاء على البيانات الموجودة' : 'استخدام البيانات الجديدة'}؟`)) return;
 
     setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/shift/comparisons/resolve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({
-          shiftDate: selectedDate,
-          ResolutionChoice: choice,
-          resolvedBy: localStorage.getItem('user_name') ?? 'someone'
-        })
-      });
+   try {
+  const user = TokenManager.getUserFromToken();
+  
+  const result = await ApiService.post(API_ENDPOINTS.SHIFT.RESOLVE_COMPARISONS, {
+    shiftDate: selectedDate,
+    choice: parseInt(choice),
+    resolvedBy: user?.unique_name || user?.name || 'someone'
+  });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage({ 
-          type: 'success', 
-          text: `تم المعالجة: ${result.totalResolved}` 
-        });
-        setComparisons(null);
-      } else {
-        setMessage({ type: 'error', text: result.title || 'فشلت العملية' });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء المعالجة' });
-    } finally {
-      setLoading(false);
-    }
+  setMessage({ 
+    type: 'success', 
+    text: `تم المعالجة: ${result.totalResolved}` 
+  });
+  setComparisons(null);
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ أثناء المعالجة' });
+} finally {
+  setLoading(false);
+}
   };
 
   const toggleDetails = (index) => {
@@ -217,7 +210,7 @@ export default function ShiftComparisonsPage() {
               <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات المقارنة</h3>
               <div className="flex gap-4">
                 <button
-                  onClick={() => handleResolve('UseNew')}
+                  onClick={() => handleResolve('2')}
                   disabled={loading}
                   className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center gap-2 font-bold"
                 >
@@ -225,7 +218,7 @@ export default function ShiftComparisonsPage() {
                   اعتماد البيانات الجديدة
                 </button>
                 <button
-                  onClick={() => handleResolve('KeepOld')}
+                  onClick={() => handleResolve('1')}
                   disabled={loading}
                   className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 flex items-center justify-center gap-2 font-bold"
                 >

@@ -10,7 +10,6 @@ import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { RefreshCw, Save, ArrowRight, Home, Users } from "lucide-react";
 
-const API_BASE = "https://fastexpress.tryasp.net";
 
 export default function HousingMoveEmployeePage() {
   const router = useRouter();
@@ -62,7 +61,6 @@ export default function HousingMoveEmployeePage() {
     setLoading(true);
 
     try {
-      // PUT /api/Housing/{IqamaNo}/change/{oldHousingName}/{NewHousingName}
       await ApiService.put(
         `/api/Housing/${formData.iqamaNo}/change/${formData.oldHousingName}/${formData.newHousingName}`,
         null

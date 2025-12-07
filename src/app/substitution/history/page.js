@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { History, Search, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
+
 
 export default function SubstitutionHistoryPage() {
   const [workingId, setWorkingId] = useState('');
@@ -25,28 +27,18 @@ export default function SubstitutionHistoryPage() {
     setHasSearched(true);
 
     try {
-      const response = await fetch(`${API_BASE}/substitution/history/${workingId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setHistory(Array.isArray(data) ? data : []);
-        if (data.length === 0) {
-          setMessage({ type: 'info', text: 'لا يوجد سجل استبدال لهذا الرقم' });
-        }
-      } else {
-        const errorMessage = data.detail || data.error?.description || data.title || 'فشل تحميل السجل';
-        setMessage({ type: 'error', text: errorMessage });
-        setHistory([]);
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم' });
-      setHistory([]);
-    } finally {
-      setLoading(false);
-    }
+  const data = await ApiService.get(API_ENDPOINTS.SUBSTITUTION.HISTORY(workingId));
+  
+  setHistory(Array.isArray(data) ? data : []);
+  if (data.length === 0) {
+    setMessage({ type: 'info', text: 'لا يوجد سجل استبدال لهذا الرقم' });
+  }
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم' });
+  setHistory([]);
+} finally {
+  setLoading(false);
+}
   };
 
   const formatDate = (dateString) => {

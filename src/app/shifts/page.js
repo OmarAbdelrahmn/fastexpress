@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Upload, FileSpreadsheet, Trash2, Search, AlertCircle, CheckCircle, XCircle, FileText, Download, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-const API_BASE = 'https://fastexpress.tryasp.net/api';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState([]);
@@ -16,18 +17,18 @@ export default function ShiftsPage() {
 
   const loadShifts = async () => {
     setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/shift/date?shiftDate=${selectedDate}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      const data = await response.json();
-      setShifts(Array.isArray(data) ? data : []);
-      setMessage({ type: '', text: '' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'فشل تحميل الورديات' });
-    } finally {
-      setLoading(false);
-    }
+      try {
+    const data = await ApiService.get(API_ENDPOINTS.SHIFT.BY_DATE, {
+      shiftDate: selectedDate
+    });
+    
+    setShifts(Array.isArray(data) ? data : []);
+    setMessage({ type: '', text: '' });
+  } catch (error) {
+    setMessage({ type: 'error', text: 'فشل تحميل الورديات' });
+  } finally {
+    setLoading(false);
+  }
   };
 
   useEffect(() => {
@@ -47,63 +48,52 @@ export default function ShiftsPage() {
     setImportResult(null);
     
     try {
-      const response = await fetch(`${API_BASE}/shift/import?ShiftDate=${selectedDate}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
-        body: formData
-      });
-
-      const result = await response.json();
-      
-      if (response.ok) {
-        setImportResult(result);
-        setShowImportDetails(true);
-        
-        if (result.conflictCount > 0) {
-          setMessage({ 
-            type: 'warning', 
-            text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
-          });
-        } else {
-          setMessage({ 
-            type: 'success', 
-            text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
-          });
-        }
-        
-        setUploadFile(null);
-        loadShifts();
-      } else {
-        setMessage({ type: 'error', text: result.title || 'فشل الاستيراد' });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء الاستيراد' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const file = uploadFile; // or formData.get('file')
+  
+  const result = await ApiService.uploadFile(
+    API_ENDPOINTS.SHIFT.IMPORT,
+    file,
+    { ShiftDate: selectedDate } // Additional form data
+  );
+  
+  setImportResult(result);
+  setShowImportDetails(true);
+  
+  if (result.conflictCount > 0) {
+    setMessage({ 
+      type: 'warning', 
+      text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
+    });
+  } else {
+    setMessage({ 
+      type: 'success', 
+      text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
+    });
+  }
+  
+  setUploadFile(null);
+  loadShifts();
+} catch (error) {
+  setMessage({ type: 'error', text: error.message || 'حدث خطأ أثناء الاستيراد' });
+} finally {
+  setLoading(false);
+}};
 
   const handleDeleteDate = async () => {
     if (!confirm('هل أنت متأكد من حذف جميع ورديات هذا التاريخ؟')) return;
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/shift/date?shiftDate=${selectedDate}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+      const result = await ApiService.delete(API_ENDPOINTS.SHIFT.DELETE_BY_DATE, {
+        shiftDate: selectedDate
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage({ 
-          type: 'success', 
-          text: `تم حذف ${result.totalDeleted} وردية بنجاح` 
-        });
-        loadShifts();
-      }
+      setMessage({ 
+        type: 'success', 
+        text: `تم حذف ${result.totalDeleted} وردية بنجاح` 
+      });
+      loadShifts();
     } catch (error) {
-      setMessage({ type: 'error', text: 'فشل حذف الورديات' });
+      setMessage({ type: 'error', text: error.message || 'فشل حذف الورديات' });
     } finally {
       setLoading(false);
     }
