@@ -5,7 +5,7 @@ import { Calendar, Upload, FileSpreadsheet, Trash2, Search, AlertCircle, CheckCi
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
+import { TokenManager } from '@/lib/auth/tokenManager';
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -47,37 +47,22 @@ export default function ShiftsPage() {
     setLoading(true);
     setImportResult(null);
     
-    try {
-  const file = uploadFile; // or formData.get('file')
-  
-  const result = await ApiService.uploadFile(
-    API_ENDPOINTS.SHIFT.IMPORT,
-    file,
-    { ShiftDate: selectedDate } // Additional form data
-  );
-  
-  setImportResult(result);
-  setShowImportDetails(true);
-  
-  if (result.conflictCount > 0) {
-    setMessage({ 
-      type: 'warning', 
-      text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
-    });
-  } else {
-    setMessage({ 
-      type: 'success', 
-      text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
-    });
-  }
-  
-  setUploadFile(null);
-  loadShifts();
-} catch (error) {
-  setMessage({ type: 'error', text: error.message || 'حدث خطأ أثناء الاستيراد' });
-} finally {
-  setLoading(false);
-}};
+      try {
+        
+        const token = TokenManager.getToken();
+          if (!token) {
+        Router.push('/login');}
+      const response = await fetch(`${API_BASE}/shift/date?shiftDate=${selectedDate}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setShifts(Array.isArray(data) ? data : []);
+      setMessage({ type: '', text: '' });
+    } catch (error) {
+      setMessage({ type: 'error', text: 'فشل تحميل الورديات' });
+    } finally {
+      setLoading(false);
+    }};
 
   const handleDeleteDate = async () => {
     if (!confirm('هل أنت متأكد من حذف جميع ورديات هذا التاريخ؟')) return;
