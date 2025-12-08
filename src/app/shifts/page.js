@@ -6,6 +6,7 @@ import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { TokenManager } from '@/lib/auth/tokenManager';
+
 const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function ShiftsPage() {
@@ -48,6 +49,13 @@ const [selectedDate, setSelectedDate] = useState('');
 
 
   const handleImport = async () => {
+
+    alert('handleImport called!'); // This will show even if console is broken
+  console.log('🔴🔴🔴 HANDLE IMPORT CALLED 🔴🔴🔴');
+  console.log('uploadFile:', uploadFile);
+  console.log('selectedDate:', selectedDate);
+  console.log('loading:', loading);
+  
   try {
     console.log('=== IMPORT STARTED ===');
     console.log('Upload File:', uploadFile);
@@ -337,7 +345,11 @@ const [selectedDate, setSelectedDate] = useState('');
             {/* Actions */}
             <div className="flex items-end gap-2">
               <button
-                onClick={handleImport}
+                onClick={() => {
+                  alert('Import button clicked!');
+                  console.log('IMPORT BUTTON CLICKED');
+                  handleImport();
+                }}
                 disabled={loading || !uploadFile}
                 className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
               >
