@@ -54,12 +54,9 @@ const normalizeServerDate = (value) => {
 };
 
 // replace your formatDate with this (it accepts string/object/Date)
-const formatDate = (dateValue) => {
-  const date = normalizeServerDate(dateValue);
-  if (!date) return '';
-  // return localized date string; you used ar-SA earlier
-  return date.toLocaleDateString('en-US');
-};
+const formatDate = (d) =>
+  new Date(d).toISOString().substring(0, 10);
+
 
   // const formatDate = (dateValue) => {
   //   if (!dateValue) return '';
