@@ -10,16 +10,19 @@ import { TokenManager } from '@/lib/auth/tokenManager';
 const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function ShiftsPage() {
+  
   const [shifts, setShifts] = useState([]);
+
+  // FIX: Initialize with empty string to match server/client
   const [selectedDate, setSelectedDate] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [importResult, setImportResult] = useState(null);
   const [showImportDetails, setShowImportDetails] = useState(false);
 
-  // Helper function to safely format dates
-  // add this helper near top of file (below imports)
+
 const normalizeServerDate = (value) => {
   // null/undefined
   if (value === null || value === undefined || value === '') return null;
@@ -58,31 +61,21 @@ const formatDate = (d) =>
   new Date(d).toISOString().substring(0, 10);
 
 
-  // const formatDate = (dateValue) => {
-  //   if (!dateValue) return '';
-  //   try {
-  //     const date = new Date(dateValue);
-  //     if (isNaN(date.getTime())) return '';
-  //     return date.toLocaleDateString('ar-SA');
-  //   } catch (error) {
-  //     return '';
-  //   }
-  // };
 
-  // Helper function to safely render values
   const safeRender = (value, fallback = '-') => {
     if (value === null || value === undefined || value === '') return fallback;
     if (typeof value === 'object') return fallback;
     return value;
   };
 
+  // FIX: Set the date only on client side after hydration
   useEffect(() => {
     if (!selectedDate) {
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       setSelectedDate(dateStr);
     }
-  }, []);
+  }, [selectedDate]);
 
   const loadShifts = async () => {
     setLoading(true);
@@ -134,7 +127,6 @@ const formatDate = (d) =>
       const token = TokenManager.getToken();
       console.log('Token exists:', !!token);
       
-      // Ensure date is in YYYY-MM-DD format
       const dateStr = String(selectedDate).split('T')[0];
       const url = `${API_BASE}/shift/import?ShiftDate=${dateStr}`;
       
