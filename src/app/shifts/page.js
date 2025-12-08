@@ -6,6 +6,8 @@ import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { TokenManager } from '@/lib/auth/tokenManager';
+const API_BASE = 'https://fastexpress.tryasp.net/api';
+
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
