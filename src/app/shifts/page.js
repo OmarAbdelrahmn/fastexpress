@@ -10,12 +10,21 @@ const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function ShiftsPage() {
   const [shifts, setShifts] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+const [selectedDate, setSelectedDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [importResult, setImportResult] = useState(null);
   const [showImportDetails, setShowImportDetails] = useState(false);
+
+
+  useEffect(() => {
+  if (!selectedDate) {
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
+  }
+}, []);
 
   const loadShifts = async () => {
     setLoading(true);
@@ -37,55 +46,95 @@ export default function ShiftsPage() {
     if (selectedDate) loadShifts();
   }, [selectedDate]);
 
+
   const handleImport = async () => {
+  try {
+    console.log('=== IMPORT STARTED ===');
+    console.log('Upload File:', uploadFile);
+    console.log('Selected Date:', selectedDate);
+    
     if (!uploadFile) {
+      console.log('No file selected');
       setMessage({ type: 'error', text: 'الرجاء اختيار ملف Excel' });
       return;
     }
 
-    const formData = new FormData();
-    formData.append('excelFile', uploadFile);
+    // Validate date format
+    if (!selectedDate || selectedDate === '') {
+      console.log('Invalid date');
+      setMessage({ type: 'error', text: 'الرجاء اختيار تاريخ صحيح' });
+      return;
+    }
 
     setLoading(true);
     setImportResult(null);
+    setMessage({ type: '', text: '' }); // Clear previous messages
     
-      try {
-      const token = TokenManager.getToken();
-      const response = await fetch(`${API_BASE}/shift/import?ShiftDate=${selectedDate}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
+    console.log('Creating FormData...');
+    const formData = new FormData();
+    formData.append('excelFile', uploadFile);
 
-      const result = await response.json();
+    const token = TokenManager.getToken();
+    console.log('Token exists:', !!token);
+    
+    // Ensure date is in YYYY-MM-DD format
+    const dateStr = String(selectedDate).split('T')[0]; // Remove time if exists
+    const url = `${API_BASE}/shift/import?ShiftDate=${dateStr}`;
+    
+    console.log('Request URL:', url);
+    console.log('Date being sent:', dateStr);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    console.log('Response Status:', response.status);
+    console.log('Response OK:', response.ok);
+    
+    const result = await response.json();
+    console.log('Response Result:', result);
+    
+    if (response.ok) {
+      setImportResult(result);
+      setShowImportDetails(true);
       
-      if (response.ok) {
-        setImportResult(result);
-        setShowImportDetails(true);
-        
-        if (result.conflictCount > 0) {
-          setMessage({ 
-            type: 'warning', 
-            text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
-          });
-        } else {
-          setMessage({ 
-            type: 'success', 
-            text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
-          });
-        }
-        
-        setUploadFile(null);
-        loadShifts();
+      if (result.conflictCount > 0) {
+        setMessage({ 
+          type: 'warning', 
+          text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
+        });
       } else {
-        setMessage({ type: 'error', text: result.title || 'فشل الاستيراد' });
+        setMessage({ 
+          type: 'success', 
+          text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
+        });
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء الاستيراد' });
-    } finally {
-      setLoading(false);
+      
+      setUploadFile(null);
+      await loadShifts();
+    } else {
+      console.error('Server Error:', result);
+      setMessage({ 
+        type: 'error', 
+        text: result.title || result.message || result.error || 'فشل الاستيراد' 
+      });
     }
-  };
+  } catch (error) {
+    console.error('Exception caught:', error);
+    console.error('Error stack:', error.stack);
+    setMessage({ 
+      type: 'error', 
+      text: `حدث خطأ أثناء الاستيراد: ${error.message}` 
+    });
+  } finally {
+    console.log('=== IMPORT FINISHED ===');
+    setLoading(false);
+  }
+};
 
   const handleDeleteDate = async () => {
     if (!confirm('هل أنت متأكد من حذف جميع ورديات هذا التاريخ؟')) return;
