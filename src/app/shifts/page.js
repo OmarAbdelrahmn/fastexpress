@@ -18,6 +18,7 @@ export default function ShiftsPage() {
 
   const [loading, setLoading] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
+  
   const [message, setMessage] = useState({ type: '', text: '' });
   const [importResult, setImportResult] = useState(null);
   const [showImportDetails, setShowImportDetails] = useState(false);
