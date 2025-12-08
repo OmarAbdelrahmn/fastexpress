@@ -19,16 +19,58 @@ export default function ShiftsPage() {
   const [showImportDetails, setShowImportDetails] = useState(false);
 
   // Helper function to safely format dates
-  const formatDate = (dateValue) => {
-    if (!dateValue) return '';
+  // add this helper near top of file (below imports)
+const normalizeServerDate = (value) => {
+  // null/undefined
+  if (value === null || value === undefined || value === '') return null;
+
+  // If server already returned a Date string
+  if (typeof value === 'string') {
+    // handle .NET default min value or other sentinel values
+    if (value.startsWith('0001') || value.startsWith('0000')) return null;
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  // If server returned a Date-only object { year, month, day }
+  if (typeof value === 'object') {
+    // Some backends return DateOnly as { year, month, day } or { Year, Month, Day }
+    const year = value.year ?? value.Year;
+    const month = value.month ?? value.Month;
+    const day = value.day ?? value.Day;
+
+    if (!year || Number(year) <= 1) return null; // treat year 1 as empty
     try {
-      const date = new Date(dateValue);
-      if (isNaN(date.getTime())) return '';
-      return date.toLocaleDateString('ar-SA');
-    } catch (error) {
-      return '';
+      // month in JS Date is 0-based
+      const d = new Date(Number(year), Number(month) - 1, Number(day));
+      return isNaN(d.getTime()) ? null : d;
+    } catch {
+      return null;
     }
-  };
+  }
+
+  // unknown format
+  return null;
+};
+
+// replace your formatDate with this (it accepts string/object/Date)
+const formatDate = (dateValue) => {
+  const date = normalizeServerDate(dateValue);
+  if (!date) return '';
+  // return localized date string; you used ar-SA earlier
+  return date.toLocaleDateString('en-US');
+};
+
+  // const formatDate = (dateValue) => {
+  //   if (!dateValue) return '';
+  //   try {
+  //     const date = new Date(dateValue);
+  //     if (isNaN(date.getTime())) return '';
+  //     return date.toLocaleDateString('ar-SA');
+  //   } catch (error) {
+  //     return '';
+  //   }
+  // };
 
   // Helper function to safely render values
   const safeRender = (value, fallback = '-') => {
