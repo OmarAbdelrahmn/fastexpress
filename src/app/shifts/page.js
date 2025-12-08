@@ -48,21 +48,42 @@ export default function ShiftsPage() {
     setImportResult(null);
     
       try {
-        
-        const token = TokenManager.getToken();
-          if (!token) {
-        Router.push('/login');}
-      const response = await fetch(`${API_BASE}/shift/date?shiftDate=${selectedDate}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const token = TokenManager.getToken();
+      const response = await fetch(`${API_BASE}/shift/import?ShiftDate=${selectedDate}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
       });
-      const data = await response.json();
-      setShifts(Array.isArray(data) ? data : []);
-      setMessage({ type: '', text: '' });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setImportResult(result);
+        setShowImportDetails(true);
+        
+        if (result.conflictCount > 0) {
+          setMessage({ 
+            type: 'warning', 
+            text: `تم استيراد ${result.successCount} وردية بنجاح. يوجد ${result.conflictCount} تعارض يتطلب المراجعة.` 
+          });
+        } else {
+          setMessage({ 
+            type: 'success', 
+            text: `تم استيراد ${result.successCount} وردية بنجاح من أصل ${result.totalRecords} سجل.` 
+          });
+        }
+        
+        setUploadFile(null);
+        loadShifts();
+      } else {
+        setMessage({ type: 'error', text: result.title || 'فشل الاستيراد' });
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'فشل تحميل الورديات' });
+      setMessage({ type: 'error', text: 'حدث خطأ أثناء الاستيراد' });
     } finally {
       setLoading(false);
-    }};
+    }
+  };
 
   const handleDeleteDate = async () => {
     if (!confirm('هل أنت متأكد من حذف جميع ورديات هذا التاريخ؟')) return;
