@@ -32,28 +32,31 @@ export default function RequestEnableEmployeePage() {
     setErrorMessage('');
     setEmployeeData(null);
 
-    try {
-      const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA1(searchIqama));
-      
-      if (data && data.length > 0) {
-        const employee = data[0];
-        
-        if (employee.status === 'enable') {
-          setErrorMessage('هذا الموظف نشط بالفعل');
-          return;
-        }
-        
-        setEmployeeData(employee);
-        setErrorMessage('');
-      } else {
-        setErrorMessage('لم يتم العثور على الموظف');
-      }
-    } catch (err) {
-      console.error('Error searching employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في البحث عن الموظف');
-    } finally {
-      setSearchLoading(false);
+try {
+  const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA1(searchIqama));
+
+  if (data) {
+    // data IS the employee
+    const employee = data;
+
+    if (employee.status === 'enable') {
+      setErrorMessage('هذا الموظف نشط بالفعل');
+      return;
     }
+
+    setEmployeeData(employee);
+    setErrorMessage('');
+  } else {
+    setErrorMessage('لم يتم العثور على الموظف');
+  }
+
+} catch (err) {
+  console.error('Error searching employee:', err);
+  setErrorMessage(err?.message || 'حدث خطأ في البحث عن الموظف');
+} finally {
+  setSearchLoading(false);
+}
+
   };
 
   const handleSubmit = async (e) => {
