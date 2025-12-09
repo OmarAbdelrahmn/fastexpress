@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
     LIST: "/api/employee",
     CREATE: "/api/employee",
     BY_IQAMA: (iqamaNo) => `/api/employee/${iqamaNo}`,
+    BY_IQAMA1: (iqamaNo) => `/api/employee/one/${iqamaNo}`,
     UPDATE: (iqamaNo) => `/api/employee/${iqamaNo}`,
     DELETE: (iqamaNo) => `/api/employee/${iqamaNo}`,
     SEARCH: "/api/employee/search",
