@@ -13,6 +13,7 @@ function HousingManageLoading() {
   );
 }
 
+
 export default function Page() {
   return (
     <Suspense fallback={<HousingManageLoading />}>
