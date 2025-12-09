@@ -32,7 +32,7 @@ export default function RequestDisableEmployeePage() {
     setErrorMessage('');
     setEmployeeData(null);
 
-   try {
+  try {
   const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.ONE(searchIqama));
 
   if (data) {
