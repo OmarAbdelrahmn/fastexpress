@@ -1,9 +1,9 @@
-// File: src/app/page.js
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TokenManager } from '@/lib/auth/tokenManager';
+
 
 export default function Home() {
   const router = useRouter();
