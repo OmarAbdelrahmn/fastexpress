@@ -127,7 +127,14 @@ export default function HousingManagePage() {
         </div>
       )
     },
-    { header: 'رقم إقامة المدير', accessor: 'managerIqamaNo' },
+    {
+      header: 'رقم إقامة المدير',
+      render: (row) => (
+        <span className="font-medium">
+          {row.managerIqamaNo || row.ManagerIqamaNo || '---'}
+        </span>
+      )
+    },
     {
       header: 'الإجراءات',
       render: (row) => (
@@ -159,9 +166,9 @@ export default function HousingManagePage() {
   ];
 
   const filteredHousings = housings.filter(housing =>
-    housing.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    housing.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    housing.managerIqamaNo?.toString().includes(searchTerm)
+    (housing.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (housing.address || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (housing.managerIqamaNo?.toString() || '').includes(searchTerm)
   );
 
   return (
