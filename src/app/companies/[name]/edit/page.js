@@ -28,7 +28,6 @@ export default function EditCompanyPage() {
     email: ''
   });
 
-  const API_BASE = 'https://fastexpress.tryasp.net/api';
 
   useEffect(() => {
     if (companyName) {

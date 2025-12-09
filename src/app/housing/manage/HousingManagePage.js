@@ -127,7 +127,7 @@ useEffect(() => {
         </div>
       )
     },
-    { header: 'رقم إقامة المدير', accessor: 'manageriqamaNo' },
+    { header: 'رقم إقامة المدير', accessor: 'managerIqamaNo' },
     { 
       header: 'الإجراءات',
       render: (row) => (
