@@ -7,6 +7,7 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
+import StatusBadge from '@/components/Ui/StatusBadge';
 import { AlertCircle, CheckCircle, XCircle, User, Clock } from 'lucide-react';
 
 export default function StatusRequestsPage() {
@@ -46,7 +47,7 @@ export default function StatusRequestsPage() {
         resolvedBy: 'Admin',
         adminNot: adminNotes
       });
-      
+
       setSuccessMessage(`تم ${resolution === 'Approved' ? 'الموافقة على' : 'رفض'} الطلب بنجاح`);
       loadPendingRequests();
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -86,18 +87,18 @@ export default function StatusRequestsPage() {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -124,30 +125,41 @@ export default function StatusRequestsPage() {
             <Card key={request.id}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4 flex-1">
-                  <div className={`p-3 rounded-lg ${
-                    request.action === 'enable' ? 'bg-green-100' : 'bg-red-100'
-                  }`}>
+                  <div className={`p-3 rounded-lg ${request.action === 'enable' ? 'bg-green-100' : 'bg-red-100'
+                    }`}>
                     <User className={request.action === 'enable' ? 'text-green-600' : 'text-red-600'} size={28} />
                   </div>
-                  
+
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-bold text-gray-800 text-lg">
                         {request.employeeNameAR}
                       </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        request.action === 'enable' 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-red-600 text-white'
-                      }`}>
-                        {request.action === 'enable' ? 'طلب تفعيل' : 'طلب تعطيل'}
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
+                        طلب تغيير حالة
                       </span>
                     </div>
-                    
-                    <p className="text-sm text-gray-600 mb-2">
+
+                    <p className="text-sm text-gray-600 mb-3">
                       {request.employeeNameEN}
                     </p>
-                    
+
+                    <div className="flex items-center gap-4 mb-3">
+                      <div>
+                        <span className="text-xs text-gray-600">من:</span>
+                        <div className="mt-1">
+                          <StatusBadge status={request.currentStatus} />
+                        </div>
+                      </div>
+                      <div className="text-gray-400">→</div>
+                      <div>
+                        <span className="text-xs text-gray-600">إلى:</span>
+                        <div className="mt-1">
+                          <StatusBadge status={request.requestedStatus} />
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                       <div className="bg-gray-50 p-3 rounded-lg">
                         <p className="text-xs text-gray-600 mb-1">رقم الإقامة</p>
@@ -157,7 +169,7 @@ export default function StatusRequestsPage() {
                         <p className="text-xs text-gray-600 mb-1">تاريخ الطلب</p>
                         <p className="font-medium text-gray-800 flex items-center gap-2">
                           <Clock size={14} />
-                          {new Date(request.requestedAt).toLocaleString('ar-SA')}
+                          {new Date(request.requestedAt).toLocaleString('en-US')}
                         </p>
                       </div>
                     </div>
@@ -207,24 +219,16 @@ export default function StatusRequestsPage() {
         <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات إضافية</h3>
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-start gap-2">
-            <div className="bg-green-100 p-1 rounded mt-0.5">
-              <CheckCircle size={14} className="text-green-600" />
+            <div className="bg-blue-100 p-1 rounded mt-0.5">
+              <CheckCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>طلب التفعيل:</strong> سيتم تغيير حالة الموظف إلى "نشط" عند الموافقة
+              <strong>تغيير الحالة:</strong> سيتم تغيير حالة الموظف إلى الحالة المطلوبة عند الموافقة
             </p>
           </div>
           <div className="flex items-start gap-2">
             <div className="bg-red-100 p-1 rounded mt-0.5">
-              <AlertCircle size={14} className="text-red-600" />
-            </div>
-            <p>
-              <strong>طلب التعطيل:</strong> سيتم تغيير حالة الموظف إلى "غير نشط" عند الموافقة
-            </p>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="bg-blue-100 p-1 rounded mt-0.5">
-              <XCircle size={14} className="text-blue-600" />
+              <XCircle size={14} className="text-red-600" />
             </div>
             <p>
               <strong>الرفض:</strong> سيتم حذف الطلب دون تغيير حالة الموظف

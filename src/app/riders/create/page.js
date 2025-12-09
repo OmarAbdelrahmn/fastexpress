@@ -18,7 +18,7 @@ export default function CreateRiderPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [companies, setCompanies] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     // Employee Basic Info
     iqamaNo: '',
@@ -26,7 +26,7 @@ export default function CreateRiderPage() {
     iqamaEndH: '',
     passportNo: '',
     passportEnd: '',
-    sponsorNo: '', 
+    sponsorNo: '',
     sponsor: '',
     jobTitle: '',
     nameAR: '',
@@ -99,7 +99,7 @@ export default function CreateRiderPage() {
 
       console.log('Submitting rider data:', requestData);
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
-      
+
       setSuccessMessage('تم إضافة المندوب بنجاح');
       setTimeout(() => {
         router.push('/riders');
@@ -127,18 +127,18 @@ export default function CreateRiderPage() {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -229,6 +229,10 @@ export default function CreateRiderPage() {
               >
                 <option value="enable">نشط</option>
                 <option value="disable">غير نشط</option>
+                <option value="fleeing">هارب</option>
+                <option value="vacation">إجازة</option>
+                <option value="accident">حادث</option>
+                <option value="sick">مريض</option>
               </select>
             </div>
           </div>
@@ -248,16 +252,16 @@ export default function CreateRiderPage() {
             />
 
             <Input
-            label="تاريخ انتهاء الإقامة (هجري)"
-            type="text"
-            name="iqamaEndH"
-            placeholder="مثال: 25-10-1425"
-            value={formData.iqamaEndH}
-            onChange={(e) =>
+              label="تاريخ انتهاء الإقامة (هجري)"
+              type="text"
+              name="iqamaEndH"
+              placeholder="مثال: 25-10-1425"
+              value={formData.iqamaEndH}
+              onChange={(e) =>
                 setFormData({ ...formData, iqamaEndH: e.target.value })
-            }
-            dir="rtl"
-            required
+              }
+              dir="rtl"
+              required
             />
 
 

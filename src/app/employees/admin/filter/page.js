@@ -10,6 +10,7 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import Table from '@/components/Ui/Table';
 import PageHeader from '@/components/layout/pageheader';
+import StatusBadge from '@/components/Ui/StatusBadge';
 import { Filter, Search, Eye, Edit, X } from 'lucide-react';
 
 export default function EmployeeMultiFilterPage() {
@@ -18,7 +19,7 @@ export default function EmployeeMultiFilterPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
-  
+
   const [filters, setFilters] = useState({
     iqamaEndH: '',
     iqamaEndM: '',
@@ -43,7 +44,7 @@ export default function EmployeeMultiFilterPage() {
 
   const handleSearch = async (e) => {
     e?.preventDefault();
-    
+
     setLoading(true);
     setErrorMessage('');
     setHasSearched(true);
@@ -51,7 +52,7 @@ export default function EmployeeMultiFilterPage() {
     try {
       // Build query string with only non-empty filters
       const queryParams = new URLSearchParams();
-      
+
       Object.keys(filters).forEach(key => {
         if (filters[key] !== '' && filters[key] !== null) {
           queryParams.append(key, filters[key]);
@@ -61,7 +62,7 @@ export default function EmployeeMultiFilterPage() {
       const data = await ApiService.get(
         `${API_ENDPOINTS.EMPLOYEE.SEARCH}?${queryParams.toString()}`
       );
-      
+
       setSearchResults(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error filtering employees:', err);
@@ -92,7 +93,7 @@ export default function EmployeeMultiFilterPage() {
   };
 
   const columns = [
-    { 
+    {
       header: 'رقم الإقامة',
       accessor: 'iqamaNo',
       render: (row) => (
@@ -104,31 +105,23 @@ export default function EmployeeMultiFilterPage() {
     { header: 'البلد', accessor: 'country' },
     { header: 'المسمى الوظيفي', accessor: 'jobTitle' },
     { header: 'الكفيل', accessor: 'sponsor' },
-    { 
+    {
       header: 'الحالة',
       accessor: 'status',
-      render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          row.status === 'enable' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {row.status === 'enable' ? 'نشط' : 'غير نشط'}
-        </span>
-      )
+      render: (row) => <StatusBadge status={row.status} />
     },
-    { 
+    {
       header: 'الإجراءات',
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => router.push(`/employee/admin/${row.iqamaNo}/details`)}
             className="text-green-600 hover:text-green-800 p-1"
             title="عرض التفاصيل"
           >
             <Eye size={18} />
           </button>
-          <button 
+          <button
             onClick={() => router.push(`/employee/admin/${row.iqamaNo}/edit`)}
             className="text-blue-600 hover:text-blue-800 p-1"
             title="تعديل"
@@ -149,9 +142,9 @@ export default function EmployeeMultiFilterPage() {
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -161,7 +154,7 @@ export default function EmployeeMultiFilterPage() {
       <Card>
         <form onSubmit={handleSearch} className="space-y-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4">معايير البحث</h3>
-          
+
           {/* Personal Info Filters */}
           <div>
             <h4 className="font-semibold text-gray-700 mb-3">المعلومات الشخصية</h4>
@@ -206,6 +199,10 @@ export default function EmployeeMultiFilterPage() {
                   <option value="">الكل</option>
                   <option value="enable">نشط</option>
                   <option value="disable">غير نشط</option>
+                  <option value="fleeing">هارب</option>
+                  <option value="vacation">إجازة</option>
+                  <option value="accident">حادث</option>
+                  <option value="sick">مريض</option>
                 </select>
               </div>
 
@@ -329,9 +326,9 @@ export default function EmployeeMultiFilterPage() {
               <p className="text-sm text-gray-500 mt-2">جرب تعديل المعايير</p>
             </div>
           ) : (
-            <Table 
-              columns={columns} 
-              data={searchResults} 
+            <Table
+              columns={columns}
+              data={searchResults}
               loading={loading}
             />
           )}

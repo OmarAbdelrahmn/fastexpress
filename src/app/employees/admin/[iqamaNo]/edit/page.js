@@ -21,7 +21,7 @@ export default function EditEmployeePage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [originalData, setOriginalData] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     iqamaEndM: '',
     iqamaEndH: '',
@@ -51,11 +51,11 @@ export default function EditEmployeePage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA(iqamaNo));
-      
+
       if (data && data.length > 0) {
         const employee = data[0];
         setOriginalData(employee);
-        
+
         setFormData({
           iqamaEndM: employee.iqamaEndM?.split('T')[0] || '',
           iqamaEndH: employee.iqamaEndH || '',
@@ -99,7 +99,7 @@ export default function EditEmployeePage() {
     try {
       // Only send changed fields (UEmpolyeeRequest allows partial updates)
       const requestData = {};
-      
+
       // Compare and add only changed fields
       if (formData.iqamaEndM && formData.iqamaEndM !== originalData?.iqamaEndM?.split('T')[0]) {
         requestData.iqamaEndM = formData.iqamaEndM;
@@ -148,7 +148,7 @@ export default function EditEmployeePage() {
       }
 
       await ApiService.put(API_ENDPOINTS.EMPLOYEE.UPDATE(iqamaNo), requestData);
-      
+
       setSuccessMessage('تم تحديث بيانات الموظف بنجاح');
       setTimeout(() => {
         router.push('/employees/admin');
@@ -194,18 +194,18 @@ export default function EditEmployeePage() {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -281,6 +281,10 @@ export default function EditEmployeePage() {
               >
                 <option value="enable">نشط</option>
                 <option value="disable">غير نشط</option>
+                <option value="fleeing">هارب</option>
+                <option value="vacation">إجازة</option>
+                <option value="accident">حادث</option>
+                <option value="sick">مريض</option>
               </select>
             </div>
           </div>

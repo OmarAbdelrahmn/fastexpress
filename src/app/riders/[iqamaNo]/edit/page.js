@@ -22,7 +22,7 @@ export default function EditRiderPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [companies, setCompanies] = useState([]);
   const [originalData, setOriginalData] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     iqamaEndM: '',
     iqamaEndH: '',
@@ -65,11 +65,11 @@ export default function EditRiderPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(iqamaNo));
-      
+
       if (data && data.length > 0) {
         const rider = data[0];
         setOriginalData(rider);
-        
+
         setFormData({
           iqamaEndM: rider.iqamaEndM?.split('T')[0] || '',
           iqamaEndH: rider.iqamaEndH?.split('T')[0] || '',
@@ -116,7 +116,7 @@ export default function EditRiderPage() {
     try {
       // Only send changed fields (URiderRequest allows partial updates)
       const requestData = {};
-      
+
       // Compare and add only changed fields
       if (formData.iqamaEndM && formData.iqamaEndM !== originalData?.iqamaEndM?.split('T')[0]) {
         requestData.iqamaEndM = formData.iqamaEndM;
@@ -161,7 +161,7 @@ export default function EditRiderPage() {
         requestData.inksa = formData.inksa;
       }
       if (formData.workingId && formData.workingId !== originalData?.workingId) {
-        requestData.workingId = formData.workingId; 
+        requestData.workingId = formData.workingId;
       }
       if (formData.tshirtSize !== originalData?.tshirtSize) {
         requestData.tshirtSize = formData.tshirtSize;
@@ -174,7 +174,7 @@ export default function EditRiderPage() {
       }
 
       await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
-      
+
       setSuccessMessage('تم تحديث بيانات المندوب بنجاح');
       setTimeout(() => {
         router.push('/riders');
@@ -220,18 +220,18 @@ export default function EditRiderPage() {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -307,6 +307,10 @@ export default function EditRiderPage() {
               >
                 <option value="enable">نشط</option>
                 <option value="disable">غير نشط</option>
+                <option value="fleeing">هارب</option>
+                <option value="vacation">إجازة</option>
+                <option value="accident">حادث</option>
+                <option value="sick">مريض</option>
               </select>
             </div>
           </div>

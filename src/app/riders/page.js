@@ -9,7 +9,8 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, Building, Package } from 'lucide-react';
+import StatusBadge from '@/components/Ui/StatusBadge';
+import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, Building, Package, Filter } from 'lucide-react';
 
 export default function RidersPage() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function RidersPage() {
   };
 
   const columns = [
-    { 
+    {
       header: 'رقم العمل',
       accessor: 'workingId',
       render: (row) => (
@@ -71,7 +72,7 @@ export default function RidersPage() {
     { header: 'رقم الإقامة', accessor: 'iqamaNo' },
     { header: 'الاسم (عربي)', accessor: 'nameAR' },
     { header: 'الاسم (إنجليزي)', accessor: 'nameEN' },
-    { 
+    {
       header: 'الشركة',
       accessor: 'companyName',
       render: (row) => (
@@ -81,45 +82,37 @@ export default function RidersPage() {
         </div>
       )
     },
-    { 
+    {
       header: 'السكن',
       accessor: 'housingAddress',
       render: (row) => (
         <span className="text-gray-600">{row.housingAddress || 'غير محدد'}</span>
       )
     },
-    { 
+    {
       header: 'الحالة',
       accessor: 'status',
-      render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          row.status === 'enable' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {row.status === 'enable'  ? 'نشط' : 'غير نشط'}
-        </span>
-      )
+      render: (row) => <StatusBadge status={row.status} />
     },
-    { 
+    {
       header: 'الإجراءات',
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => handleViewDetails(row.iqamaNo)}
             className="text-green-600 hover:text-green-800 p-1"
             title="عرض التفاصيل"
           >
             <Eye size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleEdit(row.iqamaNo)}
             className="text-blue-600 hover:text-blue-800 p-1"
             title="تعديل"
           >
             <Edit size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1"
             title="حذف"
@@ -206,23 +199,23 @@ export default function RidersPage() {
       </div>
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <button
             onClick={() => router.push('/riders/search')}
@@ -242,12 +235,29 @@ export default function RidersPage() {
 
         <Card>
           <button
-            onClick={() => router.push('/riders/change-working-id')}
+            onClick={() => router.push('/riders/filter')}
             className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
           >
             <div className="flex items-center gap-3">
               <div className="bg-purple-100 p-3 rounded-lg">
-                <Package className="text-purple-600" size={24} />
+                <Filter className="text-purple-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">البحث المتقدم</h3>
+                <p className="text-sm text-gray-600">تصفية متعددة</p>
+              </div>
+            </div>
+          </button>
+        </Card>
+
+        <Card>
+          <button
+            onClick={() => router.push('/riders/change-working-id')}
+            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-orange-100 p-3 rounded-lg">
+                <Package className="text-orange-600" size={24} />
               </div>
               <div>
                 <h3 className="font-bold text-gray-800">تغيير رقم العمل</h3>
@@ -288,15 +298,15 @@ export default function RidersPage() {
           </div>
         </div>
 
-        <Table 
-          columns={columns} 
-          data={filteredRiders} 
+        <Table
+          columns={columns}
+          data={filteredRiders}
           loading={loading}
         />
       </Card>
 
       {/* Quick Actions */}
-      
+
     </div>
   );
 }

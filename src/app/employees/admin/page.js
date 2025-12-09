@@ -9,10 +9,11 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { 
-  Plus, Search, Edit, Trash2, Eye, Users, 
+import StatusBadge from '@/components/Ui/StatusBadge';
+import {
+  Plus, Search, Edit, Trash2, Eye, Users,
   FileSpreadsheet, Filter, AlertCircle, UserCheck,
-  Clock, Archive
+  Clock, Archive, BarChart3, Calendar, History
 } from 'lucide-react';
 
 export default function EmployeeAdminPage() {
@@ -57,7 +58,7 @@ export default function EmployeeAdminPage() {
   };
 
   const columns = [
-    { 
+    {
       header: 'رقم الإقامة',
       accessor: 'iqamaNo',
       render: (row) => (
@@ -69,38 +70,30 @@ export default function EmployeeAdminPage() {
     { header: 'البلد', accessor: 'country' },
     { header: 'رقم الهاتف', accessor: 'phone' },
     { header: 'المسمى الوظيفي', accessor: 'jobTitle' },
-    { 
+    {
       header: 'الحالة',
       accessor: 'status',
-      render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          row.status === 'enable' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {row.status === 'enable' ? 'نشط' : 'غير نشط'}
-        </span>
-      )
+      render: (row) => <StatusBadge status={row.status} />
     },
-    { 
+    {
       header: 'الإجراءات',
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => router.push(`/employees/admin/${row.iqamaNo}/details`)}
             className="text-green-600 hover:text-green-800 p-1"
             title="عرض التفاصيل"
           >
             <Eye size={18} />
           </button>
-          <button 
+          <button
             onClick={() => router.push(`/employees/admin/${row.iqamaNo}/edit`)}
             className="text-blue-600 hover:text-blue-800 p-1"
             title="تعديل"
           >
             <Edit size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1"
             title="حذف"
@@ -183,8 +176,25 @@ export default function EmployeeAdminPage() {
         </div>
       </div>
 
-        {/* Quick Actions */}
+      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <Card>
+          <button
+            onClick={() => router.push('/employees/admin/create')}
+            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-green-100 p-3 rounded-lg">
+                <Plus className="text-green-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">إضافة موظف</h3>
+                <p className="text-sm text-gray-600">موظف جديد</p>
+              </div>
+            </div>
+          </button>
+        </Card>
+
         <Card>
           <button
             onClick={() => router.push('/employees/admin/search')}
@@ -214,6 +224,40 @@ export default function EmployeeAdminPage() {
               <div>
                 <h3 className="font-bold text-gray-800">البحث المتقدم</h3>
                 <p className="text-sm text-gray-600">تصفية متعددة</p>
+              </div>
+            </div>
+          </button>
+        </Card>
+
+        <Card>
+          <button
+            onClick={() => router.push('/employees/admin/statistics')}
+            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-indigo-100 p-3 rounded-lg">
+                <BarChart3 className="text-indigo-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">الإحصائيات</h3>
+                <p className="text-sm text-gray-600">لوحة البيانات</p>
+              </div>
+            </div>
+          </button>
+        </Card>
+
+        <Card>
+          <button
+            onClick={() => router.push('/employees/admin/date-range')}
+            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-cyan-100 p-3 rounded-lg">
+                <Calendar className="text-cyan-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-800">السجل الزمني</h3>
+                <p className="text-sm text-gray-600">حسب التاريخ</p>
               </div>
             </div>
           </button>
@@ -289,18 +333,18 @@ export default function EmployeeAdminPage() {
       </div>
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -320,9 +364,9 @@ export default function EmployeeAdminPage() {
           </div>
         </div>
 
-        <Table 
-          columns={columns} 
-          data={filteredEmployees} 
+        <Table
+          columns={columns}
+          data={filteredEmployees}
           loading={loading}
         />
       </Card>

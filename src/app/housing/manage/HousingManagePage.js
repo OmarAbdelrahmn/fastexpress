@@ -9,6 +9,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
+import StatusBadge from '@/components/Ui/StatusBadge';
 import { Home, Plus, Search, Edit, Trash2, Users, MapPin } from 'lucide-react';
 
 export default function HousingManagePage() {
@@ -23,28 +24,28 @@ export default function HousingManagePage() {
   const [errorMessage, setErrorMessage] = useState('');
 
 
-useEffect(() => {
-  try {
-    const success = searchParams?.get('success');
-    const error = searchParams?.get('error');
-    
-    if (success) {
-      setSuccessMessage(decodeURIComponent(success));
-      setTimeout(() => setSuccessMessage(''), 3000);
-      router.replace('/housing/manage');
+  useEffect(() => {
+    try {
+      const success = searchParams?.get('success');
+      const error = searchParams?.get('error');
+
+      if (success) {
+        setSuccessMessage(decodeURIComponent(success));
+        setTimeout(() => setSuccessMessage(''), 3000);
+        router.replace('/housing/manage');
+      }
+
+      if (error) {
+        setErrorMessage(decodeURIComponent(error));
+        setTimeout(() => setErrorMessage(''), 5000);
+        router.replace('/housing/manage');
+      }
+    } catch (err) {
+      console.error('Error reading search params:', err);
     }
-    
-    if (error) {
-      setErrorMessage(decodeURIComponent(error));
-      setTimeout(() => setErrorMessage(''), 5000);
-      router.replace('/housing/manage');
-    }
-  } catch (err) {
-    console.error('Error reading search params:', err);
-  }
-  
-  loadHousings();
-}, []);
+
+    loadHousings();
+  }, []);
 
   const loadHousings = async () => {
     setLoading(true);
@@ -91,8 +92,8 @@ useEffect(() => {
   };
 
   const columns = [
-    { 
-      header: 'اسم السكن', 
+    {
+      header: 'اسم السكن',
       render: (row) => (
         <div className="flex items-center gap-2">
           <Home className="text-blue-500" size={16} />
@@ -100,8 +101,8 @@ useEffect(() => {
         </div>
       )
     },
-    { 
-      header: 'العنوان', 
+    {
+      header: 'العنوان',
       render: (row) => (
         <div className="flex items-center gap-2">
           <MapPin className="text-gray-400" size={14} />
@@ -110,16 +111,15 @@ useEffect(() => {
       )
     },
     { header: 'السعة', accessor: 'capacity' },
-    { 
-      header: 'الإشغال الحالي', 
+    {
+      header: 'الإشغال الحالي',
       render: (row) => (
         <div className="flex items-center gap-2">
-          <span className={`font-medium ${
-            row.employees.length  >= row.capacity ? 'text-red-600' : 'text-green-600'
-          }`}>
-            {row.employees.length  || 0} / {row.capacity}
+          <span className={`font-medium ${row.employees.length >= row.capacity ? 'text-red-600' : 'text-green-600'
+            }`}>
+            {row.employees.length || 0} / {row.capacity}
           </span>
-          {row.employees.length  >= row.capacity && (
+          {row.employees.length >= row.capacity && (
             <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">
               ممتلئ
             </span>
@@ -128,25 +128,25 @@ useEffect(() => {
       )
     },
     { header: 'رقم إقامة المدير', accessor: 'managerIqamaNo' },
-    { 
+    {
       header: 'الإجراءات',
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => handleViewDetails(row)}
             className="text-green-600 hover:text-green-800 p-1"
             title="عرض التفاصيل"
           >
             <Users size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleEdit(row)}
             className="text-blue-600 hover:text-blue-800 p-1"
             title="تعديل"
           >
             <Edit size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleDelete(row.name)}
             className="text-red-600 hover:text-red-800 p-1"
             title="حذف"
@@ -178,18 +178,18 @@ useEffect(() => {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -250,9 +250,9 @@ useEffect(() => {
           </Button>
         </div>
 
-        <Table 
-          columns={columns} 
-          data={filteredHousings} 
+        <Table
+          columns={columns}
+          data={filteredHousings}
           loading={loading}
         />
       </Card>
@@ -287,7 +287,7 @@ useEffect(() => {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">الإشغال الحالي</p>
                   <p className="font-medium text-gray-800">
-                    {selectedHousing.employees.length  || 0} / {selectedHousing.capacity}
+                    {selectedHousing.employees.length || 0} / {selectedHousing.capacity}
                   </p>
                 </div>
                 <div>
@@ -310,8 +310,8 @@ useEffect(() => {
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {selectedHousing.employees.map((emp, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="bg-white p-3 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-center justify-between">

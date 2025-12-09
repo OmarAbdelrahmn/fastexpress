@@ -10,20 +10,12 @@ export default function EmployeeUserPage() {
 
   const services = [
     {
-      title: 'طلب تفعيل موظف',
-      description: 'إرسال طلب لتفعيل موظف غير نشط',
+      title: 'طلب تغيير حالة موظف',
+      description: 'إرسال طلب لتغيير حالة موظف (نشط، غير نشط، هارب، إجازة، حادث، مريض)',
       icon: UserCheck,
-      bgColor: 'bg-green-100',
-      iconColor: 'text-green-600',
-      path: '/employees/user/request-enable'
-    },
-    {
-      title: 'طلب تعطيل موظف',
-      description: 'إرسال طلب لتعطيل موظف نشط',
-      icon: UserX,
-      bgColor: 'bg-red-100',
-      iconColor: 'text-red-600',
-      path: '/employees/user/request-disable'
+      bgColor: 'bg-blue-100',
+      iconColor: 'text-blue-600',
+      path: '/employees/user/request-change'
     }
   ];
 
@@ -42,14 +34,14 @@ export default function EmployeeUserPage() {
           <div>
             <h3 className="font-semibold text-blue-800 mb-1">معلومات هامة</h3>
             <p className="text-sm text-blue-700">
-              يمكنك إرسال طلبات لتفعيل أو تعطيل الموظفين. جميع الطلبات تتطلب موافقة المسؤول قبل التنفيذ.
+              يمكنك إرسال طلبات لتغيير حالة الموظفين إلى أي من الحالات الستة المتاحة. جميع الطلبات تتطلب موافقة المسؤول قبل التنفيذ.
             </p>
           </div>
         </div>
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         {services.map((service, index) => (
           <Card key={index}>
             <button
@@ -82,7 +74,7 @@ export default function EmployeeUserPage() {
             <div className="bg-blue-100 p-2 rounded mt-0.5">
               <span className="text-blue-600 font-bold">1</span>
             </div>
-            <p>اختر نوع الطلب (تفعيل أو تعطيل)</p>
+            <p>انقر على "طلب تغيير حالة موظف"</p>
           </div>
           <div className="flex items-start gap-3">
             <div className="bg-blue-100 p-2 rounded mt-0.5">
@@ -94,11 +86,17 @@ export default function EmployeeUserPage() {
             <div className="bg-blue-100 p-2 rounded mt-0.5">
               <span className="text-blue-600 font-bold">3</span>
             </div>
-            <p>أدخل سبب الطلب</p>
+            <p>اختر الحالة الجديدة (نشط، غير نشط، هارب، إجازة، حادث، مريض)</p>
           </div>
           <div className="flex items-start gap-3">
             <div className="bg-blue-100 p-2 rounded mt-0.5">
               <span className="text-blue-600 font-bold">4</span>
+            </div>
+            <p>أدخل سبب الطلب واسمك</p>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="bg-blue-100 p-2 rounded mt-0.5">
+              <span className="text-blue-600 font-bold">5</span>
             </div>
             <p>أرسل الطلب وانتظر موافقة المسؤول</p>
           </div>
@@ -107,25 +105,31 @@ export default function EmployeeUserPage() {
 
       {/* Guidelines */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">الإرشادات</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">الحالات المتاحة</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2">
-              <UserCheck size={18} />
-              طلب التفعيل
-            </h4>
-            <p className="text-sm text-green-700">
-              استخدم هذا الخيار لطلب تفعيل موظف كان في حالة "غير نشط"
-            </p>
+            <h4 className="font-bold text-green-800 mb-2">نشط</h4>
+            <p className="text-sm text-green-700">الموظف في حالة عمل نشطة</p>
           </div>
           <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-            <h4 className="font-bold text-red-800 mb-2 flex items-center gap-2">
-              <UserX size={18} />
-              طلب التعطيل
-            </h4>
-            <p className="text-sm text-red-700">
-              استخدم هذا الخيار لطلب تعطيل موظف نشط حالياً
-            </p>
+            <h4 className="font-bold text-red-800 mb-2">غير نشط</h4>
+            <p className="text-sm text-red-700">الموظف غير نشط مؤقتاً</p>
+          </div>
+          <div className="bg-rose-50 p-4 rounded-lg border border-rose-200">
+            <h4 className="font-bold text-rose-800 mb-2">هارب</h4>
+            <p className="text-sm text-rose-700">الموظف في حالة هروب</p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h4 className="font-bold text-blue-800 mb-2">إجازة</h4>
+            <p className="text-sm text-blue-700">الموظف في إجازة مؤقتة</p>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <h4 className="font-bold text-orange-800 mb-2">حادث</h4>
+            <p className="text-sm text-orange-700">الموظف في إجازة مرضية بسبب حادث</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <h4 className="font-bold text-yellow-800 mb-2">مريض</h4>
+            <p className="text-sm text-yellow-700">الموظف في إجازة مرضية</p>
           </div>
         </div>
       </Card>
