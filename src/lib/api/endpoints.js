@@ -75,6 +75,7 @@ export const API_ENDPOINTS = {
     CHANGE_WORKING_ID: "/api/rider/change-working-id",
     ADD_EMPLOYEE: (iqamaNo) => `/api/rider/${iqamaNo}/add-employee`,
     SMART_SEARCH: "/api/rider/smart-search",
+    SEARCH: "/api/rider/search",
   },
 
   // Roles
