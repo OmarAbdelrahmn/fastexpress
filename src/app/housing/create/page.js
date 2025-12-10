@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
@@ -12,6 +12,10 @@ import { Home, Save, ArrowRight } from 'lucide-react';
 
 export default function HousingCreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editHousingName = searchParams.get('edit');
+  const isEditMode = !!editHousingName;
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -21,6 +25,32 @@ export default function HousingCreatePage() {
     capacity: '',
     managerIqamaNo: '',
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      loadHousingData(editHousingName);
+    }
+  }, [editHousingName]);
+
+  const loadHousingData = async (name) => {
+    setLoading(true);
+    try {
+      const data = await ApiService.get(`/api/housing/${name}`);
+      const housing = Array.isArray(data) ? data[0] : data;
+
+      setFormData({
+        name: housing.name || '',
+        address: housing.address || '',
+        capacity: housing.capacity || '',
+        managerIqamaNo: housing.managerIqamaNo || housing.ManagerIqamaNo || '',
+      });
+    } catch (err) {
+      console.error('Error loading housing:', err);
+      setErrorMessage('حدث خطأ في تحميل بيانات السكن');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({
@@ -36,20 +66,31 @@ export default function HousingCreatePage() {
     setLoading(true);
 
     try {
-      // POST /api/Housing
-      await ApiService.post('/api/housing', {
-        name: formData.name,
-        address: formData.address,
-        capacity: parseInt(formData.capacity),
-        managerIqamaNo: formData.managerIqamaNo,
-      });
-      
-      setSuccessMessage('تم إضافة السكن بنجاح');
+      if (isEditMode) {
+        // PUT /api/Housing/{name}
+        await ApiService.put(`/api/housing/${editHousingName}`, {
+          name: formData.name,
+          address: formData.address,
+          capacity: parseInt(formData.capacity),
+          managerIqamaNo: formData.managerIqamaNo,
+        });
+        setSuccessMessage('تم تحديث بيانات السكن بنجاح');
+      } else {
+        // POST /api/Housing
+        await ApiService.post('/api/housing', {
+          name: formData.name,
+          address: formData.address,
+          capacity: parseInt(formData.capacity),
+          managerIqamaNo: formData.managerIqamaNo,
+        });
+        setSuccessMessage('تم إضافة السكن بنجاح');
+      }
+
       setTimeout(() => {
-        router.push(`/housing`);
+        router.push('/housing/manage');
       }, 1500);
     } catch (err) {
-      console.error('Error creating housing:', err);
+      console.error('Error saving housing:', err);
       if (err?.status === 409) {
         setErrorMessage('هذا السكن موجود بالفعل. الرجاء استخدام اسم مختلف.');
       } else if (err?.status === 400) {
@@ -65,30 +106,30 @@ export default function HousingCreatePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إضافة سكن جديد"
-        subtitle="أدخل معلومات السكن الجديد"
+        title={isEditMode ? 'تعديل بيانات السكن' : 'إضافة سكن جديد'}
+        subtitle={isEditMode ? 'تعديل معلومات السكن الحالي' : 'أدخل معلومات السكن الجديد'}
         icon={Home}
         actionButton={{
           text: 'العودة للقائمة',
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push(`manage`),
+          onClick: () => router.push('/housing/manage'),
           variant: 'secondary'
         }}
       />
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title="خطأ"
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
       )}
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجاح" 
+        <Alert
+          type="success"
+          title="نجاح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -143,14 +184,14 @@ export default function HousingCreatePage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => router.push(`housing/manage`)}
+              onClick={() => router.push('/housing/manage')}
               disabled={loading}
             >
               إلغاء
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              إضافة السكن
+              {isEditMode ? 'حفظ التعديلات' : 'إضافة السكن'}
             </Button>
           </div>
         </form>
