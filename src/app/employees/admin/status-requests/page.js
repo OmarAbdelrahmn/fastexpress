@@ -151,7 +151,7 @@ export default function StatusRequestsPage() {
                           <StatusBadge status={request.currentStatus} />
                         </div>
                       </div>
-                      <div className="text-gray-400">→</div>
+                      <div className="text-gray-400">←</div>
                       <div>
                         <span className="text-xs text-gray-600">إلى:</span>
                         <div className="mt-1">
