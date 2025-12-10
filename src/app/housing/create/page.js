@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import Card from '@/components/Ui/Card';
@@ -10,7 +10,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Home, Save, ArrowRight } from 'lucide-react';
 
-export default function HousingCreatePage() {
+function HousingCreateForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editHousingName = searchParams.get('edit');
@@ -197,5 +197,13 @@ export default function HousingCreatePage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function HousingCreatePage() {
+  return (
+    <Suspense fallback={<div className="p-6">جاري التحميل...</div>}>
+      <HousingCreateForm />
+    </Suspense>
   );
 }
