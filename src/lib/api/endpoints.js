@@ -82,7 +82,7 @@ export const API_ENDPOINTS = {
   ROLES: {
     LIST: "/api/roles",
     UPDATE: "/api/roles",
-    TOGGLE_STATUS: (roleName) => `/api/roles/${roleName}/toggle-status`,
+    TOGGLE_STATUS: (roleName) => `/api/roles/toggle-status?roleName=${roleName}`,
   },
 
   // Shift
@@ -182,6 +182,6 @@ export const API_ENDPOINTS = {
     TOP_RIDERS_MONTHLY: "/api/Report/top-riders/monthly",
     TOP_RIDERS_COMPANY: "/api/Report/top-riders/company",
     STACKED: (workingId) => `/api/Report/stacked/${workingId}`,
-    STACKEDd:"/api/Report/stacked",
+    STACKEDd: "/api/Report/stacked",
   },
 };

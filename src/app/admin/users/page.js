@@ -85,8 +85,8 @@ export default function AdminUsersPage() {
   };
 
   const columns = [
-    { 
-      header: 'اسم المستخدم', 
+    {
+      header: 'اسم المستخدم',
       render: (row) => (
         <div className="flex items-center gap-2">
           <User className="text-orange-500" size={16} />
@@ -94,21 +94,21 @@ export default function AdminUsersPage() {
         </div>
       )
     },
-    { 
-      header: 'الاسم الكامل', 
+    {
+      header: 'الاسم الكامل',
       render: (row) => row.fullName || <span className="text-gray-400">لم يتم تحديده</span>
     },
-    { 
-      header: 'العنوان', 
+    {
+      header: 'العنوان',
       render: (row) => row.address || <span className="text-gray-400">لم يتم تحديده</span>
     },
-    { 
+    {
       header: 'الصلاحيات',
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.roles && row.roles.length > 0 ? (
             row.roles.map((role, index) => (
-              <span 
+              <span
                 key={index}
                 className="px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-xs font-medium flex items-center gap-1"
               >
@@ -122,14 +122,13 @@ export default function AdminUsersPage() {
         </div>
       )
     },
-    { 
-      header: 'الحالة', 
+    {
+      header: 'الحالة',
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${
-          !row.isDisable 
-            ? 'bg-green-100 text-green-800' 
+        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${!row.isDisable
+            ? 'bg-green-100 text-green-800'
             : 'bg-red-100 text-red-800'
-        }`}>
+          }`}>
           {!row.isDisable ? (
             <>
               <UserCheck size={14} />
@@ -144,18 +143,25 @@ export default function AdminUsersPage() {
         </span>
       )
     },
-    { 
+    {
       header: 'الإجراءات',
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => handleViewDetails(row)}
             className="text-blue-600 hover:text-blue-800 p-1"
             title="عرض التفاصيل"
           >
             <Edit size={18} />
           </button>
-          <button 
+          <button
+            onClick={() => window.location.href = `/admin/users/${row.userName}/roles`}
+            className="text-purple-600 hover:text-purple-800 p-1"
+            title="إدارة الأدوار"
+          >
+            <Shield size={18} />
+          </button>
+          <button
             onClick={() => handleToggleStatus(row.userName, !row.isDisable)}
             className={`${!row.isDisable ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} p-1`}
             title={!row.isDisable ? 'تعطيل' : 'تفعيل'}
@@ -176,7 +182,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
+      <PageHeader
         title="إدارة المستخدمين"
         subtitle="إدارة حسابات المستخدمين والصلاحيات"
         icon={Shield}
@@ -185,13 +191,13 @@ export default function AdminUsersPage() {
           { label: 'النشطين', value: users.filter(u => !u.isDisable).length },
           { label: 'المعطلين', value: users.filter(u => u.isDisable).length },
         ]}
-        // statsClassName="text-lg md:text-xl font-bold"
+      // statsClassName="text-lg md:text-xl font-bold"
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title="نجح"
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -229,16 +235,16 @@ export default function AdminUsersPage() {
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder={
                 searchType === 'name' ? 'أدخل اسم المستخدم' :
-                searchType === 'id' ? 'أدخل المعرف' :
-                'اختر نوع البحث'
+                  searchType === 'id' ? 'أدخل المعرف' :
+                    'اختر نوع البحث'
               }
               disabled={searchType === 'all'}
             />
           </div>
 
           <div className="flex items-end">
-            <Button 
-              onClick={handleSearch} 
+            <Button
+              onClick={handleSearch}
               loading={loading}
               className="w-full"
             >
@@ -264,9 +270,9 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <Table 
-          columns={columns} 
-          data={filteredUsers} 
+        <Table
+          columns={columns}
+          data={filteredUsers}
           loading={loading}
         />
       </Card>
@@ -317,7 +323,7 @@ export default function AdminUsersPage() {
                   <div className="flex flex-wrap gap-2">
                     {selectedUser.roles && selectedUser.roles.length > 0 ? (
                       selectedUser.roles.map((role, index) => (
-                        <span 
+                        <span
                           key={index}
                           className="px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-medium flex items-center gap-1"
                         >
@@ -332,11 +338,10 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-2">حالة الحساب</p>
-                  <span className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 w-fit ${
-                    !selectedUser.isDisable 
-                      ? 'bg-green-100 text-green-800' 
+                  <span className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 w-fit ${!selectedUser.isDisable
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}>
+                    }`}>
                     {!selectedUser.isDisable ? (
                       <>
                         <UserCheck size={16} />
