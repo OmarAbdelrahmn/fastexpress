@@ -61,7 +61,10 @@ export const navigationConfig = {
       { path: "shifts", label: "ادارة الورديات" },
       { path: "shifts/comparisons", label: "المقارنات" },
       { path: "shifts/date-range", label: "الورديات في فترة" },
+      { path: "shifts/hunger-disabilities", label: "عجز هنجر" },
+
     ],
+
   },
 
   substitution: {
@@ -86,12 +89,12 @@ export const navigationConfig = {
   admin: {
     title: "الإدارة",
     icon: "👨‍✈️",
-    routes: [      
+    routes: [
       { path: "register", label: "اضافة مشرف جديد" },
       { path: "register/admin", label: "اضافة ادمن جديد" },
       { path: "register/master", label: "اضافة مدير جديد" },
       { path: "admin/users", label: "إدارة المستخدمين" },
-      { path : "admin/system-health", label: "صحة النظام" },
+      { path: "admin/system-health", label: "صحة النظام" },
     ],
   },
 
@@ -102,7 +105,7 @@ export const navigationConfig = {
       { path: "profile", label: "الملف الشخصي" },
       { path: "profile/change-password", label: "تغيير كلمة المرور" },
     ],
-    
+
   },
 
   sittings: {
@@ -110,5 +113,6 @@ export const navigationConfig = {
     icon: "⚙️",
     routes: [
       { path: "/language", label: "الللغات" },
-    ],}
+    ],
+  }
 };

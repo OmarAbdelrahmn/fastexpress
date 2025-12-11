@@ -126,13 +126,10 @@ const formatDate = (d) =>
       formData.append('excelFile', uploadFile);
 
       const token = TokenManager.getToken();
-      console.log('Token exists:', !!token);
       
       const dateStr = String(selectedDate).split('T')[0];
       const url = `${API_BASE}/shift/import?ShiftDate=${dateStr}`;
-      
-      console.log('Request URL:', url);
-      console.log('Date being sent:', dateStr);
+
       
       const response = await fetch(url, {
         method: 'POST',
@@ -142,11 +139,9 @@ const formatDate = (d) =>
         body: formData
       });
 
-      console.log('Response Status:', response.status);
-      console.log('Response OK:', response.ok);
+
       
       const result = await response.json();
-      console.log('Response Result:', result);
       
       if (response.ok) {
         setImportResult(result);
