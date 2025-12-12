@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect ,useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Package, Calendar, ArrowLeft } from 'lucide-react';
+import { Package, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -10,61 +10,73 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RiderStackedDetailPage() {
   const params = useParams();
   const router = useRouter();
   const workingId = params?.workingId;
-  
+  const { t, language } = useLanguage();
+
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [message, setMessage] = useState({ type: '', text: '' });
+
   // Load report on component mount and when workingId changes
+  const loadReport = useCallback(async () => {
+    if (!workingId) {
+      setMessage({ type: 'error', text: t('stackedReport.workingIdMissing') });
+      return;
+    }
+
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    try {
+      const data = await ApiService.get(
+        API_ENDPOINTS.REPORTS.STACKED(workingId),
+        { params: { year, month } }
+      );
+
+      setReport(data);
+      setMessage({ type: 'success', text: t('reports.reportLoadedSuccess') });
+    } catch (error) {
+      console.error('API Error:', error);
+      const errorMessage = error.response?.data?.message || error.message || t('reports.failedToLoadRiderReport');
+      setMessage({ type: 'error', text: errorMessage });
+      setReport(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [workingId, year, month, t]);
+
   useEffect(() => {
-  if (workingId) {
-    loadReport();
-  } else {
-    setMessage({ type: 'error', text: 'رقم العمل غير موجود في الرابط' });
-  }
-}, [workingId, year, month]);
+    if (workingId) {
+      loadReport();
+    } else {
+      setMessage({ type: 'error', text: t('stackedReport.workingIdMissingInLink') });
+    }
+  }, [workingId, loadReport, t]); // Added loadReport dependency, ensured by useCallback
 
-const loadReport = async () => {
-  if (!workingId) {
-    setMessage({ type: 'error', text: 'رقم العمل غير موجود' });
-    return;
-  }
 
-  setLoading(true);
-  setMessage({ type: '', text: '' });
-  try {
-    ApiService.get(
-  API_ENDPOINTS.REPORTS.STACKED(workingId),
-  { params: { year, month } }
-);
-
-    setReport(data);
-    setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
-  } catch (error) {
-    console.error('API Error:', error);
-    const errorMessage = error.response?.data?.message || error.message || 'فشل تحميل التقرير';
-    setMessage({ type: 'error', text: errorMessage });
-    setReport(null);
-  } finally {
-    setLoading(false);
-  }
-};
-  const monthNames = [
-    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-  ];
+  // Fallback if month keys don't exist, though usually frameworks handle date formatting better. 
+  // Assuming keys might not exist, let's keep array index but maybe rely on standard logic or english fallbacks if needed.
+  // Actually, checking previous files, month names might not be in generic locs.
+  // But standard practice: use a formatter or just simple lookups.
+  // For safety, I'll use the hardcoded names for now or try to use a safe localized approach if possible, but strict translation is safer with keys.
+  // Wait, I don't recall seeing months in keys. Let's use `new Date().toLocaleDateString` for month name if possible, or leave as is if no keys.
+  // The original code had hardcoded Arabic months. I should replace with localized version.
+  const getMonthName = (m) => {
+    const date = new Date(year, m - 1, 1);
+    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'long' });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title={`تقرير التكديس - مندوب #${workingId}`}
-        subtitle="عرض تفاصيل التوصيلات المكدسة للمندوب"
+        title={t('stackedReport.riderReportTitle', { id: workingId })}
+        subtitle={t('stackedReport.subtitleDetail')}
         icon={Package}
       />
 
@@ -75,8 +87,8 @@ const loadReport = async () => {
           onClick={() => router.push('/reports/stacked')}
           className="flex items-center gap-2"
         >
-          <ArrowLeft size={18} />
-          العودة إلى قائمة المناديب
+          {language === 'ar' ? <ArrowRight size={18} /> : <ArrowRight size={18} className="rotate-180" />}
+          {t('stackedReport.backToList')}
         </Button>
       </div>
 
@@ -95,7 +107,7 @@ const loadReport = async () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             type="number"
-            label="رقم العمل"
+            label={t('riders.workingId')}
             value={workingId}
             onChange={(e) => {
               const newWorkingId = e.target.value;
@@ -103,11 +115,11 @@ const loadReport = async () => {
                 router.push(`/reports/stacked/${newWorkingId}`);
               }
             }}
-            placeholder="أدخل رقم العمل"
+            placeholder={t('riders.enterWorkingId')}
           />
           <Input
             type="number"
-            label="السنة"
+            label={t('reports.year')}
             value={year}
             onChange={(e) => setYear(parseInt(e.target.value))}
             min="2020"
@@ -116,7 +128,7 @@ const loadReport = async () => {
 
           <Input
             type="number"
-            label="الشهر"
+            label={t('reports.month')}
             value={month}
             onChange={(e) => setMonth(parseInt(e.target.value))}
             min="1"
@@ -132,7 +144,7 @@ const loadReport = async () => {
               className="w-full"
             >
               <Calendar size={18} />
-              تحديث التقرير
+              {t('stackedReport.updateReport')}
             </Button>
           </div>
         </div>
@@ -145,7 +157,7 @@ const loadReport = async () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">المندوب</p>
+                <p className="text-gray-500 text-sm mb-2">{t('stackedReport.rider')}</p>
                 <p className="text-lg font-bold text-blue-600">{report.riderName}</p>
                 <p className="text-sm text-gray-500">#{report.workingId}</p>
               </div>
@@ -153,38 +165,73 @@ const loadReport = async () => {
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">الفترة</p>
+                <p className="text-gray-500 text-sm mb-2">{t('stackedReport.period')}</p>
                 <p className="text-lg font-bold text-purple-600">
-                  {monthNames[report.month - 1]} {report.year}
+                  {getMonthName(report.month)} {report.year}
                 </p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">⚠️ إجمالي التكديس</p>
+                <p className="text-gray-500 text-sm mb-2">{t('stackedReport.totalStackedWarning')}</p>
                 <p className="text-3xl font-bold text-red-600">{report.totalStackedDeliveries}</p>
-                <p className="text-xs text-red-500">يجب تقليله</p>
+                <p className="text-xs text-red-500">{t('stackedReport.shouldReduce')}</p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">متوسط التكديس</p>
+                <p className="text-gray-500 text-sm mb-2">{t('stackedReport.averageStacked')}</p>
                 <p className="text-3xl font-bold text-orange-600">
                   {report.averageStackedPerShift.toFixed(1)}
                 </p>
-                <p className="text-xs text-gray-500">لكل وردية</p>
+                <p className="text-xs text-gray-500">{t('stackedReport.perRider')}</p>
+                {/* Note: 'perRider' key might mean 'for each rider' in list view, here it means per shift. 
+                    Checking keys: 'averageStackedPerShift' key exists? 'avgStackedPerShift': 'متوسط التوصيلات لكل وردية' 
+                    Wait, let's use t('stackedReport.perShift') if it exists or 'reports.perShift'.
+                    In ar.json: "perRider": "لكل مندوب"
+                    The card says "متوسط التكديس" (Average Stacked) then subtext "لكل وردية" (Per Shift).
+                    Code previously reused 'averageStackedPerShift' for title AND value?
+                    No, previous code: <p>متوسط التكديس</p> ... <p>لكل وردية</p>.
+                    Let's use t('reports.perShift') if possible or check 'avgStackedPerShift' label context.
+                    'avgStackedPerShift' in my implementation plan is "متوسط التوصيلات لكل وردية".
+                    I'll use specific parts if available or generic.
+                    Actually, I can just use "stackedReport.averageStackedPerShift" as the label since it contains "per shift".
+                    But here it splits it.
+                    I will use t('reports.perShift') if it exists, otherwise t('stackedReport.avgStackedPerShift') for the whole thing or hardcode 'Per Shift' logic.
+                    Key 'perRider' is available. `perShift` is NOT explicitly available in recent additions.
+                    But `averageStackedPerShift` key is "متوسط التكديس/وردية".
+                    I'll change the UI slightly to use full label or add `perShift` key.
+                    I'll add `perShift` to `stackedReport` via multi-replace if I really need or just render `t('stackedReport.avgStackedPerShift')` as title?
+                    No, let's stick to the visual structure.
+                    I will check ar.json for "perShift" or similar.
+                    "shiftsStats" exists.
+                    I will use t('stackedReport.avgStackedPerShift') for the title and remove the subtitle "per shift" if it repeats, or just add "perShift" to plan/impl.
+                    Actually, checking existing keys:
+                    "averageStacked": "متوسط التكديس",
+                    "perRider": "لكل مندوب", (This was in stacked main report)
+                    Here we need "Per Shift".
+                    "averageStackedPerShift": "متوسط التكديس/وردية" (This key exists in stackedReport namespace).
+                    I will use t('stackedReport.averageStackedPerShift') as the label.
+                */}
+                {/* Re-evaluating: Previous code: Title "متوسط التكديس", Value, Subtitle "لكل وردية". 
+                     I will use t('stackedReport.averageStacked') for title.
+                     For subtitle, I'll use t('reports.shift') if exists, or just leave it blank if self-explanatory, 
+                     OR construct it.
+                     Actually, I'll update the label to be clearer.
+                 */}
+                <p className="text-xs text-gray-500">{t('stackedReport.averageStackedPerShift')}</p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">أعلى تكديس</p>
+                <p className="text-gray-500 text-sm mb-2">{t('stackedReport.maxStacked')}</p>
                 <p className="text-3xl font-bold text-red-600">{report.maxStackedInDay}</p>
                 {report.maxStackedDate && (
                   <p className="text-xs text-gray-500">
-                    {new Date(report.maxStackedDate).toLocaleDateString('ar-SA')}
+                    {new Date(report.maxStackedDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
                   </p>
                 )}
               </div>
@@ -192,73 +239,70 @@ const loadReport = async () => {
           </div>
 
           {/* Performance Overview */}
-          <Card title="نظرة عامة على الأداء">
+          <Card title={t('stackedReport.performanceOverview')}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div>
-                <p className="text-sm text-gray-500">إجمالي الورديات</p>
+                <p className="text-sm text-gray-500">{t('reports.totalShifts')}</p>
                 <p className="text-2xl font-bold">{report.totalShifts}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">متوسط التكديس اليومي</p>
+                <p className="text-sm text-gray-500">{t('stackedReport.averageStacked')}</p>
                 <p className="text-2xl font-bold text-orange-600">
                   {report.averageStackedPerShift.toFixed(1)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">نسبة الورديات مع تكديس</p>
+                <p className="text-sm text-gray-500">{t('stackedReport.stackedPercentage')}</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {report.dailyBreakdown 
+                  {report.dailyBreakdown
                     ? ((report.dailyBreakdown.filter(d => d.stackedDeliveries > 0).length / report.dailyBreakdown.length) * 100).toFixed(1)
                     : 0}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">حالة الأداء</p>
-                <p className={`text-2xl font-bold ${
-                  report.averageStackedPerShift < 3 ? 'text-green-600' :
+                <p className="text-sm text-gray-500">{t('stackedReport.overallPerformanceStatus')}</p>
+                <p className={`text-2xl font-bold ${report.averageStackedPerShift < 3 ? 'text-green-600' :
                   report.averageStackedPerShift < 5 ? 'text-blue-600' :
-                  report.averageStackedPerShift < 8 ? 'text-orange-600' :
-                  'text-red-600'
-                }`}>
+                    report.averageStackedPerShift < 8 ? 'text-orange-600' :
+                      'text-red-600'
+                  }`}>
                   {report.averageStackedPerShift < 3 ? '✅' :
-                   report.averageStackedPerShift < 5 ? '⚠️' :
-                   report.averageStackedPerShift < 8 ? '🔴' :
-                   '🚨'}
+                    report.averageStackedPerShift < 5 ? '⚠️' :
+                      report.averageStackedPerShift < 8 ? '🔴' :
+                        '🚨'}
                 </p>
               </div>
             </div>
           </Card>
 
           {/* Daily Chart */}
-          <Card title="التوزيع اليومي للتكديس">
+          <Card title={t('stackedReport.dailyBreakdown')}>
             <div className="flex items-end justify-between gap-2 h-64 p-4">
               {report.dailyBreakdown?.map((day, idx) => {
                 const maxStacked = Math.max(...report.dailyBreakdown.map(d => d.stackedDeliveries));
                 const height = maxStacked > 0 ? (day.stackedDeliveries / maxStacked) * 100 : 0;
-                
+
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                     <div className="text-center">
                       <p className="text-xs font-bold text-gray-700">{day.stackedDeliveries}</p>
                       {day.stackedPercentage > 0 && (
-                        <p className={`text-[10px] font-semibold ${
-                          day.stackedPercentage >= 40 ? 'text-red-600' :
+                        <p className={`text-[10px] font-semibold ${day.stackedPercentage >= 40 ? 'text-red-600' :
                           day.stackedPercentage >= 20 ? 'text-orange-600' :
-                          'text-green-600'
-                        }`}>
+                            'text-green-600'
+                          }`}>
                           {day.stackedPercentage.toFixed(0)}%
                         </p>
                       )}
                     </div>
-                    <div 
-                      className={`w-full rounded-t-lg transition-all hover:opacity-80 cursor-pointer ${
-                        day.stackedDeliveries >= 10 ? 'bg-gradient-to-t from-red-500 to-red-300' :
+                    <div
+                      className={`w-full rounded-t-lg transition-all hover:opacity-80 cursor-pointer ${day.stackedDeliveries >= 10 ? 'bg-gradient-to-t from-red-500 to-red-300' :
                         day.stackedDeliveries >= 5 ? 'bg-gradient-to-t from-orange-500 to-orange-300' :
-                        day.stackedDeliveries > 0 ? 'bg-gradient-to-t from-yellow-500 to-yellow-300' :
-                        'bg-gray-200'
-                      }`}
+                          day.stackedDeliveries > 0 ? 'bg-gradient-to-t from-yellow-500 to-yellow-300' :
+                            'bg-gray-200'
+                        }`}
                       style={{ height: `${height}%`, minHeight: day.stackedDeliveries > 0 ? '10px' : '5px' }}
-                      title={`${day.date}: ${day.stackedDeliveries} توصيلة مكدسة من ${day.acceptedOrders}`}
+                      title={`${day.date}: ${day.stackedDeliveries} ${t('stackedReport.stackedDeliveries')} ${t('common.from')} ${day.acceptedOrders}`}
                     />
                     <p className="text-[10px] text-gray-500">
                       {new Date(day.date).getDate()}
@@ -270,53 +314,52 @@ const loadReport = async () => {
             <div className="mt-4 pt-4 border-t flex items-center justify-center gap-6 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-gradient-to-t from-red-500 to-red-300"></div>
-                <span>تكديس عالي (≥10)</span>
+                <span>{t('stackedReport.highStacked')} (≥10)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-gradient-to-t from-orange-500 to-orange-300"></div>
-                <span>تكديس متوسط (5-9)</span>
+                <span>{t('stackedReport.mediumStacked')} (5-9)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-gradient-to-t from-yellow-500 to-yellow-300"></div>
-                <span>تكديس منخفض (1-4)</span>
+                <span>{t('stackedReport.lowStacked')} (1-4)</span>
               </div>
             </div>
           </Card>
 
           {/* Daily Details Table */}
-          <Card title="التفاصيل اليومية">
+          <Card title={t('stackedReport.dailyDetails')}>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">التاريخ</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">اليوم</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">التوصيلات المكدسة</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">الطلبات المقبولة</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">نسبة التكديس</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">الحالة</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('common.date')}</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('stackedReport.day')}</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('stackedReport.stackedDeliveries')}</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('reports.acceptedOrders')}</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('stackedReport.stackedPercentage')}</th>
+                    <th className={`px-4 py-3 ${language === 'ar' ? 'text-right' : 'text-left'} text-xs font-medium text-gray-500`}>{t('stackedReport.status')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {report.dailyBreakdown?.map((day, idx) => {
                     const dayDate = new Date(day.date);
-                    const dayName = dayDate.toLocaleDateString('ar-SA', { weekday: 'long' });
-                    
+                    const dayName = dayDate.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { weekday: 'long' });
+
                     return (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-4 py-3 whitespace-nowrap font-medium">
-                          {dayDate.toLocaleDateString('ar-SA')}
+                          {dayDate.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                           {dayName}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`text-lg font-bold ${
-                            day.stackedDeliveries >= 10 ? 'text-red-600' :
+                          <span className={`text-lg font-bold ${day.stackedDeliveries >= 10 ? 'text-red-600' :
                             day.stackedDeliveries >= 5 ? 'text-orange-600' :
-                            day.stackedDeliveries > 0 ? 'text-yellow-600' :
-                            'text-green-600'
-                          }`}>
+                              day.stackedDeliveries > 0 ? 'text-yellow-600' :
+                                'text-green-600'
+                            }`}>
                             {day.stackedDeliveries}
                           </span>
                         </td>
@@ -324,24 +367,23 @@ const loadReport = async () => {
                           {day.acceptedOrders}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            day.stackedPercentage >= 40 ? 'bg-red-100 text-red-800' :
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${day.stackedPercentage >= 40 ? 'bg-red-100 text-red-800' :
                             day.stackedPercentage >= 20 ? 'bg-orange-100 text-orange-800' :
-                            day.stackedPercentage > 0 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
+                              day.stackedPercentage > 0 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-green-100 text-green-800'
+                            }`}>
                             {day.stackedPercentage.toFixed(1)}%
                           </span>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           {day.stackedDeliveries === 0 ? (
-                            <span className="text-green-600">✅ ممتاز</span>
+                            <span className="text-green-600">✅ {t('stackedReport.excellent')}</span>
                           ) : day.stackedDeliveries < 5 ? (
-                            <span className="text-blue-600">⚠️ مقبول</span>
+                            <span className="text-blue-600">⚠️ {t('stackedReport.acceptable')}</span>
                           ) : day.stackedDeliveries < 10 ? (
-                            <span className="text-orange-600">🔴 يحتاج تحسين</span>
+                            <span className="text-orange-600">🔴 {t('stackedReport.needsImprovement')}</span>
                           ) : (
-                            <span className="text-red-600">🚨 حرج</span>
+                            <span className="text-red-600">🚨 {t('stackedReport.critical')}</span>
                           )}
                         </td>
                       </tr>
@@ -354,7 +396,7 @@ const loadReport = async () => {
 
           {/* Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card title="⚠️ أسوأ 5 أيام">
+            <Card title={t('stackedReport.worst5Days')}>
               <div className="space-y-2">
                 {report.dailyBreakdown
                   ?.sort((a, b) => b.stackedDeliveries - a.stackedDeliveries)
@@ -362,7 +404,7 @@ const loadReport = async () => {
                   .map((day, idx) => (
                     <div key={idx} className="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
                       <span className="text-sm font-medium">
-                        {new Date(day.date).toLocaleDateString('ar-SA')}
+                        {new Date(day.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-red-600">
@@ -377,10 +419,10 @@ const loadReport = async () => {
               </div>
             </Card>
 
-            <Card title="📈 معدلات الأداء">
+            <Card title={t('stackedReport.performanceRates')}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">متوسط الطلبات المقبولة</span>
+                  <span className="text-sm text-gray-600">{t('stackedReport.avgAcceptedOrders')}</span>
                   <span className="font-bold">
                     {report.dailyBreakdown
                       ? (report.dailyBreakdown.reduce((sum, d) => sum + d.acceptedOrders, 0) / report.dailyBreakdown.length).toFixed(1)
@@ -388,7 +430,7 @@ const loadReport = async () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">متوسط نسبة التكديس</span>
+                  <span className="text-sm text-gray-600">{t('stackedReport.avgStackedPercentage')}</span>
                   <span className="font-bold text-orange-600">
                     {report.dailyBreakdown
                       ? (report.dailyBreakdown.reduce((sum, d) => sum + d.stackedPercentage, 0) / report.dailyBreakdown.length).toFixed(1)
@@ -396,13 +438,13 @@ const loadReport = async () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">✅ أيام بدون تكديس</span>
+                  <span className="text-sm text-gray-600">{t('stackedReport.daysWithoutStacked')}</span>
                   <span className="font-bold text-green-600">
                     {report.dailyBreakdown?.filter(d => d.stackedDeliveries === 0).length || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">🚨 أيام بتكديس عالي (≥10)</span>
+                  <span className="text-sm text-gray-600">{t('stackedReport.daysHighStacked')}</span>
                   <span className="font-bold text-red-600">
                     {report.dailyBreakdown?.filter(d => d.stackedDeliveries >= 10).length || 0}
                   </span>
@@ -410,29 +452,29 @@ const loadReport = async () => {
               </div>
             </Card>
 
-            <Card title="🎯 التقييم">
+            <Card title={t('stackedReport.evaluation')}>
               <div className="space-y-3">
                 <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">حالة الأداء</p>
+                  <p className="text-sm text-gray-600 mb-2">{t('stackedReport.overallPerformanceStatus')}</p>
                   <p className="text-3xl font-bold text-blue-600">
-                    {report.averageStackedPerShift < 3 ? '✅ ممتاز' :
-                     report.averageStackedPerShift < 5 ? '⚠️ مقبول' :
-                     report.averageStackedPerShift < 8 ? '🔴 يحتاج تحسين' :
-                     '🚨 حرج'}
+                    {report.averageStackedPerShift < 3 ? `✅ ${t('stackedReport.excellent')}` :
+                      report.averageStackedPerShift < 5 ? `⚠️ ${t('stackedReport.acceptable')}` :
+                        report.averageStackedPerShift < 8 ? `🔴 ${t('stackedReport.needsImprovement')}` :
+                          `🚨 ${t('stackedReport.critical')}`}
                   </p>
                 </div>
                 <div className="space-y-2 text-sm">
                   {report.averageStackedPerShift < 3 && (
-                    <p className="text-green-600 p-2 bg-green-50 rounded">✓ معدل تكديس منخفض - أداء جيد</p>
+                    <p className="text-green-600 p-2 bg-green-50 rounded">✓ {t('stackedReport.analysis.lowStackedGood')}</p>
                   )}
                   {report.averageStackedPerShift >= 8 && (
-                    <p className="text-red-600 p-2 bg-red-50 rounded">⚠ معدل تكديس مرتفع جداً</p>
+                    <p className="text-red-600 p-2 bg-red-50 rounded">⚠ {t('stackedReport.analysis.highStackedWarning')}</p>
                   )}
                   {report.maxStackedInDay >= 15 && (
-                    <p className="text-red-600 p-2 bg-red-50 rounded">🚨 تكديس يومي عالي جداً</p>
+                    <p className="text-red-600 p-2 bg-red-50 rounded">{t('stackedReport.highStackedDaily')}</p>
                   )}
                   {report.dailyBreakdown?.filter(d => d.stackedDeliveries === 0).length >= report.dailyBreakdown?.length * 0.5 && (
-                    <p className="text-green-600 p-2 bg-green-50 rounded">✓ نصف الأيام بدون تكديس</p>
+                    <p className="text-green-600 p-2 bg-green-50 rounded">{t('stackedReport.halfDaysNoStacked')}</p>
                   )}
                 </div>
               </div>

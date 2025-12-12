@@ -56,7 +56,7 @@ class ApiService {
         ) {
           window.location.href = "/login";
         }
-        throw new Error("انتهت صلاحية الجلسة");
+        throw new Error(t('common.sessionExpired'));
       }
 
       if (!response.ok) {
@@ -96,7 +96,7 @@ const useApi = () => {
       setLoading(false);
       return { data, error: null };
     } catch (err) {
-      setError(err.message || "حدث خطأ");
+      setError(err.message || t('common.error'));
       setLoading(false);
       return { data: null, error: err.message };
     }
@@ -444,7 +444,7 @@ export default function EnhancedDashboard() {
                 {t("dashboard.title")}
               </h1>
               <p className="text-blue-100 text-sm md:text-lg">
-                نظام إدارة الخدمات اللوجستية المتكامل
+                {t("dashboard.subtitle")}
               </p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4 mt-3 md:mt-4 text-xs md:text-sm">
                 <div className="flex items-center gap-2  bg-opacity-20 px-3 py-1.5 md:px-4 md:py-2 rounded-lg backdrop-blur-sm">
@@ -470,10 +470,10 @@ export default function EnhancedDashboard() {
             </div>
             <div className="hidden md:flex flex-col items-end gap-2">
               <div className=" bg-opacity-20 px-6 py-3 rounded-lg backdrop-blur-sm">
-                <p className="text-sm text-blue-100">الحالة العامة للنظام</p>
+                <p className="text-sm text-blue-100">{t("dashboard.systemStatus")}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-lg font-bold">نشط</span>
+                  <span className="text-lg font-bold">{t("dashboard.active")}</span>
                 </div>
               </div>
             </div>
@@ -485,66 +485,66 @@ export default function EnhancedDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-6">
         <Link href="/vehicles/admin">
           <StatCard
-            title="إجمالي المركبات"
+            title={t("dashboard.totalVehicles")}
             value={stats.vehicles}
-            subtitle="مركبة في الأسطول"
+            subtitle={t("dashboard.vehiclesInFleet")}
             icon={Car}
             color="blue"
-            linkText="عرض التفاصيل"
+            linkText={t("dashboard.viewDetails")}
           />
         </Link>
         <Link href="/riders/">
           <StatCard
-            title="جميع المناديب"
+            title={t("dashboard.allRiders")}
             value={stats.riders}
-            subtitle={`من ${stats.riders} مندوب`}
+            subtitle={`${stats.riders} ${t("dashboard.fromRiders")}`}
             icon={Users}
             color="yellow"
-            linkText="إدارة المناديب"
+            linkText={t("dashboard.manageRiders")}
           />
         </Link>
         <Link href="shifts/">
           <StatCard
-            title="الورديات اليوم"
+            title={t("dashboard.todayShifts")}
             value={stats.activeShifts}
-            subtitle={`من ${stats.todayShifts} وردية`}
+            subtitle={`${stats.todayShifts} ${t("dashboard.fromShifts")}`}
             icon={Calendar}
             color="purple"
-            linkText="جدول الورديات"
+            linkText={t("dashboard.shiftsSchedule")}
           />
         </Link>
         <Link href="employees/admin">
           <StatCard
-            title="إجمالي الموظفين"
+            title={t("dashboard.totalEmployees")}
             value={stats.employees}
-            subtitle="موظف نشط"
+            subtitle={t("dashboard.activeEmployee")}
             icon={Package}
             color="orange"
-            linkText="قائمة الموظفين"
+            linkText={t("dashboard.employeesList")}
           />
         </Link>
         <Link href="vehicles/admin/users-requests">
           <StatCard
-            title="تعميدات تحتاج موافقة"
+            title={t("dashboard.pendingApprovals")}
             value={stats.pendingRequests}
             subtitle={
               stats.pendingRequests > 0
-                ? "يوجد تعميدات معلقة"
-                : "لا توجد تعميدات"
+                ? t("dashboard.hasPendingApprovals")
+                : t("dashboard.noPendingApprovals")
             }
             icon={AlertCircle}
             color={"green"}
-            linkText="عرض الطلبات"
+            linkText={t("dashboard.viewRequests")}
           />
         </Link>
         <Link href="/reports/dashboard">
           <StatCard
-            title="طلبات الأمس المقبولة"
+            title={t("dashboard.yesterdayAcceptedOrders")}
             value={stats.previousDayTotalOrders}
-            subtitle={`طلب`}
+            subtitle={t("common.order")}
             icon={ShoppingBag}
             color="cyan"
-            linkText="عرض التفاصيل"
+            linkText={t("dashboard.viewDetails")}
           />
         </Link>
       </div>
@@ -558,25 +558,25 @@ export default function EnhancedDashboard() {
               <Car size={20} className="text-blue-600 md:w-6 md:h-6" />
             </div>
             <h3 className="text-base md:text-lg font-bold text-gray-800">
-              تفصيل المركبات
+              {t("dashboard.vehiclesBreakdown")}
             </h3>
           </div>
           <div className="space-y-2 md:space-y-3">
             <MiniStatCard
               icon={CheckCircle}
-              label="جاهزة للتسليم"
+              label={t("dashboard.readyForDelivery")}
               value={stats.availableVehicles}
               color="green"
             />
             <MiniStatCard
               icon={Users}
-              label="في الخدمة"
+              label={t("dashboard.inService")}
               value={stats.takenVehicles}
               color="blue"
             />
             <MiniStatCard
               icon={AlertTriangle}
-              label="في الصيانة"
+              label={t("dashboard.inMaintenance")}
               value={stats.problemVehicles}
               color="orange"
             />
@@ -590,25 +590,25 @@ export default function EnhancedDashboard() {
               <Users size={20} className="text-green-600 md:w-6 md:h-6" />
             </div>
             <h3 className="text-base md:text-lg font-bold text-gray-800">
-              حالة المناديب
+              {t("dashboard.ridersStatus")}
             </h3>
           </div>
           <div className="space-y-2 md:space-y-3">
             <MiniStatCard
               icon={CheckCircle}
-              label="نشط"
+              label={t("dashboard.active")}
               value={stats.activeRiders}
               color="green"
             />
             <MiniStatCard
               icon={Clock}
-              label="غير نشط"
+              label={t("dashboard.inactive")}
               value={stats.inactiveRiders}
               color="red"
             />
             <MiniStatCard
               icon={TrendingUp}
-              label="معدل الأداء"
+              label={t("dashboard.performanceRate")}
               value={`${stats.riderEfficiency.toFixed(0)}%`}
               color="purple"
             />
@@ -622,25 +622,25 @@ export default function EnhancedDashboard() {
               <BarChart3 size={20} className="text-purple-600 md:w-6 md:h-6" />
             </div>
             <h3 className="text-base md:text-lg font-bold text-gray-800">
-              نظرة عامة
+              {t("dashboard.overview")}
             </h3>
           </div>
           <div className="space-y-2 md:space-y-3">
             <MiniStatCard
               icon={Building2}
-              label="الشركات"
+              label={t("dashboard.theCompanies")}
               value={stats.companies}
               color="blue"
             />
             <MiniStatCard
               icon={Home}
-              label="السكنات"
+              label={t("dashboard.theHousing")}
               value={stats.housing}
               color="teal"
             />
             <MiniStatCard
               icon={Users}
-              label="المستخدمين"
+              label={t("dashboard.theUsers")}
               value={stats.users}
               color="purple"
             />
@@ -652,14 +652,14 @@ export default function EnhancedDashboard() {
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100 mb-4 md:mb-6">
         <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2">
           <Activity size={20} className="text-indigo-600 md:w-6 md:h-6" />
-          إجراءات سريعة
+          {t("dashboard.quickActions")}
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <Link href="/vehicles/admin/manage">
             <QuickActionCard
               icon={Car}
-              title="إضافة مركبة"
-              description="تسجيل مركبة جديدة"
+              title={t("dashboard.addVehicle")}
+              description={t("dashboard.registerNewVehicle")}
               color="blue"
               onClick={() => console.log("Add vehicle")}
             />
@@ -667,8 +667,8 @@ export default function EnhancedDashboard() {
           <Link href="/riders/create">
             <QuickActionCard
               icon={Users}
-              title="إضافة مندوب"
-              description="تسجيل مندوب جديد"
+              title={t("dashboard.addRider")}
+              description={t("dashboard.registerNewRider")}
               color="green"
               onClick={() => console.log("Add rider")}
             />
@@ -676,8 +676,8 @@ export default function EnhancedDashboard() {
           <Link href="/shifts/">
             <QuickActionCard
               icon={Calendar}
-              title="جدولة وردية"
-              description="إنشاء وردية جديدة"
+              title={t("dashboard.scheduleShift")}
+              description={t("dashboard.createNewShift")}
               color="purple"
               onClick={() => console.log("Schedule shift")}
             />
@@ -685,8 +685,8 @@ export default function EnhancedDashboard() {
           <Link href="/reports/">
             <QuickActionCard
               icon={BarChart3}
-              title="عرض التقارير"
-              description="تقارير الأداء التفصيلية"
+              title={t("dashboard.viewReports")}
+              description={t("dashboard.detailedReports")}
               color="orange"
               onClick={() => console.log("View reports")}
             />
@@ -701,14 +701,14 @@ export default function EnhancedDashboard() {
             <TrendingUp size={20} className="text-indigo-600 md:w-6 md:h-6" />
           </div>
           <h3 className="text-base md:text-lg font-bold text-gray-800">
-            مؤشرات الأداء
+            {t("dashboard.performanceIndicators")}
           </h3>
         </div>
         <div className="space-y-4">
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-xs md:text-sm font-medium text-gray-600">
-                استخدام المركبات
+                {t("dashboard.vehicleUtilization")}
               </span>
               <span className="text-xs md:text-sm font-bold text-indigo-600">
                 {stats.vehicleUtilization.toFixed(1)}%
@@ -724,7 +724,7 @@ export default function EnhancedDashboard() {
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-xs md:text-sm font-medium text-gray-600">
-                كفاءة المناديب
+                {t("dashboard.riderEfficiency")}
               </span>
               <span className="text-xs md:text-sm font-bold text-green-600">
                 {stats.riderEfficiency.toFixed(1)}%
@@ -740,7 +740,7 @@ export default function EnhancedDashboard() {
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-xs md:text-sm font-medium text-gray-600">
-                إشغال السكنات
+                {t("dashboard.housingOccupancy")}
               </span>
               <span className="text-xs md:text-sm font-bold text-purple-600">
                 {stats.housingOccupancy}%

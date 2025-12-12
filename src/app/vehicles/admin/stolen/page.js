@@ -11,15 +11,13 @@ import PageHeader from "@/components/layout/pageheader";
 import {
   Shield,
   AlertCircle,
-  CheckCircle,
-  Car,
-  Clock,
-  User,
   Search,
   RefreshCw,
 } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function StolenVehiclesPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
@@ -59,7 +57,7 @@ export default function StolenVehiclesPage() {
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
     } catch (err) {
       console.error("Error loading data:", err);
-      setErrorMessage("حدث خطأ في تحميل البيانات");
+      setErrorMessage(t('common.loadError'));
     } finally {
       setLoadingVehicles(false);
     }
@@ -67,7 +65,7 @@ export default function StolenVehiclesPage() {
 
   const searchVehicle = async () => {
     if (!searchTerm.trim()) {
-      setErrorMessage("الرجاء إدخال رقم اللوحة للبحث");
+      setErrorMessage(t('vehicles.enterPlateNumber'));
       return;
     }
 
@@ -77,12 +75,12 @@ export default function StolenVehiclesPage() {
         setSelectedVehicle(data[0]);
         setErrorMessage("");
       } else {
-        setErrorMessage("لم يتم العثور على المركبة");
+        setErrorMessage(t('vehicles.vehicleNotFound'));
         setSelectedVehicle(null);
       }
     } catch (err) {
       console.error("Error searching vehicle:", err);
-      setErrorMessage("حدث خطأ في البحث عن المركبة");
+      setErrorMessage(t('vehicles.searchError'));
       setSelectedVehicle(null);
     }
   };
@@ -91,7 +89,7 @@ export default function StolenVehiclesPage() {
     e.preventDefault();
 
     if (!selectedVehicle) {
-      setErrorMessage("الرجاء البحث عن المركبة أولاً");
+      setErrorMessage(t('vehicles.searchVehicleFirst'));
       return;
     }
 
@@ -111,7 +109,7 @@ export default function StolenVehiclesPage() {
         `/api/vehicles/stolen?plate=${selectedVehicle.plateNumberA}${iqamaParam}${reasonParam}`
       );
 
-      setSuccessMessage("تم الإبلاغ عن السرقة بنجاح");
+      setSuccessMessage(t('vehicles.reportStolenSuccess'));
       setTimeout(() => {
         setSelectedVehicle(null);
         setSearchTerm("");
@@ -121,7 +119,7 @@ export default function StolenVehiclesPage() {
       }, 2000);
     } catch (err) {
       console.error("Error reporting stolen:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء الإبلاغ عن السرقة");
+      setErrorMessage(err?.message || t('vehicles.reportStolenError'));
     } finally {
       setLoading(false);
     }
@@ -131,12 +129,12 @@ export default function StolenVehiclesPage() {
     e.preventDefault();
 
     if (!recoverVehicle) {
-      setErrorMessage("الرجاء اختيار المركبة أولاً");
+      setErrorMessage(t('vehicles.selectVehicleFirst'));
       return;
     }
 
     if (!recoveryDetails.trim()) {
-      setErrorMessage("الرجاء إدخال تفاصيل الاسترجاع");
+      setErrorMessage(t('vehicles.enterRecoveryDetails'));
       return;
     }
 
@@ -146,12 +144,11 @@ export default function StolenVehiclesPage() {
 
     try {
       await ApiService.put(
-        `/api/vehicles/recover-stolen?plate=${
-          recoverVehicle.plateNumberA
+        `/api/vehicles/recover-stolen?plate=${recoverVehicle.plateNumberA
         }&reason=${encodeURIComponent(recoveryDetails)}`
       );
 
-      setSuccessMessage("تم استرجاع المركبة بنجاح");
+      setSuccessMessage(t('vehicles.recoverStolenSuccess'));
       setTimeout(() => {
         setRecoverVehicle(null);
         setRecoveryDetails("");
@@ -159,7 +156,7 @@ export default function StolenVehiclesPage() {
       }, 2000);
     } catch (err) {
       console.error("Error recovering stolen:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء استرجاع المركبة");
+      setErrorMessage(err?.message || t('vehicles.recoverStolenError'));
     } finally {
       setLoading(false);
     }
@@ -174,15 +171,15 @@ export default function StolenVehiclesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة المركبات المسروقة"
-        subtitle="الإبلاغ عن السرقات واسترجاع المركبات"
+        title={t('vehicles.stolenVehiclesTitle')}
+        subtitle={t('vehicles.stolenVehiclesSubtitle')}
         icon={Shield}
       />
 
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage("")}
         />
@@ -191,7 +188,7 @@ export default function StolenVehiclesPage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجاح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage("")}
         />
@@ -202,7 +199,7 @@ export default function StolenVehiclesPage() {
         <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-600 mb-1">مركبات مسروقة</p>
+              <p className="text-sm text-red-600 mb-1">{t('vehicles.stolenVehiclesCount')}</p>
               <p className="text-3xl font-bold text-red-700">
                 {stolenVehicles.length}
               </p>
@@ -215,7 +212,7 @@ export default function StolenVehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-600 mb-1">
-                تم الاسترجاع هذا الشهر
+                {t('vehicles.recoveredMonth')}
               </p>
               <p className="text-3xl font-bold text-green-700">0</p>
             </div>
@@ -228,23 +225,21 @@ export default function StolenVehiclesPage() {
       <div className="flex gap-2 border-b border-gray-200">
         <button
           onClick={() => setActiveTab("stolen")}
-          className={`px-6 py-3 font-medium transition ${
-            activeTab === "stolen"
-              ? "text-red-600 border-b-2 border-red-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
+          className={`px-6 py-3 font-medium transition ${activeTab === "stolen"
+            ? "text-red-600 border-b-2 border-red-600"
+            : "text-gray-600 hover:text-gray-800"
+            }`}
         >
-          المركبات المسروقة ({stolenVehicles.length})
+          {t('vehicles.stolenVehiclesTab')} ({stolenVehicles.length})
         </button>
         <button
           onClick={() => setActiveTab("report")}
-          className={`px-6 py-3 font-medium transition ${
-            activeTab === "report"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
+          className={`px-6 py-3 font-medium transition ${activeTab === "report"
+            ? "text-blue-600 border-b-2 border-blue-600"
+            : "text-gray-600 hover:text-gray-800"
+            }`}
         >
-          الإبلاغ عن سرقة جديدة
+          {t('vehicles.reportStolenTab')}
         </button>
       </div>
 
@@ -253,18 +248,18 @@ export default function StolenVehiclesPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Shield size={20} className="text-red-600" />
-            المركبات المبلغ عن سرقتها
+            {t('vehicles.stolenVehiclesListTitle')}
           </h3>
 
           {loadingVehicles ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t('common.loading')}</p>
             </div>
           ) : stolenVehicles.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle className="mx-auto text-green-500 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد مركبات مسروقة حالياً</p>
+              <p className="text-gray-600">{t('vehicles.noStolenVehicles')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -288,35 +283,35 @@ export default function StolenVehiclesPage() {
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-medium">
-                      مسروقة
+                      {t('vehicles.stolenStatus')}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2 text-gray-700">
                       <Car size={14} />
-                      <span>الرقم التسلسلي: {vehicle.serialNumber}</span>
+                      <span>{t('vehicles.serialNumber')}: {vehicle.serialNumber}</span>
                     </div>
 
                     {vehicle.riderName && vehicle.riderName !== "Unknown" && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <User size={14} />
-                        <span>آخر مندوب: {vehicle.riderName}</span>
+                        <span>{t('vehicles.lastRider')}: {vehicle.riderName}</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 text-gray-700">
                       <Clock size={14} />
                       <span>
-                        تاريخ الإبلاغ:{" "}
-                        {new Date(vehicle.since).toLocaleDateString("ar-SA")}
+                        {t('vehicles.reportDate')}:{" "}
+                        {new Date(vehicle.since).toLocaleDateString("en-US")}
                       </span>
                     </div>
 
                     {vehicle.reason && (
                       <div className="bg-red-100 p-2 rounded mt-2">
                         <p className="text-xs text-red-800">
-                          <strong>تفاصيل:</strong> {vehicle.reason}
+                          <strong>{t('vehicles.details')}:</strong> {vehicle.reason}
                         </p>
                       </div>
                     )}
@@ -331,7 +326,7 @@ export default function StolenVehiclesPage() {
                     className="w-full"
                   >
                     <RefreshCw size={16} className="ml-2" />
-                    استرجاع المركبة
+                    {t('vehicles.recoverVehicle')}
                   </Button>
                 </div>
               ))}
@@ -349,10 +344,10 @@ export default function StolenVehiclesPage() {
                 <AlertCircle className="text-red-600 mt-1" size={24} />
                 <div>
                   <h3 className="font-semibold text-red-800 mb-1">
-                    الإبلاغ عن سرقة مركبة
+                    {t('vehicles.reportStolenTitle')}
                   </h3>
                   <p className="text-sm text-red-600">
-                    قم بالبحث عن المركبة وإدخال تفاصيل السرقة
+                    {t('vehicles.reportStolenDesc')}
                   </p>
                 </div>
               </div>
@@ -361,14 +356,14 @@ export default function StolenVehiclesPage() {
             {/* Search Vehicle */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                البحث عن المركبة
+                {t('vehicles.searchVehicle')}
               </label>
               <div className="flex gap-3">
                 <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="أدخل رقم اللوحة..."
+                  placeholder={t('vehicles.enterPlateNumber')}
                   onKeyPress={(e) =>
                     e.key === "Enter" && (e.preventDefault(), searchVehicle())
                   }
@@ -387,23 +382,23 @@ export default function StolenVehiclesPage() {
               <>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-bold text-blue-800 mb-3">
-                    معلومات المركبة
+                    {t('vehicles.vehicleInfo')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <p className="text-blue-600 mb-1">رقم اللوحة</p>
+                      <p className="text-blue-600 mb-1">{t('vehicles.plateNumber')}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.plateNumberA}
                       </p>
                     </div>
                     <div>
-                      <p className="text-blue-600 mb-1">الرقم التسلسلي</p>
+                      <p className="text-blue-600 mb-1">{t('vehicles.serialNumber')}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.serialNumber}
                       </p>
                     </div>
                     <div>
-                      <p className="text-blue-600 mb-1">نوع المركبة</p>
+                      <p className="text-blue-600 mb-1">{t('vehicles.vehicleType')}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.vehicleType}
                       </p>
@@ -412,7 +407,7 @@ export default function StolenVehiclesPage() {
                 </div>
 
                 <Input
-                  label="رقم إقامة المبلغ (اختياري)"
+                  label={t('vehicles.reporterIqamaLabel')}
                   type="number"
                   value={reportData.reporterIqama}
                   onChange={(e) =>
@@ -421,12 +416,12 @@ export default function StolenVehiclesPage() {
                       reporterIqama: e.target.value,
                     })
                   }
-                  placeholder="أدخل رقم إقامة الشخص المبلغ..."
+                  placeholder={t('vehicles.reporterIqamaPlaceholder')}
                 />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    تفاصيل السرقة
+                    {t('vehicles.theftDetails')}
                   </label>
                   <textarea
                     value={reportData.reason}
@@ -434,7 +429,7 @@ export default function StolenVehiclesPage() {
                       setReportData({ ...reportData, reason: e.target.value })
                     }
                     rows={4}
-                    placeholder="اشرح ظروف السرقة والتفاصيل الجاهزة للتسليم..."
+                    placeholder={t('vehicles.theftDetailsPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                   />
                 </div>
@@ -450,11 +445,11 @@ export default function StolenVehiclesPage() {
                     }}
                     disabled={loading}
                   >
-                    إلغاء
+                    {t('common.cancel')}
                   </Button>
                   <Button type="submit" loading={loading} disabled={loading}>
                     <Shield size={18} className="ml-2" />
-                    تأكيد الإبلاغ
+                    {t('vehicles.confirmReport')}
                   </Button>
                 </div>
               </>
@@ -472,10 +467,10 @@ export default function StolenVehiclesPage() {
                 <CheckCircle className="text-green-600 mt-1" size={24} />
                 <div>
                   <h3 className="font-semibold text-green-800 mb-1">
-                    استرجاع مركبة مسروقة
+                    {t('vehicles.recoverStolenTitle')}
                   </h3>
                   <p className="text-sm text-green-600">
-                    المركبة: <strong>{recoverVehicle.plateNumberA}</strong>
+                    {t('vehicles.selectedVehicle')}: <strong>{recoverVehicle.plateNumberA}</strong>
                   </p>
                 </div>
               </div>
@@ -483,14 +478,14 @@ export default function StolenVehiclesPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                تفاصيل الاسترجاع <span className="text-red-500">*</span>
+                {t('vehicles.recoveryDetails')} <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={recoveryDetails}
                 onChange={(e) => setRecoveryDetails(e.target.value)}
                 required
                 rows={4}
-                placeholder="اشرح كيف تم استرجاع المركبة وحالتها..."
+                placeholder={t('vehicles.recoveryDetailsPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               />
             </div>
@@ -505,11 +500,11 @@ export default function StolenVehiclesPage() {
                 }}
                 disabled={loading}
               >
-                إلغاء
+                {t('common.cancel')}
               </Button>
               <Button type="submit" loading={loading} disabled={loading}>
                 <CheckCircle size={18} className="ml-2" />
-                تأكيد الاسترجاع
+                {t('vehicles.confirmRecovery')}
               </Button>
             </div>
           </form>

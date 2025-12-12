@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { LogOut, Clock, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
-// import LanguageSwitcher from '../Ui/LanguageSwitcher';
+import { useLanguage } from '@/lib/context/LanguageContext';
+import LanguageSwitcher from '@/components/Ui/LanguageSwitcher';
+
 export default function Header() {
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const [remainingTime, setRemainingTime] = useState('');
   const [user, setUser] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -38,7 +41,7 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       if (currentScrollY < 10) {
         // Always show at top
         setIsVisible(true);
@@ -49,7 +52,7 @@ export default function Header() {
         // Scrolling up
         setIsVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -58,26 +61,25 @@ export default function Header() {
   }, [lastScrollY]);
 
   return (
-    <header 
-      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}
+    <header
+      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
     >
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">
-          شركة الخدمة السريعة للخدمات اللوجستية
+          {t("auth.fullCompanyName")}
         </h1>
-        
+
         <div className="flex items-center gap-6">
           {/* <LanguageSwitcher /> */}
-          
+
           {/* User Info */}
           {user && (
             <div className="flex items-center gap-2 text-sm">
               <User size={18} />
               <span>{user.username || user.name}</span>
               {user.role && (
-                <span 
+                <span
                   className="px-2 py-0.5 rounded text-xs font-medium"
                   style={{ backgroundColor: '#463aeeff', color: '#1b428e' }}
                 >
@@ -87,7 +89,7 @@ export default function Header() {
             </div>
           )}
           {/* Logout Button */}
-          <button 
+          <button
             onClick={logout}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
             style={{ backgroundColor: '#180e0eff' }}
@@ -95,7 +97,7 @@ export default function Header() {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#17006bff'}
           >
             <LogOut size={18} />
-            <span>تسجيل الخروج</span>
+            <span>{t("auth.logout")}</span>
           </button>
         </div>
       </div>

@@ -8,6 +8,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   Car,
   Users,
@@ -27,6 +28,7 @@ import {
 
 export default function VehicleAdminDashboard() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [vehicles, setVehicles] = useState([]);
   const [groupedData, setGroupedData] = useState(null);
@@ -48,7 +50,7 @@ export default function VehicleAdminDashboard() {
       setGroupedData(groupedRes);
     } catch (err) {
       console.error("Error loading data:", err);
-      setErrorMessage("حدث خطأ في تحميل البيانات");
+      setErrorMessage(t("vehicles.loadingError"));
     } finally {
       setLoading(false);
     }
@@ -71,96 +73,96 @@ export default function VehicleAdminDashboard() {
 
   const quickActions = [
     {
-      title: "جميع المركبات",
-      description: "عرض شامل للمركبات والمناديب",
+      title: t("vehicles.allVehicles"),
+      description: t("vehicles.allVehiclesDesc"),
       icon: Users,
       color: "purple",
       path: "/vehicles/admin/with-riders",
       count: totalVehicles,
     },
     {
-      title: "إدارة المركبات",
-      description: "عرض وتعديل بيانات المركبات",
+      title: t("vehicles.manageVehicles"),
+      description: t("vehicles.manageVehiclesDesc"),
       icon: Car,
       color: "blue",
       path: "/vehicles/admin/manage",
       count: totalVehicles,
     },
     {
-      title: "طلبات المشرفين",
-      description: "طلبات المشرفين للموافقة",
+      title: t("vehicles.supervisorRequests"),
+      description: t("vehicles.supervisorRequestsDesc"),
       icon: Users,
       color: "blue",
       path: "/vehicles/admin/users-requests",
       count: stats.takenCount,
     },
     {
-      title: "المشاكل والصيانة",
-      description: "المركبات التي تحتاج إصلاح",
+      title: t("vehicles.problemsAndMaintenance"),
+      description: t("vehicles.vehiclesNeedRepair"),
       icon: AlertTriangle,
       color: "orange",
       path: "/vehicles/admin/problems",
       count: stats.problemCount,
     },
     {
-      title: "المركبات المسروقة",
-      description: "المركبات المبلغ عن سرقتها",
+      title: t("vehicles.stolenVehicles"),
+      description: t("vehicles.reportedStolen"),
       icon: Shield,
       color: "red",
       path: "/vehicles/admin/stolen",
       count: stats.stolenCount,
     },
     {
-      title: "خارج الخدمة",
-      description: "المركبات غير القابلة للاستخدام",
+      title: t("vehicles.outOfService"),
+      description: t("vehicles.unusable"),
       icon: PackageX,
       color: "gray",
       path: "/vehicles/admin/breakup",
       count: stats.breakUpCount,
     },
     {
-      title: "تغيير الموقع",
-      description: "تحديث مواقع المركبات",
+      title: t("vehicles.changeLocation"),
+      description: t("vehicles.updateLocations"),
       icon: MapPin,
       color: "teal",
       path: "/vehicles/admin/change-location",
       count: null,
     },
     {
-      title: "إصلاح المشاكل",
-      description: "حل مشاكل المركبات",
+      title: t("vehicles.fixProblems"),
+      description: t("vehicles.solveProblems"),
       icon: Wrench,
       color: "indigo",
       path: "/vehicles/admin/fix-problems",
       count: null,
     },
     {
-      title: "استرجاع المسروقة",
-      description: "استرجاع المركبات المسروقة",
+      title: t("vehicles.recoverStolen"),
+      description: t("vehicles.recoverStolenVehicles"),
       icon: RefreshCw,
       color: "emerald",
       path: "/vehicles/admin/recover-stolen",
       count: null,
     },
     {
-      title: "أخذ مركبة",
-      description: "تسجيل استلام مركبة للمندوب",
+      title: t("vehicles.takeVehicle"),
+      description: t("vehicles.registerTakeVehicle"),
       icon: Car,
       color: "green",
       path: "/vehicles/admin/take",
       count: null,
     },
     {
-      title: "إرجاع مركبة",
-      description: "تسجيل إرجاع مركبة من المندوب",
+      title: t("vehicles.returnVehicle"),
+      description: t("vehicles.registerReturnVehicle"),
       icon: RefreshCw,
       color: "orange",
       path: "/vehicles/admin/return",
       count: null,
     },
     {
-      title: "سجل المركبات",
-      description: "تاريخ وسجلات المركبات",
+      title: t("vehicles.vehicleHistory"),
+      description: t("vehicles.vehicleRecords"),
       icon: FileText,
       color: "indigo",
       path: "/vehicles/admin/history",
@@ -231,11 +233,11 @@ export default function VehicleAdminDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="لوحة تحكم المركبات"
-        subtitle="إدارة شاملة لجميع المركبات والعمليات"
+        title={t("vehicles.dashboard")}
+        subtitle={t("vehicles.dashboardSubtitle")}
         icon={BarChart3}
         actionButton={{
-          text: "تحديث البيانات",
+          text: t("vehicles.refreshData"),
           icon: <RefreshCw size={18} />,
           onClick: loadData,
           variant: "secondary",
@@ -245,7 +247,7 @@ export default function VehicleAdminDashboard() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t("common.error")}
           message={errorMessage}
           onClose={() => setErrorMessage("")}
         />
@@ -256,7 +258,7 @@ export default function VehicleAdminDashboard() {
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-blue-100 text-sm mb-1">إجمالي المركبات</p>
+              <p className="text-blue-100 text-sm mb-1">{t("vehicles.total")}</p>
               <p className="text-4xl font-bold">{totalVehicles}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -265,14 +267,14 @@ export default function VehicleAdminDashboard() {
           </div>
           <div className="flex items-center gap-2 text-blue-100 text-sm">
             <TrendingUp size={16} />
-            <span>في النظام</span>
+            <span>{t("vehicles.inSystem")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-green-100 text-sm mb-1">جاهزة للتسليم</p>
+              <p className="text-green-100 text-sm mb-1">{t("vehicles.available")}</p>
               <p className="text-4xl font-bold">{stats.availableCount}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -281,14 +283,14 @@ export default function VehicleAdminDashboard() {
           </div>
           <div className="flex items-center gap-2 text-green-100 text-sm">
             <CheckCircle size={16} />
-            <span>جاهزة للاستخدام</span>
+            <span>{t("vehicles.readyForUse")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-orange-100 text-sm mb-1">في الخدمة</p>
+              <p className="text-orange-100 text-sm mb-1">{t("vehicles.taken")}</p>
               <p className="text-4xl font-bold">{stats.takenCount}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -297,14 +299,14 @@ export default function VehicleAdminDashboard() {
           </div>
           <div className="flex items-center gap-2 text-orange-100 text-sm">
             <Users size={16} />
-            <span>مع الموظفين</span>
+            <span>{t("vehicles.withEmployees")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-purple-100 text-sm mb-1">نسبة الاستخدام</p>
+              <p className="text-purple-100 text-sm mb-1">{t("vehicles.utilizationRate")}</p>
               <p className="text-4xl font-bold">{utilizationRate}%</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -313,7 +315,7 @@ export default function VehicleAdminDashboard() {
           </div>
           <div className="flex items-center gap-2 text-purple-100 text-sm">
             <TrendingUp size={16} />
-            <span>كفاءة التشغيل</span>
+            <span>{t("vehicles.operationalEfficiency")}</span>
           </div>
         </div>
       </div>
@@ -325,47 +327,47 @@ export default function VehicleAdminDashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-600 mb-1">مشاكل وصيانة</p>
+              <p className="text-sm text-orange-600 mb-1">{t("vehicles.problemsAndMaintenance")}</p>
               <p className="text-3xl font-bold text-orange-700">
                 {stats.problemCount}
               </p>
             </div>
             <AlertTriangle className="text-orange-500" size={36} />
           </div>
-          <p className="text-xs text-orange-600 mt-2">تحتاج إلى إصلاح</p>
+          <p className="text-xs text-orange-600 mt-2">{t("vehicles.needsRepair")}</p>
         </div>
 
         <div className={`border-r-4 border-red-500 bg-red-50 p-5 rounded-lg`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-600 mb-1">مسروقة</p>
+              <p className="text-sm text-red-600 mb-1">{t("vehicles.stolen")}</p>
               <p className="text-3xl font-bold text-red-700">
                 {stats.stolenCount}
               </p>
             </div>
             <Shield className="text-red-500" size={36} />
           </div>
-          <p className="text-xs text-red-600 mt-2">مبلغ عنها</p>
+          <p className="text-xs text-red-600 mt-2">{t("vehicles.reported")}</p>
         </div>
 
         <div className={`border-r-4 border-gray-500 bg-gray-50 p-5 rounded-lg`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">خارج الخدمة</p>
+              <p className="text-sm text-gray-600 mb-1">{t("vehicles.outOfService")}</p>
               <p className="text-3xl font-bold text-gray-700">
                 {stats.breakUpCount}
               </p>
             </div>
             <PackageX className="text-gray-500" size={36} />
           </div>
-          <p className="text-xs text-gray-600 mt-2">غير قابلة للاستخدام</p>
+          <p className="text-xs text-gray-600 mt-2">{t("vehicles.unusable")}</p>
         </div>
       </div>
 
       {/* Quick Actions Grid */}
       <Card>
         <h2 className="text-xl font-bold text-gray-800 mb-6">
-          الإجراءات السريعة
+          {t("vehicles.quickActions")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action) => {
@@ -396,7 +398,7 @@ export default function VehicleAdminDashboard() {
                     {action.description}
                   </p>
                   <div className="flex items-center gap-2 text-sm text-blue-600">
-                    <span>الانتقال</span>
+                    <span>{t("vehicles.goTo")}</span>
                     <ArrowRight size={16} />
                   </div>
                 </div>
@@ -411,19 +413,19 @@ export default function VehicleAdminDashboard() {
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
           </div>
         </Card>
       ) : (
         <Card>
-          <h2 className="text-xl font-bold text-gray-800 mb-6">ملخص الحالة</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-6">{t("vehicles.statusSummary")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-bold text-gray-700 mb-3">نسب الاستخدام</h3>
+              <h3 className="font-bold text-gray-700 mb-3">{t("vehicles.usageRates")}</h3>
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">جاهزة للتسليم</span>
+                    <span className="text-gray-600">{t("vehicles.available")}</span>
                     <span className="font-medium">
                       {((stats.availableCount / totalVehicles) * 100).toFixed(
                         1
@@ -435,16 +437,15 @@ export default function VehicleAdminDashboard() {
                     <div
                       className="bg-green-500 h-2 rounded-full transition-all"
                       style={{
-                        width: `${
-                          (stats.availableCount / totalVehicles) * 100
-                        }%`,
+                        width: `${(stats.availableCount / totalVehicles) * 100
+                          }%`,
                       }}
                     ></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">مستخدمة</span>
+                    <span className="text-gray-600">{t("vehicles.used")}</span>
                     <span className="font-medium">
                       {((stats.takenCount / totalVehicles) * 100).toFixed(1)}%
                     </span>
@@ -460,7 +461,7 @@ export default function VehicleAdminDashboard() {
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">مشاكل</span>
+                    <span className="text-gray-600">{t("vehicles.problems")}</span>
                     <span className="font-medium">
                       {((stats.problemCount / totalVehicles) * 100).toFixed(1)}%
                     </span>
@@ -478,22 +479,22 @@ export default function VehicleAdminDashboard() {
             </div>
 
             <div className="p-10">
-              <h3 className="font-bold text-gray-700 mb-3">إحصائيات سريعة</h3>
+              <h3 className="font-bold text-gray-700 mb-3">{t("vehicles.quickStats")}</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">المركبات النشطة</span>
+                  <span className="text-sm text-gray-600">{t("vehicles.activeVehicles")}</span>
                   <span className="font-bold text-blue-600">
                     {activeVehicles}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">تحتاج انتباه</span>
+                  <span className="text-sm text-gray-600">{t("vehicles.needsAttention")}</span>
                   <span className="font-bold text-orange-600">
                     {stats.problemCount + stats.stolenCount}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">خارج الخدمة</span>
+                  <span className="text-sm text-gray-600">{t("vehicles.outOfService")}</span>
                   <span className="font-bold text-gray-600">
                     {stats.breakUpCount}
                   </span>

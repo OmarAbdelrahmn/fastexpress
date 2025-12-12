@@ -4,9 +4,11 @@ import PageHeader from '@/components/layout/pageheader';
 import Table from '@/components/Ui/Table';
 import { BarChart3 } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 
 export default function SummaryPage() {
+    const { t } = useLanguage();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -41,8 +43,8 @@ export default function SummaryPage() {
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="ملخص عجز هنجر"
-                subtitle="عرض ملخص شامل لعجز هنجر"
+                title={t('substitution.summary')}
+                subtitle={t('substitution.summaryDesc')}
                 icon={BarChart3}
             />
 

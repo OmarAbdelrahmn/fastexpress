@@ -5,11 +5,12 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import { Calendar, Search, FileSpreadsheet } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
-import { hungerReportColumns } from '../reportColumns';
+import { getHungerReportColumns } from '../reportColumns';
 import * as XLSX from 'xlsx';
-
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function DateRangePage() {
+    const { t, language } = useLanguage();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [data, setData] = useState([]);
@@ -36,24 +37,23 @@ export default function DateRangePage() {
     const handleExport = () => {
         if (!data || data.length === 0) return;
 
+        const columns = getHungerReportColumns(t);
         // Map data to headers
         const exportData = data.map(item => {
             const row = {};
-            hungerReportColumns.forEach(col => {
+            columns.forEach(col => {
                 if (col.accessor === 'performancePercentage' || col.accessor === 'performanceStatus') {
                     // Skip complex components or handle text
                     row[col.header] = item[col.accessor];
                 } else if (col.render && (col.accessor === 'substituteWorkingId' || col.accessor === 'substituteRiderNameAR')) {
                     // Use the render logic for fallback text (since render returns string here)
                     const val = item[col.accessor];
-                    row[col.header] = val || 'لا يوجد';
+                    row[col.header] = val || t('common.noData');
                 } else if (col.accessor) {
                     row[col.header] = item[col.accessor];
                 }
             });
 
-            // Add any raw fields if needed, or stick to columns. 
-            // The columns now contain the substitution fields, so they should be included.
             return row;
         });
 
@@ -63,11 +63,13 @@ export default function DateRangePage() {
         XLSX.writeFile(workbook, `Hunger_Report_${startDate}_${endDate}.xlsx`);
     };
 
+    const columns = getHungerReportColumns(t);
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="تقرير الفترة"
-                subtitle="عرض عجز هنجر خلال فترة محددة"
+                title={t('hungerDisabilities.dateRange')}
+                subtitle={t('hungerDisabilities.dateRangeDesc')}
                 icon={Calendar}
             />
 
@@ -75,7 +77,7 @@ export default function DateRangePage() {
                 <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                     <div className="flex flex-wrap items-end gap-4">
                         <div className="flex-1 min-w-[200px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.startDate')}</label>
                             <input
                                 type="date"
                                 value={startDate}
@@ -84,7 +86,7 @@ export default function DateRangePage() {
                             />
                         </div>
                         <div className="flex-1 min-w-[200px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">إلى تاريخ</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.endDate')}</label>
                             <input
                                 type="date"
                                 value={endDate}
@@ -99,7 +101,7 @@ export default function DateRangePage() {
                                 className="flex items-center gap-2"
                             >
                                 <Search size={18} />
-                                عرض التقرير
+                                {t('shifts.search')}
                             </Button>
 
                             {data.length > 0 && (
@@ -109,7 +111,7 @@ export default function DateRangePage() {
                                     className="flex items-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
                                 >
                                     <FileSpreadsheet size={18} />
-                                    طباعة لملف Excel
+                                    {t('hungerDisabilities.exportToExcel')}
                                 </Button>
                             )}
                         </div>
@@ -126,11 +128,11 @@ export default function DateRangePage() {
                     {searched && (
                         <>
                             <div className="mb-4 text-sm text-gray-500">
-                                تقرير الفترة من: <span className="font-bold text-gray-900">{startDate}</span> إلى: <span className="font-bold text-gray-900">{endDate}</span>
+                                {t('hungerDisabilities.dateRange')}: <span className="font-bold text-gray-900">{startDate}</span> {t('shifts.to')}: <span className="font-bold text-gray-900">{endDate}</span>
                             </div>
                             <div className="overflow-x-auto">
                                 <Table
-                                    columns={hungerReportColumns}
+                                    columns={columns}
                                     data={data}
                                     loading={loading}
                                 />
@@ -139,7 +141,7 @@ export default function DateRangePage() {
                     )}
                     {!searched && (
                         <div className="text-center text-gray-500 py-12">
-                            الرجاء اختيار الفترة والضغط على عرض التقرير
+                            {t('hungerDisabilities.selectPeriod')}
                         </div>
                     )}
                 </div>

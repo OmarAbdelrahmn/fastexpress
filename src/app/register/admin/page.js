@@ -10,8 +10,11 @@ import Alert from "@/components/Ui/Alert";
 import { Shield, Eye, EyeOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { TokenManager } from "@/lib/auth/tokenManager";
+import { useLanguage } from "@/lib/context/LanguageContext";
+
 export default function AdminRegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -55,7 +58,7 @@ export default function AdminRegisterPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || "حدث خطأ أثناء تسجيل المسؤول");
+      setError(err.message || t('auth.adminRegisterError'));
     } finally {
       setLoading(false);
     }
@@ -70,10 +73,10 @@ export default function AdminRegisterPage() {
             <Shield className="text-white" size={48} />
           </div>
           <h1 className="text-3xl font-bold text-[#1b428e] mb-2">
-            تسجيل مسؤول جديد
+            {t('auth.registerNewAdmin')}
           </h1>
           <p className="text-gray-600 font-medium">
-            حساب مسؤول بصلاحيات متوسطة (Admin)
+            {t('auth.adminAccount')}
           </p>
         </div>
 
@@ -81,8 +84,8 @@ export default function AdminRegisterPage() {
         {success && (
           <Alert
             type="success"
-            title="نجح التسجيل"
-            message="تم إنشاء حساب المسؤول بنجاح"
+            title={t('auth.registerSuccess')}
+            message={t('auth.adminRegisterSuccess')}
           />
         )}
 
@@ -90,7 +93,7 @@ export default function AdminRegisterPage() {
         {error && (
           <Alert
             type="error"
-            title="خطأ في التسجيل"
+            title={t('auth.registerError')}
             message={error}
             onClose={() => setError(null)}
           />
@@ -99,32 +102,32 @@ export default function AdminRegisterPage() {
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
-            label="اسم المستخدم"
+            label={t('auth.username')}
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
             required
-            placeholder="أدخل اسم المستخدم للمسؤول"
+            placeholder={t('auth.enterAdminUsername')}
             disabled={loading}
           />
 
           <div className="relative">
             <Input
-              label="كلمة المرور"
+              label={t('auth.password')}
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="أدخل كلمة مرور قوية"
+              placeholder={t('auth.enterStrongPassword')}
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute left-3 top-[38px] text-[#1b428e] hover:text-[#e08911] transition-colors"
-              title={showPassword ? "إخفاء كلمة المرور" : "عرض كلمة المرور"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -132,12 +135,12 @@ export default function AdminRegisterPage() {
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-[#1b428e] font-medium">
-              ℹ️ ملاحظة: هذا الحساب سيحصل على صلاحيات إدارية متوسطة
+              ℹ️ {t('auth.adminPermissionsNote')}
             </p>
             <ul className="mt-2 text-xs text-gray-700 list-disc list-inside space-y-1">
-              <li>إدارة الموظفين والمناديب</li>
-              <li>إدارة المركبات والورديات</li>
-              <li>عرض التقارير</li>
+              <li>{t('auth.adminPermission1')}</li>
+              <li>{t('auth.adminPermission2')}</li>
+              <li>{t('auth.adminPermission3')}</li>
             </ul>
           </div>
 
@@ -148,7 +151,7 @@ export default function AdminRegisterPage() {
             variant="primary"
             className="w-full py-3 text-lg"
           >
-            {loading ? "جاري التسجيل..." : "تسجيل مسؤول"}
+            {loading ? t('auth.registering') : t('auth.registerAdmin')}
           </Button>
         </form>
 
@@ -159,13 +162,13 @@ export default function AdminRegisterPage() {
             className="text-[#1b428e] hover:text-[#e08911] font-medium inline-flex items-center gap-2 transition-colors"
           >
             <ArrowRight size={18} />
-            العودة إلى لوحة التحكم
+            {t('navigation.backToDashboard')}
           </Link>
         </div>
 
         {/* Warning Footer */}
         <div className="mt-4 text-center text-xs text-gray-500">
-          <p>⚠️ يتطلب تسجيل الدخول للوصول إلى هذه الصفحة</p>
+          <p>⚠️ {t('auth.loginRequiredNote')}</p>
         </div>
       </div>
     </div>

@@ -11,9 +11,11 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { UserPlus, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -46,7 +48,7 @@ export default function RegisterPage() {
 
     try {
       const response = await ApiService.post(API_ENDPOINTS.AUTH.REGISTER, formData);
-      
+
       if (response) {
         setSuccess(true);
         setFormData({ username: '', password: '' });
@@ -55,7 +57,7 @@ export default function RegisterPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'حدث خطأ أثناء التسجيل');
+      setError(err.message || t('errors.registerError'));
     } finally {
       setLoading(false);
     }
@@ -70,25 +72,25 @@ export default function RegisterPage() {
             <UserPlus className="text-white" size={48} />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#1b428e] to-[#e08911] bg-clip-text text-transparent mb-2">
-            تسجيل مستخدم جديد
+            {t('auth.registerNewUser')}
           </h1>
-          <p className="text-gray-600 font-medium">حساب مستخدم عادي</p>
+          <p className="text-gray-600 font-medium">{t('auth.normalUserAccount')}</p>
         </div>
 
         {/* Success Alert */}
         {success && (
-          <Alert 
-            type="success" 
-            title="نجح التسجيل" 
-            message="تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول"
+          <Alert
+            type="success"
+            title={t('auth.registerSuccess')}
+            message={t('auth.accountCreated')}
           />
         )}
 
         {/* Error Alert */}
         {error && (
-          <Alert 
-            type="error" 
-            title="خطأ في التسجيل"
+          <Alert
+            type="error"
+            title={t('auth.registerError')}
             message={error}
             onClose={() => setError(null)}
           />
@@ -97,32 +99,32 @@ export default function RegisterPage() {
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
-            label="اسم المستخدم"
+            label={t('auth.username')}
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
             required
-            placeholder="أدخل اسم المستخدم"
+            placeholder={t('auth.enterUsername')}
             disabled={loading}
           />
 
           <div className="relative">
             <Input
-              label="كلمة المرور"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="أدخل كلمة المرور"
+              placeholder={t('auth.enterPassword')}
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
-              title={showPassword ? "إخفاء كلمة المرور" : "عرض كلمة المرور"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -134,18 +136,18 @@ export default function RegisterPage() {
             disabled={loading || success}
             className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg"
           >
-            {loading ? 'جاري التسجيل...' : 'تسجيل'}
+            {loading ? t('auth.registering') : t('auth.register')}
           </Button>
         </form>
 
         {/* Back to Dashboard Link */}
         <div className="mt-6 text-center">
-          <Link 
-            href="/dashboard" 
+          <Link
+            href="/dashboard"
             className="text-[#1b428e] hover:text-[#e08911] font-medium inline-flex items-center gap-2 transition-colors"
           >
             <ArrowRight size={18} />
-            العودة إلى لوحة التحكم
+            {t('navigation.backToDashboard')}
           </Link>
         </div>
       </div>

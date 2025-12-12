@@ -11,10 +11,12 @@ import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { Home, Plus, Search, Edit, Trash2, Users, MapPin } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function HousingManagePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const [housings, setHousings] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,22 +56,22 @@ export default function HousingManagePage() {
       setHousings(Array.isArray(data) ? data : [data]);
     } catch (err) {
       console.error('Error loading housings:', err);
-      setErrorMessage('حدث خطأ في تحميل البيانات');
+      setErrorMessage(t('housing.loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (housingName) => {
-    if (confirm('هل أنت متأكد من حذف هذا السكن؟')) {
+    if (confirm(t('housing.confirmDelete'))) {
       try {
         await ApiService.delete(`/api/Housing/${housingName}`);
-        setSuccessMessage('تم حذف السكن بنجاح');
+        setSuccessMessage(t('housing.deleteSuccess'));
         loadHousings();
         setTimeout(() => setSuccessMessage(''), 3000);
       } catch (err) {
         console.error('Error deleting housing:', err);
-        setErrorMessage('حدث خطأ في حذف السكن');
+        setErrorMessage(t('housing.deleteError'));
         setTimeout(() => setErrorMessage(''), 5000);
       }
     }
@@ -82,7 +84,7 @@ export default function HousingManagePage() {
       setIsDetailsModalOpen(true);
     } catch (err) {
       console.error('Error loading housing details:', err);
-      setErrorMessage('حدث خطأ في تحميل التفاصيل');
+      setErrorMessage(t('housing.loadError'));
       setTimeout(() => setErrorMessage(''), 5000);
     }
   };
@@ -93,7 +95,7 @@ export default function HousingManagePage() {
 
   const columns = [
     {
-      header: 'اسم السكن',
+      header: t('housing.housingName'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <Home className="text-blue-500" size={16} />
@@ -102,7 +104,7 @@ export default function HousingManagePage() {
       )
     },
     {
-      header: 'العنوان',
+      header: t('housing.address'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <MapPin className="text-gray-400" size={14} />
@@ -110,9 +112,9 @@ export default function HousingManagePage() {
         </div>
       )
     },
-    { header: 'السعة', accessor: 'capacity' },
+    { header: t('housing.capacity'), accessor: 'capacity' },
     {
-      header: 'الإشغال الحالي',
+      header: t('housing.currentOccupancy'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <span className={`font-medium ${row.employees.length >= row.capacity ? 'text-red-600' : 'text-green-600'
@@ -121,14 +123,14 @@ export default function HousingManagePage() {
           </span>
           {row.employees.length >= row.capacity && (
             <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">
-              ممتلئ
+              {t('housing.full')}
             </span>
           )}
         </div>
       )
     },
     {
-      header: 'رقم إقامة المدير',
+      header: t('housing.managerIqama'),
       render: (row) => (
         <span className="font-medium">
           {row.managerIqamaNo || row.ManagerIqamaNo || '---'}
@@ -136,27 +138,27 @@ export default function HousingManagePage() {
       )
     },
     {
-      header: 'الإجراءات',
+      header: t('common.actions'),
       render: (row) => (
         <div className="flex gap-2">
           <button
             onClick={() => handleViewDetails(row)}
             className="text-green-600 hover:text-green-800 p-1"
-            title="عرض التفاصيل"
+            title={t('housing.viewResidents')}
           >
             <Users size={18} />
           </button>
           <button
             onClick={() => handleEdit(row)}
             className="text-blue-600 hover:text-blue-800 p-1"
-            title="تعديل"
+            title={t('common.edit')}
           >
             <Edit size={18} />
           </button>
           <button
             onClick={() => handleDelete(row.name)}
             className="text-red-600 hover:text-red-800 p-1"
-            title="حذف"
+            title={t('common.delete')}
           >
             <Trash2 size={18} />
           </button>
@@ -174,11 +176,11 @@ export default function HousingManagePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة السكن"
-        subtitle={`إجمالي السكنات: ${housings.length}`}
+        title={t('housing.manageHousing')}
+        subtitle={`${t('housing.totalHousing')}: ${housings.length}`}
         icon={Home}
         actionButton={{
-          text: 'إضافة سكن جديد',
+          text: t('housing.addHousing'),
           icon: <Plus size={18} />,
           onClick: () => router.push('/housing/create'),
         }}
@@ -187,7 +189,7 @@ export default function HousingManagePage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -196,7 +198,7 @@ export default function HousingManagePage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -207,7 +209,7 @@ export default function HousingManagePage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 mb-1">إجمالي السكنات</p>
+              <p className="text-sm text-blue-600 mb-1">{t('housing.totalHousing')}</p>
               <p className="text-3xl font-bold text-blue-700">{housings.length}</p>
             </div>
             <Home className="text-blue-500" size={40} />
@@ -217,7 +219,7 @@ export default function HousingManagePage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 mb-1">إجمالي السعة</p>
+              <p className="text-sm text-green-600 mb-1">{t('housing.totalCapacity')}</p>
               <p className="text-3xl font-bold text-green-700">
                 {housings.reduce((sum, h) => sum + (h.capacity || 0), 0)}
               </p>
@@ -229,7 +231,7 @@ export default function HousingManagePage() {
         <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-600 mb-1">الإشغال الحالي</p>
+              <p className="text-sm text-orange-600 mb-1">{t('housing.currentOccupancy')}</p>
               <p className="text-3xl font-bold text-orange-700">
                 {housings.reduce((sum, h) => sum + (h.currentOccupancy || 0), 0)}
               </p>
@@ -245,7 +247,7 @@ export default function HousingManagePage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="البحث بالاسم، العنوان، أو رقم إقامة المدير..."
+              placeholder={t('common.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -253,7 +255,7 @@ export default function HousingManagePage() {
           </div>
           <Button onClick={() => router.push('/housing/create')}>
             <Plus size={18} className="ml-2" />
-            إضافة سكن جديد
+            {t('housing.addHousing')}
           </Button>
         </div>
 
@@ -271,39 +273,39 @@ export default function HousingManagePage() {
           setIsDetailsModalOpen(false);
           setSelectedHousing(null);
         }}
-        title="تفاصيل السكن"
+        title={t('common.details')}
         size="lg"
       >
         {selectedHousing && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-3">المعلومات الأساسية</h3>
+              <h3 className="font-bold text-gray-800 mb-3">{t('common.details')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">اسم السكن</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('housing.housingName')}</p>
                   <p className="font-medium text-gray-800">{selectedHousing.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">العنوان</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('housing.address')}</p>
                   <p className="font-medium text-gray-800">{selectedHousing.address}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">السعة</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('housing.capacity')}</p>
                   <p className="font-medium text-gray-800">{selectedHousing.capacity}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">الإشغال الحالي</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('housing.currentOccupancy')}</p>
                   <p className="font-medium text-gray-800">
                     {selectedHousing.employees.length || 0} / {selectedHousing.capacity}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">رقم إقامة المدير</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('housing.managerIqama')}</p>
                   <p className="font-medium text-gray-800">{selectedHousing.managerIqamaNo}</p>
                 </div>
                 {selectedHousing.managerName && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">اسم المدير</p>
+                    <p className="text-sm text-gray-600 mb-1">{t('housing.manager')}</p>
                     <p className="font-medium text-gray-800">{selectedHousing.managerName}</p>
                   </div>
                 )}
@@ -313,7 +315,7 @@ export default function HousingManagePage() {
             {selectedHousing.employees && selectedHousing.employees.length > 0 && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-bold text-gray-800 mb-3">
-                  الموظفين ({selectedHousing.employees.length})
+                  {t('housing.residents')} ({selectedHousing.employees.length})
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {selectedHousing.employees.map((emp, index) => (
@@ -328,7 +330,7 @@ export default function HousingManagePage() {
                         </div>
                         <div className="text-left">
                           <p className="text-sm text-gray-600">{emp.jobTitle}</p>
-                          <p className="text-xs text-gray-500">رقم الإقامة: {emp.iqamaNo}</p>
+                          <p className="text-xs text-gray-500">{t('employees.iqamaNumber')}: {emp.iqamaNo}</p>
                         </div>
                       </div>
                     </div>
@@ -346,7 +348,7 @@ export default function HousingManagePage() {
                   setSelectedHousing(null);
                 }}
               >
-                إغلاق
+                {t('common.close')}
               </Button>
             </div>
           </div>

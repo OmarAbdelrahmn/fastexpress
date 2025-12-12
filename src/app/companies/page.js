@@ -8,9 +8,11 @@ import Card from '@/components/Ui/Card';
 import Alert from '@/components/Ui/Alert';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function CompaniesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [companies, setCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,28 +26,28 @@ export default function CompaniesPage() {
   const loadCompanies = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST); 
+      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
       setCompanies(Array.isArray(data) ? data : []);
     }
     catch (error) {
-      setMessage({ type: 'error', text: 'فشل تحميل الشركات' });
+      setMessage({ type: 'error', text: t('companies.loadError') });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (companyName) => {
-    if (!confirm(`هل أنت متأكد من حذف شركة ${companyName}؟`)) return;
+    if (!confirm(t('companies.confirmDelete'))) return;
 
     try {
       await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyName));
-      
-        setMessage({ type: 'success', text: 'تم حذف الشركة بنجاح' });
-        loadCompanies();
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-      
+
+      setMessage({ type: 'success', text: t('companies.deleteSuccess') });
+      loadCompanies();
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+
     } catch (error) {
-      setMessage({ type: 'error', text: 'فشل حذف الشركة' });
+      setMessage({ type: 'error', text: t('companies.deleteError') });
     }
   };
 
@@ -66,11 +68,11 @@ export default function CompaniesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
-        title="إدارة الشركات"
-        subtitle={`إجمالي الشركات: ${companies.length}`}
+        title={t('companies.manageCompanies')}
+        subtitle={`${t('companies.totalCompanies')}: ${companies.length}`}
         icon={Building}
         actionButton={{
-          text: 'إضافة شركة جديدة',
+          text: t('companies.addCompany'),
           icon: <Plus size={18} />,
           onClick: () => router.push('/companies/create'),
         }}
@@ -82,7 +84,7 @@ export default function CompaniesPage() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm mb-1">إجمالي الشركات</p>
+                <p className="text-blue-100 text-sm mb-1">{t('companies.totalCompanies')}</p>
                 <p className="text-4xl font-bold">{stats.total}</p>
               </div>
               <Building className="text-blue-200" size={48} />
@@ -92,7 +94,7 @@ export default function CompaniesPage() {
           <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm mb-1">لديها بريد</p>
+                <p className="text-green-100 text-sm mb-1">{t('companies.withEmail')}</p>
                 <p className="text-4xl font-bold">{stats.withEmail}</p>
               </div>
               <Mail className="text-green-200" size={48} />
@@ -102,7 +104,7 @@ export default function CompaniesPage() {
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm mb-1">لديها هاتف</p>
+                <p className="text-purple-100 text-sm mb-1">{t('companies.withPhone')}</p>
                 <p className="text-4xl font-bold">{stats.withPhone}</p>
               </div>
               <Phone className="text-purple-200" size={48} />
@@ -112,7 +114,7 @@ export default function CompaniesPage() {
           <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-100 text-sm mb-1">لديها عنوان</p>
+                <p className="text-orange-100 text-sm mb-1">{t('companies.withAddress')}</p>
                 <p className="text-4xl font-bold">{stats.withAddress}</p>
               </div>
               <MapPin className="text-orange-200" size={48} />
@@ -124,7 +126,7 @@ export default function CompaniesPage() {
         {message.text && (
           <Alert
             type={message.type}
-            title={message.type === 'success' ? 'نجح' : 'خطأ'}
+            title={message.type === 'success' ? t('common.success') : t('common.error')}
             message={message.text}
             onClose={() => setMessage({ type: '', text: '' })}
           />
@@ -136,7 +138,7 @@ export default function CompaniesPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="البحث بالاسم، العنوان، أو البريد الإلكتروني..."
+              placeholder={t('common.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,21 +151,21 @@ export default function CompaniesPage() {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto"></div>
-              <p className="mt-4 text-gray-600 font-medium">جاري تحميل الشركات...</p>
+              <p className="mt-4 text-gray-600 font-medium">{t('common.loading')}</p>
             </div>
           </div>
         ) : filteredCompanies.length === 0 ? (
           <Card>
             <div className="text-center py-16">
               <Building className="mx-auto text-gray-400 mb-4" size={64} />
-              <p className="text-gray-600 text-lg">لا توجد شركات مسجلة</p>
-              <p className="text-gray-500 text-sm mt-2">ابدأ بإضافة شركة جديدة</p>
+              <p className="text-gray-600 text-lg">{t('common.noData')}</p>
+              <p className="text-gray-500 text-sm mt-2">{t('companies.addCompany')}</p>
               <button
                 onClick={() => router.push('/companies/create')}
                 className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition inline-flex items-center gap-2"
               >
                 <Plus size={20} />
-                إضافة شركة
+                {t('companies.addCompany')}
               </button>
             </div>
           </Card>
@@ -182,7 +184,7 @@ export default function CompaniesPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white">{company.name}</h3>
-                      <p className="text-blue-100 text-sm">رمز: {company.id}</p>
+                      <p className="text-blue-100 text-sm">ID: {company.id}</p>
                     </div>
                   </div>
                 </div>
@@ -223,14 +225,14 @@ export default function CompaniesPage() {
                       className="flex-1 bg-green-500 text-white px-4 py-2.5 rounded-lg hover:bg-green-600 transition flex items-center justify-center gap-2 font-medium"
                     >
                       <Eye size={18} />
-                      عرض
+                      {t('common.view')}
                     </button>
                     <button
                       onClick={() => router.push(`/companies/${encodeURIComponent(company.name)}/edit`)}
                       className="flex-1 bg-blue-500 text-white px-4 py-2.5 rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2 font-medium"
                     >
                       <Edit size={18} />
-                      تعديل
+                      {t('common.edit')}
                     </button>
                     <button
                       onClick={() => handleDelete(company.name)}

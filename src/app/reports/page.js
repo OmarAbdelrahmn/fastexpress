@@ -8,14 +8,16 @@ import {
   Package,
   Home,
   Calendar,
-  Award,
+  Award
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function ReportsPage() {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
 
@@ -37,122 +39,122 @@ export default function ReportsPage() {
 
   const reportCategories = [
     {
-      title: "تقارير الفترات",
+      title: t('reports.periodReports'),
       icon: Calendar,
       color: "from-blue-500 to-blue-600",
       reports: [
         {
-          name: "تقارير شهرية",
+          name: t('reports.monthlyReports'),
           path: "/reports/monthly",
-          desc: "تقارير المناديب الشهرية",
+          desc: t('reports.monthlyReportsDesc'),
         },
         {
-          name: "تقارير سنوية",
+          name: t('reports.yearlyReports'),
           path: "/reports/yearly",
-          desc: "تقارير المناديب السنوية",
+          desc: t('reports.yearlyReportsDesc'),
         },
         {
-          name: "تقارير مخصصة",
+          name: t('reports.customReports'),
           path: "/reports/custom-range",
-          desc: "تقارير حسب الفترة الزمنية",
+          desc: t('reports.customReportsDesc'),
         },
       ],
     },
     {
-      title: "تقارير الشركات",
+      title: t('reports.companyReports'),
       icon: Package,
       color: "from-green-500 to-green-600",
       reports: [
         {
-          name: "أداء الشركة",
+          name: t('reports.companyPerformance'),
           path: "/reports/company-performance",
-          desc: "تحليل أداء الشركات",
+          desc: t('reports.companyPerformanceDesc'),
         },
         {
-          name: "مقارنة الشركات",
+          name: t('reports.compareCompanies'),
           path: "/reports/compare-company",
-          desc: "مقارنة أداء الشركات بين فترتين",
+          desc: t('reports.compareCompaniesDesc'),
         },
       ],
     },
     {
-      title: "تقارير المناديب",
+      title: t('reports.riderReports'),
       icon: Users,
       color: "from-purple-500 to-purple-600",
       reports: [
         {
-          name: "تقارير المناديب",
+          name: t('reports.ridersReports'),
           path: "/reports/riders",
-          desc: "عرض تقارير جميع المناديب",
+          desc: t('reports.ridersReportsDesc'),
         },
         {
-          name: "مقارنة مندوب محدد",
+          name: t('reports.compareRider'),
           path: "/reports/top-riders",
-          desc: "مقارنة مندوب محدد بين فترتين",
+          desc: t('reports.compareRiderDesc'),
         },
         {
-          name: "مقارنة المناديب",
+          name: t('reports.compareRiders'),
           path: "/reports/compare-riders",
-          desc: "مقارنة أداء المناديب بين فترتين",
+          desc: t('reports.compareRidersDesc'),
         },
         {
-          name: "أفضل المناديب حسب الشركة",
+          name: t('reports.topRidersByCompany'),
           path: "/reports/top-riders-company",
-          desc: "ترتيب أفضل المناديب",
+          desc: t('reports.topRidersByCompanyDesc'),
         },
         {
-          name: "افضل المناديب سنويا",
+          name: t('reports.topRidersYearly.pageTitle'),
           path: "/reports/top-riders-yearly",
-          desc: "ترتيب أفضل المناديب بشكل سنوي",
+          desc: t('reports.topRidersYearlyDesc'),
         },
         {
-          name: "افضل المناديب شهريا",
+          name: t('reports.topRidersMonthly'),
           path: "/reports/top-riders-monthly",
-          desc: "ترتيب أفضل المناديب بشكل شهري",
+          desc: t('reports.topRidersMonthlyDesc'),
         },
       ],
     },
     {
-      title: "تقارير السكن",
+      title: t('reports.housingReports'),
       icon: Home,
       color: "from-orange-500 to-orange-600",
       reports: [
         {
-          name: "تقارير السكن ",
+          name: t('reports.housingReport'),
           path: "/reports/housing",
-          desc: "تحليل أداء السكنات",
+          desc: t('reports.housingReportDesc'),
         },
         {
-          name: " مقارنة تقارير السكن",
+          name: t('reports.housingCompare'),
           path: "/reports/housing-compare",
-          desc: "تحليل أداء السكنات",
+          desc: t('reports.housingCompareDesc'),
         },
         {
-          name: "مقارنة السكن للمندوبين",
+          name: t('reports.housingRiderCompare'),
           path: "/reports/housing-rider-compare",
-          desc: "تحليل أداء السكنات",
+          desc: t('reports.housingRiderCompareDesc'),
         },
       ],
     },
     {
-      title: "تقارير أخرى",
+      title: t('reports.otherReports'),
       icon: BarChart3,
       color: "from-red-500 to-red-600",
       reports: [
         {
-          name: "تقارير المشاكل",
+          name: t('reports.problemsReports'),
           path: "/reports/problems",
-          desc: "الورديات ذات المشاكل",
+          desc: t('reports.problemsReportsDesc'),
         },
         {
-          name: "التوصيلات المكدسة",
+          name: t('reports.stackedDeliveries'),
           path: "/reports/stacked",
-          desc: "تقارير التوصيلات المكدسة للجميع",
+          desc: t('reports.stackedDeliveriesDesc'),
         },
         {
-          name: "التوصيلات المكدسة لمندوب",
+          name: t('reports.stackedDeliveriesRider'),
           path: "/reports/stacked",
-          desc: "تقارير التوصيلات المكدسة لمندوب معين",
+          desc: t('reports.stackedDeliveriesRiderDesc'),
         },
       ],
     },
@@ -161,11 +163,10 @@ export default function ReportsPage() {
   return (
     <div
       className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100"
-      dir="rtl"
     >
       <PageHeader
-        title="مركز التقارير"
-        subtitle="عرض وتحليل جميع تقارير النظام"
+        title={t('reports.reportsCenter')}
+        subtitle={t('reports.reportsCenterSubtitle')}
         icon={BarChart3}
       />
 
@@ -175,7 +176,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">إجمالي الشركات</p>
+                <p className="text-gray-500 text-sm">{t('reports.totalCompanies')}</p>
                 <p className="text-3xl font-bold text-blue-600">
                   {dashboardData.companies?.totalCompanies || 0}
                 </p>
@@ -187,7 +188,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">إجمالي المناديب</p>
+                <p className="text-gray-500 text-sm">{t('reports.totalRiders')}</p>
                 <p className="text-3xl font-bold text-green-600">
                   {dashboardData.riders?.totalRiders || 0}
                 </p>
@@ -199,7 +200,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">إجمالي الطلبات</p>
+                <p className="text-gray-500 text-sm">{t('reports.totalOrders')}</p>
                 <p className="text-3xl font-bold text-purple-600">
                   {dashboardData.orders?.totalAcceptedOrders || 0}
                 </p>
@@ -211,7 +212,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">معدل الأداء</p>
+                <p className="text-gray-500 text-sm">{t('reports.performanceRate')}</p>
                 <p className="text-3xl font-bold text-orange-600">
                   {dashboardData.performance?.overallPerformanceScore?.toFixed(
                     1

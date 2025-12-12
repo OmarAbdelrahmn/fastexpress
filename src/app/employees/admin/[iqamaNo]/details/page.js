@@ -8,15 +8,16 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { 
-  User, 
-  ArrowRight, 
-  Edit, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  CreditCard, 
-  Building, 
+import { useLanguage } from '@/lib/context/LanguageContext';
+import {
+  User,
+  ArrowRight,
+  Edit,
+  Calendar,
+  MapPin,
+  Phone,
+  CreditCard,
+  Building,
   FileText,
   Shield,
   Briefcase
@@ -25,6 +26,7 @@ import {
 export default function EmployeeDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const { t, language } = useLanguage();
   const iqamaNo = params?.iqamaNo;
 
   const [loading, setLoading] = useState(true);
@@ -42,15 +44,15 @@ export default function EmployeeDetailsPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA(iqamaNo));
-      
+
       if (data && data.length > 0) {
         setEmployee(data[0]);
       } else {
-        setErrorMessage('لم يتم العثور على الموظف');
+        setErrorMessage(t('employees.employeeNotFound'));
       }
     } catch (err) {
       console.error('Error loading employee details:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل تفاصيل الموظف');
+      setErrorMessage(err?.message || t('employees.detailsLoadError'));
     } finally {
       setLoading(false);
     }
@@ -60,14 +62,14 @@ export default function EmployeeDetailsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تفاصيل الموظف"
-          subtitle="جاري التحميل..."
+          title={t('employees.detailsTitle')}
+          subtitle={t('employees.loadingDetails')}
           icon={User}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل التفاصيل...</p>
+            <p className="mt-4 text-gray-600">{t('employees.loadingDetails')}</p>
           </div>
         </Card>
       </div>
@@ -78,28 +80,28 @@ export default function EmployeeDetailsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تفاصيل الموظف"
-          subtitle="حدث خطأ"
+          title={t('employees.detailsTitle')}
+          subtitle={t('employees.errorOccurred')}
           icon={User}
           actionButton={{
-            text: 'العودة',
+            text: t('common.back'),
             icon: <ArrowRight size={18} />,
             onClick: () => router.back(),
             variant: 'secondary'
           }}
         />
-        <Alert 
-          type="error" 
-          title="خطأ" 
-          message={errorMessage || 'لم يتم العثور على الموظف'}
+        <Alert
+          type="error"
+          title={t('common.error')}
+          message={errorMessage || t('employees.employeeNotFound')}
         />
       </div>
     );
   }
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'غير محدد';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) return t('employees.notDefined');
+    return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -110,35 +112,32 @@ export default function EmployeeDetailsPage() {
     <div className="space-y-6">
       <PageHeader
         title={`${employee.nameAR}`}
-        subtitle={`رقم الإقامة: ${employee.iqamaNo}`}
+        subtitle={`${t('employees.iqamaNumber')}: ${employee.iqamaNo}`}
         icon={User}
         actionButton={{
-          text: 'تعديل',
+          text: t('employees.editBtn'),
           icon: <Edit size={18} />,
           onClick: () => router.push(`/employees/admin/${iqamaNo}/edit`)
         }}
       />
 
       {/* Status Banner */}
-      <div className={`p-6 rounded-lg ${
-        employee.status === 'enable' 
-          ? 'bg-green-50 border-r-4 border-green-500' 
+      <div className={`p-6 rounded-lg ${employee.status === 'enable'
+          ? 'bg-green-50 border-r-4 border-green-500'
           : 'bg-red-50 border-r-4 border-red-500'
-      }`}>
+        }`}>
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${
-            employee.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
-          }`}>
+          <div className={`p-3 rounded-xl ${employee.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
+            }`}>
             <Shield className={employee.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={32} />
           </div>
           <div>
-            <h2 className={`text-2xl font-bold ${
-              employee.status === 'enable' ? 'text-green-800' : 'text-red-800'
-            }`}>
-              {employee.status === 'enable' ? 'موظف نشط' : 'غير نشط'}
+            <h2 className={`text-2xl font-bold ${employee.status === 'enable' ? 'text-green-800' : 'text-red-800'
+              }`}>
+              {employee.status === 'enable' ? t('employees.activeEmployee') : t('employees.inactiveEmployee')}
             </h2>
             <p className={employee.status === 'enable' ? 'text-green-600' : 'text-red-600'}>
-              الحالة الحالية للموظف
+              {t('employees.currentStatusLabel')}
             </p>
           </div>
         </div>
@@ -149,41 +148,41 @@ export default function EmployeeDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <User size={20} />
-            المعلومات الشخصية
+            {t('employees.personalInfo')}
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">الاسم (عربي)</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.nameArabic')}</p>
                 <p className="font-bold text-gray-800 text-lg">{employee.nameAR}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">الاسم (إنجليزي)</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.nameEnglish')}</p>
                 <p className="font-bold text-gray-800 text-lg">{employee.nameEN}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الإقامة</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.iqamaNumber')}</p>
                 <p className="font-medium text-gray-800">{employee.iqamaNo}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الجواز</p>
-                <p className="font-medium text-gray-800">{employee.passportNo || 'غير محدد'}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.passportNumber')}</p>
+                <p className="font-medium text-gray-800">{employee.passportNo || t('employees.notDefined')}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">البلد</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.country')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <MapPin size={14} />
                   {employee.country}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الهاتف</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.phone')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <Phone size={14} />
                   {employee.phone}
@@ -192,7 +191,7 @@ export default function EmployeeDetailsPage() {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 mb-1">تاريخ الميلاد</p>
+              <p className="text-sm text-gray-600 mb-1">{t('employees.dateOfBirth')}</p>
               <p className="font-medium text-gray-800 flex items-center gap-2">
                 <Calendar size={14} />
                 {formatDate(employee.dateOfBirth)}
@@ -205,24 +204,24 @@ export default function EmployeeDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Briefcase size={20} />
-            معلومات العمل
+            {t('employees.workInfo')}
           </h3>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600 mb-1">المسمى الوظيفي</p>
+              <p className="text-sm text-gray-600 mb-1">{t('employees.jobTitle')}</p>
               <p className="font-bold text-blue-700 text-xl">{employee.jobTitle}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">الكفيل</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.sponsor')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <Shield size={14} />
                   {employee.sponsor}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الكفيل</p>
+                <p className="text-sm text-gray-600 mb-1">{t('employees.sponsorNumber')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <FileText size={14} />
                   {employee.sponsorNo}
@@ -237,19 +236,19 @@ export default function EmployeeDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <FileText size={20} />
-          تفاصيل الإقامة والجواز
+          {t('employees.iqamaPassportDetails')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الإقامة (ميلادي)</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('employees.iqamaExpiryGreg')}</p>
             <p className="font-bold text-gray-800">{formatDate(employee.iqamaEndM)}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الإقامة (هجري)</p>
-            <p className="font-bold text-gray-800">{employee.iqamaEndH || 'غير محدد'}</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('employees.iqamaExpiryHijri')}</p>
+            <p className="font-bold text-gray-800">{employee.iqamaEndH || t('employees.notDefined')}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الجواز</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('employees.passportExpiry')}</p>
             <p className="font-bold text-gray-800">{formatDate(employee.passportEnd)}</p>
           </div>
         </div>
@@ -259,17 +258,17 @@ export default function EmployeeDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <CreditCard size={20} />
-          المعلومات البنكية
+          {t('employees.bankingInfo')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">رقم الآيبان</p>
-            <p className="font-medium text-gray-800 font-mono">{employee.iban || 'غير محدد'}</p>
+            <p className="text-sm text-gray-600 mb-1">{t('employees.ibanNumber')}</p>
+            <p className="font-medium text-gray-800 font-mono">{employee.iban || t('employees.notDefined')}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">في السعودية (INKSA)</p>
+            <p className="text-sm text-gray-600 mb-1">{t('employees.inKSA')}</p>
             <p className={`font-bold ${employee.inksa ? 'text-green-600' : 'text-gray-600'}`}>
-              {employee.inksa ? 'نعم' : 'لا'}
+              {employee.inksa ? t('employees.yes') : t('employees.no')}
             </p>
           </div>
         </div>
@@ -279,10 +278,10 @@ export default function EmployeeDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Calendar size={20} />
-          التسجيل
+          {t('employees.registrationSection')}
         </h3>
         <div>
-          <p className="text-sm text-gray-600 mb-1">تاريخ الإضافة للنظام</p>
+          <p className="text-sm text-gray-600 mb-1">{t('employees.addedToSystemDate')}</p>
           <p className="font-medium text-gray-800">
             {formatDate(employee.createdAt)}
           </p>
@@ -291,21 +290,21 @@ export default function EmployeeDetailsPage() {
 
       {/* Action Buttons */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('common.quickActions')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Button
             onClick={() => router.push(`/employees/admin/${iqamaNo}/edit`)}
             variant="secondary"
           >
             <Edit size={18} className="ml-2" />
-            تعديل البيانات
+            {t('employees.editData')}
           </Button>
           <Button
             onClick={() => router.push('/employees/admin')}
             variant="secondary"
           >
             <ArrowRight size={18} className="ml-2" />
-            العودة للقائمة
+            {t('employees.backToList')}
           </Button>
         </div>
       </Card>

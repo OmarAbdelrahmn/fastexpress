@@ -8,6 +8,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import {
     History, ArrowRight, User, TrendingUp, CheckCircle,
     XCircle, Clock, Calendar, FileText, Building, Home
@@ -16,6 +17,7 @@ import {
 export default function EmployeeHistoryPage() {
     const router = useRouter();
     const params = useParams();
+    const { t, language } = useLanguage();
     const iqamaNo = params?.iqamaNo;
 
     const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function EmployeeHistoryPage() {
             setHistoryData(data);
         } catch (err) {
             console.error('Error loading employee history:', err);
-            setErrorMessage(err?.message || 'حدث خطأ في تحميل سجل الموظف');
+            setErrorMessage(err?.message || t('employees.historyLoadError'));
         } finally {
             setLoading(false);
         }
@@ -46,19 +48,19 @@ export default function EmployeeHistoryPage() {
         if (resolution === 'Approved') {
             return (
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    تمت الموافقة
+                    {t('employees.approved')}
                 </span>
             );
         } else if (resolution === 'Rejected') {
             return (
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    مرفوض
+                    {t('employees.rejected')}
                 </span>
             );
         }
         return (
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                قيد الانتظار
+                {t('employees.pending')}
             </span>
         );
     };
@@ -67,14 +69,14 @@ export default function EmployeeHistoryPage() {
         return (
             <div className="space-y-6">
                 <PageHeader
-                    title="سجل تغيير الحالة"
-                    subtitle="جاري التحميل..."
+                    title={t('employees.historyTitle')}
+                    subtitle={t('common.loading')}
                     icon={History}
                 />
                 <Card>
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                        <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+                        <p className="mt-4 text-gray-600">{t('employees.loadingHistory')}</p>
                     </div>
                 </Card>
             </div>
@@ -85,11 +87,11 @@ export default function EmployeeHistoryPage() {
         return (
             <div className="space-y-6">
                 <PageHeader
-                    title="سجل تغيير الحالة"
-                    subtitle="لم يتم العثور على بيانات"
+                    title={t('employees.historyTitle')}
+                    subtitle={t('employees.noHistoryData')}
                     icon={History}
                     actionButton={{
-                        text: 'العودة',
+                        text: t('common.back'),
                         icon: <ArrowRight size={18} />,
                         onClick: () => router.push('/employees/admin'),
                         variant: 'secondary'
@@ -99,7 +101,7 @@ export default function EmployeeHistoryPage() {
                     <div className="text-center py-12">
                         <FileText className="mx-auto text-gray-400 mb-4" size={64} />
                         <h3 className="text-xl font-bold text-gray-800 mb-2">
-                            لا توجد بيانات
+                            {t('employees.noData')}
                         </h3>
                     </div>
                 </Card>
@@ -110,11 +112,11 @@ export default function EmployeeHistoryPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="سجل تغيير حالة الموظف"
-                subtitle={`رقم الإقامة: ${historyData.iqamaNo}`}
+                title={t('employees.historySubtitle')}
+                subtitle={`${t('employees.iqamaNumber')}: ${historyData.iqamaNo}`}
                 icon={History}
                 actionButton={{
-                    text: 'العودة',
+                    text: t('common.back'),
                     icon: <ArrowRight size={18} />,
                     onClick: () => router.push('/employees/admin'),
                     variant: 'secondary'
@@ -124,7 +126,7 @@ export default function EmployeeHistoryPage() {
             {errorMessage && (
                 <Alert
                     type="error"
-                    title="خطأ"
+                    title={t('common.error')}
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
                 />
@@ -134,34 +136,34 @@ export default function EmployeeHistoryPage() {
             <Card>
                 <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <User size={20} />
-                    معلومات الموظف
+                    {t('employees.employeeInfoSection')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">رقم الإقامة</p>
+                        <p className="text-sm text-gray-600 mb-1">{t('employees.iqamaNumber')}</p>
                         <p className="font-bold text-gray-800">{historyData.iqamaNo}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">الاسم (عربي)</p>
+                        <p className="text-sm text-gray-600 mb-1">{t('employees.nameArabic')}</p>
                         <p className="font-bold text-gray-800">{historyData.nameAR}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">الاسم (إنجليزي)</p>
+                        <p className="text-sm text-gray-600 mb-1">{t('employees.nameEnglish')}</p>
                         <p className="font-bold text-gray-800">{historyData.nameEN}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">الحالة الحالية</p>
+                        <p className="text-sm text-gray-600 mb-1">{t('employees.currentStatus')}</p>
                         <StatusBadge status={historyData.currentStatus} />
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">نوع الموظف</p>
+                        <p className="text-sm text-gray-600 mb-1">{t('employees.employeeType')}</p>
                         <p className="font-medium text-gray-800">{historyData.employeeType}</p>
                     </div>
                     {historyData.companyName && (
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
                                 <Building size={14} />
-                                الشركة
+                                {t('employees.company')}
                             </p>
                             <p className="font-medium text-gray-800">{historyData.companyName}</p>
                         </div>
@@ -170,7 +172,7 @@ export default function EmployeeHistoryPage() {
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
                                 <Home size={14} />
-                                السكن
+                                {t('employees.housing')}
                             </p>
                             <p className="font-medium text-gray-800">{historyData.housingName}</p>
                         </div>
@@ -183,7 +185,7 @@ export default function EmployeeHistoryPage() {
                 <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-blue-600 mb-1">إجمالي التغييرات</p>
+                            <p className="text-sm text-blue-600 mb-1">{t('employees.totalChanges')}</p>
                             <p className="text-3xl font-bold text-blue-700">{historyData.totalStatusChanges}</p>
                         </div>
                         <TrendingUp className="text-blue-500" size={40} />
@@ -193,7 +195,7 @@ export default function EmployeeHistoryPage() {
                 <div className="bg-yellow-50 border-r-4 border-yellow-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-yellow-600 mb-1">طلبات معلقة</p>
+                            <p className="text-sm text-yellow-600 mb-1">{t('employees.pendingRequests')}</p>
                             <p className="text-3xl font-bold text-yellow-700">{historyData.pendingRequests}</p>
                         </div>
                         <Clock className="text-yellow-500" size={40} />
@@ -203,7 +205,7 @@ export default function EmployeeHistoryPage() {
                 <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-green-600 mb-1">تمت الموافقة</p>
+                            <p className="text-sm text-green-600 mb-1">{t('employees.approvedRequests')}</p>
                             <p className="text-3xl font-bold text-green-700">{historyData.approvedChanges}</p>
                         </div>
                         <CheckCircle className="text-green-500" size={40} />
@@ -213,7 +215,7 @@ export default function EmployeeHistoryPage() {
                 <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-red-600 mb-1">مرفوضة</p>
+                            <p className="text-sm text-red-600 mb-1">{t('employees.rejectedRequests')}</p>
                             <p className="text-3xl font-bold text-red-700">{historyData.rejectedChanges}</p>
                         </div>
                         <XCircle className="text-red-500" size={40} />
@@ -225,7 +227,7 @@ export default function EmployeeHistoryPage() {
             <Card>
                 <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Calendar size={20} />
-                    سجل تغيير الحالة ({historyData.statusChangeHistory?.length || 0})
+                    {t('employees.statusChangeHistory')} ({historyData.statusChangeHistory?.length || 0})
                 </h3>
 
                 {historyData.statusChangeHistory && historyData.statusChangeHistory.length > 0 ? (
@@ -244,7 +246,7 @@ export default function EmployeeHistoryPage() {
 
                                         {change.reason && (
                                             <div className="bg-white border border-blue-200 p-3 rounded-lg mb-2">
-                                                <p className="text-sm font-bold text-blue-800 mb-1">سبب الطلب:</p>
+                                                <p className="text-sm font-bold text-blue-800 mb-1">{t('employees.requestReasonLabel')}:</p>
                                                 <p className="text-sm text-gray-700">{change.reason}</p>
                                             </div>
                                         )}
@@ -252,21 +254,21 @@ export default function EmployeeHistoryPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                 <User size={14} />
-                                                <span>مقدم الطلب: {change.requestedBy}</span>
+                                                <span>{t('employees.requestedBy')}: {change.requestedBy}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                 <Clock size={14} />
-                                                <span>تاريخ الطلب: {new Date(change.requestedAt).toLocaleString('ar-SA')}</span>
+                                                <span>{t('employees.requestDate')}: {new Date(change.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
                                             </div>
                                             {change.isResolved && change.resolvedBy && (
                                                 <>
                                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                                         <User size={14} />
-                                                        <span>تم الحل بواسطة: {change.resolvedBy}</span>
+                                                        <span>{t('employees.resolvedBy')}: {change.resolvedBy}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                                         <Clock size={14} />
-                                                        <span>تاريخ الحل: {new Date(change.resolvedAt).toLocaleString('ar-SA')}</span>
+                                                        <span>{t('employees.resolvedDate')}: {new Date(change.resolvedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
                                                     </div>
                                                 </>
                                             )}
@@ -274,7 +276,7 @@ export default function EmployeeHistoryPage() {
 
                                         {change.adminNotes && (
                                             <div className="mt-3 bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                                                <p className="text-sm font-bold text-yellow-800 mb-1">ملاحظات المسؤول:</p>
+                                                <p className="text-sm font-bold text-yellow-800 mb-1">{t('employees.adminNotes')}:</p>
                                                 <p className="text-sm text-gray-700">{change.adminNotes}</p>
                                             </div>
                                         )}
@@ -286,7 +288,7 @@ export default function EmployeeHistoryPage() {
                 ) : (
                     <div className="text-center py-12">
                         <FileText className="mx-auto text-gray-400 mb-4" size={48} />
-                        <p className="text-gray-600">لا يوجد سجل لتغيير الحالة لهذا الموظف</p>
+                        <p className="text-gray-600">{t('employees.noStatusChangeHistory')}</p>
                     </div>
                 )}
             </Card>

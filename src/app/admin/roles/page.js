@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { Shield, Check, X, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function RolesManagementPage() {
+    const { t } = useLanguage();
     const { get, put, loading, error } = useApi();
     const [roles, setRoles] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
@@ -29,10 +31,10 @@ export default function RolesManagementPage() {
         const res = await put(API_ENDPOINTS.ROLES.TOGGLE_STATUS(roleName), {});
 
         if (res.data || res.error === null) {
-            setSuccessMessage(`تم تغيير حالة الدور ${roleName} بنجاح`);
+            setSuccessMessage(t('admin.roleToggleSuccess', { roleName }));
             fetchRoles();
         } else {
-            setErrorMessage(res.error || "فشل تغيير حالة الدور");
+            setErrorMessage(res.error || t('admin.roleToggleError'));
         }
     };
 
@@ -43,10 +45,10 @@ export default function RolesManagementPage() {
                 <div>
                     <h1 className="text-2xl font-bold flex items-center gap-2">
                         <Shield className="w-8 h-8 text-purple-600" />
-                        إدارة الأدوار
+                        {t('admin.manageRoles')}
                     </h1>
                     <p className="text-gray-500 mt-1">
-                        التحكم في تفعيل وتعطيل الأدوار في النظام
+                        {t('admin.rolesSubtitle')}
                     </p>
                 </div>
             </div>
@@ -65,19 +67,19 @@ export default function RolesManagementPage() {
                 </div>
             )}
 
-            {loading && <div className="text-center py-8">جاري التحميل...</div>}
+            {loading && <div className="text-center py-8">{t('common.loading')}</div>}
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <Shield className="w-6 h-6 text-purple-600" />
-                        <h2 className="text-lg font-bold">كل الأدوار المتاحة</h2>
+                        <h2 className="text-lg font-bold">{t('admin.allRoles')}</h2>
                     </div>
                 </div>
 
                 <div className="space-y-3">
                     {roles.length === 0 ? (
-                        <p className="text-gray-500 text-center py-4">لا توجد أدوار متاحة</p>
+                        <p className="text-gray-500 text-center py-4">{t('admin.noRolesAvailable')}</p>
                     ) : (
                         roles.map((role, idx) => (
                             <div
@@ -95,7 +97,7 @@ export default function RolesManagementPage() {
                                         ? "bg-red-100 text-red-700"
                                         : "bg-green-100 text-green-700"
                                         }`}>
-                                        {role.isDeleted ? "محذوف / غير نشط" : "نشط"}
+                                        {role.isDeleted ? t('admin.deletedInactive') : t('status.enable')}
                                     </span>
                                 </div>
 
@@ -108,11 +110,11 @@ export default function RolesManagementPage() {
                                 >
                                     {role.isDeleted ? (
                                         <>
-                                            <Check className="w-4 h-4" /> تفعيل
+                                            <Check className="w-4 h-4" /> {t('admin.enableAction')}
                                         </>
                                     ) : (
                                         <>
-                                            <X className="w-4 h-4" /> تعطيل
+                                            <X className="w-4 h-4" /> {t('admin.disableAction')}
                                         </>
                                     )}
                                 </button>

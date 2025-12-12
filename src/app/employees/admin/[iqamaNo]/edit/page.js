@@ -9,11 +9,13 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { Edit, ArrowRight, Save } from 'lucide-react';
 
 export default function EditEmployeePage() {
   const router = useRouter();
   const params = useParams();
+  const { t } = useLanguage();
   const iqamaNo = params?.iqamaNo;
 
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ export default function EditEmployeePage() {
       }
     } catch (err) {
       console.error('Error loading employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات الموظف');
+      setErrorMessage(err?.message || t('employees.editLoadError'));
     } finally {
       setLoadingData(false);
     }
@@ -149,13 +151,13 @@ export default function EditEmployeePage() {
 
       await ApiService.put(API_ENDPOINTS.EMPLOYEE.UPDATE(iqamaNo), requestData);
 
-      setSuccessMessage('تم تحديث بيانات الموظف بنجاح');
+      setSuccessMessage(t('employees.updateSuccess'));
       setTimeout(() => {
         router.push('/employees/admin');
       }, 2000);
     } catch (err) {
       console.error('Error updating employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء تحديث بيانات الموظف');
+      setErrorMessage(err?.message || t('employees.updateError'));
     } finally {
       setLoading(false);
     }
@@ -165,14 +167,14 @@ export default function EditEmployeePage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تعديل بيانات الموظف"
-          subtitle="جاري التحميل..."
+          title={t('employees.editTitle')}
+          subtitle={t('employees.loadingData')}
           icon={Edit}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t('employees.loadingData')}</p>
           </div>
         </Card>
       </div>
@@ -182,11 +184,11 @@ export default function EditEmployeePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تعديل بيانات الموظف"
-        subtitle={`رقم الإقامة: ${iqamaNo}`}
+        title={t('employees.editTitle')}
+        subtitle={`${t('employees.iqamaNumber')}: ${iqamaNo}`}
         icon={Edit}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('employees.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/employees/admin'),
           variant: 'secondary'
@@ -196,7 +198,7 @@ export default function EditEmployeePage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -205,7 +207,7 @@ export default function EditEmployeePage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -214,55 +216,55 @@ export default function EditEmployeePage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات الشخصية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.personalInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="الاسم (عربي)"
+              label={t('employees.nameArabic')}
               type="text"
               name="nameAR"
               value={formData.nameAR}
               onChange={handleInputChange}
-              placeholder="أدخل الاسم بالعربي"
+              placeholder={t('employees.enterNameArabic')}
             />
 
             <Input
-              label="الاسم (إنجليزي)"
+              label={t('employees.nameEnglish')}
               type="text"
               name="nameEN"
               value={formData.nameEN}
               onChange={handleInputChange}
-              placeholder="أدخل الاسم بالإنجليزي"
+              placeholder={t('employees.enterNameEnglish')}
             />
 
             <Input
-              label="رقم الجواز"
+              label={t('employees.passportNumber')}
               type="text"
               name="passportNo"
               value={formData.passportNo}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الجواز"
+              placeholder={t('employees.enterPassportNumber')}
             />
 
             <Input
-              label="البلد"
+              label={t('employees.country')}
               type="text"
               name="country"
               value={formData.country}
               onChange={handleInputChange}
-              placeholder="أدخل البلد"
+              placeholder={t('employees.enterCountry')}
             />
 
             <Input
-              label="رقم الهاتف"
+              label={t('employees.phone')}
               type="text"
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              placeholder="05xxxxxxxx"
+              placeholder={t('employees.enterPhone')}
             />
 
             <Input
-              label="تاريخ الميلاد"
+              label={t('employees.dateOfBirth')}
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
@@ -271,7 +273,7 @@ export default function EditEmployeePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الحالة
+                {t('employees.statusLabel')}
               </label>
               <select
                 name="status"
@@ -279,12 +281,12 @@ export default function EditEmployeePage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="enable">نشط</option>
-                <option value="disable">غير نشط</option>
-                <option value="fleeing">هارب</option>
-                <option value="vacation">إجازة</option>
-                <option value="accident">حادث</option>
-                <option value="sick">مريض</option>
+                <option value="enable">{t('employees.statusActive')}</option>
+                <option value="disable">{t('employees.statusInactive')}</option>
+                <option value="fleeing">{t('employees.statusFleeing')}</option>
+                <option value="vacation">{t('employees.statusVacation')}</option>
+                <option value="accident">{t('employees.statusAccident')}</option>
+                <option value="sick">{t('employees.statusSick')}</option>
               </select>
             </div>
           </div>
@@ -292,10 +294,10 @@ export default function EditEmployeePage() {
 
         {/* Iqama & Passport Details */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">تفاصيل الإقامة والجواز</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.iqamaPassportDetails')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="تاريخ انتهاء الإقامة (ميلادي)"
+              label={t('employees.iqamaExpiryGregorian')}
               type="date"
               name="iqamaEndM"
               value={formData.iqamaEndM}
@@ -303,17 +305,17 @@ export default function EditEmployeePage() {
             />
 
             <Input
-              label="تاريخ انتهاء الإقامة (هجري)"
+              label={t('employees.iqamaExpiryHijriInput')}
               type="text"
               name="iqamaEndH"
-              placeholder="مثال: 25-10-1425"
+              placeholder={t('employees.hijriExample')}
               value={formData.iqamaEndH}
               onChange={handleInputChange}
               dir="rtl"
             />
 
             <Input
-              label="تاريخ انتهاء الجواز"
+              label={t('employees.passportExpiryDate')}
               type="date"
               name="passportEnd"
               value={formData.passportEnd}
@@ -324,48 +326,48 @@ export default function EditEmployeePage() {
 
         {/* Sponsor Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات الكفالة</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.sponsorInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              label="رقم الكفيل"
+              label={t('employees.sponsorNumber')}
               type="number"
               name="sponsorNo"
               value={formData.sponsorNo}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الكفيل"
+              placeholder={t('employees.enterSponsorNumber')}
             />
 
             <Input
-              label="الكفيل"
+              label={t('employees.sponsorName')}
               type="text"
               name="sponsor"
               value={formData.sponsor}
               onChange={handleInputChange}
-              placeholder="أدخل اسم الكفيل"
+              placeholder={t('employees.enterSponsorName')}
             />
 
             <Input
-              label="المسمى الوظيفي"
+              label={t('employees.jobTitle')}
               type="text"
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
-              placeholder="مثال: موظف إداري"
+              placeholder={t('employees.jobTitleExample')}
             />
           </div>
         </Card>
 
         {/* Banking Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات البنكية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.bankingInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="رقم الآيبان"
+              label={t('employees.ibanNumberInput')}
               type="text"
               name="iban"
               value={formData.iban}
               onChange={handleInputChange}
-              placeholder="SA..."
+              placeholder={t('employees.ibanPlaceholder')}
             />
 
             <div className="flex items-center gap-2 pt-7">
@@ -377,7 +379,7 @@ export default function EditEmployeePage() {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
               />
               <label className="text-sm text-gray-700">
-                في السعودية (INKSA)
+                {t('employees.inKSACheckbox')}
               </label>
             </div>
           </div>
@@ -392,11 +394,11 @@ export default function EditEmployeePage() {
               onClick={() => router.push('/employees/admin')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              حفظ التعديلات
+              {t('employees.saveChanges')}
             </Button>
           </div>
         </Card>

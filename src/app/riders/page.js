@@ -10,10 +10,12 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, Building, Package, Filter } from 'lucide-react';
 
 export default function RidersPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [riders, setRiders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,23 +34,23 @@ export default function RidersPage() {
       setRiders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading riders:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات المناديب');
+      setErrorMessage(err?.message || t('riders.loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (iqamaNo) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المندوب؟')) return;
+    if (!confirm(t('riders.confirmDelete'))) return;
 
     try {
       await ApiService.delete(API_ENDPOINTS.RIDER.DELETE(iqamaNo));
-      setSuccessMessage('تم حذف المندوب بنجاح');
+      setSuccessMessage(t('riders.deleteSuccess'));
       loadRiders();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error deleting rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في حذف المندوب');
+      setErrorMessage(err?.message || t('riders.deleteError'));
       setTimeout(() => setErrorMessage(''), 5000);
     }
   };
@@ -63,17 +65,17 @@ export default function RidersPage() {
 
   const columns = [
     {
-      header: 'رقم العمل',
+      header: t('riders.workingId'),
       accessor: 'workingId',
       render: (row) => (
         <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
       )
     },
-    { header: 'رقم الإقامة', accessor: 'iqamaNo' },
-    { header: 'الاسم (عربي)', accessor: 'nameAR' },
-    { header: 'الاسم (إنجليزي)', accessor: 'nameEN' },
+    { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
+    { header: t('riders.nameArabic'), accessor: 'nameAR' },
+    { header: t('riders.nameEnglish'), accessor: 'nameEN' },
     {
-      header: 'الشركة',
+      header: t('riders.company'),
       accessor: 'companyName',
       render: (row) => (
         <div className="flex items-center gap-2">
@@ -83,39 +85,39 @@ export default function RidersPage() {
       )
     },
     {
-      header: 'السكن',
+      header: t('riders.housing'),
       accessor: 'housingAddress',
       render: (row) => (
-        <span className="text-gray-600">{row.housingAddress || 'غير محدد'}</span>
+        <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
       )
     },
     {
-      header: 'الحالة',
+      header: t('common.status'),
       accessor: 'status',
       render: (row) => <StatusBadge status={row.status} />
     },
     {
-      header: 'الإجراءات',
+      header: t('riders.actions'),
       render: (row) => (
         <div className="flex gap-2">
           <button
             onClick={() => handleViewDetails(row.iqamaNo)}
             className="text-green-600 hover:text-green-800 p-1"
-            title="عرض التفاصيل"
+            title={t('riders.viewDetails')}
           >
             <Eye size={18} />
           </button>
           <button
             onClick={() => handleEdit(row.iqamaNo)}
             className="text-blue-600 hover:text-blue-800 p-1"
-            title="تعديل"
+            title={t('riders.edit')}
           >
             <Edit size={18} />
           </button>
           <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1"
-            title="حذف"
+            title={t('riders.delete')}
           >
             <Trash2 size={18} />
           </button>
@@ -145,11 +147,11 @@ export default function RidersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة المناديب"
-        subtitle={`إجمالي المناديب: ${riders.length}`}
+        title={t('riders.manageRiders')}
+        subtitle={`${t('riders.totalRiders')}: ${riders.length}`}
         icon={UserCheck}
         actionButton={{
-          text: 'إضافة مندوب جديد',
+          text: t('riders.addNewRider'),
           icon: <Plus size={18} />,
           onClick: () => router.push('/riders/create'),
         }}
@@ -160,7 +162,7 @@ export default function RidersPage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 mb-1">إجمالي المناديب</p>
+              <p className="text-sm text-blue-600 mb-1">{t('riders.totalRiders')}</p>
               <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
             </div>
             <Users className="text-blue-500" size={40} />
@@ -170,7 +172,7 @@ export default function RidersPage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 mb-1">المناديب النشطين</p>
+              <p className="text-sm text-green-600 mb-1">{t('riders.activeRiders')}</p>
               <p className="text-3xl font-bold text-green-700">{stats.active}</p>
             </div>
             <UserCheck className="text-green-500" size={40} />
@@ -180,7 +182,7 @@ export default function RidersPage() {
         <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-600 mb-1">عدد الشركات</p>
+              <p className="text-sm text-purple-600 mb-1">{t('riders.numberOfCompanies')}</p>
               <p className="text-3xl font-bold text-purple-700">{stats.companies}</p>
             </div>
             <Building className="text-purple-500" size={40} />
@@ -190,7 +192,7 @@ export default function RidersPage() {
         <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-600 mb-1">لديهم سكن</p>
+              <p className="text-sm text-orange-600 mb-1">{t('riders.withHousing')}</p>
               <p className="text-3xl font-bold text-orange-700">{stats.withHousing}</p>
             </div>
             <Package className="text-orange-500" size={40} />
@@ -201,7 +203,7 @@ export default function RidersPage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -210,7 +212,7 @@ export default function RidersPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -226,8 +228,8 @@ export default function RidersPage() {
                 <Search className="text-blue-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">البحث الذكي</h3>
-                <p className="text-sm text-gray-600">ابحث عن مندوب بأي معلومة</p>
+                <h3 className="font-bold text-gray-800">{t('riders.smartSearch')}</h3>
+                <p className="text-sm text-gray-600">{t('riders.searchByAnyInfo')}</p>
               </div>
             </div>
           </button>
@@ -243,8 +245,8 @@ export default function RidersPage() {
                 <Filter className="text-purple-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">البحث المتقدم</h3>
-                <p className="text-sm text-gray-600">تصفية متعددة</p>
+                <h3 className="font-bold text-gray-800">{t('riders.advancedSearch')}</h3>
+                <p className="text-sm text-gray-600">{t('riders.multiFilter')}</p>
               </div>
             </div>
           </button>
@@ -260,8 +262,8 @@ export default function RidersPage() {
                 <Package className="text-orange-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">تغيير رقم العمل</h3>
-                <p className="text-sm text-gray-600">تحديث رقم عمل المندوب</p>
+                <h3 className="font-bold text-gray-800">{t('riders.changeWorkingId')}</h3>
+                <p className="text-sm text-gray-600">{t('riders.updateWorkingId')}</p>
               </div>
             </div>
           </button>
@@ -277,8 +279,8 @@ export default function RidersPage() {
                 <Plus className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">إضافة إلى موظف</h3>
-                <p className="text-sm text-gray-600">تحويل موظف إلى مندوب</p>
+                <h3 className="font-bold text-gray-800">{t('riders.addToEmployee')}</h3>
+                <p className="text-sm text-gray-600">{t('riders.convertEmployeeToRider')}</p>
               </div>
             </div>
           </button>
@@ -290,7 +292,7 @@ export default function RidersPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="البحث بالاسم، رقم العمل، رقم الإقامة، الشركة، البلد، أو الكفيل..."
+              placeholder={t('riders.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"

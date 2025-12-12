@@ -5,8 +5,10 @@ import { GitCompare, Search, TrendingUp, TrendingDown, Calendar, Clock, AlertTri
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function CompareRidersPage() {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [comparisons, setComparisons] = useState([]);
   const [period1Start, setPeriod1Start] = useState('');
@@ -16,38 +18,20 @@ export default function CompareRidersPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [expandedRider, setExpandedRider] = useState(null);
 
-  // const loadComparison = async () => {
-  //   if (!period1Start || !period1End || !period2Start || !period2End) {
-  //     setMessage({ type: 'error', text: 'الرجاء تحديد جميع التواريخ' });
-  //     return;
-      
-  //   }
-
-  //   setLoading(true);
-  //   setMessage({ type: '', text: '' });
-    
-  //   setTimeout(() => {
-  //     setComparisons([]);
-  //     setMessage({ type: 'success', text: 'تم تحميل البيانات بنجاح' });
-  //     setLoading(false);
-  //   }, 1000);
-  // };
-
-
   const loadComparison = async () => {
     if (!period1Start || !period1End || !period2Start || !period2End) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد جميع التواريخ' });
+      setMessage({ type: 'error', text: t('reports.comparison.pleaseSelectDates') });
       return;
     }
 
     setLoading(true);
     setMessage({ type: '', text: '' });
     setComparisons([]);
-    
+
     try {
-            const data = await ApiService.get(
+      const data = await ApiService.get(
         API_ENDPOINTS.REPORTS.RIDERS_COMPARE_PERIODS,
-        {  
+        {
           period1Start,
           period1End,
           period2Start,
@@ -61,27 +45,28 @@ export default function CompareRidersPage() {
         setComparisons(data);
         setMessage({
           type: 'success',
-          text: `تم تحميل بيانات ${data.length} مندوب بنجاح`
+          text: t('reports.comparison.ridersLoadedSuccess', { count: data.length })
         });
       } else {
         setComparisons([]);
         setMessage({
           type: 'warning',
-          text: 'لا توجد بيانات للمقارنة في الفترتين المحددتين'
+          text: t('reports.comparison.noDataForComparisonPeriods')
         });
       }
 
     } catch (error) {
       console.error('Error fetching comparison data:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'حدث خطأ أثناء تحميل البيانات. الرجاء المحاولة مرة أخرى' 
+      setMessage({
+        type: 'error',
+        text: t('reports.comparison.errorLoadingComparison')
       });
       setComparisons([]);
     } finally {
       setLoading(false);
     }
   };
+
   const getChangeColor = (value) => {
     if (value > 0) return 'text-green-600';
     if (value < 0) return 'text-red-600';
@@ -116,12 +101,12 @@ export default function CompareRidersPage() {
       <div className="flex items-center justify-between gap-3 mb-2">
         <div className="text-center flex-1">
           <p className="text-sm text-blue-600 font-bold">{period1Value}</p>
-          <p className="text-xs text-gray-400">الفترة 1</p>
+          <p className="text-xs text-gray-400">{t('reports.comparison.period1')}</p>
         </div>
-        <div className="text-gray-400 text-lg rtl:rotate-180">→</div>
+        <div className={`text-gray-400 text-lg ${language === 'ar' ? 'rotate-180' : ''}`}>→</div>
         <div className="text-center flex-1">
           <p className="text-sm text-purple-600 font-bold">{period2Value}</p>
-          <p className="text-xs text-gray-400">الفترة 2</p>
+          <p className="text-xs text-gray-400">{t('reports.comparison.period2')}</p>
         </div>
       </div>
       <div className={`text-center text-xs font-bold ${getChangeColor(difference)}`}>
@@ -133,34 +118,21 @@ export default function CompareRidersPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       {/* Header */}
-      {/* <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 mb-2">
-            <GitCompare size={40} />
-            <div>
-              <h1 className="text-3xl font-bold">مقارنة المناديب</h1>
-              <p className="text-blue-100 mt-1">مقارنة شاملة لأداء جميع المناديب بين فترتين زمنيتين</p>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       <PageHeader
-        title="مقارنة المناديب"
-        subtitle="مقارنة شاملة لأداء جميع المناديب بين فترتين زمنيتين"
+        title={t('reports.comparison.ridersCompareTitle')}
+        subtitle={t('reports.comparison.ridersCompareSubtitle')}
         icon={GitCompare}
       />
 
       {/* Alert Message */}
       {message.text && (
         <div className="max-w-7xl mx-auto px-6 mt-6">
-          <div className={`p-4 rounded-lg ${
-            message.type === 'error' ? 'bg-red-100 text-red-800' :
+          <div className={`p-4 rounded-lg ${message.type === 'error' ? 'bg-red-100 text-red-800' :
             message.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-green-100 text-green-800'
-          }`}>
+              'bg-green-100 text-green-800'
+            }`}>
             <p>{message.text}</p>
           </div>
         </div>
@@ -174,11 +146,11 @@ export default function CompareRidersPage() {
             <div className="border-2 border-blue-300 rounded-lg p-5 bg-blue-50">
               <h3 className="font-bold text-blue-700 mb-4 flex items-center gap-2">
                 <Calendar size={20} />
-                الفترة الأولى
+                {t('reports.comparison.period1')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.from')}</label>
                   <input
                     type="date"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -187,7 +159,7 @@ export default function CompareRidersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.to')}</label>
                   <input
                     type="date"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -202,11 +174,11 @@ export default function CompareRidersPage() {
             <div className="border-2 border-purple-300 rounded-lg p-5 bg-purple-50">
               <h3 className="font-bold text-purple-700 mb-4 flex items-center gap-2">
                 <Calendar size={20} />
-                الفترة الثانية
+                {t('reports.comparison.period2')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">من تاريخ</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.from')}</label>
                   <input
                     type="date"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
@@ -215,7 +187,7 @@ export default function CompareRidersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">إلى تاريخ</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.to')}</label>
                   <input
                     type="date"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
@@ -235,12 +207,12 @@ export default function CompareRidersPage() {
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                جاري التحميل...
+                {t('reports.comparison.loadingDataText')}
               </>
             ) : (
               <>
                 <Search size={20} />
-                مقارنة الفترات
+                {t('reports.comparison.comparePeriods')}
               </>
             )}
           </button>
@@ -253,26 +225,26 @@ export default function CompareRidersPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg shadow-md p-5 text-center border-t-4 border-blue-500">
               <Users className="mx-auto mb-2 text-blue-500" size={32} />
-              <p className="text-gray-600 text-sm mb-1">إجمالي المناديب</p>
+              <p className="text-gray-600 text-sm mb-1">{t('reports.comparison.totalRiders')}</p>
               <p className="text-3xl font-bold text-blue-600">{comparisons.length}</p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-5 text-center border-t-4 border-green-500">
               <TrendingUp className="mx-auto mb-2 text-green-500" size={32} />
-              <p className="text-gray-600 text-sm mb-1">تحسن الأداء</p>
+              <p className="text-gray-600 text-sm mb-1">{t('reports.comparison.performanceImprovement')}</p>
               <p className="text-3xl font-bold text-green-600">
                 {comparisons.filter(c => c.verdict?.overallResult === 'Better').length}
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-5 text-center border-t-4 border-red-500">
               <TrendingDown className="mx-auto mb-2 text-red-500" size={32} />
-              <p className="text-gray-600 text-sm mb-1">تراجع الأداء</p>
+              <p className="text-gray-600 text-sm mb-1">{t('reports.comparison.performanceDeclineCount')}</p>
               <p className="text-3xl font-bold text-red-600">
                 {comparisons.filter(c => c.verdict?.overallResult === 'Worse').length}
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-5 text-center border-t-4 border-yellow-500">
               <BarChart3 className="mx-auto mb-2 text-yellow-500" size={32} />
-              <p className="text-gray-600 text-sm mb-1">أداء مختلط</p>
+              <p className="text-gray-600 text-sm mb-1">{t('reports.comparison.mixedPerformanceCount')}</p>
               <p className="text-3xl font-bold text-yellow-600">
                 {comparisons.filter(c => c.verdict?.overallResult === 'Mixed').length}
               </p>
@@ -287,22 +259,22 @@ export default function CompareRidersPage() {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
               <GitCompare size={24} />
-              نتائج المقارنة التفصيلية ({comparisons.length})
+              {t('reports.comparison.detailedComparisonResults')} ({comparisons.length})
             </h3>
           </div>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
-              <p className="text-gray-600">جاري تحميل البيانات...</p>
+              <p className="text-gray-600">{t('reports.comparison.loadingDataText')}</p>
             </div>
           ) : comparisons.length === 0 ? (
             <div className="text-center py-16">
               <GitCompare size={64} className="mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500 text-lg">
-                {period1Start && period2Start 
-                  ? 'لا توجد بيانات للمقارنة في الفترتين المحددتين' 
-                  : 'الرجاء تحديد الفترتين للمقارنة'}
+                {period1Start && period2Start
+                  ? t('reports.comparison.noDataForComparisonPeriods')
+                  : t('reports.comparison.noDataSelectPeriods')}
               </p>
             </div>
           ) : (
@@ -318,22 +290,21 @@ export default function CompareRidersPage() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-gray-800">{comparison.riderName}</h3>
-                          <p className="text-sm text-gray-600">رقم العمل: <span className="font-bold">{comparison.workingId}</span></p>
+                          <p className="text-sm text-gray-600">{t('reports.comparison.workingNumber')}: <span className="font-bold">{comparison.workingId}</span></p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         {comparison.verdict?.improvementScore && (
                           <div className="text-center bg-white rounded-lg px-4 py-2 shadow-sm">
-                            <p className="text-xs text-gray-500">درجة التحسن</p>
+                            <p className="text-xs text-gray-500">{t('reports.comparison.improvementScore')}</p>
                             <p className="text-2xl font-bold text-blue-600">{formatNumber(comparison.verdict.improvementScore)}</p>
                           </div>
                         )}
-                        <span className={`px-6 py-3 rounded-full text-base font-bold border-2 shadow-sm ${
-                          getVerdictColor(comparison.verdict?.overallResult)
-                        }`}>
-                          {comparison.verdict?.overallResult === 'Better' ? '✓ أداء متحسن' :
-                           comparison.verdict?.overallResult === 'Worse' ? '✗ أداء متراجع' :
-                           comparison.verdict?.overallResult === 'Mixed' ? '⚡ أداء مختلط' : '= أداء ثابت'}
+                        <span className={`px-6 py-3 rounded-full text-base font-bold border-2 shadow-sm ${getVerdictColor(comparison.verdict?.overallResult)
+                          }`}>
+                          {comparison.verdict?.overallResult === 'Better' ? t('reports.comparison.improvedPerformance') :
+                            comparison.verdict?.overallResult === 'Worse' ? t('reports.comparison.declinedPerformance') :
+                              comparison.verdict?.overallResult === 'Mixed' ? t('reports.comparison.mixedPerformanceLabel') : t('reports.comparison.stablePerformance')}
                         </span>
                       </div>
                     </div>
@@ -351,11 +322,11 @@ export default function CompareRidersPage() {
                     <div className="mb-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <BarChart3 size={20} className="text-blue-600" />
-                        المقاييس الأساسية
+                        {t('reports.comparison.coreMetrics')}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
-                          label="أيام العمل"
+                          label={t('reports.comparison.workingDays')}
                           period1Value={comparison.period1?.workingDays}
                           period2Value={comparison.period2?.workingDays}
                           difference={comparison.comparison?.workingDaysDifference}
@@ -363,7 +334,7 @@ export default function CompareRidersPage() {
                           icon={Calendar}
                         />
                         <MetricCard
-                          label="إجمالي الطلبات المقبولة"
+                          label={t('reports.comparison.acceptedOrders')}
                           period1Value={comparison.period1?.totalAcceptedOrders}
                           period2Value={comparison.period2?.totalAcceptedOrders}
                           difference={comparison.comparison?.ordersDifference}
@@ -371,7 +342,7 @@ export default function CompareRidersPage() {
                           icon={Package}
                         />
                         <MetricCard
-                          label="متوسط الطلبات/اليوم"
+                          label={t('reports.comparison.averageOrdersPerDay')}
                           period1Value={formatNumber(comparison.period1?.averageOrdersPerDay)}
                           period2Value={formatNumber(comparison.period2?.averageOrdersPerDay)}
                           difference={comparison.comparison?.averageOrdersPerDayDifference}
@@ -379,7 +350,7 @@ export default function CompareRidersPage() {
                           icon={TrendingUp}
                         />
                         <MetricCard
-                          label="معدل الإنجاز %"
+                          label={`${t('reports.comparison.completionRate')} %`}
                           period1Value={formatNumber(comparison.period1?.completionRate)}
                           period2Value={formatNumber(comparison.period2?.completionRate)}
                           difference={comparison.comparison?.completionRateDifference}
@@ -393,11 +364,11 @@ export default function CompareRidersPage() {
                     <div className="mb-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <Clock size={20} className="text-purple-600" />
-                        الأداء وساعات العمل
+                        {t('reports.comparison.performanceAndHours')}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
-                          label="معدل الأداء %"
+                          label={`${t('reports.comparison.performanceScore')} %`}
                           period1Value={formatNumber(comparison.period1?.performanceScore)}
                           period2Value={formatNumber(comparison.period2?.performanceScore)}
                           difference={comparison.comparison?.performanceScoreDifference}
@@ -405,7 +376,7 @@ export default function CompareRidersPage() {
                           icon={BarChart3}
                         />
                         <MetricCard
-                          label="ساعات العمل الإجمالية"
+                          label={t('reports.comparison.workingHours')}
                           period1Value={formatNumber(comparison.period1?.totalWorkingHours)}
                           period2Value={formatNumber(comparison.period2?.totalWorkingHours)}
                           difference={comparison.comparison?.workingHoursDifference}
@@ -413,7 +384,7 @@ export default function CompareRidersPage() {
                           icon={Clock}
                         />
                         <MetricCard
-                          label="الطلبات المكدسة"
+                          label={t('reports.comparison.stackedDeliveries')}
                           period1Value={comparison.period1?.totalStackedDeliveries || 0}
                           period2Value={comparison.period2?.totalStackedDeliveries || 0}
                           difference={0}
@@ -421,7 +392,7 @@ export default function CompareRidersPage() {
                           icon={Package}
                         />
                         <MetricCard
-                          label="متوسط التكديس/اليوم"
+                          label={t('reports.comparison.stackedPerDay')}
                           period1Value={formatNumber(comparison.period1?.averageStackedPerDay)}
                           period2Value={formatNumber(comparison.period2?.averageStackedPerDay)}
                           difference={0}
@@ -435,11 +406,11 @@ export default function CompareRidersPage() {
                     <div className="mb-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <Calendar size={20} className="text-green-600" />
-                        تفصيل الشفتات
+                        {t('reports.comparison.shiftsBreakdown')}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
-                          label="شفتات مكتملة"
+                          label={t('reports.comparison.completed')}
                           period1Value={comparison.period1?.completedShifts}
                           period2Value={comparison.period2?.completedShifts}
                           difference={0}
@@ -447,7 +418,7 @@ export default function CompareRidersPage() {
                           icon={CheckCircle}
                         />
                         <MetricCard
-                          label="شفتات غير مكتملة"
+                          label={t('reports.comparison.incomplete')}
                           period1Value={comparison.period1?.incompleteShifts}
                           period2Value={comparison.period2?.incompleteShifts}
                           difference={0}
@@ -455,7 +426,7 @@ export default function CompareRidersPage() {
                           icon={AlertTriangle}
                         />
                         <MetricCard
-                          label="شفتات فاشلة"
+                          label={t('reports.comparison.failed')}
                           period1Value={comparison.period1?.failedShifts}
                           period2Value={comparison.period2?.failedShifts}
                           difference={0}
@@ -463,7 +434,7 @@ export default function CompareRidersPage() {
                           icon={XCircle}
                         />
                         <MetricCard
-                          label="شفتات غياب"
+                          label={t('reports.comparison.absent')}
                           period1Value={comparison.period1?.absentShifts}
                           period2Value={comparison.period2?.absentShifts}
                           difference={0}
@@ -477,11 +448,11 @@ export default function CompareRidersPage() {
                     <div className="mb-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <Package size={20} className="text-orange-600" />
-                        الطلبات والرفض
+                        {t('reports.comparison.ordersAndRejection')}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
-                          label="الطلبات المرفوضة"
+                          label={t('reports.comparison.totalRejected')}
                           period1Value={comparison.period1?.totalRejectedOrders}
                           period2Value={comparison.period2?.totalRejectedOrders}
                           difference={0}
@@ -489,7 +460,7 @@ export default function CompareRidersPage() {
                           icon={XCircle}
                         />
                         <MetricCard
-                          label="الرفض الفعلي"
+                          label={t('reports.comparison.realRejected')}
                           period1Value={comparison.period1?.totalRealRejectedOrders}
                           period2Value={comparison.period2?.totalRealRejectedOrders}
                           difference={0}
@@ -497,7 +468,7 @@ export default function CompareRidersPage() {
                           icon={XCircle}
                         />
                         <MetricCard
-                          label="معدل الرفض"
+                          label={t('reports.comparison.rejectionRate')}
                           period1Value={`${formatNumber((comparison.period1?.totalRejectedOrders / comparison.period1?.totalAcceptedOrders * 100) || 0)}%`}
                           period2Value={`${formatNumber((comparison.period2?.totalRejectedOrders / comparison.period2?.totalAcceptedOrders * 100) || 0)}%`}
                           difference={comparison.comparison?.rejectionRateDifference}
@@ -505,7 +476,7 @@ export default function CompareRidersPage() {
                           icon={TrendingDown}
                         />
                         <MetricCard
-                          label="الشفتات الإشكالية"
+                          label={t('reports.comparison.problematicShifts')}
                           period1Value={comparison.period1?.problematicShiftsCount}
                           period2Value={comparison.period2?.problematicShiftsCount}
                           difference={comparison.comparison?.problematicShiftsDifference}
@@ -519,13 +490,13 @@ export default function CompareRidersPage() {
                     <div className="mb-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <DollarSign size={20} className="text-red-600" />
-                        الغرامات
+                        {t('reports.comparison.penalties')}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <MetricCard
-                          label="إجمالي الغرامات"
-                          period1Value={`${formatNumber(comparison.period1?.totalPenaltyAmount)} ر.س`}
-                          period2Value={`${formatNumber(comparison.period2?.totalPenaltyAmount)} ر.س`}
+                          label={t('reports.comparison.totalPenalties')}
+                          period1Value={`${formatNumber(comparison.period1?.totalPenaltyAmount)}`}
+                          period2Value={`${formatNumber(comparison.period2?.totalPenaltyAmount)}`}
                           difference={comparison.comparison?.penaltyDifference}
                           changePercent={comparison.comparison?.penaltyChangePercent}
                           icon={DollarSign}
@@ -542,7 +513,7 @@ export default function CompareRidersPage() {
                             <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
                               <h5 className="font-bold text-green-800 mb-3 flex items-center gap-2">
                                 <TrendingUp size={18} />
-                                أكبر التحسينات
+                                {t('reports.comparison.largestImprovements')}
                               </h5>
                               <div className="space-y-2">
                                 {comparison.verdict.topImprovements.map((imp, i) => (
@@ -562,7 +533,7 @@ export default function CompareRidersPage() {
                             <div className="bg-red-50 rounded-lg p-4 border-2 border-red-200">
                               <h5 className="font-bold text-red-800 mb-3 flex items-center gap-2">
                                 <TrendingDown size={18} />
-                                أكبر التراجعات
+                                {t('reports.comparison.largestDeclines')}
                               </h5>
                               <div className="space-y-2">
                                 {comparison.verdict.topDeclines.map((dec, i) => (
@@ -584,7 +555,7 @@ export default function CompareRidersPage() {
                     {comparison.keyInsights && comparison.keyInsights.length > 0 && (
                       <div className="mb-6 bg-blue-50 rounded-lg p-5 border-r-4 border-blue-500">
                         <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
-                          💡 النقاط الرئيسية
+                          💡 {t('reports.comparison.keyInsights')}
                         </h4>
                         <div className="space-y-2">
                           {comparison.keyInsights.map((insight, i) => (
@@ -601,8 +572,8 @@ export default function CompareRidersPage() {
                     {comparison.recommendations && comparison.recommendations.length > 0 && (
                       <div className="bg-purple-5 0 rounded-lg p-5 border-r-4 border-purple-500">
                         <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
-                          📋 التوصيات
-                          </h4>
+                          📋 {t('reports.comparison.recommendations')}
+                        </h4>
                         <div className="space-y-2">
                           {comparison.recommendations.map((rec, i) => (
                             <p key={i} className="text-sm text-gray-700 pr-4 flex items-start">

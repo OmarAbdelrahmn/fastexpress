@@ -10,8 +10,10 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { User, Mail, MapPin } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
   const { get, put, loading, error } = useApi();
   const [userData, setUserData] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -45,11 +47,11 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const result = await put(API_ENDPOINTS.ACCOUNT.UPDATE_INFO, formData);
       if (result.data) {
-        setSuccessMessage('تم تحديث البيانات بنجاح');
+        setSuccessMessage(t('profile.updateSuccess'));
         setIsEditing(false);
         loadUserData();
         setTimeout(() => setSuccessMessage(''), 3000);
@@ -77,23 +79,23 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="الملف الشخصي"
-        subtitle="إدارة معلوماتك الشخصية"
+      <PageHeader
+        title={t('profile.title')}
+        subtitle={t('profile.subtitle')}
         icon={User}
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {error && (
-        <Alert type="error" title="خطأ" message={error} />
+        <Alert type="error" title={t('common.error')} message={error} />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,27 +106,27 @@ export default function ProfilePage() {
               <User className="text-white" size={48} />
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-1">
-              {userData?.fullName || 'اسم المستخدم'}
+              {userData?.fullName || t('profile.username')}
             </h2>
             <p className="text-gray-600 text-sm mb-4">
               @{userData?.userName}
             </p>
             {!isEditing && (
               <Button onClick={() => setIsEditing(true)} className="w-full">
-                تعديل البيانات
+                {t('profile.editData')}
               </Button>
             )}
           </div>
         </Card>
 
         {/* Profile Details Card */}
-        <Card className="lg:col-span-2" title="المعلومات الشخصية">
+        <Card className="lg:col-span-2" title={t('profile.personalInfo')}>
           {!isEditing ? (
             <div className="space-y-4">
               <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                 <User className="text-orange-500 mt-1" size={20} />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">اسم المستخدم</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('profile.username')}</p>
                   <p className="font-medium text-gray-800">{userData?.userName}</p>
                 </div>
               </div>
@@ -132,9 +134,9 @@ export default function ProfilePage() {
               <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                 <Mail className="text-orange-500 mt-1" size={20} />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">الاسم الكامل</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('profile.fullName')}</p>
                   <p className="font-medium text-gray-800">
-                    {userData?.fullName || 'لم يتم تحديده'}
+                    {userData?.fullName || t('profile.notSpecified')}
                   </p>
                 </div>
               </div>
@@ -142,9 +144,9 @@ export default function ProfilePage() {
               <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                 <MapPin className="text-orange-500 mt-1" size={20} />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">العنوان</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('profile.address')}</p>
                   <p className="font-medium text-gray-800">
-                    {userData?.address || 'لم يتم تحديده'}
+                    {userData?.address || t('profile.notSpecified')}
                   </p>
                 </div>
               </div>
@@ -152,21 +154,21 @@ export default function ProfilePage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
-                label="الاسم الكامل"
+                label={t('profile.fullName')}
                 type="text"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleInputChange}
-                placeholder="أدخل الاسم الكامل"
+                placeholder={t('profile.enterFullName')}
               />
 
               <Input
-                label="العنوان"
+                label={t('profile.address')}
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                placeholder="أدخل العنوان"
+                placeholder={t('profile.enterAddress')}
               />
 
               <div className="flex gap-3 justify-end pt-4">
@@ -175,10 +177,10 @@ export default function ProfilePage() {
                   variant="secondary"
                   onClick={handleCancel}
                 >
-                  إلغاء
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" loading={loading}>
-                  حفظ التغييرات
+                  {t('profile.saveChanges')}
                 </Button>
               </div>
             </form>

@@ -8,6 +8,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   CheckCircle,
   Search,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export default function AvailableVehiclesPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +40,7 @@ export default function AvailableVehiclesPage() {
       setAvailableVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading available vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل المركبات الجاهزة للتسليم");
+      setErrorMessage(t("errors.loadingAvailableVehicles"));
     } finally {
       setLoading(false);
     }
@@ -62,11 +64,11 @@ export default function AvailableVehiclesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="المركبات الجاهزة للتسليم"
-        subtitle={`${filteredVehicles.length} مركبة جاهزة للاستخدام`}
+        title={t("vehicles.availableVehiclesTitle")}
+        subtitle={t("vehicles.vehicleReadyCount", { count: filteredVehicles.length })}
         icon={CheckCircle}
         actionButton={{
-          text: "تحديث البيانات",
+          text: t("vehicles.refreshData"),
           icon: <CheckCircle size={18} />,
           onClick: loadAvailableVehicles,
           variant: "secondary",
@@ -76,7 +78,7 @@ export default function AvailableVehiclesPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t("common.error")}
           message={errorMessage}
           onClose={() => setErrorMessage("")}
         />
@@ -88,7 +90,7 @@ export default function AvailableVehiclesPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-600 mb-1">
-                إجمالي الجاهزة للتسليم
+                {t("vehicles.totalAvailable")}
               </p>
               <p className="text-3xl font-bold text-green-700">
                 {availableVehicles.length}
@@ -101,7 +103,7 @@ export default function AvailableVehiclesPage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 mb-1">محددة الموقع</p>
+              <p className="text-sm text-blue-600 mb-1">{t("vehicles.locatedVehicles")}</p>
               <p className="text-3xl font-bold text-blue-700">
                 {availableVehicles.filter((v) => v.location).length}
               </p>
@@ -113,7 +115,7 @@ export default function AvailableVehiclesPage() {
         <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-600 mb-1">النتائج المعروضة</p>
+              <p className="text-sm text-purple-600 mb-1">{t("vehicles.displayedResults")}</p>
               <p className="text-3xl font-bold text-purple-700">
                 {filteredVehicles.length}
               </p>
@@ -133,7 +135,7 @@ export default function AvailableVehiclesPage() {
             />
             <input
               type="text"
-              placeholder="البحث برقم اللوحة، النوع، الموقع، أو الشركة المصنعة..."
+              placeholder={t("vehicles.searchPlaceholderFull")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -146,18 +148,18 @@ export default function AvailableVehiclesPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <CheckCircle size={20} className="text-green-600" />
-          قائمة المركبات الجاهزة للتسليم
+          {t("vehicles.availableVehiclesList")}
         </h3>
 
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t("vehicles.loadingDataMessage")}</p>
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="text-center py-12">
             <Car className="mx-auto text-gray-400 mb-4" size={48} />
-            <p className="text-gray-600">لا توجد مركبات جاهزة للتسليم</p>
+            <p className="text-gray-600">{t("vehicles.noAvailableVehiclesText")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -181,7 +183,7 @@ export default function AvailableVehiclesPage() {
                     </div>
                   </div>
                   <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                    متاح
+                    {t("vehicles.availableStatus")}
                   </span>
                 </div>
 
@@ -189,7 +191,7 @@ export default function AvailableVehiclesPage() {
                   <div className="flex items-center gap-2 text-gray-700">
                     <Car size={14} />
                     <span className="text-xs">
-                      رقم تسلسلي: {vehicle.serialNumber}
+                      {t("vehicles.serialNumberLabel")} {vehicle.serialNumber}
                     </span>
                   </div>
 
@@ -214,9 +216,9 @@ export default function AvailableVehiclesPage() {
                     <div className="flex items-center gap-2 text-gray-700">
                       <Calendar size={14} />
                       <span className="text-xs">
-                        انتهاء الرخصة:{" "}
+                        {t("vehicles.licenseExpiry")}{" "}
                         {new Date(vehicle.licenseExpiryDate).toLocaleDateString(
-                          "ar-SA"
+                          "en-US"
                         )}
                       </span>
                     </div>
@@ -229,7 +231,7 @@ export default function AvailableVehiclesPage() {
                   className="w-full text-sm"
                 >
                   <Eye size={16} className="ml-2" />
-                  عرض التفاصيل
+                  {t("vehicles.viewDetails")}
                 </Button>
               </div>
             ))}
@@ -244,7 +246,7 @@ export default function AvailableVehiclesPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  تفاصيل المركبة
+                  {t("vehicles.vehicleDetails")}
                 </h2>
                 <button
                   onClick={() => setShowDetailsModal(false)}
@@ -269,45 +271,45 @@ export default function AvailableVehiclesPage() {
               <div className="space-y-4">
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h3 className="font-bold text-green-800 mb-3">
-                    المعلومات الأساسية
+                    {t("vehicles.basicInfo")}
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-green-600 mb-1">رقم اللوحة (عربي)</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.plateNumberA}
                       </p>
                     </div>
                     <div>
                       <p className="text-green-600 mb-1">
-                        رقم اللوحة (إنجليزي)
+                        {t("vehicles.plateNumberEnglish")}
                       </p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.plateNumberE || "غير محدد"}
+                        {selectedVehicle.plateNumberE || t("vehicles.notSpecified")}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">الرقم التسلسلي</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.serialNumber")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.serialNumber}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">رقم المركبة</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.vehicleNumberLabel")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.vehicleNumber}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">نوع المركبة</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.vehicleType")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.vehicleType}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">الموقع</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.location")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.location || "غير محدد"}
+                        {selectedVehicle.location || t("vehicles.notSpecified")}
                       </p>
                     </div>
                   </div>
@@ -315,19 +317,19 @@ export default function AvailableVehiclesPage() {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-bold text-gray-800 mb-3">
-                    معلومات التصنيع
+                    {t("vehicles.manufacturingInfo")}
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-600 mb-1">الشركة المصنعة</p>
+                      <p className="text-gray-600 mb-1">{t("vehicles.manufacturer")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.manufacturer || "غير محدد"}
+                        {selectedVehicle.manufacturer || t("vehicles.notSpecified")}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 mb-1">سنة الصنع</p>
+                      <p className="text-gray-600 mb-1">{t("vehicles.manufactureYear")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.manufactureYear || "غير محدد"}
+                        {selectedVehicle.manufactureYear || t("vehicles.notSpecified")}
                       </p>
                     </div>
                   </div>
@@ -335,29 +337,29 @@ export default function AvailableVehiclesPage() {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-bold text-gray-800 mb-3">
-                    معلومات المالك
+                    {t("vehicles.ownerInfo")}
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-600 mb-1">اسم المالك</p>
+                      <p className="text-gray-600 mb-1">{t("vehicles.ownerName")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.ownerName || "غير محدد"}
+                        {selectedVehicle.ownerName || t("vehicles.notSpecified")}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 mb-1">رقم هوية المالك</p>
+                      <p className="text-gray-600 mb-1">{t("vehicles.ownerIdNumber")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.ownerId || "غير محدد"}
+                        {selectedVehicle.ownerId || t("vehicles.notSpecified")}
                       </p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-gray-600 mb-1">تاريخ انتهاء الرخصة</p>
+                      <p className="text-gray-600 mb-1">{t("vehicles.licenseExpiryDate")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.licenseExpiryDate
                           ? new Date(
-                              selectedVehicle.licenseExpiryDate
-                            ).toLocaleDateString("ar-SA")
-                          : "غير محدد"}
+                            selectedVehicle.licenseExpiryDate
+                          ).toLocaleDateString("en-US")
+                          : t("vehicles.notSpecified")}
                       </p>
                     </div>
                   </div>
@@ -369,7 +371,7 @@ export default function AvailableVehiclesPage() {
                   onClick={() => setShowDetailsModal(false)}
                   variant="secondary"
                 >
-                  إغلاق
+                  {t("vehicles.close")}
                 </Button>
               </div>
             </div>

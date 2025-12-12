@@ -10,8 +10,10 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Lock, Eye, EyeOff, Shield } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function ChangePasswordPage() {
+  const { t } = useLanguage();
   const { put, loading, error } = useApi();
   const [successMessage, setSuccessMessage] = useState('');
   const [showPasswords, setShowPasswords] = useState({
@@ -43,16 +45,16 @@ export default function ChangePasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate passwords match
     if (formData.newPassord !== formData.confirmPassword) {
-      setValidationError('كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقين');
+      setValidationError(t('profile.passwordMismatch'));
       return;
     }
 
     // Validate password length
     if (formData.newPassord.length < 6) {
-      setValidationError('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+      setValidationError(t('profile.passwordTooShort'));
       return;
     }
 
@@ -64,7 +66,7 @@ export default function ChangePasswordPage() {
 
       const result = await put(API_ENDPOINTS.ACCOUNT.CHANGE_PASSWORD, payload);
       if (result.data || !result.error) {
-        setSuccessMessage('تم تغيير كلمة المرور بنجاح');
+        setSuccessMessage(t('profile.passwordChanged'));
         setFormData({
           currentPassword: '',
           newPassord: '',
@@ -79,26 +81,26 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="تغيير كلمة المرور"
-        subtitle="تحديث كلمة المرور الخاصة بك"
+      <PageHeader
+        title={t('profile.changePassword')}
+        subtitle={t('profile.changePasswordSubtitle')}
         icon={Lock}
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {(error || validationError) && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
-          message={validationError || error} 
+        <Alert
+          type="error"
+          title={t('common.error')}
+          message={validationError || error}
           onClose={() => setValidationError('')}
         />
       )}
@@ -109,30 +111,30 @@ export default function ChangePasswordPage() {
           <div className="flex items-start gap-3">
             <Shield className="text-blue-500 flex-shrink-0 mt-1" size={24} />
             <div>
-              <h3 className="font-bold text-blue-800 mb-2">نصائح الأمان</h3>
+              <h3 className="font-bold text-blue-800 mb-2">{t('profile.securityTips')}</h3>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• استخدم كلمة مرور قوية تحتوي على أحرف وأرقام ورموز</li>
-                <li>• لا تستخدم نفس كلمة المرور في مواقع أخرى</li>
-                <li>• تأكد من أن كلمة المرور لا تقل عن 6 أحرف</li>
-                <li>• لا تشارك كلمة المرور مع أي شخص</li>
+                <li>• {t('profile.securityTip1')}</li>
+                <li>• {t('profile.securityTip2')}</li>
+                <li>• {t('profile.securityTip3')}</li>
+                <li>• {t('profile.securityTip4')}</li>
               </ul>
             </div>
           </div>
         </div>
 
         {/* Change Password Form */}
-        <Card title="تغيير كلمة المرور">
+        <Card title={t('profile.changePassword')}>
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Current Password */}
             <div className="relative">
               <Input
-                label="كلمة المرور الحالية"
+                label={t('profile.currentPassword')}
                 type={showPasswords.current ? 'text' : 'password'}
                 name="currentPassword"
                 value={formData.currentPassword}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل كلمة المرور الحالية"
+                placeholder={t('profile.enterCurrentPassword')}
               />
               <button
                 type="button"
@@ -148,13 +150,13 @@ export default function ChangePasswordPage() {
             {/* New Password */}
             <div className="relative">
               <Input
-                label="كلمة المرور الجديدة"
+                label={t('profile.newPassword')}
                 type={showPasswords.new ? 'text' : 'password'}
                 name="newPassord"
                 value={formData.newPassord}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل كلمة المرور الجديدة"
+                placeholder={t('profile.enterNewPassword')}
               />
               <button
                 type="button"
@@ -168,13 +170,13 @@ export default function ChangePasswordPage() {
             {/* Confirm Password */}
             <div className="relative">
               <Input
-                label="تأكيد كلمة المرور الجديدة"
+                label={t('profile.confirmPassword')}
                 type={showPasswords.confirm ? 'text' : 'password'}
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                placeholder="أعد إدخال كلمة المرور الجديدة"
+                placeholder={t('profile.reenterNewPassword')}
               />
               <button
                 type="button"
@@ -188,18 +190,15 @@ export default function ChangePasswordPage() {
             {/* Password Strength Indicator */}
             {formData.newPassord && (
               <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-700 mb-2">قوة كلمة المرور:</p>
+                <p className="text-sm text-gray-700 mb-2">{t('profile.passwordStrength')}:</p>
                 <div className="flex gap-1">
-                  <div className={`h-2 flex-1 rounded ${
-                    formData.newPassord.length >= 6 ? 'bg-green-500' : 'bg-gray-300'
-                  }`}></div>
-                  <div className={`h-2 flex-1 rounded ${
-                    formData.newPassord.length >= 8 ? 'bg-green-500' : 'bg-gray-300'
-                  }`}></div>
-                  <div className={`h-2 flex-1 rounded ${
-                    /[0-9]/.test(formData.newPassord) && /[a-zA-Z]/.test(formData.newPassord) 
+                  <div className={`h-2 flex-1 rounded ${formData.newPassord.length >= 6 ? 'bg-green-500' : 'bg-gray-300'
+                    }`}></div>
+                  <div className={`h-2 flex-1 rounded ${formData.newPassord.length >= 8 ? 'bg-green-500' : 'bg-gray-300'
+                    }`}></div>
+                  <div className={`h-2 flex-1 rounded ${/[0-9]/.test(formData.newPassord) && /[a-zA-Z]/.test(formData.newPassord)
                       ? 'bg-green-500' : 'bg-gray-300'
-                  }`}></div>
+                    }`}></div>
                 </div>
               </div>
             )}
@@ -214,11 +213,11 @@ export default function ChangePasswordPage() {
                   confirmPassword: '',
                 })}
               >
-                إعادة تعيين
+                {t('profile.reset')}
               </Button>
               <Button type="submit" loading={loading}>
                 <Lock size={18} />
-                تغيير كلمة المرور
+                {t('profile.changePassword')}
               </Button>
             </div>
           </form>

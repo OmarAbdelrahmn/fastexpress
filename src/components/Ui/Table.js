@@ -1,5 +1,11 @@
 // File: src/components/ui/Table.js
+'use client';
+
+import { useLanguage } from '@/lib/context/LanguageContext';
+
 export default function Table({ columns, data, loading = false }) {
+  const { t } = useLanguage();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -11,7 +17,7 @@ export default function Table({ columns, data, loading = false }) {
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
-        لا توجد بيانات لعرضها
+        {t("common.noData")}
       </div>
     );
   }

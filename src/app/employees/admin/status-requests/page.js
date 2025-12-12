@@ -8,10 +8,12 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { AlertCircle, CheckCircle, XCircle, User, Clock } from 'lucide-react';
 
 export default function StatusRequestsPage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
@@ -30,14 +32,17 @@ export default function StatusRequestsPage() {
       setPendingRequests(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading status requests:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل طلبات تغيير الحالة');
+      setErrorMessage(err?.message || t('employees.errorLoadingRequests'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleResolve = async (iqamaNo, resolution, adminNotes = '') => {
-    if (!confirm(`هل أنت متأكد من ${resolution === 'Approved' ? 'الموافقة على' : 'رفض'} هذا الطلب؟`)) return;
+    const confirmMessage = resolution === 'Approved'
+      ? t('employees.confirmApprove')
+      : t('employees.confirmReject');
+    if (!confirm(confirmMessage)) return;
 
     setProcessingId(iqamaNo);
     try {
@@ -48,12 +53,15 @@ export default function StatusRequestsPage() {
         adminNot: adminNotes
       });
 
-      setSuccessMessage(`تم ${resolution === 'Approved' ? 'الموافقة على' : 'رفض'} الطلب بنجاح`);
+      const successMsg = resolution === 'Approved'
+        ? t('employees.approveSuccess')
+        : t('employees.rejectSuccess');
+      setSuccessMessage(successMsg);
       loadPendingRequests();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error resolving request:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء معالجة الطلب');
+      setErrorMessage(err?.message || t('employees.resolveError'));
       setTimeout(() => setErrorMessage(''), 5000);
     } finally {
       setProcessingId(null);
@@ -64,14 +72,14 @@ export default function StatusRequestsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="طلبات تغيير الحالة"
-          subtitle="جاري التحميل..."
+          title={t('employees.statusRequestsTitle')}
+          subtitle={t('common.loading')}
           icon={AlertCircle}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل الطلبات...</p>
+            <p className="mt-4 text-gray-600">{t('employees.loadingRequests')}</p>
           </div>
         </Card>
       </div>
@@ -81,15 +89,15 @@ export default function StatusRequestsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="طلبات تغيير حالة الموظفين"
-        subtitle={`عدد الطلبات المعلقة: ${pendingRequests.length}`}
+        title={t('employees.statusRequestsTitle')}
+        subtitle={`${t('employees.statusRequestsSubtitle')}: ${pendingRequests.length}`}
         icon={AlertCircle}
       />
 
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -98,7 +106,7 @@ export default function StatusRequestsPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -109,13 +117,13 @@ export default function StatusRequestsPage() {
           <div className="text-center py-12">
             <CheckCircle className="mx-auto text-green-500 mb-4" size={64} />
             <h3 className="text-xl font-bold text-gray-800 mb-2">
-              لا توجد طلبات معلقة
+              {t('employees.noPendingRequests')}
             </h3>
             <p className="text-gray-600 mb-4">
-              جميع طلبات تغيير الحالة تمت معالجتها
+              {t('employees.allRequestsProcessed')}
             </p>
             <Button onClick={() => router.push('/employees/admin')}>
-              العودة للقائمة الرئيسية
+              {t('employees.backToMainList')}
             </Button>
           </div>
         </Card>
@@ -136,7 +144,7 @@ export default function StatusRequestsPage() {
                         {request.employeeNameAR}
                       </h3>
                       <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
-                        طلب تغيير حالة
+                        {t('employees.statusChangeRequest')}
                       </span>
                     </div>
 
@@ -146,14 +154,14 @@ export default function StatusRequestsPage() {
 
                     <div className="flex items-center gap-4 mb-3">
                       <div>
-                        <span className="text-xs text-gray-600">من:</span>
+                        <span className="text-xs text-gray-600">{t('employees.fromStatus')}</span>
                         <div className="mt-1">
                           <StatusBadge status={request.currentStatus} />
                         </div>
                       </div>
                       <div className="text-gray-400">←</div>
                       <div>
-                        <span className="text-xs text-gray-600">إلى:</span>
+                        <span className="text-xs text-gray-600">{t('employees.toStatus')}</span>
                         <div className="mt-1">
                           <StatusBadge status={request.requestedStatus} />
                         </div>
@@ -162,28 +170,28 @@ export default function StatusRequestsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                       <div className="bg-gray-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-600 mb-1">رقم الإقامة</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('employees.iqamaNumber')}</p>
                         <p className="font-bold text-gray-800">{request.employeeIqamaNo}</p>
                       </div>
                       <div className="bg-gray-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-600 mb-1">تاريخ الطلب</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('employees.requestDate')}</p>
                         <p className="font-medium text-gray-800 flex items-center gap-2">
                           <Clock size={14} />
-                          {new Date(request.requestedAt).toLocaleString('en-US')}
+                          {new Date(request.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
                         </p>
                       </div>
                     </div>
 
                     {request.reason && (
                       <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-3">
-                        <p className="text-sm font-bold text-blue-800 mb-1">سبب الطلب:</p>
+                        <p className="text-sm font-bold text-blue-800 mb-1">{t('employees.requestReason')}</p>
                         <p className="text-sm text-blue-700">{request.reason}</p>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <User size={14} />
-                      <span>مقدم الطلب: {request.requestedBy}</span>
+                      <span>{t('employees.requestedBy')}: {request.requestedBy}</span>
                     </div>
                   </div>
                 </div>
@@ -196,7 +204,7 @@ export default function StatusRequestsPage() {
                     className="whitespace-nowrap"
                   >
                     <CheckCircle size={18} className="ml-2" />
-                    موافقة
+                    {t('employees.approve')}
                   </Button>
                   <Button
                     onClick={() => handleResolve(request.employeeIqamaNo, 'Rejected')}
@@ -205,7 +213,7 @@ export default function StatusRequestsPage() {
                     className="whitespace-nowrap"
                   >
                     <XCircle size={18} className="ml-2" />
-                    رفض
+                    {t('employees.reject')}
                   </Button>
                 </div>
               </div>
@@ -216,14 +224,14 @@ export default function StatusRequestsPage() {
 
       {/* Information Card */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات إضافية</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('common.additionalInfo')}</h3>
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-start gap-2">
             <div className="bg-blue-100 p-1 rounded mt-0.5">
               <CheckCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>تغيير الحالة:</strong> سيتم تغيير حالة الموظف إلى الحالة المطلوبة عند الموافقة
+              <strong>{t('employees.approve')}:</strong> {t('employees.statusChangeInfo')}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -231,7 +239,7 @@ export default function StatusRequestsPage() {
               <XCircle size={14} className="text-red-600" />
             </div>
             <p>
-              <strong>الرفض:</strong> سيتم حذف الطلب دون تغيير حالة الموظف
+              <strong>{t('employees.reject')}:</strong> {t('employees.rejectionInfoStatus')}
             </p>
           </div>
         </div>

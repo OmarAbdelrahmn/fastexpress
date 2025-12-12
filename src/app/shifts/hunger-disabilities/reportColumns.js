@@ -1,15 +1,15 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-export const hungerReportColumns = [
-    { header: 'الرقم الوظيفي', accessor: 'actualWorkingId' },
-    { header: 'اسم السائق (AR)', accessor: 'actualRiderNameAR' },
-    { header: 'السكن', accessor: 'housingName' },
-    { header: 'إجمالي الأيام', accessor: 'totalDays' },
-    { header: 'إجمالي الطلبات', accessor: 'totalOrders' },
-    { header: 'الهدف', accessor: 'target' },
-    { header: 'الفارق', accessor: 'differenceFromTarget' },
+export const getHungerReportColumns = (t) => [
+    { header: t('hungerDisabilities.workingId'), accessor: 'actualWorkingId' },
+    { header: t('hungerDisabilities.riderName'), accessor: 'actualRiderNameAR' },
+    { header: t('hungerDisabilities.company'), accessor: 'housingName' },
+    { header: t('hungerDisabilities.recordsCount'), accessor: 'totalDays' },
+    { header: t('companies.ordersCount'), accessor: 'totalOrders' },
+    { header: t('riders.target'), accessor: 'target' },
+    { header: t('hungerDisabilities.deficit'), accessor: 'differenceFromTarget' },
     {
-        header: 'نسبة الأداء',
+        header: t('ridersPerformance.performanceRate'),
         accessor: 'performancePercentage',
         render: (row) => (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.performancePercentage >= 100
@@ -21,7 +21,7 @@ export const hungerReportColumns = [
         )
     },
     {
-        header: 'الحالة',
+        header: t('common.status'),
         accessor: 'performanceStatus',
         render: (row) => {
             // Determine status color based on isAboveTarget or string content if isAboveTarget is missing
@@ -48,12 +48,12 @@ export const hungerReportColumns = [
     },
     // { header: 'ملاحظات', accessor: 'performanceNote' },
     {
-        header: 'الرقم الوظيفي للبديل',
+        header: t('hungerDisabilities.substituteId'),
         accessor: 'substituteWorkingId',
-        render: (row) => row.substituteWorkingId || 'لا يوجد'
+        render: (row) => row.substituteWorkingId || t('common.noData') // Or a specific 'none' key
     },
     {
-        header: 'اسم البديل (AR)',
+        header: t('hungerDisabilities.substituteName'),
         accessor: 'substituteRiderNameAR',
-        render: (row) => row.substituteRiderNameAR || 'لا يوجد'
+        render: (row) => row.substituteRiderNameAR || t('common.noData')
     },];

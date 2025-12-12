@@ -10,8 +10,10 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RidersReportPage() {
+  const { t, language } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
@@ -30,7 +32,7 @@ export default function RidersReportPage() {
 
   const loadReports = async () => {
     if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
+      setMessage({ type: 'error', text: t('reports.pleaseSelectDates') });
       return;
     }
 
@@ -38,33 +40,33 @@ export default function RidersReportPage() {
     setHasSearched(true);
     setMessage({ type: '', text: '' });
     setReports([]);
-    
+
     try {
       const data = await ApiService.get(
         API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL,
         { startDate, endDate }
       );
-      
+
       if (!data || (Array.isArray(data) && data.length === 0)) {
-        setMessage({ 
-          type: 'warning', 
-          text: 'لا توجد تقارير للفترة المحددة' 
+        setMessage({
+          type: 'warning',
+          text: t('reports.noReportsForPeriod')
         });
         setReports([]);
       } else {
         const reportsArray = Array.isArray(data) ? data : [data];
         setReports(reportsArray);
-        setMessage({ 
-          type: 'success', 
-          text: `تم تحميل ${reportsArray.length} تقرير` 
+        setMessage({
+          type: 'success',
+          text: `${t('reports.loadedReports')} ${reportsArray.length}`
         });
       }
     } catch (error) {
       console.error('Error:', error);
       setReports([]);
-      setMessage({ 
-        type: 'error', 
-        text: error.message || 'فشل في تحميل التقارير' 
+      setMessage({
+        type: 'error',
+        text: error.message || t('reports.failedToLoadReports')
       });
     } finally {
       setLoading(false);
@@ -73,19 +75,19 @@ export default function RidersReportPage() {
 
   const goDirectToRider = () => {
     if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية أولاً' });
+      setMessage({ type: 'error', text: t('reports.pleaseSelectDates') });
       return;
     }
 
     if (!quickWorkingId && !quickIqamaNo) {
-      setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل أو رقم الإقامة' });
+      setMessage({ type: 'error', text: t('reports.pleaseEnterWorkingId') });
       return;
     }
 
     // If workingId is provided, use it directly
     if (quickWorkingId) {
       router.push(`/reports/riders/${quickWorkingId}?startDate=${startDate}&endDate=${endDate}`);
-    } 
+    }
     // If only iqamaNo is provided, we need to search for the workingId first
     else if (quickIqamaNo) {
       // First load all reports to find the matching rider
@@ -93,18 +95,18 @@ export default function RidersReportPage() {
       ApiService.get(API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL, { startDate, endDate })
         .then(data => {
           const reportsArray = Array.isArray(data) ? data : [data];
-          const matchingRider = reportsArray.find(r => 
+          const matchingRider = reportsArray.find(r =>
             r.iqamaNo && String(r.iqamaNo) === String(quickIqamaNo)
           );
-          
+
           if (matchingRider) {
             router.push(`/reports/riders/${matchingRider.workingId}?startDate=${startDate}&endDate=${endDate}`);
           } else {
-            setMessage({ type: 'error', text: 'لم يتم العثور على مندوب بهذا الرقم' });
+            setMessage({ type: 'error', text: t('reports.riderNotFound') });
           }
         })
         .catch(error => {
-          setMessage({ type: 'error', text: 'فشل في البحث عن المندوب' });
+          setMessage({ type: 'error', text: t('reports.searchFailed') });
         })
         .finally(() => {
           setLoading(false);
@@ -119,7 +121,7 @@ export default function RidersReportPage() {
   const exportToCSV = () => {
     const filteredReports = getFilteredReports();
     const csvContent = [
-      ['رقم العمل', 'رقم الإقامة', 'اسم المندوب', 'أيام العمل', 'الطلبات المقبولة', 'الطلبات المرفوضة', 'معدل الأداء'],
+      [t('riders.workingId'), t('employees.iqamaNumber'), t('reports.riderName'), t('reports.workingDays'), t('reports.acceptedOrders'), t('reports.rejectedOrders'), t('reports.performanceRate')],
       ...filteredReports.map(r => [
         r.workingId,
         r.IqamaNo || '',
@@ -145,10 +147,10 @@ export default function RidersReportPage() {
     }
 
     return reports.filter(report => {
-      const matchesWorkingId = !filterWorkingId || 
+      const matchesWorkingId = !filterWorkingId ||
         String(report.workingId).toLowerCase().includes(filterWorkingId.toLowerCase());
-      
-      const matchesIqamaNo = !filterIqamaNo || 
+
+      const matchesIqamaNo = !filterIqamaNo ||
         (report.iqamaNo && String(report.iqamaNo).toLowerCase().includes(filterIqamaNo.toLowerCase()));
 
       return matchesWorkingId && matchesIqamaNo;
@@ -158,10 +160,10 @@ export default function RidersReportPage() {
   const filteredReports = getFilteredReports();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title="تقارير المناديب"
-        subtitle="عرض تقارير جميع المناديب خلال فترة محددة"
+        title={t('reports.ridersReports')}
+        subtitle={t('reports.ridersReportsDesc')}
         icon={Users}
       />
 
@@ -177,11 +179,11 @@ export default function RidersReportPage() {
 
       {/* Date Range Filters */}
       <div className="m-6 bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold mb-4 text-gray-700">اختيار الفترة الزمنية</h3>
+        <h3 className="text-lg font-bold mb-4 text-gray-700">{t('reports.selectPeriodTitle')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             type="date"
-            label="من تاريخ"
+            label={t('common.from')}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
@@ -189,7 +191,7 @@ export default function RidersReportPage() {
 
           <Input
             type="date"
-            label="إلى تاريخ"
+            label={t('common.to')}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
@@ -204,7 +206,7 @@ export default function RidersReportPage() {
               className="w-full"
             >
               <Search size={18} />
-              عرض التقارير
+              {t('reports.showReports')}
             </Button>
           </div>
 
@@ -215,7 +217,7 @@ export default function RidersReportPage() {
                 onClick={exportToCSV}
                 className="w-full"
               >
-                تصدير CSV
+                {t('reports.exportCSV')}
               </Button>
             </div>
           )}
@@ -226,21 +228,21 @@ export default function RidersReportPage() {
       <div className="m-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl shadow-md p-6 border-2 border-purple-200">
         <h3 className="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">
           <ArrowLeft size={20} />
-          الانتقال السريع لمندوب محدد
+          {t('reports.quickNavigationTitle')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
             type="text"
-            label="رقم العمل"
-            placeholder="أدخل رقم العمل"
+            label={t('riders.workingId')}
+            placeholder={t('reports.searchByWorkingId')}
             value={quickWorkingId}
             onChange={(e) => setQuickWorkingId(e.target.value)}
           />
 
           <Input
             type="text"
-            label="رقم الإقامة"
-            placeholder="أدخل رقم الإقامة"
+            label={t('employees.iqamaNumber')}
+            placeholder={t('reports.searchByIqamaNo')}
             value={quickIqamaNo}
             onChange={(e) => setQuickIqamaNo(e.target.value)}
           />
@@ -253,12 +255,12 @@ export default function RidersReportPage() {
               className="w-full bg-purple-600 hover:bg-purple-700"
             >
               <ArrowLeft size={18} />
-              الانتقال للتفاصيل
+              {t('reports.goToDetails')}
             </Button>
           </div>
         </div>
         <p className="text-sm text-gray-600 mt-2">
-          * يمكنك إدخال رقم العمل أو رقم الإقامة للانتقال مباشرة لتقرير المندوب
+          * {t('reports.quickNavigationNote')}
         </p>
       </div>
 
@@ -267,21 +269,21 @@ export default function RidersReportPage() {
         <div className="m-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl shadow-md p-6 border-2 border-green-200">
           <h3 className="text-lg font-bold mb-4 text-green-700 flex items-center gap-2">
             <Search size={20} />
-            تصفية المناديب
+            {t('reports.filterRiders')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               type="text"
-              label="تصفية برقم العمل"
-              placeholder="ابحث برقم العمل..."
+              label={t('reports.filterByWorkingId')}
+              placeholder={t('reports.searchByWorkingId')}
               value={filterWorkingId}
               onChange={(e) => setFilterWorkingId(e.target.value)}
             />
 
             <Input
               type="text"
-              label="تصفية برقم الإقامة"
-              placeholder="ابحث برقم الإقامة..."
+              label={t('reports.filterByIqamaNo')}
+              placeholder={t('reports.searchByIqamaNo')}
               value={filterIqamaNo}
               onChange={(e) => setFilterIqamaNo(e.target.value)}
             />
@@ -289,7 +291,7 @@ export default function RidersReportPage() {
           {(filterWorkingId || filterIqamaNo) && (
             <div className="mt-3 flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                النتائج: {filteredReports.length} من {reports.length}
+                {t('reports.filterResults')}: {filteredReports.length} {t('reports.of')} {reports.length}
               </p>
               <Button
                 variant="outline"
@@ -299,7 +301,7 @@ export default function RidersReportPage() {
                 }}
                 className="text-sm"
               >
-                مسح التصفية
+                {t('reports.clearFilter')}
               </Button>
             </div>
           )}
@@ -311,17 +313,17 @@ export default function RidersReportPage() {
         <div className="m-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">إجمالي المناديب</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.totalRidersCount')}</p>
               <p className="text-3xl font-bold text-blue-600">{filteredReports.length}</p>
               {filteredReports.length !== reports.length && (
-                <p className="text-xs text-gray-400 mt-1">من أصل {reports.length}</p>
+                <p className="text-xs text-gray-400 mt-1">{t('reports.of')} {reports.length}</p>
               )}
             </div>
           </Card>
 
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">إجمالي الطلبات</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.totalOrders')}</p>
               <p className="text-3xl font-bold text-green-600">
                 {filteredReports.reduce((sum, r) => sum + r.totalAcceptedOrders, 0)}
               </p>
@@ -330,7 +332,7 @@ export default function RidersReportPage() {
 
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">متوسط الأداء</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.averagePerformance')}</p>
               <p className="text-3xl font-bold text-purple-600">
                 {(filteredReports.reduce((sum, r) => sum + r.overallPerformanceScore, 0) / filteredReports.length).toFixed(1)}%
               </p>
@@ -343,7 +345,7 @@ export default function RidersReportPage() {
       <div className="m-6 bg-white rounded-xl shadow-md overflow-hidden">
         <div className="bg-blue-600 px-6 py-4">
           <h3 className="text-lg font-bold text-white">
-            تقارير المناديب ({filteredReports.length})
+            {t('reports.ridersReports')} ({filteredReports.length})
           </h3>
         </div>
 
@@ -356,26 +358,26 @@ export default function RidersReportPage() {
             <div className="text-center py-12 text-gray-500">
               <Users size={48} className="mx-auto mb-4 text-gray-300" />
               {reports.length === 0 ? (
-                startDate && endDate 
-                  ? 'لا توجد تقارير لهذه الفترة' 
-                  : 'الرجاء تحديد فترة زمنية للبحث'
+                startDate && endDate
+                  ? t('reports.noReportsForPeriod')
+                  : t('reports.pleaseSelectPeriod')
               ) : (
-                'لا توجد نتائج مطابقة للبحث'
+                t('reports.noMatchingResults')
               )}
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم الإقامة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم المندوب</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">أيام العمل</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الطلبات المقبولة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الطلبات المرفوضة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ساعات العمل</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الأداء</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.workingId')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('employees.iqamaNumber')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.riderName')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.workingDays')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.acceptedOrders')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.rejectedOrders')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.workingHours')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.performanceRate')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -395,11 +397,10 @@ export default function RidersReportPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingHours.toFixed(1)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        report.overallPerformanceScore >= 90 ? 'bg-green-100 text-green-800' :
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${report.overallPerformanceScore >= 90 ? 'bg-green-100 text-green-800' :
                         report.overallPerformanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                          'bg-red-100 text-red-800'
+                        }`}>
                         {report.overallPerformanceScore.toFixed(1)}%
                       </span>
                     </td>
@@ -409,7 +410,7 @@ export default function RidersReportPage() {
                         onClick={() => viewDetails(report)}
                         className="text-sm"
                       >
-                        التفاصيل
+                        {t('common.details')}
                       </Button>
                     </td>
                   </tr>

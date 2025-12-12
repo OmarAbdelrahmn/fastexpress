@@ -10,10 +10,12 @@ import Input from '@/components/Ui/Input';
 import Table from '@/components/Ui/Table';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { Calendar, Search, Download, Filter, CheckCircle, XCircle, Clock, User } from 'lucide-react';
 
 export default function DateRangeHistoryPage() {
     const router = useRouter();
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -27,12 +29,12 @@ export default function DateRangeHistoryPage() {
         e?.preventDefault();
 
         if (!startDate || !endDate) {
-            setErrorMessage('الرجاء إدخال تاريخ البداية والنهاية');
+            setErrorMessage(t('employees.enterStartEndDate'));
             return;
         }
 
         if (new Date(startDate) > new Date(endDate)) {
-            setErrorMessage('تاريخ البداية يجب أن يكون قبل تاريخ النهاية');
+            setErrorMessage(t('employees.startBeforeEnd'));
             return;
         }
 
@@ -46,11 +48,11 @@ export default function DateRangeHistoryPage() {
             );
 
             setSearchResults(data);
-            setSuccessMessage(`تم العثور على ${data.totalRecords} سجل`);
+            setSuccessMessage(t('employees.foundRecords').replace('{{count}}', data.totalRecords));
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             console.error('Error searching history:', err);
-            setErrorMessage(err?.message || 'حدث خطأ في البحث');
+            setErrorMessage(err?.message || t('employees.searchError'));
             setSearchResults(null);
         } finally {
             setLoading(false);
@@ -69,8 +71,12 @@ export default function DateRangeHistoryPage() {
     const handleExport = () => {
         if (!searchResults?.data || searchResults.data.length === 0) return;
 
+        const headers = language === 'ar'
+            ? ['رقم الإقامة', 'الاسم (عربي)', 'الاسم (إنجليزي)', 'الحالة المطلوبة', 'السبب', 'مقدم الطلب', 'تاريخ الطلب', 'محلول', 'القرار', 'تم الحل بواسطة', 'تاريخ الحل']
+            : ['Iqama No', 'Name (Arabic)', 'Name (English)', 'Requested Status', 'Reason', 'Requested By', 'Request Date', 'Resolved', 'Resolution', 'Resolved By', 'Resolved Date'];
+
         const csvContent = [
-            ['رقم الإقامة', 'الاسم (عربي)', 'الاسم (إنجليزي)', 'الحالة المطلوبة', 'السبب', 'مقدم الطلب', 'تاريخ الطلب', 'محلول', 'القرار', 'تم الحل بواسطة', 'تاريخ الحل'].join(','),
+            headers.join(','),
             ...searchResults.data.map(record => [
                 record.iqamaNo,
                 record.employeeNameAR,
@@ -78,11 +84,11 @@ export default function DateRangeHistoryPage() {
                 record.requestedStatus,
                 `"${record.reason || ''}"`,
                 record.requestedBy,
-                new Date(record.requestedAt).toLocaleString('ar-SA'),
-                record.isResolved ? 'نعم' : 'لا',
+                new Date(record.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US'),
+                record.isResolved ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No'),
                 record.resolution || '-',
                 record.resolvedBy || '-',
-                record.resolvedAt ? new Date(record.resolvedAt).toLocaleString('ar-SA') : '-'
+                record.resolvedAt ? new Date(record.resolvedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US') : '-'
             ].join(','))
         ].join('\n');
 
@@ -98,7 +104,7 @@ export default function DateRangeHistoryPage() {
             return (
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex items-center gap-1">
                     <Clock size={12} />
-                    قيد الانتظار
+                    {t('employees.pending')}
                 </span>
             );
         }
@@ -106,21 +112,21 @@ export default function DateRangeHistoryPage() {
             return (
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 flex items-center gap-1">
                     <CheckCircle size={12} />
-                    تمت الموافقة
+                    {t('employees.approved')}
                 </span>
             );
         }
         return (
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 flex items-center gap-1">
                 <XCircle size={12} />
-                مرفوض
+                {t('employees.rejected')}
             </span>
         );
     };
 
     const columns = [
         {
-            header: 'رقم الإقامة',
+            header: t('employees.iqamaNumber'),
             accessor: 'iqamaNo',
             render: (row) => (
                 <button
@@ -131,15 +137,15 @@ export default function DateRangeHistoryPage() {
                 </button>
             )
         },
-        { header: 'الاسم (عربي)', accessor: 'employeeNameAR' },
-        { header: 'الاسم (إنجليزي)', accessor: 'employeeNameEN' },
+        { header: t('employees.nameArabic'), accessor: 'employeeNameAR' },
+        { header: t('employees.nameEnglish'), accessor: 'employeeNameEN' },
         {
-            header: 'الحالة المطلوبة',
+            header: t('employees.requestedStatus'),
             accessor: 'requestedStatus',
             render: (row) => <StatusBadge status={row.requestedStatus} />
         },
         {
-            header: 'مقدم الطلب',
+            header: t('employees.requestedBy'),
             accessor: 'requestedBy',
             render: (row) => (
                 <div className="flex items-center gap-1">
@@ -149,16 +155,16 @@ export default function DateRangeHistoryPage() {
             )
         },
         {
-            header: 'تاريخ الطلب',
+            header: t('employees.requestDate'),
             accessor: 'requestedAt',
             render: (row) => (
                 <span className="text-sm text-gray-600">
-                    {new Date(row.requestedAt).toLocaleDateString('ar-SA')}
+                    {new Date(row.requestedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
                 </span>
             )
         },
         {
-            header: 'الحالة',
+            header: t('employees.resolution'),
             render: (row) => getResolutionBadge(row.isResolved, row.resolution)
         },
     ];
@@ -166,15 +172,15 @@ export default function DateRangeHistoryPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="سجل التغييرات - نطاق زمني"
-                subtitle="البحث في سجل تغيير الحالة حسب التاريخ"
+                title={t('employees.dateRangeTitle')}
+                subtitle={t('employees.dateRangeSubtitle')}
                 icon={Calendar}
             />
 
             {successMessage && (
                 <Alert
                     type="success"
-                    title="نجح"
+                    title={t('common.success')}
                     message={successMessage}
                     onClose={() => setSuccessMessage('')}
                 />
@@ -183,7 +189,7 @@ export default function DateRangeHistoryPage() {
             {errorMessage && (
                 <Alert
                     type="error"
-                    title="خطأ"
+                    title={t('common.error')}
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
                 />
@@ -194,19 +200,19 @@ export default function DateRangeHistoryPage() {
                 <form onSubmit={handleSearch} className="space-y-4">
                     <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <Filter size={20} />
-                        تحديد النطاق الزمني
+                        {t('employees.specifyTimeRange')}
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="تاريخ البداية"
+                            label={t('employees.startDate')}
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             required
                         />
                         <Input
-                            label="تاريخ النهاية"
+                            label={t('employees.endDate')}
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
@@ -221,11 +227,11 @@ export default function DateRangeHistoryPage() {
                             onClick={handleReset}
                             disabled={loading}
                         >
-                            إعادة تعيين
+                            {t('employees.reset')}
                         </Button>
                         <Button type="submit" loading={loading} disabled={loading}>
                             <Search size={18} className="ml-2" />
-                            بحث
+                            {t('common.search')}
                         </Button>
                     </div>
                 </form>
@@ -238,16 +244,16 @@ export default function DateRangeHistoryPage() {
                     <Card>
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-800">نتائج البحث</h3>
+                                <h3 className="text-lg font-bold text-gray-800">{t('employees.searchResults')}</h3>
                                 <p className="text-sm text-gray-600">
-                                    من {new Date(searchResults.startDate).toLocaleDateString('ar-SA')}
-                                    {' '}إلى{' '}
-                                    {new Date(searchResults.endDate).toLocaleDateString('ar-SA')}
+                                    {t('employees.fromStatus')} {new Date(searchResults.startDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                                    {' '}{t('employees.toStatus')}{' '}
+                                    {new Date(searchResults.endDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
                                 </p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="text-left">
-                                    <p className="text-sm text-gray-600">إجمالي السجلات</p>
+                                    <p className="text-sm text-gray-600">{t('employees.totalRecords')}</p>
                                     <p className="text-2xl font-bold text-blue-600">
                                         {searchResults.totalRecords}
                                     </p>
@@ -259,7 +265,7 @@ export default function DateRangeHistoryPage() {
                                         onClick={handleExport}
                                     >
                                         <Download size={18} className="ml-2" />
-                                        تصدير CSV
+                                        {t('employees.exportCSV')}
                                     </Button>
                                 )}
                             </div>
@@ -277,7 +283,7 @@ export default function DateRangeHistoryPage() {
                         ) : (
                             <div className="text-center py-12">
                                 <Calendar className="mx-auto text-gray-400 mb-4" size={48} />
-                                <p className="text-gray-600">لا توجد سجلات في هذا النطاق الزمني</p>
+                                <p className="text-gray-600">{t('employees.noRecordsInRange')}</p>
                             </div>
                         )}
                     </Card>
@@ -287,31 +293,31 @@ export default function DateRangeHistoryPage() {
             {/* Instructions */}
             {!hasSearched && (
                 <Card>
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">كيفية الاستخدام</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.howToUse')}</h3>
                     <div className="space-y-3 text-sm text-gray-600">
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">1</span>
                             </div>
-                            <p>اختر تاريخ البداية والنهاية للنطاق الزمني المطلوب</p>
+                            <p>{t('employees.dateRangeInstructions1')}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">2</span>
                             </div>
-                            <p>اضغط على "بحث" لعرض جميع طلبات تغيير الحالة في هذه الفترة</p>
+                            <p>{t('employees.dateRangeInstructions2')}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">3</span>
                             </div>
-                            <p>يمكنك تصدير النتائج إلى ملف CSV للمراجعة</p>
+                            <p>{t('employees.dateRangeInstructions3')}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">4</span>
                             </div>
-                            <p>انقر على رقم الإقامة لعرض السجل الكامل للموظف</p>
+                            <p>{t('employees.dateRangeInstructions4')}</p>
                         </div>
                     </div>
                 </Card>
@@ -319,3 +325,4 @@ export default function DateRangeHistoryPage() {
         </div>
     );
 }
+

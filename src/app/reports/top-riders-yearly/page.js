@@ -9,12 +9,14 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function TopRidersYearlyPage() {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
+
   const [form, setForm] = useState({
     year: new Date().getFullYear(),
     topCount: 10,
@@ -32,7 +34,7 @@ export default function TopRidersYearlyPage() {
     if (isNaN(yearVal) || isNaN(topCountVal) || topCountVal < 1) {
       setMessage({
         type: 'error',
-        text: 'الرجاء إدخال سنة وعدد مناديب صحيحين'
+        text: t('reports.topRidersYearly.validationError')
       });
       setLoading(false);
       return;
@@ -48,13 +50,13 @@ export default function TopRidersYearlyPage() {
         setReportData(result);
         setMessage({
           type: 'success',
-          text: `تم تحميل ${result.topRiders.length} مندوب متميز بنجاح`
+          text: t('reports.topRidersYearly.loadSuccessCount', { count: result.topRiders.length })
         });
       } else {
         setReportData(null);
         setMessage({
           type: 'warning',
-          text: 'لا توجد بيانات للسنة المحددة'
+          text: t('reports.topRidersYearly.noDataForYear')
         });
       }
     } catch (error) {
@@ -62,7 +64,7 @@ export default function TopRidersYearlyPage() {
       setReportData(null);
       setMessage({
         type: 'error',
-        text: error.message || 'فشل في تحميل التقرير'
+        text: t('reports.topRidersYearly.loadError')
       });
     } finally {
       setLoading(false);
@@ -103,10 +105,10 @@ export default function TopRidersYearlyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title="أفضل المناديب السنوي"
-        subtitle="ترتيب أفضل المناديب أداءً لسنة محددة"
+        title={t('reports.topRidersYearly.pageTitle')}
+        subtitle={t('reports.topRidersYearly.pageSubtitle')}
         icon={TrendingUp}
       />
 
@@ -124,12 +126,12 @@ export default function TopRidersYearlyPage() {
       <div className="m-6 bg-white rounded-xl shadow-md p-6">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Calendar size={20} />
-          معايير البحث
+          {t('reports.topRidersYearly.searchCriteria')}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              label="السنة"
+              label={t('reports.topRidersYearly.year')}
               type="number"
               value={form.year}
               onChange={(e) => {
@@ -139,7 +141,7 @@ export default function TopRidersYearlyPage() {
               required
             />
             <Input
-              label="عدد المناديب"
+              label={t('reports.topRidersYearly.ridersCount')}
               type="number"
               min="1"
               max="50"
@@ -148,7 +150,7 @@ export default function TopRidersYearlyPage() {
                 const val = parseInt(e.target.value, 10);
                 setForm({ ...form, topCount: isNaN(val) ? 10 : val });
               }}
-              placeholder="الافتراضي: 10"
+              placeholder={t('reports.topRidersYearly.defaultPlaceholder')}
             />
             <div className="flex items-end">
               <Button
@@ -159,7 +161,7 @@ export default function TopRidersYearlyPage() {
                 className="w-full"
               >
                 <Trophy size={18} />
-                عرض الترتيب
+                {t('reports.topRidersYearly.showRanking')}
               </Button>
             </div>
           </div>
@@ -173,28 +175,28 @@ export default function TopRidersYearlyPage() {
             <Card>
               <div className="text-center">
                 <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm mb-2">إجمالي المناديب</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.topRidersYearly.totalRiders')}</p>
                 <p className="text-3xl font-bold text-blue-600">{reportData.totalRiders}</p>
               </div>
             </Card>
             <Card>
               <div className="text-center">
                 <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm mb-2">إجمالي الورديات</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.topRidersYearly.totalShifts')}</p>
                 <p className="text-3xl font-bold text-purple-600">{reportData.totalShifts}</p>
               </div>
             </Card>
             <Card>
               <div className="text-center">
                 <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm mb-2">إجمالي الطلبات</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.topRidersYearly.totalOrders')}</p>
                 <p className="text-3xl font-bold text-green-600">{reportData.totalOrders}</p>
               </div>
             </Card>
             <Card>
               <div className="text-center">
                 <TrendingUp className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm mb-2">متوسط الأداء</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.topRidersYearly.averagePerformance')}</p>
                 <p className="text-3xl font-bold text-orange-600">
                   {(reportData.topRiders.reduce((sum, r) => sum + r.performanceScore, 0) / reportData.topRiders.length).toFixed(1)}
                 </p>
@@ -212,22 +214,22 @@ export default function TopRidersYearlyPage() {
                   <div>
                     <p className="text-2xl font-bold">2</p>
                     <p className="text-lg font-semibold">{reportData.topRiders[1].riderNameAR}</p>
-                    <p className="text-sm text-gray-600">رقم العمل: {reportData.topRiders[1].workingId}</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.workingIdLabel')}: {reportData.topRiders[1].workingId}</p>
                     <span className="inline-block px-3 py-1 bg-gray-200 text-gray-800 rounded-full text-xs mt-2">
                       {reportData.topRiders[1].companyName}
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">النقاط السنوية</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
                     <p className="text-2xl font-bold text-gray-700">{reportData.topRiders[1].performanceScore.toFixed(1)}</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">الطلبات</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
                     <p className="text-xl font-bold text-gray-700">{reportData.topRiders[1].totalAcceptedOrders}</p>
                   </div>
                   <div className="bg-white p-2 rounded-lg">
-                    <p className="text-xs text-gray-600">ساعات العمل</p>
-                    <p className="text-lg font-bold text-gray-700">{reportData.topRiders[1].totalWorkingHours}س</p>
+                    <p className="text-xs text-gray-600">{t('reports.topRidersYearly.workingHoursLabel')}</p>
+                    <p className="text-lg font-bold text-gray-700">{reportData.topRiders[1].totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</p>
                   </div>
                 </div>
               </Card>
@@ -239,17 +241,17 @@ export default function TopRidersYearlyPage() {
                   <div>
                     <p className="text-4xl font-bold text-yellow-600">1</p>
                     <p className="text-xl font-bold">{reportData.topRiders[0].riderNameAR}</p>
-                    <p className="text-sm text-gray-600">رقم العمل: {reportData.topRiders[0].workingId}</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.workingIdLabel')}: {reportData.topRiders[0].workingId}</p>
                     <span className="inline-block px-3 py-1 bg-yellow-200 text-yellow-900 rounded-full text-sm mt-2 font-medium">
                       {reportData.topRiders[0].companyName}
                     </span>
                   </div>
                   <div className="bg-white p-4 rounded-lg">
-                    <p className="text-sm text-gray-600">النقاط السنوية</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
                     <p className="text-3xl font-bold text-yellow-600">{reportData.topRiders[0].performanceScore.toFixed(1)}</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg">
-                    <p className="text-sm text-gray-600">الطلبات</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
                     <p className="text-2xl font-bold text-yellow-600">{reportData.topRiders[0].totalAcceptedOrders}</p>
                   </div>
                   {reportData.topRiders[0].achievements && reportData.topRiders[0].achievements.length > 0 && (
@@ -267,22 +269,22 @@ export default function TopRidersYearlyPage() {
                   <div>
                     <p className="text-2xl font-bold">3</p>
                     <p className="text-lg font-semibold">{reportData.topRiders[2].riderNameAR}</p>
-                    <p className="text-sm text-gray-600">رقم العمل: {reportData.topRiders[2].workingId}</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.workingIdLabel')}: {reportData.topRiders[2].workingId}</p>
                     <span className="inline-block px-3 py-1 bg-orange-200 text-orange-900 rounded-full text-xs mt-2">
                       {reportData.topRiders[2].companyName}
                     </span>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">النقاط السنوية</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
                     <p className="text-2xl font-bold text-orange-600">{reportData.topRiders[2].performanceScore.toFixed(1)}</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-600">الطلبات</p>
+                    <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
                     <p className="text-xl font-bold text-orange-600">{reportData.topRiders[2].totalAcceptedOrders}</p>
                   </div>
                   <div className="bg-white p-2 rounded-lg">
-                    <p className="text-xs text-gray-600">ساعات العمل</p>
-                    <p className="text-lg font-bold text-orange-600">{reportData.topRiders[2].totalWorkingHours}س</p>
+                    <p className="text-xs text-gray-600">{t('reports.topRidersYearly.workingHoursLabel')}</p>
+                    <p className="text-lg font-bold text-orange-600">{reportData.topRiders[2].totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</p>
                   </div>
                 </div>
               </Card>
@@ -292,7 +294,7 @@ export default function TopRidersYearlyPage() {
           {/* Performance Chart */}
           <div className="m-6 bg-white rounded-xl shadow-md overflow-hidden">
             <div className="bg-blue-600 px-6 py-4">
-              <h3 className="text-lg font-bold text-white">مقارنة الأداء السنوي</h3>
+              <h3 className="text-lg font-bold text-white">{t('reports.topRidersYearly.yearlyCompare')}</h3>
             </div>
             <div className="p-6 space-y-4">
               {reportData.topRiders.map((rider) => (
@@ -305,23 +307,22 @@ export default function TopRidersYearlyPage() {
                         <span className="text-xs text-gray-500 ml-2">({rider.workingId})</span>
                       </div>
                     </div>
-                    <span className="text-sm text-gray-600">{rider.totalAcceptedOrders} طلب</span>
+                    <span className="text-sm text-gray-600">{rider.totalAcceptedOrders} {t('reports.topRidersYearly.orderUnit')}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-4">
                     <div
-                      className={`h-4 rounded-full flex items-center justify-end px-2 ${
-                        rider.rank === 1 ? 'bg-yellow-500' :
+                      className={`h-4 rounded-full flex items-center justify-end px-2 ${rider.rank === 1 ? 'bg-yellow-500' :
                         rider.rank === 2 ? 'bg-gray-400' :
-                        rider.rank === 3 ? 'bg-orange-500' :
-                        'bg-blue-500'
-                      }`}
+                          rider.rank === 3 ? 'bg-orange-500' :
+                            'bg-blue-500'
+                        }`}
                       style={{
                         width: `${reportData.topRiders[0].totalAcceptedOrders > 0 ? (rider.totalAcceptedOrders / reportData.topRiders[0].totalAcceptedOrders) * 100 : 0}%`,
                         minWidth: '60px'
                       }}
                     >
                       <span className="text-xs text-white font-medium">
-                        {rider.performanceScore.toFixed(0)} نقطة
+                        {rider.performanceScore.toFixed(0)} {t('reports.topRidersYearly.pointUnit')}
                       </span>
                     </div>
                   </div>
@@ -334,7 +335,7 @@ export default function TopRidersYearlyPage() {
           {reportData.companyBreakdown && reportData.companyBreakdown.companiesSummary && (
             <div className="m-6 bg-white rounded-xl shadow-md overflow-hidden">
               <div className="bg-blue-600 px-6 py-4">
-                <h3 className="text-lg font-bold text-white">أداء الشركات السنوي</h3>
+                <h3 className="text-lg font-bold text-white">{t('reports.topRidersYearly.yearlyCompanyPerformance')}</h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -349,25 +350,25 @@ export default function TopRidersYearlyPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div className="bg-gray-50 p-2 rounded">
-                            <p className="text-gray-600 text-xs">المناديب</p>
+                            <p className="text-gray-600 text-xs">{t('reports.topRidersYearly.riders')}</p>
                             <p className="font-bold">{company.totalRiders}</p>
                           </div>
                           <div className="bg-gray-50 p-2 rounded">
-                            <p className="text-gray-600 text-xs">الورديات</p>
+                            <p className="text-gray-600 text-xs">{t('reports.topRidersYearly.shifts')}</p>
                             <p className="font-bold">{company.totalShifts}</p>
                           </div>
                           <div className="bg-gray-50 p-2 rounded">
-                            <p className="text-gray-600 text-xs">الطلبات</p>
+                            <p className="text-gray-600 text-xs">{t('reports.topRidersYearly.orders')}</p>
                             <p className="font-bold">{company.totalOrders}</p>
                           </div>
                           <div className="bg-gray-50 p-2 rounded">
-                            <p className="text-gray-600 text-xs">الهدف اليومي</p>
+                            <p className="text-gray-600 text-xs">{t('reports.topRidersYearly.dailyTarget')}</p>
                             <p className="font-bold">{company.dailyOrderTarget}</p>
                           </div>
                         </div>
                         {company.topPerformer && (
                           <div className="pt-2 border-t">
-                            <p className="text-xs text-gray-600 mb-1">الأفضل أداءً:</p>
+                            <p className="text-xs text-gray-600 mb-1">{t('reports.topRidersYearly.bestPerformer')}</p>
                             <p className="font-semibold text-sm">{company.topPerformer.riderNameAR}</p>
                             <p className="text-xs text-gray-500">({company.topPerformer.workingId})</p>
                           </div>
@@ -383,22 +384,22 @@ export default function TopRidersYearlyPage() {
           {/* Full Ranking Table */}
           <div className="m-6 bg-white rounded-xl shadow-md overflow-hidden">
             <div className="bg-blue-600 px-6 py-4">
-              <h3 className="text-lg font-bold text-white">الترتيب الكامل ({reportData.topRiders.length})</h3>
+              <h3 className="text-lg font-bold text-white">{t('reports.topRidersYearly.fullRanking')} ({reportData.topRiders.length})</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الترتيب</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الشركة</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">النقاط</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التقييم</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الطلبات</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الورديات</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الرفض</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ساعات العمل</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.rankColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.workingIdColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.nameColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.companyColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.pointsColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.ratingColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.ordersColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.shiftsColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.rejectionRateColumn')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.topRidersYearly.workingHoursColumn')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -427,7 +428,7 @@ export default function TopRidersYearlyPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getGradeColor(rider.performanceGrade)}`}>
-                          {rider.performanceGrade}
+                          {t('reports.grades.' + rider.performanceGrade?.toLowerCase())}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
@@ -439,7 +440,7 @@ export default function TopRidersYearlyPage() {
                           {rider.rejectionRate}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{rider.totalWorkingHours}س</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{rider.totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -449,28 +450,28 @@ export default function TopRidersYearlyPage() {
 
           {/* Statistics Summary */}
           <div className="m-6 bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">إحصائيات عامة</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-4">{t('reports.topRidersYearly.generalStats')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600">متوسط الطلبات</p>
+                <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageOrders')}</p>
                 <p className="text-2xl font-bold">
                   {(reportData.topRiders.reduce((sum, r) => sum + r.totalAcceptedOrders, 0) / reportData.topRiders.length).toFixed(1)}
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600">متوسط ساعات العمل</p>
+                <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageWorkingHours')}</p>
                 <p className="text-2xl font-bold">
-                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalWorkingHours, 0) / reportData.topRiders.length).toFixed(1)}س
+                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalWorkingHours, 0) / reportData.topRiders.length).toFixed(1)}{t('reports.topRidersYearly.hourShort')}
                 </p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600">أعلى نقاط</p>
+                <p className="text-sm text-gray-600">{t('reports.topRidersYearly.highestPoints')}</p>
                 <p className="text-2xl font-bold">
                   {Math.max(...reportData.topRiders.map(r => r.performanceScore)).toFixed(1)}
                 </p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600">متوسط معدل الرفض</p>
+                <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageRejectionRate')}</p>
                 <p className="text-2xl font-bold">
                   {(reportData.topRiders.reduce((sum, r) => sum + r.rejectionRate, 0) / reportData.topRiders.length).toFixed(1)}%
                 </p>
@@ -485,7 +486,7 @@ export default function TopRidersYearlyPage() {
         <div className="m-6 bg-white rounded-xl shadow-md p-12">
           <div className="text-center text-gray-500">
             <Trophy size={48} className="mx-auto mb-4 text-gray-300" />
-            <p>لا توجد بيانات للعرض في السنة المحددة</p>
+            <p>{t('reports.topRidersYearly.noDataToShow')}</p>
           </div>
         </div>
       )}

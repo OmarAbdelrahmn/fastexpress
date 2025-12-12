@@ -8,6 +8,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   Wrench,
   AlertTriangle,
@@ -19,6 +20,7 @@ import {
 
 export default function FixProblemsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -40,7 +42,7 @@ export default function FixProblemsPage() {
       }
     } catch (err) {
       console.error("Error loading problem vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل المركبات التي بها مشاكل");
+      setErrorMessage(t("vehicles.loadingError"));
     } finally {
       setLoadingVehicles(false);
     }
@@ -50,12 +52,12 @@ export default function FixProblemsPage() {
     e.preventDefault();
 
     if (!selectedVehicle) {
-      setErrorMessage("الرجاء اختيار المركبة أولاً");
+      setErrorMessage(t("vehicles.selectVehicleFirst"));
       return;
     }
 
     if (!fixReason.trim()) {
-      setErrorMessage("الرجاء إدخال تفاصيل الإصلاح");
+      setErrorMessage(t("vehicles.enterFixDetails"));
       return;
     }
 
@@ -65,12 +67,11 @@ export default function FixProblemsPage() {
 
     try {
       await ApiService.post(
-        `/api/vehicles/fix-problem?plate=${
-          selectedVehicle.plateNumberA
+        `/api/vehicles/fix-problem?plate=${selectedVehicle.plateNumberA
         }&reason=${encodeURIComponent(fixReason)}`
       );
 
-      setSuccessMessage("تم إصلاح المشكلة بنجاح وإعادة المركبة للخدمة");
+      setSuccessMessage(t("vehicles.fixSuccess"));
       setTimeout(() => {
         setSelectedVehicle(null);
         setFixReason("");
@@ -78,7 +79,7 @@ export default function FixProblemsPage() {
       }, 2000);
     } catch (err) {
       console.error("Error fixing problem:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء إصلاح المشكلة");
+      setErrorMessage(err?.message || t("vehicles.fixError") || "Error fixing problem");
     } finally {
       setLoading(false);
     }
@@ -94,9 +95,9 @@ export default function FixProblemsPage() {
               <Wrench size={32} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold mb-1">إصلاح مشاكل المركبات</h1>
+              <h1 className="text-3xl font-bold mb-1">{t("vehicles.fixProblemsTitle")}</h1>
               <p className="text-orange-100">
-                إدارة وإصلاح المركبات التي بها مشاكل
+                {t("vehicles.fixProblemsSubtitle")}
               </p>
             </div>
           </div>
@@ -107,7 +108,7 @@ export default function FixProblemsPage() {
         {errorMessage && (
           <Alert
             type="error"
-            title="خطأ"
+            title={t("common.error")}
             message={errorMessage}
             onClose={() => setErrorMessage("")}
           />
@@ -116,7 +117,7 @@ export default function FixProblemsPage() {
         {successMessage && (
           <Alert
             type="success"
-            title="نجاح"
+            title={t("common.success")}
             message={successMessage}
             onClose={() => setSuccessMessage("")}
           />
@@ -127,7 +128,7 @@ export default function FixProblemsPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">مركبات بها مشاكل</p>
+                <p className="text-sm text-orange-600 mb-1">{t("vehicles.problemVehicles")}</p>
                 <p className="text-3xl font-bold text-orange-700">
                   {problemVehicles.length}
                 </p>
@@ -139,7 +140,7 @@ export default function FixProblemsPage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 mb-1">مشاكل نشطة</p>
+                <p className="text-sm text-blue-600 mb-1">{t("vehicles.activeProblems")}</p>
                 <p className="text-3xl font-bold text-blue-700">
                   {problemVehicles.reduce(
                     (sum, v) => sum + (v.problemsCount || 0),
@@ -154,7 +155,7 @@ export default function FixProblemsPage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 mb-1">تم الإصلاح اليوم</p>
+                <p className="text-sm text-green-600 mb-1">{t("vehicles.fixedToday")}</p>
                 <p className="text-3xl font-bold text-green-700">0</p>
               </div>
               <CheckCircle className="text-green-500" size={40} />
@@ -166,29 +167,28 @@ export default function FixProblemsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <AlertTriangle size={20} className="text-orange-600" />
-            المركبات التي تحتاج إصلاح
+            {t("vehicles.vehiclesNeedFix")}
           </h3>
 
           {loadingVehicles ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
             </div>
           ) : problemVehicles.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle className="mx-auto text-green-500 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد مركبات تحتاج إصلاح حالياً</p>
+              <p className="text-gray-600">{t("vehicles.noVehiclesNeedFix")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {problemVehicles.map((vehicle) => (
                 <div
                   key={vehicle.vehicleNumber}
-                  className={`border-2 rounded-lg p-4 transition cursor-pointer ${
-                    selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
-                      ? "border-orange-500 bg-orange-50"
-                      : "border-gray-200 hover:border-orange-300"
-                  }`}
+                  className={`border-2 rounded-lg p-4 transition cursor-pointer ${selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
+                    ? "border-orange-500 bg-orange-50"
+                    : "border-gray-200 hover:border-orange-300"
+                    }`}
                   onClick={() => setSelectedVehicle(vehicle)}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -206,35 +206,35 @@ export default function FixProblemsPage() {
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                      {vehicle.problemsCount} مشكلة
+                      {vehicle.problemsCount} {t("vehicles.problem")}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Car size={14} />
-                      <span>الرقم التسلسلي: {vehicle.serialNumber}</span>
+                      <span>{t("vehicles.serialNumber")}: {vehicle.serialNumber}</span>
                     </div>
 
                     {vehicle.riderName && vehicle.riderName !== "N/A" && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <User size={14} />
-                        <span>آخر مندوب: {vehicle.riderName}</span>
+                        <span>{t("vehicles.lastRider")}: {vehicle.riderName}</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 text-gray-600">
                       <Clock size={14} />
                       <span>
-                        منذ:{" "}
-                        {new Date(vehicle.since).toLocaleDateString("ar-SA")}
+                        {t("vehicles.since")}:{" "}
+                        {new Date(vehicle.since).toLocaleDateString("en-US")}
                       </span>
                     </div>
 
                     {vehicle.reason && (
                       <div className="bg-orange-50 p-2 rounded mt-2">
                         <p className="text-xs text-orange-800">
-                          <strong>السبب:</strong> {vehicle.reason}
+                          <strong>{t("vehicles.reason")}:</strong> {vehicle.reason}
                         </p>
                       </div>
                     )}
@@ -254,10 +254,10 @@ export default function FixProblemsPage() {
                   <Wrench className="text-green-600 mt-1" size={24} />
                   <div>
                     <h3 className="font-semibold text-green-800 mb-1">
-                      إصلاح المشكلة
+                      {t("vehicles.fixProblem")}
                     </h3>
                     <p className="text-sm text-green-600">
-                      المركبة المحددة:{" "}
+                      {t("vehicles.selectedVehicle")}:{" "}
                       <strong>{selectedVehicle.plateNumberA}</strong>
                     </p>
                   </div>
@@ -266,23 +266,23 @@ export default function FixProblemsPage() {
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="font-bold text-gray-800 mb-3">
-                  معلومات المركبة
+                  {t("vehicles.vehicleInfo")}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">رقم اللوحة</p>
+                    <p className="text-gray-600 mb-1">{t("vehicles.plateNumber")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.plateNumberA}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">الرقم التسلسلي</p>
+                    <p className="text-gray-600 mb-1">{t("vehicles.serialNumber")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.serialNumber}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">عدد المشاكل</p>
+                    <p className="text-gray-600 mb-1">{t("vehicles.problemsCount")}</p>
                     <p className="font-medium text-orange-600">
                       {selectedVehicle.problemsCount}
                     </p>
@@ -292,14 +292,14 @@ export default function FixProblemsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  تفاصيل الإصلاح <span className="text-red-500">*</span>
+                  {t("vehicles.fixDetails")} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={fixReason}
                   onChange={(e) => setFixReason(e.target.value)}
                   required
                   rows={4}
-                  placeholder="اشرح ما تم إصلاحه والإجراءات المتخذة..."
+                  placeholder={t("vehicles.fixDetailsPlaceholder")}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -314,11 +314,11 @@ export default function FixProblemsPage() {
                   }}
                   disabled={loading}
                 >
-                  إلغاء
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" loading={loading} disabled={loading}>
                   <CheckCircle size={18} className="ml-2" />
-                  تأكيد الإصلاح
+                  {t("vehicles.confirmFix")}
                 </Button>
               </div>
             </form>

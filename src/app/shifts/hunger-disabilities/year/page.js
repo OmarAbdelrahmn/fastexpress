@@ -5,11 +5,12 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import { Calendar, Search, FileSpreadsheet } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
-import { hungerReportColumns } from '../reportColumns';
+import { getHungerReportColumns } from '../reportColumns';
 import * as XLSX from 'xlsx';
-
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function YearPage() {
+    const { t, language } = useLanguage();
     const [year, setYear] = useState(new Date().getFullYear());
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -33,15 +34,16 @@ export default function YearPage() {
     const handleExport = () => {
         if (!data || data.length === 0) return;
 
+        const columns = getHungerReportColumns(t);
         // Map data to headers
         const exportData = data.map(item => {
             const row = {};
-            hungerReportColumns.forEach(col => {
+            columns.forEach(col => {
                 if (col.accessor === 'performancePercentage' || col.accessor === 'performanceStatus') {
                     row[col.header] = item[col.accessor];
                 } else if (col.render && (col.accessor === 'substituteWorkingId' || col.accessor === 'substituteRiderNameAR')) {
                     const val = item[col.accessor];
-                    row[col.header] = val || 'لا يوجد';
+                    row[col.header] = val || t('common.noData');
                 } else if (col.accessor) {
                     row[col.header] = item[col.accessor];
                 }
@@ -55,11 +57,13 @@ export default function YearPage() {
         XLSX.writeFile(workbook, `Hunger_Report_Year_${year}.xlsx`);
     };
 
+    const columns = getHungerReportColumns(t);
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="التقرير السنوي"
-                subtitle="عرض عجز هنجر لسنة محددة"
+                title={t('hungerDisabilities.yearly')}
+                subtitle={t('hungerDisabilities.yearlyDesc')}
                 icon={Calendar}
             />
 
@@ -67,7 +71,7 @@ export default function YearPage() {
                 <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                     <div className="flex flex-wrap items-end gap-4">
                         <div className="flex-1 min-w-[200px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">السنة</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('hungerDisabilities.year')}</label>
                             <input
                                 type="number"
                                 value={year}
@@ -82,7 +86,7 @@ export default function YearPage() {
                                 className="flex items-center gap-2"
                             >
                                 <Search size={18} />
-                                عرض التقرير
+                                {t('shifts.search')}
                             </Button>
 
                             {data.length > 0 && (
@@ -92,7 +96,7 @@ export default function YearPage() {
                                     className="flex items-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
                                 >
                                     <FileSpreadsheet size={18} />
-                                    طباعة لملف Excel
+                                    {t('hungerDisabilities.exportToExcel')}
                                 </Button>
                             )}
                         </div>
@@ -109,11 +113,11 @@ export default function YearPage() {
                     {searched && (
                         <>
                             <div className="mb-4 text-sm text-gray-500">
-                                تقرير سنة: <span className="font-bold text-gray-900">{year}</span>
+                                {t('hungerDisabilities.yearly')}: <span className="font-bold text-gray-900">{year}</span>
                             </div>
                             <div className="overflow-x-auto">
                                 <Table
-                                    columns={hungerReportColumns}
+                                    columns={columns}
                                     data={data}
                                     loading={loading}
                                 />
@@ -122,7 +126,7 @@ export default function YearPage() {
                     )}
                     {!searched && (
                         <div className="text-center text-gray-500 py-12">
-                            الرجاء اختيار الفترة والضغط على عرض التقرير
+                            {t('hungerDisabilities.selectYear')}
                         </div>
                     )}
                 </div>

@@ -7,7 +7,10 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 
+import { useLanguage } from '@/lib/context/LanguageContext';
+
 export default function SubstitutionHistoryPage() {
+  const { t, language } = useLanguage();
   const [workingId, setWorkingId] = useState('');
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,9 +19,9 @@ export default function SubstitutionHistoryPage() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    
+
     if (!workingId) {
-      setMessage({ type: 'error', text: 'الرجاء إدخال رقم العمل' });
+      setMessage({ type: 'error', text: t('substitution.enterWorkingId') });
       return;
     }
 
@@ -27,29 +30,27 @@ export default function SubstitutionHistoryPage() {
     setHasSearched(true);
 
     try {
-  const data = await ApiService.get(API_ENDPOINTS.SUBSTITUTION.HISTORY(workingId));
-  
-  setHistory(Array.isArray(data) ? data : []);
-  if (data.length === 0) {
-    setMessage({ type: 'info', text: 'لا يوجد سجل استبدال لهذا الرقم' });
-  }
-} catch (error) {
-  setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم' });
-  setHistory([]);
-} finally {
-  setLoading(false);
-}
+      const data = await ApiService.get(API_ENDPOINTS.SUBSTITUTION.HISTORY(workingId));
+
+      setHistory(Array.isArray(data) ? data : []);
+      if (data.length === 0) {
+        setMessage({ type: 'info', text: t('substitution.noHistoryFound') });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || t('errors.generalError') });
+      setHistory([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   const calculateDuration = (startDate, endDate) => {
     const start = new Date(startDate);
@@ -57,42 +58,40 @@ export default function SubstitutionHistoryPage() {
     const diffInMs = end - start;
     const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
+
     if (days === 0) {
-      return `${hours} ساعة`;
+      return `${hours} ${t('substitution.hour')}`;
     } else if (days === 1) {
-      return `يوم واحد`;
+      return t('substitution.oneDay');
     } else if (days === 2) {
-      return `يومين`;
+      return t('substitution.twoDays');
     } else if (days <= 10) {
-      return `${days} أيام`;
+      return `${days} ${t('substitution.days')}`;
     } else {
-      return `${days} يوم`;
+      return `${days} ${t('substitution.day')}`;
     }
   };
 
-  const getStatusBadge = (isActive) => {
-    return isActive ? (
-      <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-200">
-        <span className="w-2 h-2 rounded-full bg-green-500"></span>
-        نشط
-      </span>
-    ) : (
-      <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 border border-gray-200">
-        <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-        متوقف
-      </span>
-    );
-  };
+  return isActive ? (
+    <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-200">
+      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+      {t('substitution.active')}
+    </span>
+  ) : (
+    <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 border border-gray-200">
+      <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+      {t('substitution.stopped')}
+    </span>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       {/* Header */}
-            <PageHeader
-              title="سجل البدلاء"
-              subtitle="عرض السجل الكامل للاستبدالات حسب رقم العمل"
-              icon={History}
-            />
+      <PageHeader
+        title={t('substitution.historyTitle')}
+        subtitle={t('substitution.historySubtitle')}
+        icon={History}
+      />
 
       <div className="p-6 space-y-6">
         {/* Search Section */}
@@ -100,12 +99,12 @@ export default function SubstitutionHistoryPage() {
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                رقم العمل <span className="text-red-500">*</span>
+                {t('substitution.workingId')} <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-3">
                 <input
                   type="text"
-                  placeholder="أدخل رقم العمل للبحث..."
+                  placeholder={t('substitution.searchPlaceholder')}
                   value={workingId}
                   onChange={(e) => setWorkingId(e.target.value)}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -119,19 +118,19 @@ export default function SubstitutionHistoryPage() {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      جاري البحث...
+                      {t('substitution.searching')}
                     </>
                   ) : (
                     <>
                       <Search size={20} />
-                      بحث
+                      {t('substitution.search')}
                     </>
                   )}
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 <AlertCircle size={14} className="inline mr-1" />
-                سيظهر السجل لجميع الحالات التي كان فيها هذا الرقم مندوباً أصلياً أو بديلاً
+                {t('substitution.searchNote')}
               </p>
             </div>
           </form>
@@ -139,14 +138,13 @@ export default function SubstitutionHistoryPage() {
 
         {/* Message */}
         {message.text && (
-          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${
-            message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 
-            message.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
-            'bg-blue-50 text-blue-800 border border-blue-200'
-          }`}>
-            {message.type === 'success' ? <CheckCircle size={20} /> : 
-             message.type === 'error' ? <XCircle size={20} /> : 
-             <AlertCircle size={20} />}
+          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+              message.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+                'bg-blue-50 text-blue-800 border border-blue-200'
+            }`}>
+            {message.type === 'success' ? <CheckCircle size={20} /> :
+              message.type === 'error' ? <XCircle size={20} /> :
+                <AlertCircle size={20} />}
             <span className="flex-1">{message.text}</span>
             <button onClick={() => setMessage({ type: '', text: '' })}>✕</button>
           </div>
@@ -158,11 +156,11 @@ export default function SubstitutionHistoryPage() {
             <div className="bg-blue-600 px-6 py-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Calendar size={20} />
-                نتائج البحث ({history.length})
+                {t('substitution.results')} ({history.length})
               </h3>
               {history.length > 0 && (
                 <span className="text-blue-100 text-sm">
-                  رقم العمل: {workingId}
+                  {t('substitution.workingId')}: {workingId}
                 </span>
               )}
             </div>
@@ -178,24 +176,23 @@ export default function SubstitutionHistoryPage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">#</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المندوب الأصلي</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">رقم العمل الأصلي</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المندوب البديل</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">رقم العمل البديل</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">السبب</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">تاريخ البدء</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">تاريخ الانتهاء</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المدة</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">الحالة</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.originalRider')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.originalWorkingId')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.substituteRider')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.substituteWorkingId')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.reason')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.startDate')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.endDate')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.duration')}</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">{t('substitution.status')}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {history.map((item, index) => (
-                        <tr 
-                          key={item.id} 
-                          className={`hover:bg-blue-50/50 transition-colors ${
-                            item.actualRiderWorkingId === workingId ? 'bg-yellow-50/30' : ''
-                          }`}
+                        <tr
+                          key={item.id}
+                          className={`hover:bg-blue-50/50 transition-colors ${item.actualRiderWorkingId === workingId ? 'bg-yellow-50/30' : ''
+                            }`}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-gray-600 font-medium">{index + 1}</span>
@@ -204,11 +201,10 @@ export default function SubstitutionHistoryPage() {
                             <div className="font-medium text-gray-900">{item.actualRiderName}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              item.actualRiderWorkingId === workingId
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${item.actualRiderWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-blue-100 text-blue-800'
-                            }`}>
+                              }`}>
                               {item.actualRiderWorkingId}
                             </span>
                           </td>
@@ -216,11 +212,10 @@ export default function SubstitutionHistoryPage() {
                             <div className="font-medium text-gray-900">{item.substituteRiderName}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                              item.substituteWorkingId === workingId
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${item.substituteWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-purple-100 text-purple-800'
-                            }`}>
+                              }`}>
                               {item.substituteWorkingId}
                             </span>
                           </td>
@@ -242,7 +237,7 @@ export default function SubstitutionHistoryPage() {
                                 {formatDate(item.endDate)}
                               </div>
                             ) : (
-                              <span className="text-gray-400 italic">مستمر</span>
+                              <span className="text-gray-400 italic">{t('substitution.ongoing')}</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -260,8 +255,8 @@ export default function SubstitutionHistoryPage() {
                 ) : (
                   <div className="px-6 py-12 text-center text-gray-500">
                     <History size={48} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-lg font-medium">لا توجد نتائج</p>
-                    <p className="text-sm text-gray-400 mt-2">قم بالبحث عن رقم عمل آخر</p>
+                    <p className="text-lg font-medium">{t('substitution.noResults')}</p>
+                    <p className="text-sm text-gray-400 mt-2">{t('substitution.searchAnother')}</p>
                   </div>
                 )}
               </div>
@@ -277,19 +272,19 @@ export default function SubstitutionHistoryPage() {
                 <AlertCircle size={24} className="text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">كيفية استخدام البحث</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">{t('substitution.howToUse')}</h3>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 font-bold">•</span>
-                    <span>أدخل رقم العمل الذي تريد البحث عن سجله</span>
+                    <span>{t('substitution.howToUseNote1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 font-bold">•</span>
-                    <span>سيظهر لك جميع حالات الاستبدال المرتبطة بهذا الرقم سواء كان مندوباً أصلياً أو بديلاً</span>
+                    <span>{t('substitution.howToUseNote2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 font-bold">•</span>
-                    <span>الصفوف المميزة بلون أصفر تشير إلى تطابق رقم العمل المبحوث عنه</span>
+                    <span>{t('substitution.howToUseNote3')}</span>
                   </li>
                 </ul>
               </div>

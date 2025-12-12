@@ -11,9 +11,11 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Crown, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function MasterRegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -46,7 +48,7 @@ export default function MasterRegisterPage() {
 
     try {
       const response = await ApiService.post(API_ENDPOINTS.AUTH.MASTER_REGISTER, formData);
-      
+
       if (response) {
         setSuccess(true);
         setFormData({ username: '', password: '' });
@@ -55,7 +57,7 @@ export default function MasterRegisterPage() {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'حدث خطأ أثناء تسجيل المدير الرئيسي');
+      setError(err.message || t('auth.masterRegisterError'));
     } finally {
       setLoading(false);
     }
@@ -70,25 +72,25 @@ export default function MasterRegisterPage() {
             <Crown className="text-[#ebb62b]" size={48} />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#1b428e] to-[#ebb62b] bg-clip-text text-transparent mb-2">
-            تسجيل مدير رئيسي
+            {t('auth.registerNewMaster')}
           </h1>
-          <p className="text-gray-600 font-medium">حساب المدير الرئيسي (Master)</p>
+          <p className="text-gray-600 font-medium">{t('auth.masterAccount')}</p>
         </div>
 
         {/* Success Alert */}
         {success && (
-          <Alert 
-            type="success" 
-            title="نجح التسجيل" 
-            message="تم إنشاء حساب المدير الرئيسي بنجاح"
+          <Alert
+            type="success"
+            title={t('auth.registerSuccess')}
+            message={t('auth.masterRegisterSuccess')}
           />
         )}
 
         {/* Error Alert */}
         {error && (
-          <Alert 
-            type="error" 
-            title="خطأ في التسجيل"
+          <Alert
+            type="error"
+            title={t('auth.registerError')}
             message={error}
             onClose={() => setError(null)}
           />
@@ -97,32 +99,32 @@ export default function MasterRegisterPage() {
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
-            label="اسم المستخدم"
+            label={t('auth.username')}
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
             required
-            placeholder="أدخل اسم المستخدم للمدير الرئيسي"
+            placeholder={t('auth.enterMasterUsername')}
             disabled={loading}
           />
 
           <div className="relative">
             <Input
-              label="كلمة المرور"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="أدخل كلمة مرور قوية جداً"
+              placeholder={t('auth.enterVeryStrongPassword')}
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
-              title={showPassword ? "إخفاء كلمة المرور" : "عرض كلمة المرور"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -130,10 +132,10 @@ export default function MasterRegisterPage() {
 
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-800 font-bold mb-2">
-              🔐 تحذير: صلاحيات عالية جداً
+              🔐 {t('auth.masterWarningTitle')}
             </p>
             <p className="text-xs text-red-700">
-              هذا الحساب سيحصل على صلاحيات المدير الرئيسي الكاملة مع إمكانية التحكم بجميع الحسابات والبيانات
+              {t('auth.masterWarningText')}
             </p>
           </div>
 
@@ -143,18 +145,18 @@ export default function MasterRegisterPage() {
             disabled={loading || success}
             className="w-full bg-gradient-to-r from-[#1b428e] to-[#2858b8] hover:from-[#2858b8] hover:to-[#1b428e] text-white font-bold py-3 text-lg"
           >
-            {loading ? 'جاري التسجيل...' : 'تسجيل مدير رئيسي'}
+            {loading ? t('auth.registering') : t('auth.registerMaster')}
           </Button>
         </form>
 
         {/* Back to Dashboard Link */}
         <div className="mt-6 text-center">
-          <Link 
-            href="/dashboard" 
+          <Link
+            href="/dashboard"
             className="text-[#1b428e] hover:text-[#e08911] font-medium inline-flex items-center gap-2 transition-colors"
           >
             <ArrowRight size={18} />
-            العودة إلى لوحة التحكم
+            {t('navigation.backToDashboard')}
           </Link>
         </div>
       </div>

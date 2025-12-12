@@ -10,9 +10,11 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { Archive, Search, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function DeletedEmployeesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [deletedEmployees, setDeletedEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -30,14 +32,14 @@ export default function DeletedEmployeesPage() {
       setDeletedEmployees(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading deleted employees:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل الموظفين المحذوفين');
+      setErrorMessage(err?.message || t('employees.loadDeletedError'));
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'غير محدد';
+    if (!dateString) return t('profile.notSpecified');
     return new Date(dateString).toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'long',
@@ -48,20 +50,20 @@ export default function DeletedEmployeesPage() {
   };
 
   const columns = [
-    { 
-      header: 'رقم الإقامة',
+    {
+      header: t('employees.iqamaNumber'),
       accessor: 'iqamaNo',
       render: (row) => (
         <span className="font-bold text-red-600">{row.iqamaNo}</span>
       )
     },
-    { header: 'الاسم (عربي)', accessor: 'nameAR' },
-    { header: 'الاسم (إنجليزي)', accessor: 'nameEN' },
-    { header: 'البلد', accessor: 'country' },
-    { header: 'رقم الهاتف', accessor: 'phone' },
-    { header: 'المسمى الوظيفي', accessor: 'jobTitle' },
-    { 
-      header: 'تاريخ الحذف',
+    { header: t('employees.nameArabic'), accessor: 'nameAR' },
+    { header: t('employees.nameEnglish'), accessor: 'nameEN' },
+    { header: t('employees.country'), accessor: 'country' },
+    { header: t('employees.phone'), accessor: 'phone' },
+    { header: t('employees.jobTitle'), accessor: 'jobTitle' },
+    {
+      header: t('employees.deleteDate'),
       accessor: 'createdAt',
       render: (row) => (
         <span className="text-sm text-gray-600">
@@ -83,11 +85,11 @@ export default function DeletedEmployeesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="الموظفين المحذوفين"
-          subtitle="جاري التحميل..."
+          title={t('employees.deletedEmployeesTitle')}
+          subtitle={t('common.loading')}
           icon={Archive}
           actionButton={{
-            text: 'العودة للقائمة',
+            text: t('navigation.backToList'),
             icon: <ArrowRight size={18} />,
             onClick: () => router.push('/employee/admin'),
             variant: 'secondary'
@@ -96,7 +98,7 @@ export default function DeletedEmployeesPage() {
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t('riders.loadingData')}</p>
           </div>
         </Card>
       </div>
@@ -106,11 +108,11 @@ export default function DeletedEmployeesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="الموظفين المحذوفين"
-        subtitle={`إجمالي الموظفين المحذوفين: ${deletedEmployees.length}`}
+        title={t('employees.deletedEmployeesTitle')}
+        subtitle={`${t('employees.totalDeleted')}: ${deletedEmployees.length}`}
         icon={Archive}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/employee/admin'),
           variant: 'secondary'
@@ -122,7 +124,7 @@ export default function DeletedEmployeesPage() {
         <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-600 mb-1">إجمالي المحذوفين</p>
+              <p className="text-sm text-red-600 mb-1">{t('employees.totalDeletedCount')}</p>
               <p className="text-3xl font-bold text-red-700">{deletedEmployees.length}</p>
             </div>
             <Archive className="text-red-500" size={40} />
@@ -132,7 +134,7 @@ export default function DeletedEmployeesPage() {
         <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-600 mb-1">عدد الدول</p>
+              <p className="text-sm text-purple-600 mb-1">{t('employees.numberOfCountriesDeleted')}</p>
               <p className="text-3xl font-bold text-purple-700">
                 {new Set(deletedEmployees.map(e => e.country)).size}
               </p>
@@ -144,13 +146,13 @@ export default function DeletedEmployeesPage() {
         <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-orange-600 mb-1">حذف هذا الشهر</p>
+              <p className="text-sm text-orange-600 mb-1">{t('employees.deletedThisMonth')}</p>
               <p className="text-3xl font-bold text-orange-700">
                 {deletedEmployees.filter(e => {
                   const deleteDate = new Date(e.createdAt);
                   const now = new Date();
-                  return deleteDate.getMonth() === now.getMonth() && 
-                         deleteDate.getFullYear() === now.getFullYear();
+                  return deleteDate.getMonth() === now.getMonth() &&
+                    deleteDate.getFullYear() === now.getFullYear();
                 }).length}
               </p>
             </div>
@@ -160,9 +162,9 @@ export default function DeletedEmployeesPage() {
       </div>
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -174,7 +176,7 @@ export default function DeletedEmployeesPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="البحث بالاسم، رقم الإقامة، البلد، أو الكفيل..."
+              placeholder={t('employees.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -186,16 +188,16 @@ export default function DeletedEmployeesPage() {
           <div className="text-center py-12">
             <Archive className="mx-auto text-gray-400 mb-4" size={64} />
             <h3 className="text-xl font-bold text-gray-800 mb-2">
-              لا توجد سجلات محذوفة
+              {t('employees.noDeletedRecords')}
             </h3>
             <p className="text-gray-600">
-              {searchTerm ? 'لا توجد نتائج تطابق بحثك' : 'لم يتم حذف أي موظفين بعد'}
+              {searchTerm ? t('employees.noMatchingResults') : t('employees.noEmployeesDeleted')}
             </p>
           </div>
         ) : (
-          <Table 
-            columns={columns} 
-            data={filteredEmployees} 
+          <Table
+            columns={columns}
+            data={filteredEmployees}
             loading={loading}
           />
         )}
@@ -203,14 +205,14 @@ export default function DeletedEmployeesPage() {
 
       {/* Information Card */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات إضافية</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.additionalInfo')}</h3>
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-start gap-2">
             <div className="bg-blue-100 p-1 rounded mt-0.5">
               <Archive size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>الأرشيف:</strong> هذه الصفحة تحتوي على سجلات الموظفين المحذوفين
+              <strong>{t('employees.archive')}:</strong> {t('employees.archiveInfo')}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -218,7 +220,7 @@ export default function DeletedEmployeesPage() {
               <Archive size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>الغرض:</strong> يتم الاحتفاظ بهذه السجلات لأغراض التدقيق والمراجعة
+              <strong>{t('common.purpose')}:</strong> {t('employees.purposeInfo')}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -226,7 +228,7 @@ export default function DeletedEmployeesPage() {
               <Archive size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>ملاحظة:</strong> لا يمكن استرجاع هذه السجلات من النظام مباشرة
+              <strong>{t('common.note')}:</strong> {t('employees.noteInfo')}
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   AlertTriangle,
   Search,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 
 export default function RequestProblemPage() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -45,7 +47,7 @@ export default function RequestProblemPage() {
       }
     } catch (err) {
       console.error("Error loading vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل المركبات المستخدمة");
+      setErrorMessage(t("errors.loadingUsedVehicles"));
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ export default function RequestProblemPage() {
 
   const searchVehicle = async () => {
     if (!searchTerm.trim()) {
-      setErrorMessage("الرجاء إدخال رقم اللوحة للبحث");
+      setErrorMessage(t("errors.enterPlateNumber"));
       return;
     }
 
@@ -70,12 +72,12 @@ export default function RequestProblemPage() {
         }
         setErrorMessage("");
       } else {
-        setErrorMessage("لم يتم العثور على المركبة");
+        setErrorMessage(t("errors.vehicleNotFound"));
         setSelectedVehicle(null);
       }
     } catch (err) {
       console.error("Error searching vehicle:", err);
-      setErrorMessage("المركبة غير موجودة");
+      setErrorMessage(t("errors.vehicleNotFound"));
       setSelectedVehicle(null);
     } finally {
       setSearchLoading(false);
@@ -84,17 +86,17 @@ export default function RequestProblemPage() {
 
   const handleSubmitRequest = async () => {
     if (!selectedVehicle) {
-      setErrorMessage("الرجاء اختيار المركبة أولاً");
+      setErrorMessage(t("errors.selectVehicleFirst"));
       return;
     }
 
     if (!employeeIqama.trim()) {
-      setErrorMessage("الرجاء إدخال رقم الإقامة");
+      setErrorMessage(t("errors.enterIqamaNumber"));
       return;
     }
 
     if (!problemDescription.trim()) {
-      setErrorMessage("الرجاء وصف المشكلة بالتفصيل");
+      setErrorMessage(t("vehicles.describeProblem"));
       return;
     }
 
@@ -116,9 +118,7 @@ export default function RequestProblemPage() {
         requestBody
       );
 
-      setSuccessMessage(
-        "تم إرسال تقرير المشكلة بنجاح. سيتم مراجعته من قبل الإدارة."
-      );
+      setSuccessMessage(t("vehicles.problemReportSuccess"));
       setTimeout(() => {
         setSelectedVehicle(null);
         setSearchTerm("");
@@ -128,7 +128,7 @@ export default function RequestProblemPage() {
       }, 2000);
     } catch (err) {
       console.error("Error submitting request:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء إرسال التقرير");
+      setErrorMessage(err?.message || t("vehicles.problemReportError"));
     } finally {
       setLoading(false);
     }
@@ -146,8 +146,8 @@ export default function RequestProblemPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="الإبلاغ عن مشكلة في مركبة"
-        subtitle="قدم تقرير بمشكلة في مركبة مستخدمة"
+        title={t("vehicles.reportProblemTitle")}
+        subtitle={t("vehicles.reportProblemSubtitle")}
         icon={AlertTriangle}
       />
 
@@ -155,7 +155,7 @@ export default function RequestProblemPage() {
         {errorMessage && (
           <Alert
             type="error"
-            title="خطأ"
+            title={t("common.error")}
             message={errorMessage}
             onClose={() => setErrorMessage("")}
           />
@@ -164,7 +164,7 @@ export default function RequestProblemPage() {
         {successMessage && (
           <Alert
             type="success"
-            title="نجاح"
+            title={t("common.success")}
             message={successMessage}
             onClose={() => setSuccessMessage("")}
           />
@@ -175,13 +175,13 @@ export default function RequestProblemPage() {
             <AlertCircle className="text-red-600 mt-1" size={24} />
             <div>
               <h3 className="font-semibold text-red-800 mb-1">
-                إرشادات الإبلاغ
+                {t("vehicles.reportingGuidelines")}
               </h3>
               <ul className="text-sm text-red-600 space-y-1 list-disc list-inside">
-                <li>قدم وصفاً دقيقاً ومفصلاً للمشكلة</li>
-                <li>اذكر متى لاحظت المشكلة لأول مرة</li>
-                <li>حدد مدى خطورة المشكلة على السلامة</li>
-                <li>سيتم مراجعة تقريرك من قبل فريق الصيانة</li>
+                <li>{t("vehicles.guidelineAccurate")}</li>
+                <li>{t("vehicles.guidelineWhen")}</li>
+                <li>{t("vehicles.guidelineSeverity")}</li>
+                <li>{t("vehicles.guidelineReview")}</li>
               </ul>
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function RequestProblemPage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 mb-1">مركبات مستخدمة</p>
+                <p className="text-sm text-blue-600 mb-1">{t("vehicles.vehiclesInUse")}</p>
                 <p className="text-2xl font-bold text-blue-700">
                   {takenVehicles.length}
                 </p>
@@ -203,7 +203,7 @@ export default function RequestProblemPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">تقارير نشطة</p>
+                <p className="text-sm text-orange-600 mb-1">{t("vehicles.activeReports")}</p>
                 <p className="text-2xl font-bold text-orange-700">
                   {takenVehicles.filter((v) => v.problemsCount > 0).length}
                 </p>
@@ -215,7 +215,7 @@ export default function RequestProblemPage() {
           <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-purple-600 mb-1">نتائج البحث</p>
+                <p className="text-sm text-purple-600 mb-1">{t("vehicles.searchResults")}</p>
                 <p className="text-2xl font-bold text-purple-700">
                   {filteredVehicles.length}
                 </p>
@@ -229,7 +229,7 @@ export default function RequestProblemPage() {
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Search size={20} />
-              البحث عن المركبة
+              {t("vehicles.searchVehicle")}
             </h3>
 
             <div className="flex gap-3">
@@ -238,7 +238,7 @@ export default function RequestProblemPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="أدخل رقم اللوحة..."
+                  placeholder={t("vehicles.enterPlateNumberPlaceholder")}
                   onKeyPress={(e) => e.key === "Enter" && searchVehicle()}
                 />
               </div>
@@ -248,7 +248,7 @@ export default function RequestProblemPage() {
                 disabled={searchLoading}
               >
                 <Search size={18} className="ml-2" />
-                بحث
+                {t("common.search")}
               </Button>
             </div>
           </div>
@@ -257,37 +257,37 @@ export default function RequestProblemPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
                 <Car size={18} />
-                معلومات المركبة المحددة
+                {t("vehicles.selectedVehicleInfo")}
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
                 <div>
-                  <p className="text-blue-600 mb-1">رقم اللوحة (عربي)</p>
+                  <p className="text-blue-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.plateNumberA}
                   </p>
                 </div>
                 <div>
-                  <p className="text-blue-600 mb-1">الرقم التسلسلي</p>
+                  <p className="text-blue-600 mb-1">{t("vehicles.serialNumber")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.serialNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-blue-600 mb-1">نوع المركبة</p>
+                  <p className="text-blue-600 mb-1">{t("vehicles.vehicleType")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.vehicleType}
                   </p>
                 </div>
                 <div>
-                  <p className="text-blue-600 mb-1">رقم المركبة</p>
+                  <p className="text-blue-600 mb-1">{t("vehicles.vehicleNumberLabel")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.vehicleNumber}
                   </p>
                 </div>
                 {selectedVehicle.location && (
                   <div>
-                    <p className="text-blue-600 mb-1">الموقع</p>
+                    <p className="text-blue-600 mb-1">{t("vehicles.location")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.location}
                     </p>
@@ -295,7 +295,7 @@ export default function RequestProblemPage() {
                 )}
                 {selectedVehicle.manufacturer && (
                   <div>
-                    <p className="text-blue-600 mb-1">الشركة المصنعة</p>
+                    <p className="text-blue-600 mb-1">{t("vehicles.manufacturer")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.manufacturer}
                     </p>
@@ -307,23 +307,23 @@ export default function RequestProblemPage() {
                 <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
                   <h5 className="font-bold text-green-800 mb-2 flex items-center gap-2">
                     <User size={16} />
-                    معلومات المندوب الحالي
+                    {t("vehicles.currentRiderInfo")}
                   </h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-green-600 mb-1">رقم الإقامة</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.iqamaNumber")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.currentRider.employeeIqamaNo}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">الاسم (عربي)</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.nameArabicLabel")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.currentRider.riderName}
                       </p>
                     </div>
                     <div>
-                      <p className="text-green-600 mb-1">تاريخ الاستلام</p>
+                      <p className="text-green-600 mb-1">{t("vehicles.takenDate")}</p>
                       <p className="font-medium text-gray-800">
                         {new Date(
                           selectedVehicle.currentRider.takenDate
@@ -339,8 +339,7 @@ export default function RequestProblemPage() {
                   <div className="flex items-center gap-2 text-orange-800">
                     <AlertTriangle size={16} />
                     <p className="text-sm font-bold">
-                      تحذير: توجد {selectedVehicle.activeProblemsCount} مشكلة
-                      نشطة لهذه المركبة
+                      {t("vehicles.warningActiveProblems", { count: selectedVehicle.activeProblemsCount })}
                     </p>
                   </div>
                 </div>
@@ -351,28 +350,28 @@ export default function RequestProblemPage() {
           {selectedVehicle && (
             <div className="space-y-6">
               <Input
-                label="رقم إقامة المُبلِّغ"
+                label={t("vehicles.reporterIqama")}
                 type="number"
                 value={employeeIqama}
                 onChange={(e) => setEmployeeIqama(e.target.value)}
                 required
-                placeholder="أدخل رقم الإقامة..."
+                placeholder={t("employees.enterIqamaNumber")}
               />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  وصف المشكلة بالتفصيل <span className="text-red-500">*</span>
+                  {t("vehicles.problemDescriptionLabel")} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
                   required
                   rows={6}
-                  placeholder="اشرح المشكلة بالتفصيل:&#10;- ما هي المشكلة؟&#10;- متى لاحظتها؟&#10;- هل تؤثر على السلامة؟&#10;- أي ملاحظات إضافية..."
+                  placeholder={t("vehicles.problemDescriptionPlaceholder")}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  كلما كانت التفاصيل أكثر دقة، كلما كانت الاستجابة أسرع
+                  {t("vehicles.moreDetailsFasterResponse")}
                 </p>
               </div>
 
@@ -380,10 +379,9 @@ export default function RequestProblemPage() {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="text-yellow-600 mt-0.5" size={16} />
                   <div className="text-xs text-yellow-700">
-                    <p className="font-bold mb-1">ملاحظة هامة:</p>
+                    <p className="font-bold mb-1">{t("vehicles.importantSafetyNote")}</p>
                     <p>
-                      إذا كانت المشكلة خطيرة وتؤثر على السلامة، يُرجى التوقف عن
-                      استخدام المركبة فوراً والاتصال بالإدارة مباشرة.
+                      {t("vehicles.safetyWarningMessage")}
                     </p>
                   </div>
                 </div>
@@ -401,7 +399,7 @@ export default function RequestProblemPage() {
                   }}
                   disabled={loading}
                 >
-                  إلغاء
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={handleSubmitRequest}
@@ -409,7 +407,7 @@ export default function RequestProblemPage() {
                   disabled={loading}
                 >
                   <AlertTriangle size={18} className="ml-2" />
-                  إرسال التقرير
+                  {t("vehicles.sendReport")}
                 </Button>
               </div>
             </div>
@@ -419,29 +417,28 @@ export default function RequestProblemPage() {
         {!selectedVehicle && (
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-4">
-              المركبات المستخدمة
+              {t("vehicles.vehiclesUsed")}
             </h3>
 
             {loading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+                <p className="mt-4 text-gray-600">{t("vehicles.loadingDataMessage")}</p>
               </div>
             ) : filteredVehicles.length === 0 ? (
               <div className="text-center py-12">
                 <Car className="mx-auto text-gray-400 mb-4" size={48} />
-                <p className="text-gray-600">لا توجد مركبات مستخدمة حالياً</p>
+                <p className="text-gray-600">{t("vehicles.noVehiclesInUse")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredVehicles.map((vehicle) => (
                   <div
                     key={vehicle.vehicleNumber}
-                    className={`border-2 rounded-lg p-4 hover:shadow-lg transition cursor-pointer ${
-                      vehicle.problemsCount > 0
+                    className={`border-2 rounded-lg p-4 hover:shadow-lg transition cursor-pointer ${vehicle.problemsCount > 0
                         ? "border-orange-300 bg-orange-50"
                         : "border-blue-200 bg-blue-50"
-                    }`}
+                      }`}
                     onClick={() => {
                       setSearchTerm(vehicle.plateNumberA);
                       searchVehicle();
@@ -450,11 +447,10 @@ export default function RequestProblemPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`p-2 rounded-lg ${
-                            vehicle.problemsCount > 0
+                          className={`p-2 rounded-lg ${vehicle.problemsCount > 0
                               ? "bg-orange-100"
                               : "bg-blue-100"
-                          }`}
+                            }`}
                         >
                           {vehicle.problemsCount > 0 ? (
                             <AlertTriangle
@@ -475,22 +471,21 @@ export default function RequestProblemPage() {
                         </div>
                       </div>
                       <span
-                        className={`px-3 py-1 text-white rounded-full text-xs font-medium ${
-                          vehicle.problemsCount > 0
+                        className={`px-3 py-1 text-white rounded-full text-xs font-medium ${vehicle.problemsCount > 0
                             ? "bg-orange-600"
                             : "bg-blue-600"
-                        }`}
+                          }`}
                       >
                         {vehicle.problemsCount > 0
-                          ? `${vehicle.problemsCount} مشكلة`
-                          : "مستخدمة"}
+                          ? `${vehicle.problemsCount} ${t("vehicles.problemCount")}`
+                          : t("vehicles.inUseStatus")}
                       </span>
                     </div>
 
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-700">
                         <Package size={14} />
-                        <span className="text-gray-600">تسلسلي:</span>
+                        <span className="text-gray-600">{t("messages.serial")}:</span>
                         <span className="font-medium">
                           {vehicle.serialNumber}
                         </span>
@@ -518,7 +513,7 @@ export default function RequestProblemPage() {
 
                       <div className="flex items-center gap-2 text-gray-700">
                         <Clock size={14} />
-                        <span className="text-gray-600">منذ:</span>
+                        <span className="text-gray-600">{t("vehicles.sinceLabel")}</span>
                         <span className="font-medium text-xs">
                           {new Date(vehicle.since).toLocaleDateString("en-US")}
                         </span>

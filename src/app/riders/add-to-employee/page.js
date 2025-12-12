@@ -10,9 +10,11 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { UserPlus, ArrowRight, Save, Search, User } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function AddRiderToEmployeePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -20,7 +22,7 @@ export default function AddRiderToEmployeePage() {
   const [companies, setCompanies] = useState([]);
   const [employeeData, setEmployeeData] = useState(null);
   const [searchIqama, setSearchIqama] = useState('');
-  
+
   const [formData, setFormData] = useState({
     workingId: '',
     tshirtSize: '',
@@ -38,13 +40,13 @@ export default function AddRiderToEmployeePage() {
       setCompanies(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading companies:', err);
-      setErrorMessage('حدث خطأ في تحميل قائمة الشركات');
+      setErrorMessage(t('riders.loadCompaniesError'));
     }
   };
 
   const handleSearchEmployee = async () => {
     if (!searchIqama.trim()) {
-      setErrorMessage('الرجاء إدخال رقم الإقامة');
+      setErrorMessage(t('riders.enterIqamaPlease'));
       return;
     }
 
@@ -54,23 +56,23 @@ export default function AddRiderToEmployeePage() {
 
     try {
       const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.BY_IQAMA(searchIqama));
-      
+
       if (data) {
         // Check if already a rider
         const riderCheck = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(searchIqama));
         if (riderCheck && riderCheck.length > 0) {
-          setErrorMessage('هذا الموظف مسجل بالفعل كمندوب');
+          setErrorMessage(t('riders.alreadyRider'));
           return;
         }
-        
+
         setEmployeeData(data);
         setErrorMessage('');
       } else {
-        setErrorMessage('لم يتم العثور على الموظف');
+        setErrorMessage(t('riders.employeeNotFound'));
       }
     } catch (err) {
       console.error('Error searching employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في البحث عن الموظف');
+      setErrorMessage(err?.message || t('riders.searchEmployeeError'));
     } finally {
       setSearchLoading(false);
     }
@@ -86,9 +88,9 @@ export default function AddRiderToEmployeePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!employeeData) {
-      setErrorMessage('الرجاء البحث عن الموظف أولاً');
+      setErrorMessage(t('riders.searchEmployeeFirst'));
       return;
     }
 
@@ -108,14 +110,14 @@ export default function AddRiderToEmployeePage() {
         API_ENDPOINTS.RIDER.ADD_EMPLOYEE(employeeData.iqamaNo),
         requestData
       );
-      
-      setSuccessMessage('تم تحويل الموظف إلى مندوب بنجاح');
+
+      setSuccessMessage(t('riders.convertSuccess'));
       setTimeout(() => {
         router.push('/riders');
       }, 2000);
     } catch (err) {
       console.error('Error adding rider to employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء تحويل الموظف إلى مندوب');
+      setErrorMessage(err?.message || t('riders.convertError'));
     } finally {
       setLoading(false);
     }
@@ -124,11 +126,11 @@ export default function AddRiderToEmployeePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تحويل موظف إلى مندوب"
-        subtitle="إضافة معلومات المندوب لموظف موجود"
+        title={t('riders.convertEmployeeTitle')}
+        subtitle={t('riders.convertEmployeeSubtitle')}
         icon={UserPlus}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/riders'),
           variant: 'secondary'
@@ -136,18 +138,18 @@ export default function AddRiderToEmployeePage() {
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -157,33 +159,33 @@ export default function AddRiderToEmployeePage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Search size={20} />
-          البحث عن الموظف
+          {t('riders.searchEmployee')}
         </h3>
-        
+
         <div className="flex gap-3 mb-4">
           <Input
             label=""
             type="number"
             value={searchIqama}
             onChange={(e) => setSearchIqama(e.target.value)}
-            placeholder="أدخل رقم إقامة الموظف..."
+            placeholder={t('riders.enterEmployeeIqama')}
             onKeyPress={(e) => e.key === 'Enter' && handleSearchEmployee()}
           />
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             onClick={handleSearchEmployee}
             loading={searchLoading}
             disabled={searchLoading}
             className="mt-0"
           >
             <Search size={18} className="ml-2" />
-            بحث
+            {t('common.search')}
           </Button>
         </div>
 
         <div className="bg-blue-50 p-3 rounded-lg">
           <p className="text-sm text-blue-700">
-            ابحث عن الموظف برقم الإقامة، ثم أضف معلومات المندوب الخاصة به
+            {t('riders.searchEmployeeHint')}
           </p>
         </div>
       </Card>
@@ -193,33 +195,33 @@ export default function AddRiderToEmployeePage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <User size={20} />
-            معلومات الموظف
+            {t('riders.employeeInfo')}
           </h3>
-          
+
           <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-green-600 mb-1">رقم الإقامة</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.iqamaNumber')}</p>
                 <p className="font-bold text-gray-800">{employeeData.iqamaNo}</p>
               </div>
               <div>
-                <p className="text-sm text-green-600 mb-1">الاسم (عربي)</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.nameArabic')}</p>
                 <p className="font-bold text-gray-800">{employeeData.nameAR}</p>
               </div>
               <div>
-                <p className="text-sm text-green-600 mb-1">الاسم (إنجليزي)</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.nameEnglish')}</p>
                 <p className="font-bold text-gray-800">{employeeData.nameEN}</p>
               </div>
               <div>
-                <p className="text-sm text-green-600 mb-1">المسمى الوظيفي</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.jobTitle')}</p>
                 <p className="font-medium text-gray-800">{employeeData.jobTitle}</p>
               </div>
               <div>
-                <p className="text-sm text-green-600 mb-1">البلد</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.country')}</p>
                 <p className="font-medium text-gray-800">{employeeData.country}</p>
               </div>
               <div>
-                <p className="text-sm text-green-600 mb-1">رقم الهاتف</p>
+                <p className="text-sm text-green-600 mb-1">{t('riders.phone')}</p>
                 <p className="font-medium text-gray-800">{employeeData.phone}</p>
               </div>
             </div>
@@ -231,31 +233,31 @@ export default function AddRiderToEmployeePage() {
       {employeeData && (
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
-            <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات المندوب</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="رقم العمل"
+                label={t('riders.workingId')}
                 type="text"
                 name="workingId"
                 value={formData.workingId}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل رقم العمل"
+                placeholder={t('riders.enterWorkingId')}
               />
 
               <Input
-                label="رقم الرخصة"
+                label={t('riders.licenseNumber')}
                 type="text"
                 name="licenseNumber"
                 value={formData.licenseNumber}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل رقم الرخصة"
+                placeholder={t('riders.enterLicenseNumber')}
               />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  مقاس التيشرت <span className="text-red-500">*</span>
+                  {t('riders.tshirtSize')} <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="tshirtSize"
@@ -264,7 +266,7 @@ export default function AddRiderToEmployeePage() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
-                  <option value="">اختر المقاس</option>
+                  <option value="">{t('riders.selectSize')}</option>
                   <option value="S">S</option>
                   <option value="M">M</option>
                   <option value="L">L</option>
@@ -276,7 +278,7 @@ export default function AddRiderToEmployeePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  الشركة <span className="text-red-500">*</span>
+                  {t('riders.company')} <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="companyName"
@@ -285,7 +287,7 @@ export default function AddRiderToEmployeePage() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
-                  <option value="">اختر الشركة</option>
+                  <option value="">{t('riders.selectCompany')}</option>
                   {companies.map((company) => (
                     <option key={company.name} value={company.name}>
                       {company.name}
@@ -313,11 +315,11 @@ export default function AddRiderToEmployeePage() {
                 }}
                 disabled={loading}
               >
-                إلغاء
+                {t('common.cancel')}
               </Button>
               <Button type="submit" loading={loading} disabled={loading}>
                 <Save size={18} className="ml-2" />
-                تحويل إلى مندوب
+                {t('riders.convertToRider')}
               </Button>
             </div>
           </Card>
@@ -327,31 +329,31 @@ export default function AddRiderToEmployeePage() {
       {/* Instructions */}
       {!employeeData && (
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">كيفية الاستخدام</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.howToUse')}</h3>
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start gap-2">
               <div className="bg-blue-100 p-1 rounded mt-0.5">
                 <span className="text-blue-600 font-bold">1</span>
               </div>
-              <p>ابحث عن الموظف الموجود باستخدام رقم الإقامة</p>
+              <p>{t('riders.step1')}</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="bg-blue-100 p-1 rounded mt-0.5">
                 <span className="text-blue-600 font-bold">2</span>
               </div>
-              <p>تأكد من صحة معلومات الموظف المعروضة</p>
+              <p>{t('riders.step2')}</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="bg-blue-100 p-1 rounded mt-0.5">
                 <span className="text-blue-600 font-bold">3</span>
               </div>
-              <p>أدخل معلومات المندوب الإضافية (رقم العمل، الرخصة، إلخ)</p>
+              <p>{t('riders.step3')}</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="bg-blue-100 p-1 rounded mt-0.5">
                 <span className="text-blue-600 font-bold">4</span>
               </div>
-              <p>احفظ التغييرات لتحويل الموظف إلى مندوب</p>
+              <p>{t('riders.step4')}</p>
             </div>
           </div>
         </Card>

@@ -9,8 +9,10 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { Search, UserCheck, Eye, Edit, Building, MapPin, Phone } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RiderSmartSearchPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,9 +22,9 @@ export default function RiderSmartSearchPage() {
 
   const handleSearch = async (e) => {
     e?.preventDefault();
-    
+
     if (!searchKeyword.trim()) {
-      setErrorMessage('الرجاء إدخال كلمة بحث');
+      setErrorMessage(t('riders.enterSearchKeyword'));
       return;
     }
 
@@ -34,11 +36,11 @@ export default function RiderSmartSearchPage() {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.SMART_SEARCH, {
         keyword: searchKeyword
       });
-      
+
       setSearchResults(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error searching riders:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في البحث');
+      setErrorMessage(err?.message || t('riders.searchError'));
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -56,8 +58,8 @@ export default function RiderSmartSearchPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="البحث الذكي عن المناديب"
-        subtitle="ابحث بأي معلومة: الاسم، البلد، الكفيل، الوظيفة، الآيبان"
+        title={t('riders.smartSearchTitle')}
+        subtitle={t('riders.smartSearchSubtitle')}
         icon={Search}
       />
 
@@ -66,35 +68,35 @@ export default function RiderSmartSearchPage() {
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              كلمة البحث
+              {t('riders.searchKeyword')}
             </label>
             <div className="flex gap-3">
               <input
                 type="text"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="ابحث بالاسم، البلد، الكفيل، الوظيفة، الآيبان..."
+                placeholder={t('riders.searchPlaceholderFull')}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <Button type="submit" loading={loading} disabled={loading}>
                 <Search size={18} className="ml-2" />
-                بحث
+                {t('common.search')}
               </Button>
             </div>
           </div>
 
           <div className="bg-blue-50 p-3 rounded-lg">
             <p className="text-sm text-blue-700">
-              <strong>نصيحة:</strong> يمكنك البحث بجزء من الاسم، البلد، اسم الكفيل، المسمى الوظيفي، أو رقم الآيبان
+              <strong>{t('riders.tip')}:</strong> {t('riders.searchTipText')}
             </p>
           </div>
         </form>
       </Card>
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -104,19 +106,19 @@ export default function RiderSmartSearchPage() {
       {hasSearched && (
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            نتائج البحث ({searchResults.length})
+            {t('riders.searchResults')} ({searchResults.length})
           </h3>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="mt-4 text-gray-600">جاري البحث...</p>
+              <p className="mt-4 text-gray-600">{t('riders.searching')}</p>
             </div>
           ) : searchResults.length === 0 ? (
             <div className="text-center py-12">
               <Search className="mx-auto text-gray-400 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد نتائج تطابق بحثك</p>
-              <p className="text-sm text-gray-500 mt-2">جرب استخدام كلمات بحث مختلفة</p>
+              <p className="text-gray-600">{t('riders.noResultsMatch')}</p>
+              <p className="text-sm text-gray-500 mt-2">{t('riders.tryDifferentKeywords')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -135,19 +137,18 @@ export default function RiderSmartSearchPage() {
                         <p className="text-xs text-gray-500">{rider.nameEN}</p>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      rider.status === 'enable' 
-                        ? 'bg-green-600 text-white' 
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.status === 'enable'
+                        ? 'bg-green-600 text-white'
                         : 'bg-red-600 text-white'
-                    }`}>
-                      {rider.status === 'enable' ? 'نشط' : 'غير نشط'}
+                      }`}>
+                      {rider.status === 'enable' ? t('status.enable') : t('status.disable')}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2 text-gray-700">
                       <UserCheck size={14} />
-                      <span className="text-xs">رقم العمل: {rider.workingId || 'N/A'}</span>
+                      <span className="text-xs">{t('riders.workingId')}: {rider.workingId || 'N/A'}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-700">
@@ -172,7 +173,7 @@ export default function RiderSmartSearchPage() {
                     {rider.housingAddress && (
                       <div className="bg-green-50 border border-green-200 p-2 rounded">
                         <p className="text-xs text-green-700">
-                          <strong>السكن:</strong> {rider.housingAddress}
+                          <strong>{t('riders.housing')}:</strong> {rider.housingAddress}
                         </p>
                       </div>
                     )}
@@ -180,7 +181,7 @@ export default function RiderSmartSearchPage() {
                     {rider.sponsor && (
                       <div className="bg-purple-50 border border-purple-200 p-2 rounded">
                         <p className="text-xs text-purple-700">
-                          <strong>الكفيل:</strong> {rider.sponsor}
+                          <strong>{t('employees.sponsor')}:</strong> {rider.sponsor}
                         </p>
                       </div>
                     )}
@@ -193,14 +194,14 @@ export default function RiderSmartSearchPage() {
                       className="flex-1 text-sm"
                     >
                       <Eye size={16} className="ml-1" />
-                      التفاصيل
+                      {t('common.details')}
                     </Button>
                     <Button
                       onClick={() => handleEdit(rider.iqamaNo)}
                       className="flex-1 text-sm"
                     >
                       <Edit size={16} className="ml-1" />
-                      تعديل
+                      {t('common.edit')}
                     </Button>
                   </div>
                 </div>
@@ -213,30 +214,30 @@ export default function RiderSmartSearchPage() {
       {/* Search Tips */}
       {!hasSearched && (
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">نصائح البحث</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.searchTips')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالاسم</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByName')}</h4>
               <p className="text-sm text-gray-600">
-                يمكنك البحث بالاسم العربي أو الإنجليزي، حتى لو كان جزءاً من الاسم
+                {t('riders.searchByNameDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالبلد</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByCountry')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث عن جميع المناديب من بلد معين
+                {t('riders.searchByCountryDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالكفيل</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchBySponsor')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث عن المناديب حسب اسم الكفيل
+                {t('riders.searchBySponsorDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالوظيفة</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByJob')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث حسب المسمى الوظيفي مثل "مندوب توصيل"
+                {t('riders.searchByJobDesc')}
               </p>
             </div>
           </div>

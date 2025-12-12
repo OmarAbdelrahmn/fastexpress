@@ -5,11 +5,12 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import { Calendar, Search, FileSpreadsheet } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
-import { hungerReportColumns } from '../reportColumns';
+import { getHungerReportColumns } from '../reportColumns';
 import * as XLSX from 'xlsx';
-
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function MonthPage() {
+    const { t, language } = useLanguage();
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState(new Date().getMonth() + 1);
     const [data, setData] = useState([]);
@@ -17,20 +18,11 @@ export default function MonthPage() {
     const [error, setError] = useState(null);
     const [searched, setSearched] = useState(false);
 
-    const months = [
-        { value: 1, label: 'يناير' },
-        { value: 2, label: 'فبراير' },
-        { value: 3, label: 'مارس' },
-        { value: 4, label: 'أبريل' },
-        { value: 5, label: 'مايو' },
-        { value: 6, label: 'يونيو' },
-        { value: 7, label: 'يوليو' },
-        { value: 8, label: 'أغسطس' },
-        { value: 9, label: 'سبتمبر' },
-        { value: 10, label: 'أكتوبر' },
-        { value: 11, label: 'نوفمبر' },
-        { value: 12, label: 'ديسمبر' },
-    ];
+    const months = Array.from({ length: 12 }, (_, i) => {
+        const value = i + 1;
+        const label = new Date(2000, i, 1).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'long' });
+        return { value, label };
+    });
 
     const handleSearch = async () => {
         setLoading(true);
@@ -49,15 +41,16 @@ export default function MonthPage() {
     const handleExport = () => {
         if (!data || data.length === 0) return;
 
+        const columns = getHungerReportColumns(t);
         // Map data to headers
         const exportData = data.map(item => {
             const row = {};
-            hungerReportColumns.forEach(col => {
+            columns.forEach(col => {
                 if (col.accessor === 'performancePercentage' || col.accessor === 'performanceStatus') {
                     row[col.header] = item[col.accessor];
                 } else if (col.render && (col.accessor === 'substituteWorkingId' || col.accessor === 'substituteRiderNameAR')) {
                     const val = item[col.accessor];
-                    row[col.header] = val || 'لا يوجد';
+                    row[col.header] = val || t('common.noData');
                 } else if (col.accessor) {
                     row[col.header] = item[col.accessor];
                 }
@@ -71,11 +64,13 @@ export default function MonthPage() {
         XLSX.writeFile(workbook, `Hunger_Report_${month}_${year}.xlsx`);
     };
 
+    const columns = getHungerReportColumns(t);
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="التقرير الشهري"
-                subtitle="عرض عجز هنجر لشهر محدد"
+                title={t('hungerDisabilities.monthly')}
+                subtitle={t('hungerDisabilities.monthlyDesc')}
                 icon={Calendar}
             />
 
@@ -83,7 +78,7 @@ export default function MonthPage() {
                 <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                     <div className="flex flex-wrap items-end gap-4">
                         <div className="flex-1 min-w-[150px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">السنة</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('hungerDisabilities.year')}</label>
                             <input
                                 type="number"
                                 value={year}
@@ -92,7 +87,7 @@ export default function MonthPage() {
                             />
                         </div>
                         <div className="flex-1 min-w-[200px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">الشهر</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('hungerDisabilities.month')}</label>
                             <select
                                 value={month}
                                 onChange={(e) => setMonth(e.target.value)}
@@ -110,7 +105,7 @@ export default function MonthPage() {
                                 className="flex items-center gap-2"
                             >
                                 <Search size={18} />
-                                عرض التقرير
+                                {t('shifts.search')}
                             </Button>
 
                             {data.length > 0 && (
@@ -120,7 +115,7 @@ export default function MonthPage() {
                                     className="flex items-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
                                 >
                                     <FileSpreadsheet size={18} />
-                                    طباعة لملف Excel
+                                    {t('hungerDisabilities.exportToExcel')}
                                 </Button>
                             )}
                         </div>
@@ -137,11 +132,11 @@ export default function MonthPage() {
                     {searched && (
                         <>
                             <div className="mb-4 text-sm text-gray-500">
-                                تقرير شهر: <span className="font-bold text-gray-900">{months.find(m => m.value == month)?.label} {year}</span>
+                                {t('hungerDisabilities.monthly')}: <span className="font-bold text-gray-900">{months.find(m => m.value == month)?.label} {year}</span>
                             </div>
                             <div className="overflow-x-auto">
                                 <Table
-                                    columns={hungerReportColumns}
+                                    columns={columns}
                                     data={data}
                                     loading={loading}
                                 />
@@ -150,7 +145,7 @@ export default function MonthPage() {
                     )}
                     {!searched && (
                         <div className="text-center text-gray-500 py-12">
-                            الرجاء اختيار الفترة والضغط على عرض التقرير
+                            {t('hungerDisabilities.selectMonth')}
                         </div>
                     )}
                 </div>

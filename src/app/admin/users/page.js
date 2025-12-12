@@ -12,15 +12,17 @@ import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Plus, Search, Edit, UserX, UserCheck, Shield, User } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function AdminUsersPage() {
+  const { t } = useLanguage();
   const { get, put, loading, error } = useApi();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const [searchType, setSearchType] = useState('all'); // 'all', 'name', 'id'
+  const [searchType, setSearchType] = useState('all');
   const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function AdminUsersPage() {
 
       if (result.data) {
         setUsers(Array.isArray(result.data) ? result.data : [result.data]);
-        setSuccessMessage(`تم العثور على ${Array.isArray(result.data) ? result.data.length : 1} مستخدم`);
+        setSuccessMessage(t('admin.usersFound', { count: Array.isArray(result.data) ? result.data.length : 1 }));
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (err) {
@@ -64,12 +66,12 @@ export default function AdminUsersPage() {
   };
 
   const handleToggleStatus = async (userName, currentStatus) => {
-    const action = currentStatus ? 'تعطيل' : 'تفعيل';
-    if (confirm(`هل أنت متأكد من ${action} هذا المستخدم؟`)) {
+    const action = currentStatus ? t('admin.disableAction') : t('admin.enableAction');
+    if (confirm(t('admin.confirmToggle', { action }))) {
       try {
         const result = await put(API_ENDPOINTS.ADMIN.TOGGLE_STATUS(userName));
         if (result.data || !result.error) {
-          setSuccessMessage(`تم ${action} المستخدم بنجاح`);
+          setSuccessMessage(t('admin.toggleSuccess', { action }));
           loadUsers();
           setTimeout(() => setSuccessMessage(''), 3000);
         }
@@ -86,7 +88,7 @@ export default function AdminUsersPage() {
 
   const columns = [
     {
-      header: 'اسم المستخدم',
+      header: t('admin.userName'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <User className="text-orange-500" size={16} />
@@ -95,15 +97,15 @@ export default function AdminUsersPage() {
       )
     },
     {
-      header: 'الاسم الكامل',
-      render: (row) => row.fullName || <span className="text-gray-400">لم يتم تحديده</span>
+      header: t('profile.fullName'),
+      render: (row) => row.fullName || <span className="text-gray-400">{t('profile.notSpecified')}</span>
     },
     {
-      header: 'العنوان',
-      render: (row) => row.address || <span className="text-gray-400">لم يتم تحديده</span>
+      header: t('profile.address'),
+      render: (row) => row.address || <span className="text-gray-400">{t('profile.notSpecified')}</span>
     },
     {
-      header: 'الصلاحيات',
+      header: t('admin.roles'),
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.roles && row.roles.length > 0 ? (
@@ -117,54 +119,54 @@ export default function AdminUsersPage() {
               </span>
             ))
           ) : (
-            <span className="text-gray-400 text-xs">لا توجد صلاحيات</span>
+            <span className="text-gray-400 text-xs">{t('admin.noRoles')}</span>
           )}
         </div>
       )
     },
     {
-      header: 'الحالة',
+      header: t('common.status'),
       render: (row) => (
         <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${!row.isDisable
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800'
+          ? 'bg-green-100 text-green-800'
+          : 'bg-red-100 text-red-800'
           }`}>
           {!row.isDisable ? (
             <>
               <UserCheck size={14} />
-              نشط
+              {t('status.enable')}
             </>
           ) : (
             <>
               <UserX size={14} />
-              معطل
+              {t('admin.disabled')}
             </>
           )}
         </span>
       )
     },
     {
-      header: 'الإجراءات',
+      header: t('common.actions'),
       render: (row) => (
         <div className="flex gap-2">
           <button
             onClick={() => handleViewDetails(row)}
             className="text-blue-600 hover:text-blue-800 p-1"
-            title="عرض التفاصيل"
+            title={t('common.details')}
           >
             <Edit size={18} />
           </button>
           <button
             onClick={() => window.location.href = `/admin/users/${row.userName}/roles`}
             className="text-purple-600 hover:text-purple-800 p-1"
-            title="إدارة الأدوار"
+            title={t('admin.manageRoles')}
           >
             <Shield size={18} />
           </button>
           <button
             onClick={() => handleToggleStatus(row.userName, !row.isDisable)}
             className={`${!row.isDisable ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} p-1`}
-            title={!row.isDisable ? 'تعطيل' : 'تفعيل'}
+            title={!row.isDisable ? t('admin.disableRole') : t('admin.enableRole')}
           >
             {!row.isDisable ? <UserX size={18} /> : <UserCheck size={18} />}
           </button>
@@ -183,60 +185,59 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة المستخدمين"
-        subtitle="إدارة حسابات المستخدمين والصلاحيات"
+        title={t('admin.userManagement')}
+        subtitle={t('admin.userManagementSubtitle')}
         icon={Shield}
         stats={[
-          { label: 'إجمالي المستخدمين', value: users.length },
-          { label: 'النشطين', value: users.filter(u => !u.isDisable).length },
-          { label: 'المعطلين', value: users.filter(u => u.isDisable).length },
+          { label: t('admin.totalUsers'), value: users.length },
+          { label: t('admin.activeUsers'), value: users.filter(u => !u.isDisable).length },
+          { label: t('admin.disabledUsers'), value: users.filter(u => u.isDisable).length },
         ]}
-      // statsClassName="text-lg md:text-xl font-bold"
       />
 
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {error && (
-        <Alert type="error" title="خطأ" message={error} />
+        <Alert type="error" title={t('common.error')} message={error} />
       )}
 
       {/* Advanced Search */}
-      <Card title="البحث المتقدم">
+      <Card title={t('admin.advancedSearch')}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              نوع البحث
+              {t('admin.searchType')}
             </label>
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="all">جميع المستخدمين</option>
-              <option value="name">البحث بالاسم</option>
-              <option value="id">البحث بالمعرف</option>
+              <option value="all">{t('admin.allUsers')}</option>
+              <option value="name">{t('admin.searchByName')}</option>
+              <option value="id">{t('admin.searchById')}</option>
             </select>
           </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              قيمة البحث
+              {t('admin.searchValue')}
             </label>
             <Input
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder={
-                searchType === 'name' ? 'أدخل اسم المستخدم' :
-                  searchType === 'id' ? 'أدخل المعرف' :
-                    'اختر نوع البحث'
+                searchType === 'name' ? t('admin.enterUsername') :
+                  searchType === 'id' ? t('admin.enterId') :
+                    t('admin.selectSearchType')
               }
               disabled={searchType === 'all'}
             />
@@ -249,7 +250,7 @@ export default function AdminUsersPage() {
               className="w-full"
             >
               <Search size={18} />
-              بحث
+              {t('common.search')}
             </Button>
           </div>
         </div>
@@ -262,7 +263,7 @@ export default function AdminUsersPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="تصفية سريعة بالاسم، اسم المستخدم، العنوان، أو المعرف..."
+              placeholder={t('admin.quickFilter')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -284,42 +285,42 @@ export default function AdminUsersPage() {
           setIsModalOpen(false);
           setSelectedUser(null);
         }}
-        title="تفاصيل المستخدم"
+        title={t('admin.userDetails')}
         size="lg"
       >
         {selectedUser && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-3">المعلومات الأساسية</h3>
+              <h3 className="font-bold text-gray-800 mb-3">{t('admin.basicInfo')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">المعرف</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('admin.userId')}</p>
                   <p className="font-medium text-gray-800 text-xs break-all">{selectedUser.id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">اسم المستخدم</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('admin.userName')}</p>
                   <p className="font-medium text-gray-800">{selectedUser.userName}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">الاسم الكامل</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('profile.fullName')}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedUser.fullName || 'لم يتم تحديده'}
+                    {selectedUser.fullName || t('profile.notSpecified')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">العنوان</p>
+                  <p className="text-sm text-gray-600 mb-1">{t('profile.address')}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedUser.address || 'لم يتم تحديده'}
+                    {selectedUser.address || t('profile.notSpecified')}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-3">الصلاحيات والحالة</h3>
+              <h3 className="font-bold text-gray-800 mb-3">{t('admin.rolesAndStatus')}</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">الصلاحيات</p>
+                  <p className="text-sm text-gray-600 mb-2">{t('admin.roles')}</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedUser.roles && selectedUser.roles.length > 0 ? (
                       selectedUser.roles.map((role, index) => (
@@ -332,25 +333,25 @@ export default function AdminUsersPage() {
                         </span>
                       ))
                     ) : (
-                      <span className="text-gray-500 text-sm">لا توجد صلاحيات</span>
+                      <span className="text-gray-500 text-sm">{t('admin.noRoles')}</span>
                     )}
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">حالة الحساب</p>
+                  <p className="text-sm text-gray-600 mb-2">{t('admin.accountStatus')}</p>
                   <span className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 w-fit ${!selectedUser.isDisable
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
                     }`}>
                     {!selectedUser.isDisable ? (
                       <>
                         <UserCheck size={16} />
-                        الحساب نشط
+                        {t('admin.accountActive')}
                       </>
                     ) : (
                       <>
                         <UserX size={16} />
-                        الحساب معطل
+                        {t('admin.accountDisabled')}
                       </>
                     )}
                   </span>
@@ -367,7 +368,7 @@ export default function AdminUsersPage() {
                   setSelectedUser(null);
                 }}
               >
-                إغلاق
+                {t('common.close')}
               </Button>
               <Button
                 type="button"
@@ -381,12 +382,12 @@ export default function AdminUsersPage() {
                 {!selectedUser.isDisable ? (
                   <>
                     <UserX size={18} />
-                    تعطيل الحساب
+                    {t('admin.disableAccount')}
                   </>
                 ) : (
                   <>
                     <UserCheck size={18} />
-                    تفعيل الحساب
+                    {t('admin.enableAccount')}
                   </>
                 )}
               </Button>

@@ -10,11 +10,13 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Edit, ArrowRight, Save } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function EditRiderPage() {
   const router = useRouter();
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -93,7 +95,7 @@ export default function EditRiderPage() {
       }
     } catch (err) {
       console.error('Error loading rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات المندوب');
+      setErrorMessage(err?.message || t('riders.loadRiderError'));
     } finally {
       setLoadingData(false);
     }
@@ -114,10 +116,8 @@ export default function EditRiderPage() {
     setSuccessMessage('');
 
     try {
-      // Only send changed fields (URiderRequest allows partial updates)
       const requestData = {};
 
-      // Compare and add only changed fields
       if (formData.iqamaEndM && formData.iqamaEndM !== originalData?.iqamaEndM?.split('T')[0]) {
         requestData.iqamaEndM = formData.iqamaEndM;
       }
@@ -175,13 +175,13 @@ export default function EditRiderPage() {
 
       await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
 
-      setSuccessMessage('تم تحديث بيانات المندوب بنجاح');
+      setSuccessMessage(t('riders.updateSuccess'));
       setTimeout(() => {
         router.push('/riders');
       }, 2000);
     } catch (err) {
       console.error('Error updating rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء تحديث بيانات المندوب');
+      setErrorMessage(err?.message || t('riders.updateError'));
     } finally {
       setLoading(false);
     }
@@ -191,14 +191,14 @@ export default function EditRiderPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تعديل بيانات المندوب"
-          subtitle="جاري التحميل..."
+          title={t('riders.editRider')}
+          subtitle={t('common.loading')}
           icon={Edit}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t('riders.loadingData')}</p>
           </div>
         </Card>
       </div>
@@ -208,11 +208,11 @@ export default function EditRiderPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تعديل بيانات المندوب"
-        subtitle={`رقم الإقامة: ${iqamaNo}`}
+        title={t('riders.editRider')}
+        subtitle={`${t('riders.iqamaNumber')}: ${iqamaNo}`}
         icon={Edit}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/riders'),
           variant: 'secondary'
@@ -222,7 +222,7 @@ export default function EditRiderPage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -231,7 +231,7 @@ export default function EditRiderPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -240,46 +240,46 @@ export default function EditRiderPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات الشخصية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.personalInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="الاسم (عربي)"
+              label={t('riders.nameArabic')}
               type="text"
               name="nameAR"
               value={formData.nameAR}
               onChange={handleInputChange}
-              placeholder="أدخل الاسم بالعربي"
+              placeholder={t('riders.enterNameArabicPlaceholder')}
             />
 
             <Input
-              label="الاسم (إنجليزي)"
+              label={t('riders.nameEnglish')}
               type="text"
               name="nameEN"
               value={formData.nameEN}
               onChange={handleInputChange}
-              placeholder="أدخل الاسم بالإنجليزي"
+              placeholder={t('riders.enterNameEnglishPlaceholder')}
             />
 
             <Input
-              label="رقم الجواز"
+              label={t('riders.passportNumber')}
               type="text"
               name="passportNo"
               value={formData.passportNo}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الجواز"
+              placeholder={t('riders.enterPassportNumber')}
             />
 
             <Input
-              label="البلد"
+              label={t('riders.country')}
               type="text"
               name="country"
               value={formData.country}
               onChange={handleInputChange}
-              placeholder="أدخل البلد"
+              placeholder={t('riders.enterCountry')}
             />
 
             <Input
-              label="رقم الهاتف"
+              label={t('riders.phone')}
               type="text"
               name="phone"
               value={formData.phone}
@@ -288,7 +288,7 @@ export default function EditRiderPage() {
             />
 
             <Input
-              label="تاريخ الميلاد"
+              label={t('riders.dateOfBirth')}
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
@@ -297,7 +297,7 @@ export default function EditRiderPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الحالة
+                {t('riders.status')}
               </label>
               <select
                 name="status"
@@ -305,12 +305,12 @@ export default function EditRiderPage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="enable">نشط</option>
-                <option value="disable">غير نشط</option>
-                <option value="fleeing">هارب</option>
-                <option value="vacation">إجازة</option>
-                <option value="accident">حادث</option>
-                <option value="sick">مريض</option>
+                <option value="enable">{t('riders.active')}</option>
+                <option value="disable">{t('riders.inactive')}</option>
+                <option value="fleeing">{t('riders.fleeing')}</option>
+                <option value="vacation">{t('riders.vacation')}</option>
+                <option value="accident">{t('riders.accident')}</option>
+                <option value="sick">{t('riders.sick')}</option>
               </select>
             </div>
           </div>
@@ -318,10 +318,10 @@ export default function EditRiderPage() {
 
         {/* Iqama & Passport Details */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">تفاصيل الإقامة والجواز</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.iqamaPassportDetails')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="تاريخ انتهاء الإقامة (ميلادي)"
+              label={t('riders.iqamaEndDateGregorian')}
               type="date"
               name="iqamaEndM"
               value={formData.iqamaEndM}
@@ -329,7 +329,7 @@ export default function EditRiderPage() {
             />
 
             <Input
-              label="تاريخ انتهاء الإقامة (هجري)"
+              label={t('riders.iqamaEndDateHijri')}
               type="date"
               name="iqamaEndH"
               value={formData.iqamaEndH}
@@ -337,7 +337,7 @@ export default function EditRiderPage() {
             />
 
             <Input
-              label="تاريخ انتهاء الجواز"
+              label={t('riders.passportEndDate')}
               type="date"
               name="passportEnd"
               value={formData.passportEnd}
@@ -348,34 +348,34 @@ export default function EditRiderPage() {
 
         {/* Sponsor Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات الكفالة</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.sponsorInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="الكفيل"
+              label={t('riders.sponsor')}
               type="text"
               name="sponsor"
               value={formData.sponsor}
               onChange={handleInputChange}
-              placeholder="أدخل اسم الكفيل"
+              placeholder={t('riders.enterSponsorName')}
             />
 
             <Input
-              label="المسمى الوظيفي"
+              label={t('riders.jobTitle')}
               type="text"
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
-              placeholder="مثال: مندوب توصيل"
+              placeholder={t('riders.jobTitleExample')}
             />
           </div>
         </Card>
 
         {/* Banking Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات البنكية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.bankingInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="رقم الآيبان"
+              label={t('riders.ibanNumber')}
               type="text"
               name="iban"
               value={formData.iban}
@@ -392,7 +392,7 @@ export default function EditRiderPage() {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
               />
               <label className="text-sm text-gray-700">
-                في السعودية (INKSA)
+                {t('riders.inKSA')}
               </label>
             </div>
           </div>
@@ -400,29 +400,29 @@ export default function EditRiderPage() {
 
         {/* Rider Specific Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات المندوب</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="رقم العمل"
+              label={t('riders.workingId')}
               type="number"
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
-              placeholder="أدخل رقم العمل"
+              placeholder={t('riders.enterWorkingId')}
             />
 
             <Input
-              label="رقم الرخصة"
+              label={t('riders.licenseNumber')}
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الرخصة"
+              placeholder={t('riders.enterLicenseNumber')}
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                مقاس التيشرت
+                {t('riders.tshirtSize')}
               </label>
               <select
                 name="tshirtSize"
@@ -430,7 +430,7 @@ export default function EditRiderPage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="">اختر المقاس</option>
+                <option value="">{t('riders.selectSize')}</option>
                 <option value="S">S</option>
                 <option value="M">M</option>
                 <option value="L">L</option>
@@ -442,7 +442,7 @@ export default function EditRiderPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الشركة
+                {t('riders.company')}
               </label>
               <select
                 name="companyName"
@@ -450,7 +450,7 @@ export default function EditRiderPage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="">اختر الشركة</option>
+                <option value="">{t('riders.selectCompany')}</option>
                 {companies.map((company) => (
                   <option key={company.name} value={company.name}>
                     {company.name}
@@ -470,11 +470,11 @@ export default function EditRiderPage() {
               onClick={() => router.push('/riders')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              حفظ التعديلات
+              {t('riders.saveChanges')}
             </Button>
           </div>
         </Card>

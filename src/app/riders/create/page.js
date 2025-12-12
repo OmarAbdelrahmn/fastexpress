@@ -10,9 +10,11 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { UserPlus, ArrowRight, Save } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 
 export default function CreateRiderPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -20,7 +22,6 @@ export default function CreateRiderPage() {
   const [companies, setCompanies] = useState([]);
 
   const [formData, setFormData] = useState({
-    // Employee Basic Info
     iqamaNo: '',
     iqamaEndM: '',
     iqamaEndH: '',
@@ -53,7 +54,7 @@ export default function CreateRiderPage() {
       setCompanies(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading companies:', err);
-      setErrorMessage('حدث خطأ في تحميل قائمة الشركات');
+      setErrorMessage(t('riders.loadCompaniesError'));
     }
   };
 
@@ -90,7 +91,6 @@ export default function CreateRiderPage() {
         status: formData.status,
         iban: formData.iban,
         inksa: formData.inksa,
-        // Rider specific
         workingId: formData.workingId,
         tshirtSize: formData.tshirtSize,
         licenseNumber: formData.licenseNumber,
@@ -100,13 +100,13 @@ export default function CreateRiderPage() {
       console.log('Submitting rider data:', requestData);
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
 
-      setSuccessMessage('تم إضافة المندوب بنجاح');
+      setSuccessMessage(t('riders.createSuccess'));
       setTimeout(() => {
         router.push('/riders');
       }, 2000);
     } catch (err) {
       console.error('Error creating rider:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء إضافة المندوب');
+      setErrorMessage(err?.message || t('riders.createError'));
     } finally {
       setLoading(false);
     }
@@ -115,11 +115,11 @@ export default function CreateRiderPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إضافة مندوب جديد"
-        subtitle="أدخل بيانات المندوب الكاملة"
+        title={t('riders.addRider')}
+        subtitle={t('riders.enterRiderData')}
         icon={UserPlus}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/riders'),
           variant: 'secondary'
@@ -129,7 +129,7 @@ export default function CreateRiderPage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -138,7 +138,7 @@ export default function CreateRiderPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -147,59 +147,59 @@ export default function CreateRiderPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات الشخصية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.personalInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="رقم الإقامة"
+              label={t('employees.iqamaNumber')}
               type="number"
               name="iqamaNo"
               value={formData.iqamaNo}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم الإقامة"
+              placeholder={t('employees.enterIqamaNumber')}
             />
 
             <Input
-              label="الاسم (عربي)"
+              label={t('employees.nameArabic')}
               type="text"
               name="nameAR"
               value={formData.nameAR}
               onChange={handleInputChange}
               required
-              placeholder="أدخل الاسم بالعربي"
+              placeholder={t('employees.enterNameArabic')}
             />
 
             <Input
-              label="الاسم (إنجليزي)"
+              label={t('employees.nameEnglish')}
               type="text"
               name="nameEN"
               value={formData.nameEN}
               onChange={handleInputChange}
               required
-              placeholder="أدخل الاسم بالإنجليزي"
+              placeholder={t('employees.enterNameEnglish')}
             />
 
             <Input
-              label="رقم الجواز"
+              label={t('employees.passportNumber')}
               type="text"
               name="passportNo"
               value={formData.passportNo}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الجواز"
+              placeholder={t('employees.enterPassportNumber')}
             />
 
             <Input
-              label="البلد"
+              label={t('employees.country')}
               type="text"
               name="country"
               value={formData.country}
               onChange={handleInputChange}
               required
-              placeholder="أدخل البلد"
+              placeholder={t('employees.enterCountry')}
             />
 
             <Input
-              label="رقم الهاتف"
+              label={t('common.phone')}
               type="text"
               name="phone"
               value={formData.phone}
@@ -209,7 +209,7 @@ export default function CreateRiderPage() {
             />
 
             <Input
-              label="تاريخ الميلاد"
+              label={t('employees.dateOfBirth')}
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
@@ -219,7 +219,7 @@ export default function CreateRiderPage() {
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الحالة
+                {t('common.status')}
               </label>
               <select
                 name="status"
@@ -227,12 +227,12 @@ export default function CreateRiderPage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="enable">نشط</option>
-                <option value="disable">غير نشط</option>
-                <option value="fleeing">هارب</option>
-                <option value="vacation">إجازة</option>
-                <option value="accident">حادث</option>
-                <option value="sick">مريض</option>
+                <option value="enable">{t('status.enable')}</option>
+                <option value="disable">{t('status.disable')}</option>
+                <option value="fleeing">{t('status.fleeing')}</option>
+                <option value="vacation">{t('status.vacation')}</option>
+                <option value="accident">{t('status.accident')}</option>
+                <option value="sick">{t('status.sick')}</option>
               </select>
             </div>
           </div>
@@ -240,10 +240,10 @@ export default function CreateRiderPage() {
 
         {/* Iqama & Passport Details */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">تفاصيل الإقامة والجواز</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.iqamaPassportDetails')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="تاريخ انتهاء الإقامة (ميلادي)"
+              label={t('employees.iqamaEndDateM')}
               type="date"
               name="iqamaEndM"
               value={formData.iqamaEndM}
@@ -252,10 +252,10 @@ export default function CreateRiderPage() {
             />
 
             <Input
-              label="تاريخ انتهاء الإقامة (هجري)"
+              label={t('employees.iqamaEndDateH')}
               type="text"
               name="iqamaEndH"
-              placeholder="مثال: 25-10-1425"
+              placeholder={t('employees.iqamaEndDateHExample')}
               value={formData.iqamaEndH}
               onChange={(e) =>
                 setFormData({ ...formData, iqamaEndH: e.target.value })
@@ -264,10 +264,8 @@ export default function CreateRiderPage() {
               required
             />
 
-
-
             <Input
-              label="تاريخ انتهاء الجواز"
+              label={t('employees.passportEndDate')}
               type="date"
               name="passportEnd"
               value={formData.passportEnd}
@@ -278,46 +276,46 @@ export default function CreateRiderPage() {
 
         {/* Sponsor Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات الكفالة</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.sponsorInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              label=" رقم الكفيل"
+              label={t('employees.sponsorNumber')}
               type="number"
               name="sponsorNo"
               value={formData.sponsorNo}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم الكفيل"
+              placeholder={t('employees.enterSponsorNumber')}
             />
 
             <Input
-              label="الكفيل"
+              label={t('employees.sponsor')}
               type="text"
               name="sponsor"
               value={formData.sponsor}
               onChange={handleInputChange}
               required
-              placeholder="أدخل اسم الكفيل"
+              placeholder={t('employees.enterSponsorName')}
             />
 
             <Input
-              label="المسمى الوظيفي"
+              label={t('employees.jobTitle')}
               type="text"
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
               required
-              placeholder="مثال: مندوب توصيل"
+              placeholder={t('riders.jobTitleExample')}
             />
           </div>
         </Card>
 
         {/* Banking Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات البنكية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.bankingInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="رقم الآيبان"
+              label={t('employees.iban')}
               type="text"
               name="iban"
               value={formData.iban}
@@ -334,7 +332,7 @@ export default function CreateRiderPage() {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
               />
               <label className="text-sm text-gray-700">
-                في السعودية (INKSA)
+                {t('employees.inKSA')}
               </label>
             </div>
           </div>
@@ -342,31 +340,31 @@ export default function CreateRiderPage() {
 
         {/* Rider Specific Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات المندوب</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="رقم العمل"
+              label={t('riders.workingId')}
               type="text"
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم العمل"
+              placeholder={t('riders.enterWorkingId')}
             />
 
             <Input
-              label="رقم الرخصة"
+              label={t('riders.licenseNumber')}
               type="text"
               name="licenseNumber"
               value={formData.licenseNumber}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم الرخصة"
+              placeholder={t('riders.enterLicenseNumber')}
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                مقاس التيشرت <span className="text-red-500">*</span>
+                {t('riders.tshirtSize')} <span className="text-red-500">*</span>
               </label>
               <select
                 name="tshirtSize"
@@ -375,7 +373,7 @@ export default function CreateRiderPage() {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="">اختر المقاس</option>
+                <option value="">{t('riders.selectSize')}</option>
                 <option value="S">S</option>
                 <option value="M">M</option>
                 <option value="L">L</option>
@@ -387,7 +385,7 @@ export default function CreateRiderPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الشركة <span className="text-red-500">*</span>
+                {t('riders.company')} <span className="text-red-500">*</span>
               </label>
               <select
                 name="companyName"
@@ -396,7 +394,7 @@ export default function CreateRiderPage() {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="">اختر الشركة</option>
+                <option value="">{t('riders.selectCompany')}</option>
                 {companies.map((company) => (
                   <option key={company.name} value={company.name}>
                     {company.name}
@@ -416,11 +414,11 @@ export default function CreateRiderPage() {
               onClick={() => router.push('/riders')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              حفظ المندوب
+              {t('riders.saveRider')}
             </Button>
           </div>
         </Card>

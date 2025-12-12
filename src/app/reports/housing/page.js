@@ -5,9 +5,11 @@ import { Building, Users, Package, Award, TrendingUp, TrendingDown, Clock, Check
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 
 export default function HousingPeriodReport() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [error, setError] = useState('');
@@ -21,7 +23,7 @@ export default function HousingPeriodReport() {
 
   const handleSubmit = async () => {
     if (!form.startDate || !form.endDate) {
-      setError('الرجاء تحديد تاريخ البداية والنهاية');
+      setError(t('reports.housing.selectStartEndDates'));
       return;
     }
 
@@ -30,26 +32,26 @@ export default function HousingPeriodReport() {
     setSuccessMessage('');
     setReportData(null);
 
-try {
-  const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSINGS, {
-    startDate: form.startDate,
-    endDate: form.endDate
-  });
-  
-  if (data && data.housingBreakdowns && data.housingBreakdowns.length > 0) {
-    setReportData(data);
-    setSuccessMessage('تم جلب تقرير الإسكان بنجاح');
-    setTimeout(() => setSuccessMessage(''), 3000);
-  } else {
-    setError('لا توجد بيانات للفترة المحددة');
-  }
-} catch (err) {
-  console.error('Error:', err);
-  setError(err.message || 'حدث خطأ أثناء جلب التقرير');
-} finally {
-  setLoading(false);
-}
-};
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSINGS, {
+        startDate: form.startDate,
+        endDate: form.endDate
+      });
+
+      if (data && data.housingBreakdowns && data.housingBreakdowns.length > 0) {
+        setReportData(data);
+        setSuccessMessage(t('reports.housing.reportLoadedSuccess'));
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError(t('reports.housing.noDataForPeriod'));
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || t('reports.housing.errorLoadingReport'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const Alert = ({ type, message, onClose }) => {
     const styles = {
@@ -101,17 +103,17 @@ try {
           </h4>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">معدل الإنجاز</p>
+              <p className="text-xs text-gray-500 mb-1">{t('reports.housing.completionRate')}</p>
               <p className="text-xl font-bold" style={{ color: isTop ? '#10b981' : '#f97316' }}>
                 {data.completionRate?.toFixed(1)}%
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">الطلبات</p>
+              <p className="text-xs text-gray-500 mb-1">{t('reports.housing.order')}</p>
               <p className="text-xl font-bold text-gray-800">{data.ordersCount}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">المناديب</p>
+              <p className="text-xs text-gray-500 mb-1">{t('reports.housing.rider')}</p>
               <p className="text-xl font-bold text-gray-800">{data.riderCount}</p>
             </div>
           </div>
@@ -123,10 +125,10 @@ try {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 " dir="rtl">
       <PageHeader
-              title="تقرير الإسكان للفترة"
-              subtitle="تحليل أداء وحدات الإسكان خلال فترة محددة"
-              icon={Building}
-            />
+        title={t('reports.housing.periodReportTitle')}
+        subtitle={t('reports.housing.periodReportSubtitle')}
+        icon={Building}
+      />
 
       {/* Alerts */}
       {successMessage && <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
@@ -136,13 +138,13 @@ try {
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
         <div className="flex items-center gap-3 mb-6">
           <Calendar className="text-blue-600" size={24} />
-          <h2 className="text-xl font-bold text-gray-800">اختيار الفترة</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('reports.housing.selectPeriod')}</h2>
         </div>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ البداية</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.startDate')}</label>
               <input
                 type="date"
                 value={form.startDate}
@@ -151,7 +153,7 @@ try {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ النهاية</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.endDate')}</label>
               <input
                 type="date"
                 value={form.endDate}
@@ -160,7 +162,7 @@ try {
               />
             </div>
           </div>
-          
+
           <button
             onClick={handleSubmit}
             disabled={loading}
@@ -169,12 +171,12 @@ try {
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent"></div>
-                جاري التحميل...
+                {t('reports.housing.loadingText')}
               </>
             ) : (
               <>
                 <BarChart3 size={24} />
-                عرض التقرير
+                {t('reports.housing.viewReport')}
               </>
             )}
           </button>
@@ -188,32 +190,32 @@ try {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon={Building}
-              title="إجمالي السكنات"
+              title={t('reports.housing.totalHousingsLabel')}
               value={reportData.housingBreakdowns?.length || 0}
-              subtitle="عدد الوحدات النشطة"
+              subtitle={t('reports.housing.activeUnitsLabel')}
               color="#3b82f6"
             />
             <StatCard
               icon={Users}
-              title="إجمالي المناديب"
+              title={t('reports.housing.totalRidersLabel')}
               value={reportData.totalRiders || 0}
-              subtitle="المناديب العاملين"
+              subtitle={t('reports.housing.activeRidersLabel')}
               color="#10b981"
             />
             <StatCard
               icon={Package}
-              title="إجمالي الطلبات"
+              title={t('reports.housing.totalOrdersLabel')}
               value={reportData.totalOrders || 0}
-              subtitle="جميع الطلبات"
+              subtitle={t('reports.housing.allOrdersLabel')}
               color="#8b5cf6"
             />
             <StatCard
               icon={Award}
-              title="متوسط المناديب/سكن"
-              value={reportData.housingBreakdowns?.length 
+              title={t('reports.housing.avgRidersPerHousing')}
+              value={reportData.housingBreakdowns?.length
                 ? (reportData.totalRiders / reportData.housingBreakdowns.length).toFixed(1)
                 : 0}
-              subtitle="التوزيع المتوسط"
+              subtitle={t('reports.housing.avgDistribution')}
               color="#f59e0b"
             />
           </div>
@@ -223,14 +225,14 @@ try {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {reportData.topPerformingHousing && (
                 <PerformanceCard
-                  title="الأفضل أداءً"
+                  title={t('reports.housing.topPerforming')}
                   data={reportData.topPerformingHousing}
                   type="top"
                 />
               )}
               {reportData.lowestPerformingHousing && (
                 <PerformanceCard
-                  title="يحتاج تحسين"
+                  title={t('reports.housing.needsImprovement')}
                   data={reportData.lowestPerformingHousing}
                   type="lowest"
                 />
@@ -243,7 +245,7 @@ try {
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <Building className="text-blue-600" />
-                تفاصيل السكنات ({reportData.housingBreakdowns.length})
+                {t('reports.housing.housingDetails')} ({reportData.housingBreakdowns.length})
               </h2>
 
               {reportData.housingBreakdowns.map((housing, index) => (
@@ -258,7 +260,7 @@ try {
                         <Building className="text-white" size={28} />
                         <div>
                           <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
-                          <p className="text-gray-300 text-sm">انقر لعرض التفاصيل</p>
+                          <p className="text-gray-300 text-sm">{t('reports.housing.clickForDetails')}</p>
                         </div>
                       </div>
                       <span className="text-white text-2xl">{expandedHousing === index ? '▼' : '◀'}</span>
@@ -268,36 +270,35 @@ try {
                   {/* Quick Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-6 bg-gray-50">
                     <div className="text-center">
-                      <p className="text-xs text-gray-500 mb-1">إجمالي الطلبات</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.totalOrdersLabel')}</p>
                       <p className="text-2xl font-bold text-gray-800">{housing.dailyOrdersCount}</p>
                     </div>
                     <div className="text-center">
                       <CheckCircle className="mx-auto mb-1 text-green-600" size={20} />
-                      <p className="text-xs text-gray-500 mb-1">مقبولة</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.acceptedLabel')}</p>
                       <p className="text-xl font-bold text-green-600">{housing.completedOrdersCount}</p>
                     </div>
                     <div className="text-center">
                       <XCircle className="mx-auto mb-1 text-red-600" size={20} />
-                      <p className="text-xs text-gray-500 mb-1">مرفوضة</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.rejectedLabel')}</p>
                       <p className="text-xl font-bold text-red-600">{housing.rejectedOrdersCount}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-xs text-gray-500 mb-1">معدل الإنجاز</p>
-                      <p className={`text-xl font-bold ${
-                        housing.completionRate >= 90 ? 'text-green-600' :
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.completionRate')}</p>
+                      <p className={`text-xl font-bold ${housing.completionRate >= 90 ? 'text-green-600' :
                         housing.completionRate >= 70 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
+                        }`}>
                         {housing.completionRate?.toFixed(1)}%
                       </p>
                     </div>
                     <div className="text-center">
                       <Users className="mx-auto mb-1 text-blue-600" size={20} />
-                      <p className="text-xs text-gray-500 mb-1">المناديب</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.rider')}</p>
                       <p className="text-xl font-bold text-blue-600">{housing.riderCount}</p>
                     </div>
                     <div className="text-center">
                       <AlertTriangle className="mx-auto mb-1 text-orange-600" size={20} />
-                      <p className="text-xs text-gray-500 mb-1">مشاكل</p>
+                      <p className="text-xs text-gray-500 mb-1">{t('reports.housing.problems')}</p>
                       <p className="text-xl font-bold text-orange-600">{housing.problematicOrdersCount}</p>
                     </div>
                   </div>
@@ -306,7 +307,7 @@ try {
                   <div className="px-6 py-4 bg-white border-t">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">مساهمة السكن:</span>
+                        <span className="text-sm text-gray-600">{t('reports.housing.housingContributionLabel')}</span>
                         <div className="flex-1 bg-gray-200 rounded-full h-3 max-w-xs">
                           <div
                             className="bg-blue-500 h-3 rounded-full"
@@ -316,7 +317,7 @@ try {
                         <span className="text-sm font-bold text-blue-600">{housing.housingContribution?.toFixed(1)}%</span>
                       </div>
                       <div className="flex items-center justify-end gap-2">
-                        <span className="text-sm text-gray-600">متوسط الطلبات لكل مندوب:</span>
+                        <span className="text-sm text-gray-600">{t('reports.housing.avgOrdersPerRider')}</span>
                         <span className="text-lg font-bold text-indigo-600">{housing.averageOrdersPerRider?.toFixed(1)}</span>
                       </div>
                     </div>
@@ -327,20 +328,20 @@ try {
                     <div className="border-t-2 p-6">
                       <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <Users className="text-purple-600" size={20} />
-                        تفاصيل المناديب ({housing.riderAssignments.length})
+                        {t('reports.housing.riderDetailsTitle')} ({housing.riderAssignments.length})
                       </h4>
-                      
+
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-50">
                             <tr>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم المندوب</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الورديات</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">مقبولة</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">مرفوضة</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الإنجاز</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">ساعات العمل</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.workingIdColumn')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.riderNameColumn')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.shiftsColumn')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.acceptedLabel')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.rejectedLabel')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.completionRate')}</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.housing.workingHoursColumn')}</th>
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -364,11 +365,10 @@ try {
                                   {rider.ordersRejected}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    rider.completionRate >= 90 ? 'bg-green-100 text-green-800' :
+                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.completionRate >= 90 ? 'bg-green-100 text-green-800' :
                                     rider.completionRate >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-red-100 text-red-800'
-                                  }`}>
+                                      'bg-red-100 text-red-800'
+                                    }`}>
                                     {rider.completionRate?.toFixed(1)}%
                                   </span>
                                 </td>
@@ -376,7 +376,7 @@ try {
                                   <div className="flex items-center gap-1">
                                     <Clock size={14} className="text-gray-400" />
                                     <span className="font-semibold">{rider.totalWorkingHours}</span>
-                                    <span className="text-xs text-gray-500">ساعة</span>
+                                    <span className="text-xs text-gray-500">{t('reports.housing.hourLabel')}</span>
                                   </div>
                                 </td>
                               </tr>

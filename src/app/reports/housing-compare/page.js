@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { Home, Search, Users, Package, TrendingUp, TrendingDown, Award, MapPin, AlertCircle, ArrowUp, ArrowDown, Minus, Lightbulb, Clock, CheckCircle, XCircle } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 const HousingComparisonReport = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [comparisons, setComparisons] = useState(null);
   const [startDate, setStartDate] = useState('');
@@ -19,7 +21,7 @@ const HousingComparisonReport = () => {
 
   const loadReport = async () => {
     if (!startDate || !endDate || !startDate1 || !endDate1) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد جميع التواريخ للفترتين' });
+      setMessage({ type: 'error', text: t('reports.housing.selectAllDates') });
       return;
     }
 
@@ -27,35 +29,35 @@ const HousingComparisonReport = () => {
     setHasSearched(true);
     setMessage({ type: '', text: '' });
     setComparisons(null);
-    
-   try {
-  const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSING, {
-    startDate: startDate,
-    endDate: endDate,
-    startDate1: startDate1,
-    endDate1: endDate1
-  });
-  
-  if (!data || data.length === 0) {
-    setMessage({ 
-      type: 'warning', 
-      text: 'لا توجد بيانات للمقارنة بين الفترتين' 
-    });
-    setComparisons(null);
-  } else {
-    setComparisons(data);
-    setMessage({ type: 'success', text: `تم تحميل ${data.length} مقارنة للسكنات بنجاح` });
-  }
-} catch (error) {
-  console.error('Error:', error);
-  setComparisons(null);
-  setMessage({ 
-    type: 'error', 
-    text: error.message || 'فشل في تحميل التقرير' 
-  });
-} finally {
-  setLoading(false);
-}
+
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.REPORTS.COMPARE_HOUSING, {
+        startDate: startDate,
+        endDate: endDate,
+        startDate1: startDate1,
+        endDate1: endDate1
+      });
+
+      if (!data || data.length === 0) {
+        setMessage({
+          type: 'warning',
+          text: t('reports.housing.noData')
+        });
+        setComparisons(null);
+      } else {
+        setComparisons(data);
+        setMessage({ type: 'success', text: t('reports.housing.loadSuccess', { count: data.length }) });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setComparisons(null);
+      setMessage({
+        type: 'error',
+        text: error.message || t('reports.housing.loadError')
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   const getChangeIcon = (value) => {
     if (value > 0) return <ArrowUp size={16} className="text-green-600" />;
@@ -92,7 +94,7 @@ const HousingComparisonReport = () => {
 
   const calculateTotals = () => {
     if (!comparisons) return null;
-    
+
     const totals = {
       period1: {
         totalOrders: 0,
@@ -122,10 +124,10 @@ const HousingComparisonReport = () => {
       totals.period2.totalRiders += comp.period2Breakdown?.riderCount || 0;
     });
 
-    totals.period1.completionRate = totals.period1.totalOrders > 0 
+    totals.period1.completionRate = totals.period1.totalOrders > 0
       ? (totals.period1.completedOrders / totals.period1.totalOrders * 100).toFixed(1)
       : 0;
-    totals.period2.completionRate = totals.period2.totalOrders > 0 
+    totals.period2.completionRate = totals.period2.totalOrders > 0
       ? (totals.period2.completedOrders / totals.period2.totalOrders * 100).toFixed(1)
       : 0;
 
@@ -140,14 +142,14 @@ const HousingComparisonReport = () => {
         <h4 className="text-sm font-medium text-gray-600">{label}</h4>
         <Icon className="text-gray-400" size={24} />
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-blue-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600 mb-1">الفترة 1</p>
+          <p className="text-xs text-gray-600 mb-1">{t('reports.housing.period1')}</p>
           <p className="text-2xl font-bold text-blue-600">{period1Value}</p>
         </div>
         <div className="bg-purple-50 rounded-lg p-3">
-          <p className="text-xs text-gray-600 mb-1">الفترة 2</p>
+          <p className="text-xs text-gray-600 mb-1">{t('reports.housing.period2')}</p>
           <p className="text-2xl font-bold text-purple-600">{period2Value}</p>
         </div>
       </div>
@@ -168,10 +170,10 @@ const HousingComparisonReport = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 " dir="rtl">
       {/* Header */}
       <PageHeader
-              title="مقارنة أداء السكنات"
-              subtitle="تحليل شامل ومقارنة متقدمة بين فترتين زمنيتين"
-              icon={Home}
-        />
+        title={t('reports.housing.pageTitle')}
+        subtitle={t('reports.housing.pageSubtitle')}
+        icon={Home}
+      />
 
       {message.text && (
         <Alert
@@ -185,19 +187,19 @@ const HousingComparisonReport = () => {
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Search size={24} className="text-blue-600" />
-          اختيار الفترات للمقارنة
+          {t('reports.housing.selectPeriods')}
         </h2>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Period 1 */}
           <div className="border-2 border-blue-200 rounded-xl p-5 bg-blue-50/30">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-              <h3 className="text-lg font-bold text-blue-700">الفترة الأولى</h3>
+              <h3 className="text-lg font-bold text-blue-700">{t('reports.housing.period1')}</h3>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">من تاريخ</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.fromDate')}</label>
                 <input
                   type="date"
                   value={startDate}
@@ -206,7 +208,7 @@ const HousingComparisonReport = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">إلى تاريخ</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.toDate')}</label>
                 <input
                   type="date"
                   value={endDate}
@@ -221,11 +223,11 @@ const HousingComparisonReport = () => {
           <div className="border-2 border-purple-200 rounded-xl p-5 bg-purple-50/30">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
-              <h3 className="text-lg font-bold text-purple-700">الفترة الثانية</h3>
+              <h3 className="text-lg font-bold text-purple-700">{t('reports.housing.period2')}</h3>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">من تاريخ</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.fromDate')}</label>
                 <input
                   type="date"
                   value={startDate1}
@@ -234,7 +236,7 @@ const HousingComparisonReport = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">إلى تاريخ</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('reports.housing.toDate')}</label>
                 <input
                   type="date"
                   value={endDate1}
@@ -254,12 +256,12 @@ const HousingComparisonReport = () => {
           {loading ? (
             <>
               <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent"></div>
-              جاري التحميل...
+              {t('reports.housing.loadingText')}
             </>
           ) : (
             <>
               <Search size={24} />
-              مقارنة الفترتين
+              {t('reports.housing.compareButton')}
             </>
           )}
         </button>
@@ -270,8 +272,8 @@ const HousingComparisonReport = () => {
         <div className="bg-white rounded-2xl shadow-lg p-16">
           <div className="text-center space-y-4">
             <AlertCircle size={80} className="mx-auto text-orange-400" />
-            <h3 className="text-2xl font-bold text-gray-700">لا توجد بيانات للمقارنة</h3>
-            <p className="text-gray-500">لم يتم العثور على سكنات في الفترتين المحددتين</p>
+            <h3 className="text-2xl font-bold text-gray-700">{t('reports.housing.noData')}</h3>
+            <p className="text-gray-500">{t('reports.housing.noHousingFound')}</p>
           </div>
         </div>
       )}
@@ -283,44 +285,44 @@ const HousingComparisonReport = () => {
           {totals && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <ComparisonMetricCard
-                label="إجمالي الطلبات"
+                label={t('reports.housing.totalOrders')}
                 period1Value={totals.period1.totalOrders}
                 period2Value={totals.period2.totalOrders}
                 difference={totals.period2.totalOrders - totals.period1.totalOrders}
-                changePercent={totals.period1.totalOrders > 0 
+                changePercent={totals.period1.totalOrders > 0
                   ? ((totals.period2.totalOrders - totals.period1.totalOrders) / totals.period1.totalOrders * 100)
                   : 0}
                 icon={Package}
               />
 
               <ComparisonMetricCard
-                label="الطلبات المقبولة"
+                label={t('reports.housing.acceptedOrders')}
                 period1Value={totals.period1.completedOrders}
                 period2Value={totals.period2.completedOrders}
                 difference={totals.period2.completedOrders - totals.period1.completedOrders}
-                changePercent={totals.period1.completedOrders > 0 
+                changePercent={totals.period1.completedOrders > 0
                   ? ((totals.period2.completedOrders - totals.period1.completedOrders) / totals.period1.completedOrders * 100)
                   : 0}
                 icon={CheckCircle}
               />
 
               <ComparisonMetricCard
-                label="إجمالي المناديب"
+                label={t('reports.housing.totalRiders')}
                 period1Value={totals.period1.totalRiders}
                 period2Value={totals.period2.totalRiders}
                 difference={totals.period2.totalRiders - totals.period1.totalRiders}
-                changePercent={totals.period1.totalRiders > 0 
+                changePercent={totals.period1.totalRiders > 0
                   ? ((totals.period2.totalRiders - totals.period1.totalRiders) / totals.period1.totalRiders * 100)
                   : 0}
                 icon={Users}
               />
 
               <ComparisonMetricCard
-                label="معدل الإنجاز %"
+                label={t('reports.housing.completionRate')}
                 period1Value={`${totals.period1.completionRate}%`}
                 period2Value={`${totals.period2.completionRate}%`}
                 difference={parseFloat(totals.period2.completionRate) - parseFloat(totals.period1.completionRate)}
-                changePercent={totals.period1.completionRate > 0 
+                changePercent={totals.period1.completionRate > 0
                   ? ((parseFloat(totals.period2.completionRate) - parseFloat(totals.period1.completionRate)) / parseFloat(totals.period1.completionRate) * 100)
                   : 0}
                 icon={Award}
@@ -334,13 +336,13 @@ const HousingComparisonReport = () => {
               <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4 cursor-pointer hover:from-gray-800 hover:to-gray-900 transition-all"
-                     onClick={() => setExpandedHousing(expandedHousing === index ? null : index)}>
+                  onClick={() => setExpandedHousing(expandedHousing === index ? null : index)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <MapPin className="text-white" size={28} />
                       <div>
                         <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
-                        <p className="text-gray-300 text-sm">انقر لعرض التفاصيل الكاملة</p>
+                        <p className="text-gray-300 text-sm">{t('reports.housing.clickForDetails')}</p>
                       </div>
                     </div>
                     <div className="text-white">
@@ -352,7 +354,7 @@ const HousingComparisonReport = () => {
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-6 bg-gray-50">
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-1">إجمالي الطلبات</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('reports.housing.totalOrders')}</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-lg font-bold text-blue-600">
                         {housing.period1Breakdown?.dailyOrdersCount || 0}
@@ -370,7 +372,7 @@ const HousingComparisonReport = () => {
                   </div>
 
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-1">الطلبات المقبولة</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('reports.housing.acceptedOrders')}</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-lg font-bold text-blue-600">
                         {housing.period1Breakdown?.completedOrdersCount || 0}
@@ -388,7 +390,7 @@ const HousingComparisonReport = () => {
                   </div>
 
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-1">معدل الإنجاز</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('reports.housing.completionRate')}</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-lg font-bold text-blue-600">
                         {housing.period1Breakdown?.completionRate?.toFixed(1) || 0}%
@@ -405,7 +407,7 @@ const HousingComparisonReport = () => {
                   </div>
 
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-1">المناديب</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('reports.housing.ridersLabel')}</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-lg font-bold text-blue-600">
                         {housing.period1Breakdown?.riderCount || 0}
@@ -422,7 +424,7 @@ const HousingComparisonReport = () => {
                   </div>
 
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-1">الطلبات المرفوضة</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('reports.housing.rejectedOrders')}</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-lg font-bold text-blue-600">
                         {housing.period1Breakdown?.rejectedOrdersCount || 0}
@@ -445,7 +447,7 @@ const HousingComparisonReport = () => {
                     <div className="flex items-start gap-3">
                       <Lightbulb className="text-amber-600 flex-shrink-0 mt-1" size={20} />
                       <div className="flex-1">
-                        <h4 className="font-bold text-amber-900 mb-2">رؤى وملاحظات:</h4>
+                        <h4 className="font-bold text-amber-900 mb-2">{t('reports.housing.insightsNotes')}:</h4>
                         <ul className="space-y-1">
                           {housing.insights.map((insight, idx) => (
                             <li key={idx} className="text-sm text-amber-800">{insight}</li>
@@ -459,46 +461,46 @@ const HousingComparisonReport = () => {
                 {/* Expanded Details */}
                 {expandedHousing === index && (
                   <div className="p-6 border-t-2">
-                    <h4 className="text-lg font-bold text-gray-800 mb-4">تفاصيل المقارنة الكاملة</h4>
-                    
+                    <h4 className="text-lg font-bold text-gray-800 mb-4">{t('reports.housing.fullComparisonDetails')}</h4>
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Period 1 Details */}
                       <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50/30">
                         <h5 className="font-bold text-blue-700 mb-3 flex items-center gap-2">
                           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                          الفترة الأولى - {startDate} إلى {endDate}
+                          {t('reports.housing.period1Details', { startDate, endDate })}
                         </h5>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-gray-600">إجمالي الطلبات:</span>
+                            <span className="text-gray-600">{t('reports.housing.totalOrders')}:</span>
                             <span className="font-bold">{housing.period1Breakdown?.dailyOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مقبولة:</span>
+                            <span className="text-gray-600">{t('reports.housing.acceptedOrders')}:</span>
                             <span className="font-bold text-green-600">{housing.period1Breakdown?.completedOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مرفوضة:</span>
+                            <span className="text-gray-600">{t('reports.housing.rejectedOrders')}:</span>
                             <span className="font-bold text-red-600">{housing.period1Breakdown?.rejectedOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">معدل الإنجاز:</span>
+                            <span className="text-gray-600">{t('reports.housing.completionRate')}:</span>
                             <span className="font-bold">{housing.period1Breakdown?.completionRate?.toFixed(1) || 0}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">عدد المناديب:</span>
+                            <span className="text-gray-600">{t('reports.housing.riderCount')}:</span>
                             <span className="font-bold">{housing.period1Breakdown?.riderCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">متوسط الطلبات/مندوب:</span>
+                            <span className="text-gray-600">{t('reports.housing.avgOrdersPerRider')}:</span>
                             <span className="font-bold">{housing.period1Breakdown?.averageOrdersPerRider?.toFixed(1) || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">المساهمة:</span>
+                            <span className="text-gray-600">{t('reports.housing.contribution')}:</span>
                             <span className="font-bold">{housing.period1Breakdown?.housingContribution?.toFixed(1) || 0}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مشكلة:</span>
+                            <span className="text-gray-600">{t('reports.housing.problematicOrders')}:</span>
                             <span className="font-bold text-orange-600">{housing.period1Breakdown?.problematicOrdersCount || 0}</span>
                           </div>
                         </div>
@@ -506,7 +508,7 @@ const HousingComparisonReport = () => {
                         {/* Riders Period 1 */}
                         {housing.period1Breakdown?.riderAssignments?.length > 0 && (
                           <div className="mt-4">
-                            <h6 className="font-semibold text-blue-700 mb-2">المناديب:</h6>
+                            <h6 className="font-semibold text-blue-700 mb-2">{t('reports.housing.ridersLabel')}:</h6>
                             <div className="space-y-2">
                               {housing.period1Breakdown.riderAssignments.map((rider, idx) => (
                                 <div key={idx} className="bg-white rounded p-2 text-xs">
@@ -516,14 +518,14 @@ const HousingComparisonReport = () => {
                                   </div>
                                   <div className="grid grid-cols-3 gap-2 text-gray-600">
                                     <div>
-                                      <span className="text-green-600 font-bold">{rider.ordersCompleted}</span> مقبول
+                                      <span className="text-green-600 font-bold">{rider.ordersCompleted}</span> {t('reports.housing.accepted')}
                                     </div>
                                     <div>
-                                      <span className="text-red-600 font-bold">{rider.ordersRejected}</span> مرفوض
+                                      <span className="text-red-600 font-bold">{rider.ordersRejected}</span> {t('reports.housing.rejected')}
                                     </div>
                                     <div>
                                       <Clock size={12} className="inline mr-1" />
-                                      <span className="font-bold">{rider.totalWorkingHours}ساعة</span>
+                                      <span className="font-bold">{rider.totalWorkingHours} {t('reports.housing.hour')}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -537,39 +539,39 @@ const HousingComparisonReport = () => {
                       <div className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50/30">
                         <h5 className="font-bold text-purple-700 mb-3 flex items-center gap-2">
                           <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                          الفترة الثانية - {startDate1} إلى {endDate1}
+                          {t('reports.housing.period2Details', { startDate1, endDate1 })}
                         </h5>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-gray-600">إجمالي الطلبات:</span>
+                            <span className="text-gray-600">{t('reports.housing.totalOrders')}:</span>
                             <span className="font-bold">{housing.period2Breakdown?.dailyOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مقبولة:</span>
+                            <span className="text-gray-600">{t('reports.housing.acceptedOrders')}:</span>
                             <span className="font-bold text-green-600">{housing.period2Breakdown?.completedOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مرفوضة:</span>
+                            <span className="text-gray-600">{t('reports.housing.rejectedOrders')}:</span>
                             <span className="font-bold text-red-600">{housing.period2Breakdown?.rejectedOrdersCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">معدل الإنجاز:</span>
+                            <span className="text-gray-600">{t('reports.housing.completionRate')}:</span>
                             <span className="font-bold">{housing.period2Breakdown?.completionRate?.toFixed(1) || 0}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">عدد المناديب:</span>
+                            <span className="text-gray-600">{t('reports.housing.riderCount')}:</span>
                             <span className="font-bold">{housing.period2Breakdown?.riderCount || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">متوسط الطلبات/مندوب:</span>
+                            <span className="text-gray-600">{t('reports.housing.avgOrdersPerRider')}:</span>
                             <span className="font-bold">{housing.period2Breakdown?.averageOrdersPerRider?.toFixed(1) || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">المساهمة:</span>
+                            <span className="text-gray-600">{t('reports.housing.contribution')}:</span>
                             <span className="font-bold">{housing.period2Breakdown?.housingContribution?.toFixed(1) || 0}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">طلبات مشكلة:</span>
+                            <span className="text-gray-600">{t('reports.housing.problematicOrders')}:</span>
                             <span className="font-bold text-orange-600">{housing.period2Breakdown?.problematicOrdersCount || 0}</span>
                           </div>
                         </div>
@@ -577,7 +579,7 @@ const HousingComparisonReport = () => {
                         {/* Riders Period 2 */}
                         {housing.period2Breakdown?.riderAssignments?.length > 0 && (
                           <div className="mt-4">
-                            <h6 className="font-semibold text-purple-700 mb-2">المناديب:</h6>
+                            <h6 className="font-semibold text-purple-700 mb-2">{t('reports.housing.ridersLabel')}:</h6>
                             <div className="space-y-2">
                               {housing.period2Breakdown.riderAssignments.map((rider, idx) => (
                                 <div key={idx} className="bg-white rounded p-2 text-xs">
@@ -587,14 +589,14 @@ const HousingComparisonReport = () => {
                                   </div>
                                   <div className="grid grid-cols-3 gap-2 text-gray-600">
                                     <div>
-                                      <span className="text-green-600 font-bold">{rider.ordersCompleted}</span> مقبول
+                                      <span className="text-green-600 font-bold">{rider.ordersCompleted}</span> {t('reports.housing.accepted')}
                                     </div>
                                     <div>
-                                      <span className="text-red-600 font-bold">{rider.ordersRejected}</span> مرفوض
+                                      <span className="text-red-600 font-bold">{rider.ordersRejected}</span> {t('reports.housing.rejected')}
                                     </div>
                                     <div>
                                       <Clock size={12} className="inline mr-1" />
-                                      <span className="font-bold">{rider.totalWorkingHours}ساعة</span>
+                                      <span className="font-bold">{rider.totalWorkingHours} {t('reports.housing.hour')}</span>
                                     </div>
                                   </div>
                                 </div>
@@ -607,10 +609,10 @@ const HousingComparisonReport = () => {
 
                     {/* Detailed Comparison Metrics */}
                     <div className="mt-6 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg p-4">
-                      <h5 className="font-bold text-gray-800 mb-3">ملخص التغييرات</h5>
+                      <h5 className="font-bold text-gray-800 mb-3">{t('reports.housing.changeSummary')}</h5>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                         <div className="bg-white rounded p-3 text-center">
-                          <p className="text-gray-600 text-xs mb-1">تغيير الطلبات</p>
+                          <p className="text-gray-600 text-xs mb-1">{t('reports.housing.ordersChange')}</p>
                           <p className={`font-bold text-lg ${getChangeTextColor(housing.comparison?.dailyOrdersDifference)}`}>
                             {housing.comparison?.dailyOrdersDifference > 0 ? '+' : ''}
                             {housing.comparison?.dailyOrdersDifference || 0}
@@ -620,21 +622,21 @@ const HousingComparisonReport = () => {
                           </p>
                         </div>
                         <div className="bg-white rounded p-3 text-center">
-                          <p className="text-gray-600 text-xs mb-1">تغيير معدل الإنجاز</p>
+                          <p className="text-gray-600 text-xs mb-1">{t('reports.housing.completionRateChange')}</p>
                           <p className={`font-bold text-lg ${getChangeTextColor(housing.comparison?.completionRateDifference)}`}>
                             {housing.comparison?.completionRateDifference > 0 ? '+' : ''}
                             {housing.comparison?.completionRateDifference?.toFixed(1) || 0}%
                           </p>
                         </div>
                         <div className="bg-white rounded p-3 text-center">
-                          <p className="text-gray-600 text-xs mb-1">تغيير المناديب</p>
+                          <p className="text-gray-600 text-xs mb-1">{t('reports.housing.ridersChange')}</p>
                           <p className={`font-bold text-lg ${getChangeTextColor(housing.comparison?.riderCountDifference)}`}>
                             {housing.comparison?.riderCountDifference > 0 ? '+' : ''}
                             {housing.comparison?.riderCountDifference || 0}
                           </p>
                         </div>
                         <div className="bg-white rounded p-3 text-center">
-                          <p className="text-gray-600 text-xs mb-1">تغيير المساهمة</p>
+                          <p className="text-gray-600 text-xs mb-1">{t('reports.housing.contributionChange')}</p>
                           <p className={`font-bold text-lg ${getChangeTextColor(housing.comparison?.housingContributionDifference)}`}>
                             {housing.comparison?.housingContributionDifference > 0 ? '+' : ''}
                             {housing.comparison?.housingContributionDifference?.toFixed(1) || 0}%

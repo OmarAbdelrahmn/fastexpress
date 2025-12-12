@@ -10,11 +10,13 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function EditCompanyPage() {
   const router = useRouter();
   const params = useParams();
   const companyName = decodeURIComponent(params?.name || '');
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -41,7 +43,7 @@ export default function EditCompanyPage() {
       const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
       const companies = Array.isArray(data) ? data : [];
       const foundCompany = companies.find(c => c.name === companyName);
-      
+
       if (foundCompany) {
         setOriginalData(foundCompany);
         setFormData({
@@ -52,10 +54,10 @@ export default function EditCompanyPage() {
           email: foundCompany.email || ''
         });
       } else {
-        setMessage({ type: 'error', text: 'لم يتم العثور على الشركة' });
+        setMessage({ type: 'error', text: t('companies.companyNotFound') });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في تحميل بيانات الشركة' });
+      setMessage({ type: 'error', text: t('companies.loadCompanyError') });
     } finally {
       setLoadingData(false);
     }
@@ -68,9 +70,9 @@ export default function EditCompanyPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
-      setMessage({ type: 'error', text: 'اسم الشركة مطلوب' });
+      setMessage({ type: 'error', text: t('companies.nameRequired') });
       return;
     }
 
@@ -80,12 +82,12 @@ export default function EditCompanyPage() {
     try {
       const data = ApiService.put(API_ENDPOINTS.COMPANY.UPDATE(companyName), formData);
 
-        setMessage({ type: 'success', text: 'تم تحديث بيانات الشركة بنجاح' });
-        setTimeout(() => {
-          router.push('/companies');
-        }, 2000);      
+      setMessage({ type: 'success', text: t('companies.updateSuccess') });
+      setTimeout(() => {
+        router.push('/companies');
+      }, 2000);
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال' });
+      setMessage({ type: 'error', text: t('companies.connectionError') });
     } finally {
       setLoading(false);
     }
@@ -106,15 +108,15 @@ export default function EditCompanyPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
         <PageHeader
-          title="تعديل بيانات الشركة"
-          subtitle="جاري التحميل..."
+          title={t('companies.editCompanyData')}
+          subtitle={t('common.loading')}
           icon={Building}
         />
         <div className="p-6">
           <Card>
             <div className="text-center py-20">
               <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto"></div>
-              <p className="mt-4 text-gray-600 font-medium">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600 font-medium">{t('companies.loadingData')}</p>
             </div>
           </Card>
         </div>
@@ -125,11 +127,11 @@ export default function EditCompanyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
-        title="تعديل بيانات الشركة"
-        subtitle={`تعديل: ${companyName}`}
+        title={t('companies.editCompanyData')}
+        subtitle={`${t('companies.editing')}: ${companyName}`}
         icon={Building}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/companies'),
           variant: 'secondary'
@@ -143,9 +145,9 @@ export default function EditCompanyPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="text-yellow-600 mt-1 flex-shrink-0" size={24} />
               <div>
-                <h3 className="font-bold text-yellow-800 mb-1">تحذير</h3>
+                <h3 className="font-bold text-yellow-800 mb-1">{t('common.warning')}</h3>
                 <p className="text-sm text-yellow-700">
-                  لديك تغييرات غير محفوظة. تأكد من حفظ التغييرات قبل المغادرة.
+                  {t('companies.unsavedChangesWarning')}
                 </p>
               </div>
             </div>
@@ -156,7 +158,7 @@ export default function EditCompanyPage() {
         {message.text && (
           <Alert
             type={message.type}
-            title={message.type === 'success' ? 'نجح' : 'خطأ'}
+            title={message.type === 'success' ? t('common.success') : t('common.error')}
             message={message.text}
             onClose={() => setMessage({ type: '', text: '' })}
           />
@@ -168,34 +170,34 @@ export default function EditCompanyPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
               <Building size={22} className="text-blue-600" />
-              المعلومات الأساسية
+              {t('companies.basicInfo')}
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <Input
-                  label="اسم الشركة"
+                  label={t('companies.companyName')}
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  placeholder="أدخل اسم الشركة"
+                  placeholder={t('companies.enterCompanyName')}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  ⚠️ تغيير اسم الشركة قد يؤثر على السجلات المرتبطة
+                  ⚠️ {t('companies.nameChangeWarning')}
                 </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  التفاصيل
+                  {t('companies.details')}
                 </label>
                 <textarea
                   name="details"
                   value={formData.details}
                   onChange={handleInputChange}
-                  placeholder="أدخل تفاصيل عن الشركة (اختياري)"
+                  placeholder={t('companies.enterDetailsOptional')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   rows="4"
                 />
@@ -207,12 +209,12 @@ export default function EditCompanyPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
               <AlertCircle size={22} className="text-green-600" />
-              معلومات الاتصال
+              {t('companies.contactInfo')}
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="رقم الهاتف"
+                label={t('common.phone')}
                 type="tel"
                 name="phone"
                 value={formData.phone}
@@ -221,7 +223,7 @@ export default function EditCompanyPage() {
               />
 
               <Input
-                label="البريد الإلكتروني"
+                label={t('common.email')}
                 type="email"
                 name="email"
                 value={formData.email}
@@ -235,34 +237,34 @@ export default function EditCompanyPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
               <AlertCircle size={22} className="text-purple-600" />
-              معلومات العنوان
+              {t('companies.addressInfo')}
             </h3>
-            
+
             <Input
-              label="العنوان"
+              label={t('companies.address')}
               type="text"
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              placeholder="أدخل عنوان الشركة"
+              placeholder={t('companies.enterAddress')}
             />
           </Card>
 
           {/* Comparison Card */}
           {originalData && hasChanges() && (
             <Card>
-              <h3 className="text-lg font-bold text-gray-800 mb-4">مقارنة التغييرات</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">{t('companies.compareChanges')}</h3>
               <div className="space-y-3">
                 {formData.name !== originalData.name && (
                   <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700 mb-2">اسم الشركة</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('companies.companyName')}</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">القديم</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.oldValue')}</p>
                         <p className="text-sm text-red-600 line-through">{originalData.name}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الجديد</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.newValue')}</p>
                         <p className="text-sm text-green-600 font-medium">{formData.name}</p>
                       </div>
                     </div>
@@ -271,15 +273,15 @@ export default function EditCompanyPage() {
 
                 {formData.phone !== (originalData.phone || '') && (
                   <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700 mb-2">رقم الهاتف</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('common.phone')}</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">القديم</p>
-                        <p className="text-sm text-red-600 line-through">{originalData.phone || 'غير محدد'}</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.oldValue')}</p>
+                        <p className="text-sm text-red-600 line-through">{originalData.phone || t('profile.notSpecified')}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الجديد</p>
-                        <p className="text-sm text-green-600 font-medium">{formData.phone || 'غير محدد'}</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.newValue')}</p>
+                        <p className="text-sm text-green-600 font-medium">{formData.phone || t('profile.notSpecified')}</p>
                       </div>
                     </div>
                   </div>
@@ -287,15 +289,15 @@ export default function EditCompanyPage() {
 
                 {formData.email !== (originalData.email || '') && (
                   <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <p className="text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{t('common.email')}</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">القديم</p>
-                        <p className="text-sm text-red-600 line-through">{originalData.email || 'غير محدد'}</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.oldValue')}</p>
+                        <p className="text-sm text-red-600 line-through">{originalData.email || t('profile.notSpecified')}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">الجديد</p>
-                        <p className="text-sm text-green-600 font-medium">{formData.email || 'غير محدد'}</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('companies.newValue')}</p>
+                        <p className="text-sm text-green-600 font-medium">{formData.email || t('profile.notSpecified')}</p>
                       </div>
                     </div>
                   </div>
@@ -314,7 +316,7 @@ export default function EditCompanyPage() {
                 disabled={loading}
               >
                 <ArrowRight size={18} className="ml-2" />
-                إلغاء
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -322,7 +324,7 @@ export default function EditCompanyPage() {
                 disabled={loading || !hasChanges()}
               >
                 <Save size={18} className="ml-2" />
-                حفظ التعديلات
+                {t('common.saveChanges')}
               </Button>
             </div>
           </Card>

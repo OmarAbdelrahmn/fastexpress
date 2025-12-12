@@ -8,6 +8,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   Car,
   Search,
@@ -21,6 +22,7 @@ import {
 
 export default function TakeVehiclePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -42,7 +44,7 @@ export default function TakeVehiclePage() {
       setAvailableVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading available vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل المركبات الجاهزة للتسليم");
+      setErrorMessage(t("common.loadError"));
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ export default function TakeVehiclePage() {
 
   const searchVehicle = async () => {
     if (!searchTerm.trim()) {
-      setErrorMessage("الرجاء إدخال رقم اللوحة للبحث");
+      setErrorMessage(t("vehicles.enterPlateNumber"));
       return;
     }
 
@@ -66,13 +68,13 @@ export default function TakeVehiclePage() {
         setSelectedVehicle(vehicle);
         setErrorMessage("");
       } else {
-        setErrorMessage("لم يتم العثور على المركبة");
+        setErrorMessage(t("vehicles.vehicleNotFound"));
         setSelectedVehicle(null);
       }
     } catch (err) {
       console.error("Error searching vehicle:", err);
       setErrorMessage(
-        err?.message || "المركبة غير جاهزة للتسليم أو حدث خطأ في البحث"
+        err?.message || t("vehicles.vehicleNotReadyOrError")
       );
       setSelectedVehicle(null);
     } finally {
@@ -84,17 +86,17 @@ export default function TakeVehiclePage() {
     e.preventDefault();
 
     if (!selectedVehicle) {
-      setErrorMessage("الرجاء البحث عن المركبة أولاً");
+      setErrorMessage(t("vehicles.selectVehicleFirst"));
       return;
     }
 
     if (!riderIqama.trim()) {
-      setErrorMessage("الرجاء إدخال رقم إقامة المندوب");
+      setErrorMessage(t("vehicles.enterIqamaNumber"));
       return;
     }
 
     if (!reason.trim()) {
-      setErrorMessage("الرجاء إدخال سبب أخذ المركبة");
+      setErrorMessage(t("vehicles.enterReason"));
       return;
     }
 
@@ -109,7 +111,7 @@ export default function TakeVehiclePage() {
         )}&reason=${encodeURIComponent(reason)}`
       );
 
-      setSuccessMessage("تم أخذ المركبة بنجاح");
+      setSuccessMessage(t("vehicles.takingRequestSent"));
       setTimeout(() => {
         setSelectedVehicle(null);
         setSearchTerm("");
@@ -119,7 +121,7 @@ export default function TakeVehiclePage() {
       }, 2000);
     } catch (err) {
       console.error("Error taking vehicle:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء أخذ المركبة");
+      setErrorMessage(err?.message || t("vehicles.requestSubmitError"));
     } finally {
       setLoading(false);
     }
@@ -136,11 +138,11 @@ export default function TakeVehiclePage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="أخذ مركبة"
-        subtitle="اختر مركبة جاهزة للتسليم وقم بتسجيل استلامها"
+        title={t("vehicles.takeVehicle")}
+        subtitle={t("vehicles.registerTakeVehicle")}
         icon={Car}
         actionButton={{
-          text: "تحديث القائمة",
+          text: t("vehicles.refreshData"),
           icon: <CheckCircle size={18} />,
           onClick: loadAvailableVehicles,
           variant: "secondary",
@@ -151,7 +153,7 @@ export default function TakeVehiclePage() {
         {errorMessage && (
           <Alert
             type="error"
-            title="خطأ"
+            title={t("common.error")}
             message={errorMessage}
             onClose={() => setErrorMessage("")}
           />
@@ -160,7 +162,7 @@ export default function TakeVehiclePage() {
         {successMessage && (
           <Alert
             type="success"
-            title="نجاح"
+            title={t("common.success")}
             message={successMessage}
             onClose={() => setSuccessMessage("")}
           />
@@ -172,7 +174,7 @@ export default function TakeVehiclePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-600 mb-1">
-                  مركبات جاهزة للتسليم
+                  {t("vehicles.availableVehiclesCount")}
                 </p>
                 <p className="text-3xl font-bold text-green-700">
                   {availableVehicles.length}
@@ -185,7 +187,7 @@ export default function TakeVehiclePage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 mb-1">محددة الموقع</p>
+                <p className="text-sm text-blue-600 mb-1">{t("vehicles.locatedVehicles")}</p>
                 <p className="text-3xl font-bold text-blue-700">
                   {availableVehicles.filter((v) => v.location).length}
                 </p>
@@ -197,7 +199,7 @@ export default function TakeVehiclePage() {
           <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-purple-600 mb-1">أنواع مختلفة</p>
+                <p className="text-sm text-purple-600 mb-1">{t("vehicles.vehicleType")}</p>
                 <p className="text-3xl font-bold text-purple-700">
                   {new Set(availableVehicles.map((v) => v.vehicleType)).size}
                 </p>
@@ -209,7 +211,7 @@ export default function TakeVehiclePage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">نتائج البحث</p>
+                <p className="text-sm text-orange-600 mb-1">{t("vehicles.searchResults")}</p>
                 <p className="text-3xl font-bold text-orange-700">
                   {filteredVehicles.length}
                 </p>
@@ -224,7 +226,7 @@ export default function TakeVehiclePage() {
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Search size={20} />
-              البحث عن المركبة
+              {t("vehicles.searchVehicle")}
             </h3>
 
             <div className="flex gap-3">
@@ -233,7 +235,7 @@ export default function TakeVehiclePage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="أدخل رقم اللوحة..."
+                  placeholder={t("vehicles.enterPlateNumberPlaceholder")}
                   onKeyPress={(e) => e.key === "Enter" && searchVehicle()}
                 />
               </div>
@@ -243,7 +245,7 @@ export default function TakeVehiclePage() {
                 disabled={searchLoading}
               >
                 <Search size={18} className="ml-2" />
-                بحث
+                {t("common.search")}
               </Button>
             </div>
           </div>
@@ -253,48 +255,48 @@ export default function TakeVehiclePage() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
               <h4 className="font-bold text-green-800 mb-3 flex items-center gap-2">
                 <Car size={18} />
-                معلومات المركبة المحددة
+                {t("vehicles.selectedVehicleInfo")}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <p className="text-green-600 mb-1">رقم اللوحة (عربي)</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.plateNumberA}
                   </p>
                 </div>
                 <div>
-                  <p className="text-green-600 mb-1">رقم اللوحة (إنجليزي)</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.plateNumberEnglish")}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedVehicle.plateNumberE || "غير محدد"}
+                    {selectedVehicle.plateNumberE || t("vehicles.notSpecified")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-green-600 mb-1">الرقم التسلسلي</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.serialNumber")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.serialNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-green-600 mb-1">رقم المركبة</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.vehicleNumberLabel")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.vehicleNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-green-600 mb-1">نوع المركبة</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.vehicleType")}</p>
                   <p className="font-medium text-gray-800">
                     {selectedVehicle.vehicleType}
                   </p>
                 </div>
                 <div>
-                  <p className="text-green-600 mb-1">الموقع الحالي</p>
+                  <p className="text-green-600 mb-1">{t("vehicles.location")}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedVehicle.location || "غير محدد"}
+                    {selectedVehicle.location || t("vehicles.notSpecified")}
                   </p>
                 </div>
                 {selectedVehicle.manufacturer && (
                   <div>
-                    <p className="text-green-600 mb-1">الشركة المصنعة</p>
+                    <p className="text-green-600 mb-1">{t("vehicles.manufacturer")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.manufacturer}
                     </p>
@@ -302,7 +304,7 @@ export default function TakeVehiclePage() {
                 )}
                 {selectedVehicle.manufactureYear && (
                   <div>
-                    <p className="text-green-600 mb-1">سنة الصنع</p>
+                    <p className="text-green-600 mb-1">{t("vehicles.manufactureYear")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.manufactureYear}
                     </p>
@@ -310,7 +312,7 @@ export default function TakeVehiclePage() {
                 )}
                 {selectedVehicle.ownerName && (
                   <div>
-                    <p className="text-green-600 mb-1">اسم المالك</p>
+                    <p className="text-green-600 mb-1">{t("vehicles.ownerName")}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.ownerName}
                     </p>
@@ -328,34 +330,34 @@ export default function TakeVehiclePage() {
                   <User className="text-blue-600 mt-1" size={24} />
                   <div>
                     <h3 className="font-semibold text-blue-800 mb-1">
-                      معلومات المندوب
+                      {t("vehicles.riderInfo")}
                     </h3>
                     <p className="text-sm text-blue-600">
-                      أدخل بيانات المندوب الذي سيستلم المركبة
+                      {t("vehicles.enterRiderInfo")}
                     </p>
                   </div>
                 </div>
               </div>
 
               <Input
-                label="رقم إقامة المندوب"
+                label={t("vehicles.riderIqama")}
                 type="number"
                 value={riderIqama}
                 onChange={(e) => setRiderIqama(e.target.value)}
                 required
-                placeholder="أدخل رقم الإقامة..."
+                placeholder={t("employees.enterIqamaNumber")}
               />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  سبب أخذ المركبة <span className="text-red-500">*</span>
+                  {t("vehicles.takenReason")} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   required
                   rows={4}
-                  placeholder="اشرح سبب استلام المركبة (مثل: العمل اليومي، توصيل، إلخ)..."
+                  placeholder={t("vehicles.explainReason")}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -372,7 +374,7 @@ export default function TakeVehiclePage() {
                   }}
                   disabled={loading}
                 >
-                  إلغاء
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={handleTakeVehicle}
@@ -380,7 +382,7 @@ export default function TakeVehiclePage() {
                   disabled={loading}
                 >
                   <CheckCircle size={18} className="ml-2" />
-                  تأكيد استلام المركبة
+                  {t("vehicles.submitTakeRequest")}
                 </Button>
               </div>
             </div>
@@ -390,13 +392,13 @@ export default function TakeVehiclePage() {
         {/* Available Vehicles Grid */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            المركبات الجاهزة للتسليم للاستلام
+            {t("vehicles.availableVehiclesList")}
           </h3>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
             </div>
           ) : filteredVehicles.length === 0 ? (
             <div className="text-center py-12">
@@ -405,7 +407,7 @@ export default function TakeVehiclePage() {
                 size={48}
               />
               <p className="text-gray-600">
-                لا توجد مركبات جاهزة للتسليم حالياً
+                {t("vehicles.noAvailableVehiclesText")}
               </p>
             </div>
           ) : (
@@ -434,14 +436,14 @@ export default function TakeVehiclePage() {
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                      جاهزة للتسليم
+                      {t("vehicles.availableStatus")}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-700">
                       <Package size={14} />
-                      <span className="text-gray-600">رقم تسلسلي:</span>
+                      <span className="text-gray-600">{t("vehicles.serialNumberLabel")}</span>
                       <span className="font-medium">
                         {vehicle.serialNumber}
                       </span>
@@ -450,7 +452,7 @@ export default function TakeVehiclePage() {
                     {vehicle.location && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <MapPin size={14} />
-                        <span className="text-gray-600">الموقع:</span>
+                        <span className="text-gray-600">{t("vehicles.location")}:</span>
                         <span className="font-medium">{vehicle.location}</span>
                       </div>
                     )}

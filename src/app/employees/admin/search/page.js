@@ -9,8 +9,10 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { Search, User, Eye, Edit, Building, MapPin, Phone } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function EmployeeSmartSearchPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,9 +22,9 @@ export default function EmployeeSmartSearchPage() {
 
   const handleSearch = async (e) => {
     e?.preventDefault();
-    
+
     if (!searchKeyword.trim()) {
-      setErrorMessage('الرجاء إدخال كلمة بحث');
+      setErrorMessage(t('employees.enterSearchKeyword'));
       return;
     }
 
@@ -34,11 +36,11 @@ export default function EmployeeSmartSearchPage() {
       const data = await ApiService.get(
         `${API_ENDPOINTS.EMPLOYEE.SMART_SEARCH}?q=${encodeURIComponent(searchKeyword)}`
       );
-      
+
       setSearchResults(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error searching employees:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في البحث');
+      setErrorMessage(err?.message || t('employees.searchError'));
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -56,8 +58,8 @@ export default function EmployeeSmartSearchPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="البحث الذكي عن الموظفين"
-        subtitle="ابحث بأي معلومة: الاسم، البلد، الكفيل، الوظيفة"
+        title={t('employees.smartSearchTitle')}
+        subtitle={t('employees.smartSearchSubtitle')}
         icon={Search}
       />
 
@@ -66,35 +68,35 @@ export default function EmployeeSmartSearchPage() {
         <form onSubmit={handleSearch} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              كلمة البحث
+              {t('employees.searchKeyword')}
             </label>
             <div className="flex gap-3">
               <input
                 type="text"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="ابحث بالاسم، البلد، الكفيل، الوظيفة..."
+                placeholder={t('employees.searchPlaceholderFull')}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <Button type="submit" loading={loading} disabled={loading}>
                 <Search size={18} className="ml-2" />
-                بحث
+                {t('common.search')}
               </Button>
             </div>
           </div>
 
           <div className="bg-blue-50 p-3 rounded-lg">
             <p className="text-sm text-blue-700">
-              <strong>نصيحة:</strong> يمكنك البحث بجزء من الاسم، البلد، اسم الكفيل، أو المسمى الوظيفي
+              <strong>{t('employees.tip')}:</strong> {t('employees.searchTipText')}
             </p>
           </div>
         </form>
       </Card>
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -104,19 +106,19 @@ export default function EmployeeSmartSearchPage() {
       {hasSearched && (
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            نتائج البحث ({searchResults.length})
+            {t('employees.searchResults')} ({searchResults.length})
           </h3>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="mt-4 text-gray-600">جاري البحث...</p>
+              <p className="mt-4 text-gray-600">{t('employees.searching')}</p>
             </div>
           ) : searchResults.length === 0 ? (
             <div className="text-center py-12">
               <Search className="mx-auto text-gray-400 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد نتائج تطابق بحثك</p>
-              <p className="text-sm text-gray-500 mt-2">جرب استخدام كلمات بحث مختلفة</p>
+              <p className="text-gray-600">{t('employees.noResultsMatch')}</p>
+              <p className="text-sm text-gray-500 mt-2">{t('employees.tryDifferentKeywords')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -135,19 +137,18 @@ export default function EmployeeSmartSearchPage() {
                         <p className="text-xs text-gray-500">{employee.nameEN}</p>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      employee.status === 'Enable' 
-                        ? 'bg-green-600 text-white' 
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${employee.status === 'Enable'
+                        ? 'bg-green-600 text-white'
                         : 'bg-red-600 text-white'
-                    }`}>
-                      {employee.status === 'Enable' ? 'نشط' : 'غير نشط'}
+                      }`}>
+                      {employee.status === 'Enable' ? t('status.enable') : t('status.disable')}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2 text-gray-700">
                       <User size={14} />
-                      <span className="text-xs">رقم الإقامة: {employee.iqamaNo}</span>
+                      <span className="text-xs">{t('employees.iqamaNumber')}: {employee.iqamaNo}</span>
                     </div>
 
                     {employee.country && (
@@ -167,7 +168,7 @@ export default function EmployeeSmartSearchPage() {
                     {employee.jobTitle && (
                       <div className="bg-green-50 border border-green-200 p-2 rounded">
                         <p className="text-xs text-green-700">
-                          <strong>الوظيفة:</strong> {employee.jobTitle}
+                          <strong>{t('employees.jobTitle')}:</strong> {employee.jobTitle}
                         </p>
                       </div>
                     )}
@@ -175,7 +176,7 @@ export default function EmployeeSmartSearchPage() {
                     {employee.sponsor && (
                       <div className="bg-purple-50 border border-purple-200 p-2 rounded">
                         <p className="text-xs text-purple-700">
-                          <strong>الكفيل:</strong> {employee.sponsor}
+                          <strong>{t('employees.sponsor')}:</strong> {employee.sponsor}
                         </p>
                       </div>
                     )}
@@ -188,14 +189,14 @@ export default function EmployeeSmartSearchPage() {
                       className="flex-1 text-sm"
                     >
                       <Eye size={16} className="ml-1" />
-                      التفاصيل
+                      {t('common.details')}
                     </Button>
                     <Button
                       onClick={() => handleEdit(employee.iqamaNo)}
                       className="flex-1 text-sm"
                     >
                       <Edit size={16} className="ml-1" />
-                      تعديل
+                      {t('common.edit')}
                     </Button>
                   </div>
                 </div>
@@ -208,30 +209,30 @@ export default function EmployeeSmartSearchPage() {
       {/* Search Tips */}
       {!hasSearched && (
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">نصائح البحث</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.searchTips')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالاسم</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('employees.searchByName')}</h4>
               <p className="text-sm text-gray-600">
-                يمكنك البحث بالاسم العربي أو الإنجليزي، حتى لو كان جزءاً من الاسم
+                {t('employees.searchByNameDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالبلد</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('employees.searchByCountry')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث عن جميع الموظفين من بلد معين
+                {t('employees.searchByCountryDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالكفيل</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('employees.searchBySponsor')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث عن الموظفين حسب اسم الكفيل
+                {t('employees.searchBySponsorDesc')}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">البحث بالوظيفة</h4>
+              <h4 className="font-bold text-gray-800 mb-2">{t('employees.searchByJob')}</h4>
               <p className="text-sm text-gray-600">
-                ابحث حسب المسمى الوظيفي
+                {t('employees.searchByJobDesc')}
               </p>
             </div>
           </div>

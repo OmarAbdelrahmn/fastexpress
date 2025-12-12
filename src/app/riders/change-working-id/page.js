@@ -10,13 +10,15 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Package, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function ChangeWorkingIdPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [formData, setFormData] = useState({
     oldWorkingId: '',
     newWorkingId: ''
@@ -32,14 +34,14 @@ export default function ChangeWorkingIdPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.oldWorkingId || !formData.newWorkingId) {
-      setErrorMessage('الرجاء إدخال كلا الرقمين');
+      setErrorMessage(t('riders.enterBothNumbers'));
       return;
     }
 
     if (formData.oldWorkingId === formData.newWorkingId) {
-      setErrorMessage('رقم العمل الجديد يجب أن يكون مختلفاً عن القديم');
+      setErrorMessage(t('riders.newMustBeDifferent'));
       return;
     }
 
@@ -52,15 +54,15 @@ export default function ChangeWorkingIdPage() {
         oldWorkingId: formData.oldWorkingId,
         newWorkingId: formData.newWorkingId
       });
-      
-      setSuccessMessage('تم تغيير رقم العمل بنجاح');
+
+      setSuccessMessage(t('riders.workingIdChangedSuccess'));
       setTimeout(() => {
         setFormData({ oldWorkingId: '', newWorkingId: '' });
         router.push('/riders');
       }, 2000);
     } catch (err) {
       console.error('Error changing working ID:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء تغيير رقم العمل');
+      setErrorMessage(err?.message || t('riders.workingIdChangeError'));
     } finally {
       setLoading(false);
     }
@@ -69,11 +71,11 @@ export default function ChangeWorkingIdPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تغيير رقم العمل"
-        subtitle="تحديث رقم عمل مندوب موجود"
+        title={t('riders.changeWorkingIdTitle')}
+        subtitle={t('riders.changeWorkingIdSubtitle')}
         icon={Package}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/riders'),
           variant: 'secondary'
@@ -85,27 +87,27 @@ export default function ChangeWorkingIdPage() {
         <div className="flex items-start gap-3">
           <AlertCircle className="text-yellow-600 mt-1" size={24} />
           <div>
-            <h3 className="font-semibold text-yellow-800 mb-1">تحذير هام</h3>
+            <h3 className="font-semibold text-yellow-800 mb-1">{t('riders.importantWarning')}</h3>
             <p className="text-sm text-yellow-600">
-              تغيير رقم العمل سيؤثر على جميع السجلات المرتبطة بالمندوب. تأكد من صحة البيانات قبل التغيير.
+              {t('riders.changeWorkingIdWarning')}
             </p>
           </div>
         </div>
       </div>
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -114,43 +116,43 @@ export default function ChangeWorkingIdPage() {
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-bold text-blue-800 mb-2">كيفية التغيير</h3>
+            <h3 className="font-bold text-blue-800 mb-2">{t('riders.howToChange')}</h3>
             <ul className="text-sm text-blue-600 space-y-1 list-disc list-inside">
-              <li>أدخل رقم العمل الحالي للمندوب</li>
-              <li>أدخل رقم العمل الجديد المطلوب</li>
-              <li>تأكد من عدم وجود مندوب آخر بنفس رقم العمل الجديد</li>
-              <li>سيتم تحديث جميع السجلات المرتبطة تلقائياً</li>
+              <li>{t('riders.enterCurrentWorkingId')}</li>
+              <li>{t('riders.enterNewWorkingId')}</li>
+              <li>{t('riders.ensureUniqueWorkingId')}</li>
+              <li>{t('riders.recordsWillUpdate')}</li>
             </ul>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Input
-                label="رقم العمل الحالي"
+                label={t('riders.currentWorkingId')}
                 type="text"
                 name="oldWorkingId"
                 value={formData.oldWorkingId}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل رقم العمل الحالي"
+                placeholder={t('riders.enterCurrentWorkingIdPlaceholder')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                رقم العمل الموجود حالياً للمندوب
+                {t('riders.currentWorkingIdHint')}
               </p>
             </div>
 
             <div>
               <Input
-                label="رقم العمل الجديد"
+                label={t('riders.newWorkingId')}
                 type="text"
                 name="newWorkingId"
                 value={formData.newWorkingId}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل رقم العمل الجديد"
+                placeholder={t('riders.enterNewWorkingIdPlaceholder')}
               />
               <p className="text-xs text-gray-500 mt-1">
-                رقم العمل الجديد المطلوب
+                {t('riders.newWorkingIdHint')}
               </p>
             </div>
           </div>
@@ -160,10 +162,10 @@ export default function ChangeWorkingIdPage() {
             <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="text-green-600" size={20} />
-                <h4 className="font-bold text-green-800">معاينة التغيير</h4>
+                <h4 className="font-bold text-green-800">{t('riders.changePreview')}</h4>
               </div>
               <p className="text-sm text-green-700">
-                سيتم تغيير رقم العمل من <strong className="text-green-800">{formData.oldWorkingId}</strong> إلى <strong className="text-green-800">{formData.newWorkingId}</strong>
+                {t('riders.workingIdWillChange')} <strong className="text-green-800">{formData.oldWorkingId}</strong> → <strong className="text-green-800">{formData.newWorkingId}</strong>
               </p>
             </div>
           )}
@@ -175,11 +177,11 @@ export default function ChangeWorkingIdPage() {
               onClick={() => router.push('/riders')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <CheckCircle size={18} className="ml-2" />
-              تأكيد التغيير
+              {t('riders.confirmChange')}
             </Button>
           </div>
         </form>
@@ -187,14 +189,14 @@ export default function ChangeWorkingIdPage() {
 
       {/* Information Card */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات إضافية</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.additionalInfo')}</h3>
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-start gap-2">
             <div className="bg-blue-100 p-1 rounded mt-0.5">
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>الورديات:</strong> ستبقى جميع الورديات السابقة مرتبطة برقم العمل القديم
+              <strong>{t('shifts.title')}:</strong> {t('riders.shiftsNote').split(':')[1]}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -202,7 +204,7 @@ export default function ChangeWorkingIdPage() {
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>التقارير:</strong> التقارير الجديدة ستستخدم رقم العمل الجديد
+              <strong>{t('reports.title')}:</strong> {t('riders.reportsNote').split(':')[1]}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -210,7 +212,7 @@ export default function ChangeWorkingIdPage() {
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>السجلات:</strong> رقم الإقامة يبقى ثابتاً ولا يتغير
+              <strong>{t('riders.iqamaNumber')}:</strong> {t('riders.recordsNote').split(':')[1]}
             </p>
           </div>
         </div>

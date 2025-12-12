@@ -10,6 +10,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import {
   Plus, Search, Edit, Trash2, Eye, Users,
   FileSpreadsheet, Filter, AlertCircle, UserCheck,
@@ -18,6 +19,7 @@ import {
 
 export default function EmployeeAdminPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,67 +38,67 @@ export default function EmployeeAdminPage() {
       setEmployees(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading employees:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل بيانات الموظفين');
+      setErrorMessage(err?.message || t('employees.loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (iqamaNo) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الموظف؟')) return;
+    if (!confirm(t('employees.confirmDelete'))) return;
 
     try {
       await ApiService.delete(API_ENDPOINTS.EMPLOYEE.DELETE(iqamaNo));
-      setSuccessMessage('تم حذف الموظف بنجاح');
+      setSuccessMessage(t('employees.deleteSuccess'));
       loadEmployees();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error deleting employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في حذف الموظف');
+      setErrorMessage(err?.message || t('employees.deleteError'));
       setTimeout(() => setErrorMessage(''), 5000);
     }
   };
 
   const columns = [
     {
-      header: 'رقم الإقامة',
+      header: t('employees.iqamaNumber'),
       accessor: 'iqamaNo',
       render: (row) => (
         <span className="font-bold text-blue-600">{row.iqamaNo}</span>
       )
     },
-    { header: 'الاسم (عربي)', accessor: 'nameAR' },
-    { header: 'الاسم (إنجليزي)', accessor: 'nameEN' },
-    { header: 'البلد', accessor: 'country' },
-    { header: 'رقم الهاتف', accessor: 'phone' },
-    { header: 'المسمى الوظيفي', accessor: 'jobTitle' },
+    { header: t('employees.nameArabic'), accessor: 'nameAR' },
+    { header: t('employees.nameEnglish'), accessor: 'nameEN' },
+    { header: t('employees.country'), accessor: 'country' },
+    { header: t('employees.phone'), accessor: 'phone' },
+    { header: t('employees.jobTitle'), accessor: 'jobTitle' },
     {
-      header: 'الحالة',
+      header: t('common.status'),
       accessor: 'status',
       render: (row) => <StatusBadge status={row.status} />
     },
     {
-      header: 'الإجراءات',
+      header: t('employees.actions'),
       render: (row) => (
         <div className="flex gap-2">
           <button
             onClick={() => router.push(`/employees/admin/${row.iqamaNo}/details`)}
             className="text-green-600 hover:text-green-800 p-1"
-            title="عرض التفاصيل"
+            title={t('employees.viewDetails')}
           >
             <Eye size={18} />
           </button>
           <button
             onClick={() => router.push(`/employees/admin/${row.iqamaNo}/edit`)}
             className="text-blue-600 hover:text-blue-800 p-1"
-            title="تعديل"
+            title={t('employees.edit')}
           >
             <Edit size={18} />
           </button>
           <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1"
-            title="حذف"
+            title={t('employees.delete')}
           >
             <Trash2 size={18} />
           </button>
@@ -123,11 +125,11 @@ export default function EmployeeAdminPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة الموظفين - لوحة المسؤول"
-        subtitle={`إجمالي الموظفين: ${employees.length}`}
+        title={t('employees.adminDashboard')}
+        subtitle={`${t('employees.totalEmployees')}: ${employees.length}`}
         icon={Users}
         actionButton={{
-          text: 'إضافة موظف جديد',
+          text: t('employees.addNewEmployee'),
           icon: <Plus size={18} />,
           onClick: () => router.push('/employees/admin/create'),
         }}
@@ -138,7 +140,7 @@ export default function EmployeeAdminPage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 mb-1">إجمالي الموظفين</p>
+              <p className="text-sm text-blue-600 mb-1">{t('employees.totalEmployees')}</p>
               <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
             </div>
             <Users className="text-blue-500" size={40} />
@@ -148,7 +150,7 @@ export default function EmployeeAdminPage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 mb-1">النشطين</p>
+              <p className="text-sm text-green-600 mb-1">{t('employees.activeEmployees')}</p>
               <p className="text-3xl font-bold text-green-700">{stats.active}</p>
             </div>
             <UserCheck className="text-green-500" size={40} />
@@ -158,7 +160,7 @@ export default function EmployeeAdminPage() {
         <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-red-600 mb-1">غير النشطين</p>
+              <p className="text-sm text-red-600 mb-1">{t('employees.inactiveEmployees')}</p>
               <p className="text-3xl font-bold text-red-700">{stats.inactive}</p>
             </div>
             <AlertCircle className="text-red-500" size={40} />
@@ -168,7 +170,7 @@ export default function EmployeeAdminPage() {
         <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-600 mb-1">عدد الدول</p>
+              <p className="text-sm text-purple-600 mb-1">{t('employees.numberOfCountries')}</p>
               <p className="text-3xl font-bold text-purple-700">{stats.countries}</p>
             </div>
             <Filter className="text-purple-500" size={40} />
@@ -188,8 +190,8 @@ export default function EmployeeAdminPage() {
                 <Plus className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">إضافة موظف</h3>
-                <p className="text-sm text-gray-600">موظف جديد</p>
+                <h3 className="font-bold text-gray-800">{t('employees.addEmployee')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.newEmployee')}</p>
               </div>
             </div>
           </button>
@@ -205,8 +207,8 @@ export default function EmployeeAdminPage() {
                 <Search className="text-blue-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">البحث الذكي</h3>
-                <p className="text-sm text-gray-600">بحث متقدم</p>
+                <h3 className="font-bold text-gray-800">{t('employees.smartSearch')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.advancedSearch')}</p>
               </div>
             </div>
           </button>
@@ -222,8 +224,8 @@ export default function EmployeeAdminPage() {
                 <Filter className="text-purple-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">البحث المتقدم</h3>
-                <p className="text-sm text-gray-600">تصفية متعددة</p>
+                <h3 className="font-bold text-gray-800">{t('employees.advancedSearch')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.multiFilter')}</p>
               </div>
             </div>
           </button>
@@ -239,8 +241,8 @@ export default function EmployeeAdminPage() {
                 <BarChart3 className="text-indigo-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">الإحصائيات</h3>
-                <p className="text-sm text-gray-600">لوحة البيانات</p>
+                <h3 className="font-bold text-gray-800">{t('employees.statistics')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.dataDashboard')}</p>
               </div>
             </div>
           </button>
@@ -256,8 +258,8 @@ export default function EmployeeAdminPage() {
                 <Calendar className="text-cyan-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">السجل الزمني</h3>
-                <p className="text-sm text-gray-600">حسب التاريخ</p>
+                <h3 className="font-bold text-gray-800">{t('employees.timeRecord')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.byDate')}</p>
               </div>
             </div>
           </button>
@@ -273,8 +275,8 @@ export default function EmployeeAdminPage() {
                 <FileSpreadsheet className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">استيراد Excel</h3>
-                <p className="text-sm text-gray-600">رفع ملف</p>
+                <h3 className="font-bold text-gray-800">{t('employees.importExcel')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.uploadFile')}</p>
               </div>
             </div>
           </button>
@@ -290,8 +292,8 @@ export default function EmployeeAdminPage() {
                 <Clock className="text-orange-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">البيانات المؤقتة</h3>
-                <p className="text-sm text-gray-600">مراجعة التحديثات</p>
+                <h3 className="font-bold text-gray-800">{t('employees.tempData')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.reviewUpdates')}</p>
               </div>
             </div>
           </button>
@@ -307,8 +309,8 @@ export default function EmployeeAdminPage() {
                 <AlertCircle className="text-yellow-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">طلبات الحالة</h3>
-                <p className="text-sm text-gray-600">تفعيل/تعطيل</p>
+                <h3 className="font-bold text-gray-800">{t('employees.statusRequests')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.enableDisable')}</p>
               </div>
             </div>
           </button>
@@ -324,8 +326,8 @@ export default function EmployeeAdminPage() {
                 <Archive className="text-red-600" size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">الموظفين المحذوفين</h3>
-                <p className="text-sm text-gray-600">الأرشيف</p>
+                <h3 className="font-bold text-gray-800">{t('employees.deletedEmployees')}</h3>
+                <p className="text-sm text-gray-600">{t('employees.archive')}</p>
               </div>
             </div>
           </button>
@@ -335,7 +337,7 @@ export default function EmployeeAdminPage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -344,7 +346,7 @@ export default function EmployeeAdminPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -356,7 +358,7 @@ export default function EmployeeAdminPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="البحث بالاسم، رقم الإقامة، البلد، أو الكفيل..."
+              placeholder={t('employees.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"

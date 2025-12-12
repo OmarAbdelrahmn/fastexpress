@@ -9,8 +9,10 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function ProblemsReportPage() {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [problems, setProblems] = useState([]);
   const [startDate, setStartDate] = useState('');
@@ -19,7 +21,7 @@ export default function ProblemsReportPage() {
 
   const loadProblems = async () => {
     if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
+      setMessage({ type: 'error', text: t('reports.pleaseSelectDates') });
       return;
     }
 
@@ -31,12 +33,12 @@ export default function ProblemsReportPage() {
         { startDate, endDate }
       );
       setProblems(Array.isArray(data) ? data : []);
-      setMessage({ 
-        type: 'success', 
-        text: `تم تحميل ${data.length} وردية ذات مشاكل` 
+      setMessage({
+        type: 'success',
+        text: `${t('reports.loadedProblems')} ${data.length}`
       });
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
+      setMessage({ type: 'error', text: error.message || t('reports.failedToLoadReports') });
       setProblems([]);
     } finally {
       setLoading(false);
@@ -57,10 +59,10 @@ export default function ProblemsReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title="تقارير المشاكل"
-        subtitle="عرض الورديات ذات المشاكل والأداء السيء"
+        title={t('reports.problemsReports')}
+        subtitle={t('reports.problemsReportsDesc')}
         icon={AlertTriangle}
       />
 
@@ -79,7 +81,7 @@ export default function ProblemsReportPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
             type="date"
-            label="من تاريخ"
+            label={t('common.from')}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
@@ -87,7 +89,7 @@ export default function ProblemsReportPage() {
 
           <Input
             type="date"
-            label="إلى تاريخ"
+            label={t('common.to')}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
@@ -102,7 +104,7 @@ export default function ProblemsReportPage() {
               className="w-full"
             >
               <Search size={18} />
-              عرض المشاكل
+              {t('reports.showProblems')}
             </Button>
           </div>
         </div>
@@ -113,14 +115,14 @@ export default function ProblemsReportPage() {
         <div className="m-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">إجمالي المشاكل</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.totalProblems')}</p>
               <p className="text-3xl font-bold text-red-600">{problems.length}</p>
             </div>
           </Card>
 
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">ورديات فاشلة</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.failedShifts')}</p>
               <p className="text-3xl font-bold text-red-600">
                 {problems.filter(p => p.status === 'Failed').length}
               </p>
@@ -129,7 +131,7 @@ export default function ProblemsReportPage() {
 
           <Card>
             <div className="text-center">
-              <p className="text-gray-500 text-sm mb-2">ورديات غير مكتملة</p>
+              <p className="text-gray-500 text-sm mb-2">{t('reports.incompleteShifts')}</p>
               <p className="text-3xl font-bold text-yellow-600">
                 {problems.filter(p => p.status === 'Incomplete').length}
               </p>
@@ -143,7 +145,7 @@ export default function ProblemsReportPage() {
         <div className="bg-red-600 px-6 py-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
             <AlertTriangle size={20} />
-            الورديات ذات المشاكل ({problems.length})
+            {t('reports.problematicShifts')} ({problems.length})
           </h3>
         </div>
 
@@ -155,22 +157,22 @@ export default function ProblemsReportPage() {
           ) : problems.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <FileText size={48} className="mx-auto mb-4 text-gray-300" />
-              {startDate && endDate 
-                ? 'لا توجد مشاكل في هذه الفترة' 
-                : 'الرجاء تحديد فترة زمنية للبحث'}
+              {startDate && endDate
+                ? t('reports.noProblemsInPeriod')
+                : t('reports.pleaseSelectPeriod')}
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التاريخ</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم المندوب</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الشركة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طلبات مقبولة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">طلبات مرفوضة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وصف المشكلة</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.date')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.workingId')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.riderName')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('companies.company')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.acceptedOrders')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.rejectedOrders')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.status')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.problemDescription')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -197,14 +199,13 @@ export default function ProblemsReportPage() {
                           {problem.rejectedOrders}
                         </p>
                         <p className="text-xs text-red-500">
-                          حقيقي: {problem.realRejectedOrders}
+                          {t('reports.real')}: {problem.realRejectedOrders}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        getStatusColor(problem.status)
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(problem.status)
+                        }`}>
                         {problem.status}
                       </span>
                     </td>
@@ -226,17 +227,17 @@ export default function ProblemsReportPage() {
       {/* Statistics by Rider */}
       {problems.length > 0 && (
         <div className="m-6">
-          <Card title="المناديب الأكثر مشاكل">
+          <Card title={t('reports.ridersWithMostProblems')}>
             <div className="space-y-2">
               {Object.entries(
                 problems.reduce((acc, p) => {
                   const key = `${p.workingId}-${p.riderName}`;
                   if (!acc[key]) {
-                    acc[key] = { 
-                      workingId: p.workingId, 
-                      name: p.riderName, 
-                      count: 0, 
-                      penalty: 0 
+                    acc[key] = {
+                      workingId: p.workingId,
+                      name: p.riderName,
+                      count: 0,
+                      penalty: 0
                     };
                   }
                   acc[key].count++;
@@ -248,19 +249,19 @@ export default function ProblemsReportPage() {
                 .sort((a, b) => b.count - a.count)
                 .slice(0, 10)
                 .map((rider, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
                   >
                     <div className="flex items-center gap-4">
                       <span className="text-2xl font-bold text-gray-400">#{idx + 1}</span>
                       <div>
                         <p className="font-medium">{rider.name}</p>
-                        <p className="text-sm text-gray-500">رقم العمل: {rider.workingId}</p>
+                        <p className="text-sm text-gray-500">{t('riders.workingId')}: {rider.workingId}</p>
                       </div>
                     </div>
                     <div className="text-left">
-                      <p className="text-lg font-bold text-red-600">{rider.count} مشكلة</p>
+                      <p className="text-lg font-bold text-red-600">{rider.count} {t('reports.problem')}</p>
                     </div>
                   </div>
                 ))}

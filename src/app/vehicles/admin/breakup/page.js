@@ -8,10 +8,12 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
+import { useLanguage } from '@/context/LanguageContext';
 import { PackageX, Search, Car, Clock, MapPin, AlertCircle, Plus } from 'lucide-react';
 
 export default function BreakUpVehiclesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,14 +37,14 @@ export default function BreakUpVehiclesPage() {
         ApiService.get('/api/vehicles/breakup'),
         ApiService.get('/api/vehicles/available')
       ]);
-      
+
       if (breakUpData && breakUpData.vehicles) {
         setBreakUpVehicles(breakUpData.vehicles);
       }
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
     } catch (err) {
       console.error('Error loading data:', err);
-      setErrorMessage('حدث خطأ في تحميل البيانات');
+      setErrorMessage(t('vehicles.loadingError'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ export default function BreakUpVehiclesPage() {
 
   const searchVehicle = async () => {
     if (!searchPlate.trim()) {
-      setErrorMessage('الرجاء إدخال رقم اللوحة للبحث');
+      setErrorMessage(t('vehicles.enterPlateNumber'));
       return;
     }
 
@@ -62,12 +64,12 @@ export default function BreakUpVehiclesPage() {
         setSelectedVehicle(data[0]);
         setErrorMessage('');
       } else {
-        setErrorMessage('لم يتم العثور على المركبة');
+        setErrorMessage(t('vehicles.vehicleNotFound'));
         setSelectedVehicle(null);
       }
     } catch (err) {
       console.error('Error searching vehicle:', err);
-      setErrorMessage('حدث خطأ في البحث عن المركبة');
+      setErrorMessage(t('vehicles.searchError'));
       setSelectedVehicle(null);
     } finally {
       setSearchLoading(false);
@@ -76,14 +78,14 @@ export default function BreakUpVehiclesPage() {
 
   const handleMarkBreakUp = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedVehicle) {
-      setErrorMessage('الرجاء البحث عن المركبة أولاً');
+      setErrorMessage(t('vehicles.selectVehicleFirst'));
       return;
     }
 
     if (!breakUpReason.trim()) {
-      setErrorMessage('الرجاء إدخال سبب التوقف عن الخدمة');
+      setErrorMessage(t('vehicles.enterBreakUpReason'));
       return;
     }
 
@@ -95,8 +97,8 @@ export default function BreakUpVehiclesPage() {
       await ApiService.post(
         `/api/vehicles/break-up?plate=${selectedVehicle.plateNumberA}&reason=${encodeURIComponent(breakUpReason)}`
       );
-      
-      setSuccessMessage('تم وضع المركبة خارج الخدمة بنجاح');
+
+      setSuccessMessage(t('vehicles.breakUpSuccess'));
       setTimeout(() => {
         setSelectedVehicle(null);
         setSearchPlate('');
@@ -106,7 +108,7 @@ export default function BreakUpVehiclesPage() {
       }, 2000);
     } catch (err) {
       console.error('Error marking vehicle as break up:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء وضع المركبة خارج الخدمة');
+      setErrorMessage(err?.message || t('vehicles.breakUpError'));
     } finally {
       setLoading(false);
     }
@@ -123,11 +125,11 @@ export default function BreakUpVehiclesPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="المركبات خارج الخدمة"
-        subtitle={`${breakUpVehicles.length} مركبة غير قابلة للاستخدام`}
+        title={t('vehicles.breakUpVehiclesTitle')}
+        subtitle={`${breakUpVehicles.length} ${t('vehicles.unusableVehicles')}`}
         icon={PackageX}
         actionButton={{
-          text: 'إضافة مركبة خارج الخدمة',
+          text: t('vehicles.addBreakUpVehicle'),
           icon: <Plus size={18} />,
           onClick: () => setActiveTab('add'),
         }}
@@ -135,18 +137,18 @@ export default function BreakUpVehiclesPage() {
 
       <div className="px-6 space-y-6">
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title={t('common.error')}
             message={errorMessage}
             onClose={() => setErrorMessage('')}
           />
         )}
 
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title={t('common.success')}
             message={successMessage}
             onClose={() => setSuccessMessage('')}
           />
@@ -157,7 +159,7 @@ export default function BreakUpVehiclesPage() {
           <div className="bg-gray-50 border-r-4 border-gray-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">خارج الخدمة</p>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.outOfService')}</p>
                 <p className="text-3xl font-bold text-gray-700">{breakUpVehicles.length}</p>
               </div>
               <PackageX className="text-gray-500" size={40} />
@@ -167,7 +169,7 @@ export default function BreakUpVehiclesPage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 mb-1">أنواع مختلفة</p>
+                <p className="text-sm text-blue-600 mb-1">{t('vehicles.differentTypes')}</p>
                 <p className="text-3xl font-bold text-blue-700">
                   {new Set(breakUpVehicles.map(v => v.vehicleType)).size}
                 </p>
@@ -179,7 +181,7 @@ export default function BreakUpVehiclesPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">نتائج البحث</p>
+                <p className="text-sm text-orange-600 mb-1">{t('vehicles.searchResults')}</p>
                 <p className="text-3xl font-bold text-orange-700">{filteredVehicles.length}</p>
               </div>
               <Search className="text-orange-500" size={40} />
@@ -191,23 +193,21 @@ export default function BreakUpVehiclesPage() {
         <div className="flex gap-2 border-b border-gray-200">
           <button
             onClick={() => setActiveTab('list')}
-            className={`px-6 py-3 font-medium transition ${
-              activeTab === 'list'
+            className={`px-6 py-3 font-medium transition ${activeTab === 'list'
                 ? 'text-gray-600 border-b-2 border-gray-600'
                 : 'text-gray-400 hover:text-gray-600'
-            }`}
+              }`}
           >
-            قائمة المركبات ({breakUpVehicles.length})
+            {t('vehicles.vehiclesList')} ({breakUpVehicles.length})
           </button>
           <button
             onClick={() => setActiveTab('add')}
-            className={`px-6 py-3 font-medium transition ${
-              activeTab === 'add'
+            className={`px-6 py-3 font-medium transition ${activeTab === 'add'
                 ? 'text-red-600 border-b-2 border-red-600'
                 : 'text-gray-400 hover:text-gray-600'
-            }`}
+              }`}
           >
-            إضافة مركبة خارج الخدمة
+            {t('vehicles.addBreakUpVehicle')}
           </button>
         </div>
 
@@ -221,7 +221,7 @@ export default function BreakUpVehiclesPage() {
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="text"
-                    placeholder="البحث برقم اللوحة، الرقم التسلسلي، السبب، أو الموقع..."
+                    placeholder={t('vehicles.searchPlaceholderBreakup')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
@@ -234,18 +234,18 @@ export default function BreakUpVehiclesPage() {
             <Card>
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <PackageX size={20} className="text-gray-600" />
-                المركبات خارج الخدمة
+                {t('vehicles.breakUpVehiclesTitle')}
               </h3>
 
               {loading ? (
                 <div className="text-center py-12">
                   <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-500"></div>
-                  <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+                  <p className="mt-4 text-gray-600">{t('vehicles.loadingData')}</p>
                 </div>
               ) : filteredVehicles.length === 0 ? (
                 <div className="text-center py-12">
                   <Car className="mx-auto text-gray-400 mb-4" size={48} />
-                  <p className="text-gray-600">لا توجد مركبات خارج الخدمة</p>
+                  <p className="text-gray-600">{t('vehicles.noVehiclesFound')}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -265,30 +265,30 @@ export default function BreakUpVehiclesPage() {
                           </div>
                         </div>
                         <span className="px-3 py-1 bg-gray-600 text-white rounded-full text-xs font-medium">
-                          خارج الخدمة
+                          {t('vehicles.outOfService')}
                         </span>
                       </div>
 
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2 text-gray-700">
                           <Car size={14} />
-                          <span className="text-gray-600">الرقم التسلسلي:</span>
+                          <span className="text-gray-600">{t('vehicles.serialNumber')}:</span>
                           <span className="font-medium">{vehicle.serialNumber}</span>
                         </div>
 
                         {vehicle.location && (
                           <div className="flex items-center gap-2 text-gray-700">
                             <MapPin size={14} />
-                            <span className="text-gray-600">الموقع:</span>
+                            <span className="text-gray-600">{t('vehicles.location')}:</span>
                             <span className="font-medium">{vehicle.location}</span>
                           </div>
                         )}
 
                         <div className="flex items-center gap-2 text-gray-700">
                           <Clock size={14} />
-                          <span className="text-gray-600">منذ:</span>
+                          <span className="text-gray-600">{t('vehicles.since')}:</span>
                           <span className="font-medium">
-                            {new Date(vehicle.since).toLocaleDateString('ar-SA')}
+                            {new Date(vehicle.since).toLocaleDateString('en-US')}
                           </span>
                         </div>
 
@@ -296,7 +296,7 @@ export default function BreakUpVehiclesPage() {
                           <div className="bg-red-50 border border-red-200 p-3 rounded mt-2">
                             <p className="text-xs text-red-800 font-medium mb-1">
                               <AlertCircle size={12} className="inline ml-1" />
-                              سبب التوقف:
+                              {t('vehicles.breakUpReasonLabel')}
                             </p>
                             <p className="text-sm text-red-700">{vehicle.reason}</p>
                           </div>
@@ -318,9 +318,9 @@ export default function BreakUpVehiclesPage() {
                 <div className="flex items-start gap-3">
                   <AlertCircle className="text-red-600 mt-1" size={24} />
                   <div>
-                    <h3 className="font-semibold text-red-800 mb-1">وضع مركبة خارج الخدمة</h3>
+                    <h3 className="font-semibold text-red-800 mb-1">{t('vehicles.markBreakUp')}</h3>
                     <p className="text-sm text-red-600">
-                      قم بالبحث عن المركبة وإدخال سبب وضعها خارج الخدمة
+                      {t('vehicles.breakUpDesc')}
                     </p>
                   </div>
                 </div>
@@ -329,14 +329,14 @@ export default function BreakUpVehiclesPage() {
               {/* Search Vehicle */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  البحث عن المركبة
+                  {t('vehicles.searchVehicle')}
                 </label>
                 <div className="flex gap-3">
                   <Input
                     type="text"
                     value={searchPlate}
                     onChange={(e) => setSearchPlate(e.target.value)}
-                    placeholder="أدخل رقم اللوحة..."
+                    placeholder={t('vehicles.enterPlateNumberPlaceholder')}
                     onKeyPress={(e) => e.key === 'Enter' && searchVehicle()}
                   />
                   <Button type="button" onClick={searchVehicle} loading={searchLoading} variant="secondary">
@@ -348,18 +348,18 @@ export default function BreakUpVehiclesPage() {
               {selectedVehicle && (
                 <>
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-bold text-blue-800 mb-3">معلومات المركبة</h4>
+                    <h4 className="font-bold text-blue-800 mb-3">{t('vehicles.vehicleInfo')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-blue-600 mb-1">رقم اللوحة</p>
+                        <p className="text-blue-600 mb-1">{t('vehicles.plateNumber')}</p>
                         <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
                       </div>
                       <div>
-                        <p className="text-blue-600 mb-1">الرقم التسلسلي</p>
+                        <p className="text-blue-600 mb-1">{t('vehicles.serialNumber')}</p>
                         <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
                       </div>
                       <div>
-                        <p className="text-blue-600 mb-1">نوع المركبة</p>
+                        <p className="text-blue-600 mb-1">{t('vehicles.vehicleType')}</p>
                         <p className="font-medium text-gray-800">{selectedVehicle.vehicleType}</p>
                       </div>
                     </div>
@@ -367,14 +367,14 @@ export default function BreakUpVehiclesPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      سبب التوقف عن الخدمة <span className="text-red-500">*</span>
+                      {t('vehicles.breakUpReason')} <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={breakUpReason}
                       onChange={(e) => setBreakUpReason(e.target.value)}
                       required
                       rows={4}
-                      placeholder="اشرح سبب وضع المركبة خارج الخدمة..."
+                      placeholder={t('vehicles.breakUpReasonPlaceholder')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                     />
                   </div>
@@ -390,11 +390,11 @@ export default function BreakUpVehiclesPage() {
                       }}
                       disabled={loading}
                     >
-                      إلغاء
+                      {t('common.cancel')}
                     </Button>
                     <Button onClick={handleMarkBreakUp} loading={loading} disabled={loading}>
                       <PackageX size={18} className="ml-2" />
-                      تأكيد التوقف عن الخدمة
+                      {t('vehicles.confirmBreakUp')}
                     </Button>
                   </div>
                 </>

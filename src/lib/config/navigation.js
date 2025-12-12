@@ -1,118 +1,118 @@
 export const navigationConfig = {
   dashboard: {
-    title: "لوحة التحكم",
+    title: "navigation.dashboard",
     icon: "🏠",
     path: "/dashboard",
   },
 
   reports: {
-    title: "التقارير",
+    title: "navigation.reports",
     icon: "📊",
     routes: [
-      { path: "/reports", label: "مركز التقارير" },
-      { path: "/reports/dashboard", label: "التقرير الرئيسي" },
+      { path: "/reports", label: "navigation.reportsCenter" },
+      { path: "/reports/dashboard", label: "navigation.mainReport" },
     ],
   },
 
   vehicles: {
-    title: "المركبات",
+    title: "navigation.vehicles",
     icon: "🚗",
     routes: [
-      { path: "vehicles/admin", label: "عمليات الادمن" },
-      { path: "vehicles/user", label: "عمليات المشرف" },
+      { path: "vehicles/admin", label: "navigation.adminOperations" },
+      { path: "vehicles/user", label: "navigation.supervisorOperations" },
     ],
   },
 
   riders: {
-    title: "المناديب",
+    title: "navigation.riders",
     icon: "👥",
     routes: [
-      { path: "riders", label: "جميع المناديب" },
-      { path: "riders/create", label: "إضافة المناديب" },
-      { path: "riders/search", label: "البحث عن المناديب" }
+      { path: "riders", label: "navigation.allRiders" },
+      { path: "riders/create", label: "navigation.createRider" },
+      { path: "riders/search", label: "navigation.searchRiders" }
     ],
   },
 
   employees: {
-    title: "الموظفين",
+    title: "navigation.employees",
     icon: "👔",
     routes: [
-      { path: "employees/admin", label: "الموظفين للادمن" },
-      { path: "employees/user", label: "الموظفين للمشرف" },
+      { path: "employees/admin", label: "navigation.employeesAdmin" },
+      { path: "employees/user", label: "navigation.employeesSupervisor" },
     ],
   },
 
   housing: {
-    title: "السكن",
+    title: "navigation.housing",
     icon: "🏘️",
     routes: [
-      { path: "housing", label: "جميع السكنات" },
-      { path: "housing/create", label: "إضافة سكن" },
-      { path: "housing/manage", label: "إدارة السكن" },
-      { path: "housing/add-employee", label: "اضافة موظف الى السكنات" },
-      { path: "housing/move-employee", label: "نقل موظف بين السكنات" },
+      { path: "housing", label: "navigation.allHousing" },
+      { path: "housing/create", label: "navigation.createHousing" },
+      { path: "housing/manage", label: "navigation.manageHousing" },
+      { path: "housing/add-employee", label: "navigation.addEmployeeToHousing" },
+      { path: "housing/move-employee", label: "navigation.moveEmployee" },
     ],
   },
 
   shifts: {
-    title: "الورديات",
+    title: "navigation.shifts",
     icon: "📅",
     routes: [
-      { path: "shifts", label: "ادارة الورديات" },
-      { path: "shifts/comparisons", label: "المقارنات" },
-      { path: "shifts/date-range", label: "الورديات في فترة" },
-      { path: "shifts/hunger-disabilities", label: "عجز هنجر" },
+      { path: "shifts", label: "navigation.manageShifts" },
+      { path: "shifts/comparisons", label: "navigation.comparisons" },
+      { path: "shifts/date-range", label: "navigation.shiftsInPeriod" },
+      { path: "shifts/hunger-disabilities", label: "navigation.hungerDeficit" },
 
     ],
 
   },
 
   substitution: {
-    title: "البدلاء",
+    title: "navigation.substitution",
     icon: "🔄",
     routes: [
-      { path: "substitution", label: "جميع البدلاء" },
-      { path: "substitution/new", label: "اضافة تبديل" },
-      { path: "substitution/history", label: "سجل البدلاء" },
+      { path: "substitution", label: "navigation.allSubstitutes" },
+      { path: "substitution/new", label: "navigation.addSubstitution" },
+      { path: "substitution/history", label: "navigation.substituteHistory" },
     ],
   },
 
   company: {
-    title: "الشركات",
+    title: "navigation.companies",
     icon: "🏢",
     routes: [
-      { path: "companies", label: "جميع الشركات" },
-      { path: "companies/create", label: "إضافة شركة" },
+      { path: "companies", label: "navigation.allCompanies" },
+      { path: "companies/create", label: "navigation.createCompany" },
     ],
   },
 
   admin: {
-    title: "الإدارة",
+    title: "navigation.admin",
     icon: "👨‍✈️",
     routes: [
-      { path: "register", label: "اضافة مشرف جديد" },
-      { path: "register/admin", label: "اضافة ادمن جديد" },
-      { path: "register/master", label: "اضافة مدير جديد" },
-      { path: "admin/users", label: "إدارة المستخدمين" },
-      { path: "admin/system-health", label: "صحة النظام" },
+      { path: "register", label: "navigation.addNewSupervisor" },
+      { path: "register/admin", label: "navigation.addNewAdmin" },
+      { path: "register/master", label: "navigation.addNewManager" },
+      { path: "admin/users", label: "navigation.userManagement" },
+      { path: "admin/system-health", label: "navigation.systemHealth" },
     ],
   },
 
   account: {
-    title: "الحساب",
+    title: "navigation.account",
     icon: "👤",
     routes: [
-      { path: "profile", label: "الملف الشخصي" },
-      { path: "profile/change-password", label: "تغيير كلمة المرور" },
+      { path: "profile", label: "navigation.profile" },
+      { path: "profile/change-password", label: "navigation.changePassword" },
     ],
 
   },
 
   sittings: {
-    title: "الاعدادات",
+    title: "navigation.settings",
     icon: "⚙️",
     routes: [
-      { path: "/language", label: "الللغات" },
+      { path: "/language", label: "navigation.languages" },
     ],
   }
 };

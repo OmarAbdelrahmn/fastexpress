@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react';
 import PageHeader from '@/components/layout/pageheader';
 import Table from '@/components/Ui/Table';
-import { BarChart3, Calculator, Calendar as CalendarIcon, Filter, Search, TrendingDown, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, Calculator, Calendar as CalendarIcon, Filter, TrendingDown, TrendingUp, Users } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
-import { hungerReportColumns } from '../reportColumns';
+import { getHungerReportColumns } from '../reportColumns';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function SummaryPage() {
+    const { t, language } = useLanguage();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,10 +44,10 @@ export default function SummaryPage() {
     };
 
     const housingBreakdownColumns = [
-        { header: 'الشركة', accessor: 'housingName' },
-        { header: 'إجمالي السائقين', accessor: 'riderCount' },
-        { header: 'إجمالي الطلبات', accessor: 'totalOrders' },
-        { header: 'سائقين حققوا الهدف', accessor: 'ridersAboveTarget' },
+        { header: t('hungerDisabilities.company'), accessor: 'housingName' },
+        { header: t('companies.ridersCount'), accessor: 'riderCount' },
+        { header: t('companies.ordersCount'), accessor: 'totalOrders' },
+        { header: t('hungerDisabilities.aboveTarget'), accessor: 'ridersAboveTarget' },
     ];
 
     const StatCard = ({ title, value, subtext, icon: Icon, colorClass }) => (
@@ -63,11 +65,13 @@ export default function SummaryPage() {
         </div>
     );
 
+    const hungerColumns = getHungerReportColumns(t);
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="ملخص عجز هنجر"
-                subtitle="لوحة معلومات شاملة لتحليل الأداء والعجز"
+                title={t('hungerDisabilities.summary')}
+                subtitle={t('hungerDisabilities.summaryDesc')}
                 icon={BarChart3}
             />
 
@@ -76,26 +80,26 @@ export default function SummaryPage() {
                 <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <div className="flex flex-col md:flex-row gap-4 items-end">
                         <div className="w-full md:w-1/3">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">من تاريخ</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('shifts.startDate')}</label>
                             <div className="relative">
-                                <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                                <CalendarIcon className={`absolute top-2.5 h-5 w-5 text-gray-400 ${language === 'ar' ? 'right-3' : 'left-3'}`} />
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                    className={`w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${language === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
                                 />
                             </div>
                         </div>
                         <div className="w-full md:w-1/3">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">إلى تاريخ</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('shifts.endDate')}</label>
                             <div className="relative">
-                                <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                                <CalendarIcon className={`absolute top-2.5 h-5 w-5 text-gray-400 ${language === 'ar' ? 'right-3' : 'left-3'}`} />
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                    className={`w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${language === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
                                 />
                             </div>
                         </div>
@@ -105,7 +109,7 @@ export default function SummaryPage() {
                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                             >
                                 <Filter className="h-5 w-5" />
-                                <span>تحديث البيانات</span>
+                                <span>{t('common.refresh')}</span>
                             </button>
                         </div>
                     </div>
@@ -126,29 +130,29 @@ export default function SummaryPage() {
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <StatCard
-                                title="إجمالي السائقين"
+                                title={t('companies.ridersCount')}
                                 value={data.totalRiders}
                                 icon={Users}
                                 colorClass="bg-blue-500"
                             />
                             <StatCard
-                                title="إجمالي الطلبات"
+                                title={t('companies.ordersCount')}
                                 value={data.totalOrders}
-                                subtext={`المتوسط: ${data.averageOrdersPerRider} / سائق`}
+                                subtext={`${t('shifts.averageLabel')} ${data.averageOrdersPerRider} / ${t('shifts.rider')}`}
                                 icon={Calculator}
                                 colorClass="bg-purple-500"
                             />
                             <StatCard
-                                title="نسبة الأداء العام"
+                                title={t('companies.performance')}
                                 value={`${data.overallPerformanceRate}%`}
-                                subtext={`الفارق: ${data.totalDifference}`}
+                                subtext={`${t('hungerDisabilities.deficit')}: ${data.totalDifference}`}
                                 icon={TrendingUp}
                                 colorClass={data.totalDifference >= 0 ? "bg-green-500" : "bg-red-500"}
                             />
                             <StatCard
-                                title="المحققين للهدف"
+                                title={t('hungerDisabilities.aboveTarget')}
                                 value={data.ridersAboveTarget}
-                                subtext={`من أصل ${data.totalRiders} سائق`}
+                                subtext={`${t('common.from')} ${data.totalRiders} ${t('shifts.rider')}`}
                                 icon={BarChart3}
                                 colorClass="bg-indigo-500"
                             />
@@ -157,7 +161,7 @@ export default function SummaryPage() {
                         {/* Company Breakdown */}
                         <div className="bg-white rounded-xl shadow-md overflow-hidden">
                             <div className="p-6 border-b border-gray-100">
-                                <h2 className="text-xl font-bold text-gray-800">أداء الشركات</h2>
+                                <h2 className="text-xl font-bold text-gray-800">{t('hungerDisabilities.companyBreakdown')}</h2>
                             </div>
                             <Table
                                 columns={housingBreakdownColumns}
@@ -171,11 +175,11 @@ export default function SummaryPage() {
                             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                                     <TrendingUp className="text-green-500" />
-                                    <span>الأداء المرتفع (أعلى من الهدف)</span>
+                                    <span>{t('hungerDisabilities.topRiders')}</span>
                                 </h2>
                             </div>
                             <Table
-                                columns={hungerReportColumns}
+                                columns={hungerColumns}
                                 data={data.topPerformers || []}
                                 loading={false}
                             />
@@ -186,11 +190,11 @@ export default function SummaryPage() {
                             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                                     <TrendingDown className="text-red-500" />
-                                    <span>الأداء المنخفض (أقل من الهدف)</span>
+                                    <span>{t('hungerDisabilities.bottomRiders')}</span>
                                 </h2>
                             </div>
                             <Table
-                                columns={hungerReportColumns}
+                                columns={hungerColumns}
                                 data={data.bottomPerformers || []}
                                 loading={false}
                             />

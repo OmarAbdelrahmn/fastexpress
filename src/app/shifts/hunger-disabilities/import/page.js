@@ -3,9 +3,10 @@ import { useState } from 'react';
 import PageHeader from '@/components/layout/pageheader';
 import { Upload, CheckCircle, AlertTriangle } from 'lucide-react';
 import { hungerService } from '@/lib/api/hungerService';
-
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function ImportPage() {
+    const { t } = useLanguage();
     const [file, setFile] = useState(null);
     const [shiftDate, setShiftDate] = useState(new Date().toISOString().split('T')[0]);
     const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ export default function ImportPage() {
             const data = await hungerService.importHungerFile(file, shiftDate);
             setResponse(data);
         } catch (err) {
-            setError(err.message || 'An error occurred during upload');
+            setError(err.message || t('hungerDisabilities.importError'));
         } finally {
             setLoading(false);
         }
@@ -40,8 +41,8 @@ export default function ImportPage() {
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             <PageHeader
-                title="استيراد ملف عجز هنجر"
-                subtitle="رفع ملف الاكسل الخاص بعجز هنجر"
+                title={t('hungerDisabilities.importFile')}
+                subtitle={t('hungerDisabilities.importFileDesc')}
                 icon={Upload}
             />
 
@@ -49,7 +50,7 @@ export default function ImportPage() {
                 <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8">
                     <div className="mb-6">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
-                            تاريخ الوردية
+                            {t('shifts.shiftDate')}
                         </label>
                         <input
                             type="date"
@@ -61,14 +62,14 @@ export default function ImportPage() {
 
                     <div className="mb-6">
                         <label className="block text-gray-700 text-sm font-bold mb-2">
-                            اختر ملف الاكسل
+                            {t('hungerDisabilities.selectFile')}
                         </label>
                         <div className="flex items-center justify-center w-full">
                             <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                     <Upload className="w-10 h-10 mb-3 text-gray-400" />
                                     <p className="mb-2 text-sm text-gray-500">
-                                        <span className="font-semibold">اضغط للرفع</span> أو اسحب الملف هنا
+                                        <span className="font-semibold">{t('common.import')}</span>
                                     </p>
                                     <p className="text-xs text-gray-500">XLSX, XLS</p>
                                 </div>
@@ -91,7 +92,7 @@ export default function ImportPage() {
                                 className={`px-4 py-2 rounded-lg text-white font-bold transition-colors ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
                                     }`}
                             >
-                                {loading ? 'جاري الرفع...' : 'رفع الملف'}
+                                {loading ? t('common.loading') : t('common.import')}
                             </button>
                         </div>
                     )}
@@ -105,20 +106,20 @@ export default function ImportPage() {
                     {response && (
                         <div className="animate-fade-in">
                             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <CheckCircle className="text-green-500" /> نتيجة الاستيراد
+                                <CheckCircle className="text-green-500" /> {t('common.results')}
                             </h3>
 
                             <div className="grid grid-cols-3 gap-4 mb-6">
                                 <div className="bg-gray-100 p-4 rounded-lg text-center">
-                                    <p className="text-sm text-gray-500">إجمالي السجلات</p>
+                                    <p className="text-sm text-gray-500">{t('hungerDisabilities.recordsCount')}</p>
                                     <p className="text-2xl font-bold">{response.totalRecords}</p>
                                 </div>
                                 <div className="bg-green-100 p-4 rounded-lg text-center">
-                                    <p className="text-sm text-green-600">تم بنجاح</p>
+                                    <p className="text-sm text-green-600">{t('common.success')}</p>
                                     <p className="text-2xl font-bold text-green-700">{response.successCount}</p>
                                 </div>
                                 <div className="bg-red-100 p-4 rounded-lg text-center">
-                                    <p className="text-sm text-red-600">الأخطاء</p>
+                                    <p className="text-sm text-red-600">{t('common.error')}</p>
                                     <p className="text-2xl font-bold text-red-700">{response.errorCount}</p>
                                 </div>
                             </div>
@@ -126,15 +127,15 @@ export default function ImportPage() {
                             {response.errors && response.errors.length > 0 && (
                                 <div className="mt-6">
                                     <h4 className="font-bold mb-2 flex items-center gap-2 text-red-600">
-                                        <AlertTriangle /> تفاصيل الأخطاء
+                                        <AlertTriangle /> {t('common.details')}
                                     </h4>
                                     <div className="bg-white border rounded-lg overflow-hidden">
                                         <table className="min-w-full divide-y divide-gray-200">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">السطر</th>
-                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الرقم الوظيفي</th>
-                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الرسالة</th>
+                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('shifts.row')}</th>
+                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('hungerDisabilities.workingId')}</th>
+                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('common.reason')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">

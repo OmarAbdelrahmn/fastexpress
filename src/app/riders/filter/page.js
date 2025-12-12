@@ -12,9 +12,11 @@ import Table from '@/components/Ui/Table';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { Filter, Search, Eye, Edit, X } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RiderMultiFilterPage() {
     const router = useRouter();
+    const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -68,7 +70,7 @@ export default function RiderMultiFilterPage() {
             setSearchResults(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Error filtering riders:', err);
-            setErrorMessage(err?.message || 'حدث خطأ في البحث');
+            setErrorMessage(err?.message || t('riders.searchError'));
             setSearchResults([]);
         } finally {
             setLoading(false);
@@ -98,36 +100,36 @@ export default function RiderMultiFilterPage() {
 
     const columns = [
         {
-            header: 'رقم الإقامة',
+            header: t('riders.iqamaNumber'),
             accessor: 'iqamaNo',
             render: (row) => (
                 <span className="font-bold text-blue-600">{row.iqamaNo}</span>
             )
         },
-        { header: 'الاسم (عربي)', accessor: 'nameAR' },
-        { header: 'الاسم (إنجليزي)', accessor: 'nameEN' },
-        { header: 'رقم العمل', accessor: 'workingId' },
-        { header: 'الشركة', accessor: 'companyName' },
+        { header: t('riders.nameArabic'), accessor: 'nameAR' },
+        { header: t('riders.nameEnglish'), accessor: 'nameEN' },
+        { header: t('riders.workingId'), accessor: 'workingId' },
+        { header: t('riders.company'), accessor: 'companyName' },
         {
-            header: 'الحالة',
+            header: t('riders.status'),
             accessor: 'status',
             render: (row) => <StatusBadge status={row.status} />
         },
         {
-            header: 'الإجراءات',
+            header: t('riders.actions'),
             render: (row) => (
                 <div className="flex gap-2">
                     <button
                         onClick={() => router.push(`/riders/${row.iqamaNo}`)}
                         className="text-green-600 hover:text-green-800 p-1"
-                        title="عرض التفاصيل"
+                        title={t('riders.viewDetails')}
                     >
                         <Eye size={18} />
                     </button>
                     <button
                         onClick={() => router.push(`/riders/${row.iqamaNo}/edit`)}
                         className="text-blue-600 hover:text-blue-800 p-1"
-                        title="تعديل"
+                        title={t('riders.edit')}
                     >
                         <Edit size={18} />
                     </button>
@@ -139,15 +141,15 @@ export default function RiderMultiFilterPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="البحث المتقدم - المناديب"
-                subtitle="تصفية المناديب حسب معايير متعددة"
+                title={t('riders.filterTitle')}
+                subtitle={t('riders.filterSubtitle')}
                 icon={Filter}
             />
 
             {errorMessage && (
                 <Alert
                     type="error"
-                    title="خطأ"
+                    title={t('common.error')}
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
                 />
@@ -156,42 +158,42 @@ export default function RiderMultiFilterPage() {
             {/* Filter Form */}
             <Card>
                 <form onSubmit={handleSearch} className="space-y-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">معايير البحث</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.searchCriteria')}</h3>
 
                     {/* Personal Info Filters */}
                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-3">المعلومات الشخصية</h4>
+                        <h4 className="font-semibold text-gray-700 mb-3">{t('riders.personalInformation')}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Input
-                                label="الاسم (عربي)"
+                                label={t('riders.nameArabic')}
                                 type="text"
                                 name="nameAR"
                                 value={filters.nameAR}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالاسم العربي"
+                                placeholder={t('riders.searchByArabicName')}
                             />
 
                             <Input
-                                label="الاسم (إنجليزي)"
+                                label={t('riders.nameEnglish')}
                                 type="text"
                                 name="nameEN"
                                 value={filters.nameEN}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالاسم الإنجليزي"
+                                placeholder={t('riders.searchByEnglishName')}
                             />
 
                             <Input
-                                label="البلد"
+                                label={t('riders.country')}
                                 type="text"
                                 name="country"
                                 value={filters.country}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالبلد"
+                                placeholder={t('employees.searchByCountryPlaceholder')}
                             />
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    الحالة
+                                    {t('riders.status')}
                                 </label>
                                 <select
                                     name="status"
@@ -199,19 +201,19 @@ export default function RiderMultiFilterPage() {
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                 >
-                                    <option value="">الكل</option>
-                                    <option value="enable">نشط</option>
-                                    <option value="disable">غير نشط</option>
-                                    <option value="fleeing">هارب</option>
-                                    <option value="vacation">إجازة</option>
-                                    <option value="accident">حادث</option>
-                                    <option value="sick">مريض</option>
+                                    <option value="">{t('riders.all')}</option>
+                                    <option value="enable">{t('riders.active')}</option>
+                                    <option value="disable">{t('riders.inactive')}</option>
+                                    <option value="fleeing">{t('riders.fleeing')}</option>
+                                    <option value="vacation">{t('riders.vacation')}</option>
+                                    <option value="accident">{t('riders.accident')}</option>
+                                    <option value="sick">{t('riders.sick')}</option>
                                 </select>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    في السعودية (INKSA)
+                                    {t('riders.inKSAFilter')}
                                 </label>
                                 <select
                                     name="inksa"
@@ -219,9 +221,9 @@ export default function RiderMultiFilterPage() {
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                 >
-                                    <option value="">الكل</option>
-                                    <option value="true">نعم</option>
-                                    <option value="false">لا</option>
+                                    <option value="">{t('riders.all')}</option>
+                                    <option value="true">{t('common.yes')}</option>
+                                    <option value="false">{t('common.no')}</option>
                                 </select>
                             </div>
                         </div>
@@ -229,61 +231,61 @@ export default function RiderMultiFilterPage() {
 
                     {/* Work Info Filters */}
                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-3">معلومات العمل</h4>
+                        <h4 className="font-semibold text-gray-700 mb-3">{t('riders.workInformation')}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Input
-                                label="رقم العمل"
+                                label={t('riders.workingId')}
                                 type="text"
                                 name="workingId"
                                 value={filters.workingId}
                                 onChange={handleInputChange}
-                                placeholder="ابحث برقم العمل"
+                                placeholder={t('riders.searchByWorkingId')}
                             />
 
                             <Input
-                                label="الشركة"
+                                label={t('riders.company')}
                                 type="text"
                                 name="companyName"
                                 value={filters.companyName}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالشركة"
+                                placeholder={t('riders.searchByCompany')}
                             />
 
                             <Input
-                                label="المسمى الوظيفي"
+                                label={t('riders.jobTitle')}
                                 type="text"
                                 name="jobTitle"
                                 value={filters.jobTitle}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالوظيفة"
+                                placeholder={t('riders.searchByJobTitle')}
                             />
 
                             <Input
-                                label="الكفيل"
+                                label={t('riders.sponsor')}
                                 type="text"
                                 name="sponsor"
                                 value={filters.sponsor}
                                 onChange={handleInputChange}
-                                placeholder="ابحث بالكفيل"
+                                placeholder={t('riders.searchBySponsorName')}
                             />
 
                             <Input
-                                label="رقم الكفيل"
+                                label={t('riders.sponsorNumber')}
                                 type="number"
                                 name="sponsorNo"
                                 value={filters.sponsorNo}
                                 onChange={handleInputChange}
-                                placeholder="ابحث برقم الكفيل"
+                                placeholder={t('riders.searchBySponsorNo')}
                             />
                         </div>
                     </div>
 
                     {/* Date Filters */}
                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-3">التواريخ</h4>
+                        <h4 className="font-semibold text-gray-700 mb-3">{t('riders.dates')}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Input
-                                label="انتهاء الإقامة (ميلادي)"
+                                label={t('riders.iqamaEndGregorian')}
                                 type="date"
                                 name="iqamaEndM"
                                 value={filters.iqamaEndM}
@@ -291,16 +293,16 @@ export default function RiderMultiFilterPage() {
                             />
 
                             <Input
-                                label="انتهاء الإقامة (هجري)"
+                                label={t('riders.iqamaEndHijri')}
                                 type="text"
                                 name="iqamaEndH"
                                 value={filters.iqamaEndH}
                                 onChange={handleInputChange}
-                                placeholder="مثال: 25-10-1425"
+                                placeholder={t('employees.dateExample')}
                             />
 
                             <Input
-                                label="انتهاء الجواز"
+                                label={t('riders.passportEnd')}
                                 type="date"
                                 name="passportEnd"
                                 value={filters.passportEnd}
@@ -318,11 +320,11 @@ export default function RiderMultiFilterPage() {
                             disabled={loading}
                         >
                             <X size={18} className="ml-2" />
-                            إعادة تعيين
+                            {t('riders.reset')}
                         </Button>
                         <Button type="submit" loading={loading} disabled={loading}>
                             <Search size={18} className="ml-2" />
-                            بحث
+                            {t('common.search')}
                         </Button>
                     </div>
                 </form>
@@ -332,19 +334,19 @@ export default function RiderMultiFilterPage() {
             {hasSearched && (
                 <Card>
                     <h3 className="text-lg font-bold text-gray-800 mb-4">
-                        نتائج البحث ({searchResults.length})
+                        {t('riders.resultsCount')} ({searchResults.length})
                     </h3>
 
                     {loading ? (
                         <div className="text-center py-12">
                             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                            <p className="mt-4 text-gray-600">جاري البحث...</p>
+                            <p className="mt-4 text-gray-600">{t('riders.searching')}</p>
                         </div>
                     ) : searchResults.length === 0 ? (
                         <div className="text-center py-12">
                             <Search className="mx-auto text-gray-400 mb-4" size={48} />
-                            <p className="text-gray-600">لا توجد نتائج تطابق معايير البحث</p>
-                            <p className="text-sm text-gray-500 mt-2">جرب تعديل المعايير</p>
+                            <p className="text-gray-600">{t('riders.noResultsMatch')}</p>
+                            <p className="text-sm text-gray-500 mt-2">{t('riders.tryModifyingCriteria')}</p>
                         </div>
                     ) : (
                         <Table
@@ -359,25 +361,25 @@ export default function RiderMultiFilterPage() {
             {/* Instructions */}
             {!hasSearched && (
                 <Card>
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">كيفية الاستخدام</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.howToUse')}</h3>
                     <div className="space-y-3 text-sm text-gray-600">
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">1</span>
                             </div>
-                            <p>اختر معايير البحث التي تريدها (يمكنك استخدام معيار واحد أو أكثر)</p>
+                            <p>{t('riders.filterInstruction1')}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">2</span>
                             </div>
-                            <p>اضغط على زر "بحث" لعرض النتائج</p>
+                            <p>{t('riders.filterInstruction2')}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <div className="bg-blue-100 p-1 rounded mt-0.5">
                                 <span className="text-blue-600 font-bold">3</span>
                             </div>
-                            <p>يمكنك إعادة تعيين المعايير والبحث من جديد</p>
+                            <p>{t('riders.filterInstruction3')}</p>
                         </div>
                     </div>
                 </Card>

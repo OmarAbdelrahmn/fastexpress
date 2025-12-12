@@ -10,9 +10,11 @@ import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Truck, Eye, EyeOff } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -43,16 +45,16 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Prevent double submission
     if (loading) return;
-    
+
     setLoading(true);
     setError(null);
 
     try {
       const response = await ApiService.post(API_ENDPOINTS.AUTH.LOGIN, formData);
-      
+
       if (response?.token) {
         TokenManager.setToken(response.token);
         // Small delay to ensure token is saved
@@ -60,23 +62,23 @@ export default function LoginPage() {
           router.push('/dashboard');
         }, 100);
       } else {
-        setError('فشل تسجيل الدخول - لم يتم استلام رمز الوصول');
+        setError(t('errors.loginFailed'));
         setLoading(false);
       }
     } catch (err) {
       console.error('Login error:', err);
-      
+
       // Handle different error types
       if (err.status === 401) {
-        setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+        setError(t('errors.wrongCredentials'));
       } else if (err.status === 400) {
-        setError('الرجاء إدخال اسم المستخدم وكلمة المرور');
+        setError(t('errors.enterCredentials'));
       } else if (err.status === 500) {
-        setError('خطأ في الخادم. الرجاء المحاولة لاحقاً');
+        setError(t('errors.serverError'));
       } else {
-        setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
+        setError(err.message || t('errors.loginError'));
       }
-      
+
       setLoading(false);
     }
   };
@@ -90,17 +92,17 @@ export default function LoginPage() {
             <Truck className="text-white" size={48} />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#1b428e] to-[#e08911] bg-clip-text text-transparent mb-2">
-            نظام إدارة الخدمات اللوجستية
+            {t('auth.loginTitle')}
           </h1>
-          <p className="text-gray-600 font-medium">شركة الخدمة السريعة</p>
+          <p className="text-gray-600 font-medium">{t('auth.companyName')}</p>
         </div>
 
         {/* Error Alert */}
         {error && (
           <div className="mb-4">
-            <Alert 
-              type="error" 
-              title="خطأ في تسجيل الدخول"
+            <Alert
+              type="error"
+              title={t('auth.loginError')}
               message={error}
               onClose={() => setError(null)}
             />
@@ -110,26 +112,26 @@ export default function LoginPage() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <Input
-            label="اسم المستخدم"
+            label={t('auth.username')}
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
             required
-            placeholder="أدخل اسم المستخدم"
+            placeholder={t('auth.enterUsername')}
             disabled={loading}
             autoComplete="username"
           />
 
           <div className="relative">
             <Input
-              label="كلمة المرور"
+              label={t('auth.password')}
               type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="أدخل كلمة المرور"
+              placeholder={t('auth.enterPassword')}
               disabled={loading}
               autoComplete="current-password"
             />
@@ -137,7 +139,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
-              title={showPassword ? "إخفاء كلمة المرور" : "عرض كلمة المرور"}
+              title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               disabled={loading}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -150,15 +152,15 @@ export default function LoginPage() {
             disabled={loading || !formData.username || !formData.password}
             className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg"
           >
-            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+            {loading ? t('auth.loggingIn') : t('auth.login')}
           </Button>
         </form>
 
         {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
-          <p className="font-medium">للمسؤولين فقط</p>
+          <p className="font-medium">{t('auth.adminsOnly')}</p>
           <p className="mt-2 text-xs text-gray-500">
-            © 2025 شركة الخدمة السريعة
+            {t('auth.copyright')}
           </p>
         </div>
       </div>

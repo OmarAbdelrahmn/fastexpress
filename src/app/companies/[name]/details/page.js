@@ -9,11 +9,13 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function CompanyDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const companyName = decodeURIComponent(params?.name || '');
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState(null);
@@ -32,28 +34,28 @@ export default function CompanyDetailsPage() {
       const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
       const companies = Array.isArray(data) ? data : [];
       const foundCompany = companies.find(c => c.name === companyName);
-      
+
       if (foundCompany) {
         setCompany(foundCompany);
       } else {
-        setErrorMessage('لم يتم العثور على الشركة');
+        setErrorMessage(t('companies.companyNotFound'));
       }
     } catch (error) {
-      setErrorMessage('حدث خطأ في تحميل بيانات الشركة');
+      setErrorMessage(t('companies.loadCompanyError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm(`هل أنت متأكد من حذف شركة ${companyName}؟`)) return;
+    if (!confirm(t('companies.confirmDeleteCompany', { name: companyName }))) return;
 
     try {
       await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyName));
-          setMessage({ type: 'success', text: 'تم حذف بيانات الشركة بنجاح' });
-          setTimeout(() => {
-          router.push('/companies');
-        }, 2000);
+      setMessage({ type: 'success', text: t('companies.deleteSuccess') });
+      setTimeout(() => {
+        router.push('/companies');
+      }, 2000);
     } catch (error) {
       setErrorMessage(`${error}`);
     }
@@ -63,15 +65,15 @@ export default function CompanyDetailsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
         <PageHeader
-          title="تفاصيل الشركة"
-          subtitle="جاري التحميل..."
+          title={t('companies.companyDetails')}
+          subtitle={t('common.loading')}
           icon={Building}
         />
         <div className="p-6">
           <Card>
             <div className="text-center py-20">
               <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto"></div>
-              <p className="mt-4 text-gray-600 font-medium">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600 font-medium">{t('companies.loadingData')}</p>
             </div>
           </Card>
         </div>
@@ -83,11 +85,11 @@ export default function CompanyDetailsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
         <PageHeader
-          title="تفاصيل الشركة"
-          subtitle="حدث خطأ"
+          title={t('companies.companyDetails')}
+          subtitle={t('riders.errorOccurred')}
           icon={Building}
           actionButton={{
-            text: 'العودة للقائمة',
+            text: t('navigation.backToList'),
             icon: <ArrowRight size={18} />,
             onClick: () => router.push('/companies'),
             variant: 'secondary'
@@ -96,8 +98,8 @@ export default function CompanyDetailsPage() {
         <div className="p-6">
           <Alert
             type="error"
-            title="خطأ"
-            message={errorMessage || 'لم يتم العثور على الشركة'}
+            title={t('common.error')}
+            message={errorMessage || t('companies.companyNotFound')}
           />
         </div>
       </div>
@@ -108,10 +110,10 @@ export default function CompanyDetailsPage() {
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
         title={company.name}
-        subtitle={`رمز الشركة: ${company.id}`}
+        subtitle={`${t('companies.companyCode')}: ${company.id}`}
         icon={Building}
         actionButton={{
-          text: 'تعديل البيانات',
+          text: t('riders.editData'),
           icon: <Edit size={18} />,
           onClick: () => router.push(`/companies/${encodeURIComponent(company.name)}/edit`),
         }}
@@ -127,10 +129,10 @@ export default function CompanyDetailsPage() {
               </div>
               <div className="flex-1">
                 <h2 className="text-3xl font-bold text-white mb-2">{company.name}</h2>
-                <p className="text-blue-100">الشركة النشطة في النظام</p>
+                <p className="text-blue-100">{t('companies.activeCompany')}</p>
               </div>
               <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl">
-                <p className="text-blue-100 text-sm">رمز الشركة</p>
+                <p className="text-blue-100 text-sm">{t('companies.companyCode')}</p>
                 <p className="text-white text-2xl font-bold">{company.id}</p>
               </div>
             </div>
@@ -141,7 +143,7 @@ export default function CompanyDetailsPage() {
               <div className="flex items-start gap-3">
                 <FileText className="text-blue-600 mt-1 flex-shrink-0" size={24} />
                 <div>
-                  <h3 className="font-bold text-blue-800 mb-2">تفاصيل الشركة</h3>
+                  <h3 className="font-bold text-blue-800 mb-2">{t('companies.companyDetails')}</h3>
                   <p className="text-gray-700 leading-relaxed">{company.details}</p>
                 </div>
               </div>
@@ -153,9 +155,9 @@ export default function CompanyDetailsPage() {
         <Card>
           <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             <Phone className="text-green-600" size={24} />
-            معلومات الاتصال
+            {t('companies.contactInfo')}
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {company.phone ? (
               <div className="bg-green-50 border-2 border-green-200 p-5 rounded-xl">
@@ -163,7 +165,7 @@ export default function CompanyDetailsPage() {
                   <div className="bg-green-100 p-2 rounded-lg">
                     <Phone className="text-green-600" size={20} />
                   </div>
-                  <p className="text-sm text-green-600 font-medium">رقم الهاتف</p>
+                  <p className="text-sm text-green-600 font-medium">{t('common.phone')}</p>
                 </div>
                 <p className="text-lg font-bold text-gray-800 mr-11">{company.phone}</p>
               </div>
@@ -171,7 +173,7 @@ export default function CompanyDetailsPage() {
               <div className="bg-gray-50 border-2 border-gray-200 p-5 rounded-xl">
                 <div className="flex items-center gap-3">
                   <Phone className="text-gray-400" size={20} />
-                  <p className="text-gray-500">لا يوجد رقم هاتف</p>
+                  <p className="text-gray-500">{t('companies.noPhoneNumber')}</p>
                 </div>
               </div>
             )}
@@ -182,7 +184,7 @@ export default function CompanyDetailsPage() {
                   <div className="bg-purple-100 p-2 rounded-lg">
                     <Mail className="text-purple-600" size={20} />
                   </div>
-                  <p className="text-sm text-purple-600 font-medium">البريد الإلكتروني</p>
+                  <p className="text-sm text-purple-600 font-medium">{t('common.email')}</p>
                 </div>
                 <p className="text-lg font-bold text-gray-800 mr-11 break-all">{company.email}</p>
               </div>
@@ -190,7 +192,7 @@ export default function CompanyDetailsPage() {
               <div className="bg-gray-50 border-2 border-gray-200 p-5 rounded-xl">
                 <div className="flex items-center gap-3">
                   <Mail className="text-gray-400" size={20} />
-                  <p className="text-gray-500">لا يوجد بريد إلكتروني</p>
+                  <p className="text-gray-500">{t('companies.noEmail')}</p>
                 </div>
               </div>
             )}
@@ -201,9 +203,9 @@ export default function CompanyDetailsPage() {
         <Card>
           <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             <MapPin className="text-orange-600" size={24} />
-            العنوان
+            {t('companies.address')}
           </h3>
-          
+
           {company.address ? (
             <div className="bg-orange-50 border-2 border-orange-200 p-6 rounded-xl">
               <div className="flex items-start gap-4">
@@ -211,7 +213,7 @@ export default function CompanyDetailsPage() {
                   <MapPin className="text-orange-600" size={28} />
                 </div>
                 <div>
-                  <p className="text-sm text-orange-600 font-medium mb-2">عنوان الشركة</p>
+                  <p className="text-sm text-orange-600 font-medium mb-2">{t('companies.companyAddress')}</p>
                   <p className="text-lg text-gray-800 leading-relaxed">{company.address}</p>
                 </div>
               </div>
@@ -219,35 +221,35 @@ export default function CompanyDetailsPage() {
           ) : (
             <div className="bg-gray-50 border-2 border-gray-200 p-6 rounded-xl text-center">
               <MapPin className="mx-auto text-gray-400 mb-2" size={32} />
-              <p className="text-gray-500">لا يوجد عنوان مسجل</p>
+              <p className="text-gray-500">{t('companies.noAddress')}</p>
             </div>
           )}
         </Card>
 
         {/* Action Buttons */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.quickActions')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <Button
               onClick={() => router.push(`/companies/${encodeURIComponent(company.name)}/edit`)}
               variant="secondary"
             >
               <Edit size={18} className="ml-2" />
-              تعديل البيانات
+              {t('riders.editData')}
             </Button>
             <Button
               onClick={() => router.push('/companies')}
               variant="secondary"
             >
               <ArrowRight size={18} className="ml-2" />
-              العودة للقائمة
+              {t('navigation.backToList')}
             </Button>
             <Button
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 size={18} className="ml-2" />
-              حذف الشركة
+              {t('companies.deleteCompany')}
             </Button>
           </div>
         </Card>

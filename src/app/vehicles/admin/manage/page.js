@@ -10,8 +10,10 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import { Plus, Search, Edit, Trash2, Car, Eye, Settings } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function VehicleManagePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [vehicles, setVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +24,7 @@ export default function VehicleManagePage() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const [formData, setFormData] = useState({
     vehicleNumber: '',
     vehicleType: '',
@@ -52,7 +54,7 @@ export default function VehicleManagePage() {
       setVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading vehicles:', err);
-      setErrorMessage('حدث خطأ في تحميل البيانات');
+      setErrorMessage(t('common.loadError'));
     } finally {
       setLoading(false);
     }
@@ -94,7 +96,7 @@ export default function VehicleManagePage() {
             extraImage1: formData.extraImage1
           }
         );
-        setSuccessMessage('تم تحديث بيانات المركبة بنجاح');
+        setSuccessMessage(t('vehicles.updateVehicleSuccess'));
       } else {
         // Create new vehicle
         await ApiService.post('/api/vehicles', {
@@ -114,16 +116,16 @@ export default function VehicleManagePage() {
           extraImage: formData.extraImage || null,
           extraImage1: formData.extraImage1 || null
         });
-        setSuccessMessage('تم إضافة المركبة بنجاح');
+        setSuccessMessage(t('vehicles.addVehicleSuccess'));
       }
-      
+
       setIsModalOpen(false);
       resetForm();
       loadVehicles();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error saving vehicle:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء حفظ البيانات');
+      setErrorMessage(err?.message || t('common.saveError'));
     } finally {
       setLoading(false);
     }
@@ -152,15 +154,15 @@ export default function VehicleManagePage() {
   };
 
   const handleDelete = async (vehicleNumber) => {
-    if (confirm('هل أنت متأكد من حذف هذه المركبة؟')) {
+    if (confirm(t('vehicles.confirmDeleteVehicle'))) {
       try {
         await ApiService.delete(`/api/vehicles/${vehicleNumber}`);
-        setSuccessMessage('تم حذف المركبة بنجاح');
+        setSuccessMessage(t('vehicles.deleteVehicleSuccess'));
         loadVehicles();
         setTimeout(() => setSuccessMessage(''), 3000);
       } catch (err) {
         console.error('Error deleting vehicle:', err);
-        setErrorMessage('حدث خطأ في حذف المركبة');
+        setErrorMessage(t('vehicles.deleteVehicleError'));
         setTimeout(() => setErrorMessage(''), 5000);
       }
     }
@@ -198,8 +200,8 @@ export default function VehicleManagePage() {
   };
 
   const columns = [
-    { 
-      header: 'رقم اللوحة', 
+    {
+      header: t('vehicles.plateNumber'),
       render: (row) => (
         <div className="flex items-center gap-2">
           <Car className="text-blue-500" size={16} />
@@ -207,34 +209,34 @@ export default function VehicleManagePage() {
         </div>
       )
     },
-    { header: 'رقم المركبة', accessor: 'vehicleNumber' },
-    { header: 'الرقم التسلسلي', accessor: 'serialNumber' },
-    { header: 'النوع', accessor: 'vehicleType' },
-    { header: 'الشركة المصنعة', accessor: 'manufacturer' },
-    { header: 'سنة الصنع', accessor: 'manufactureYear' },
-    { header: 'الموقع', accessor: 'location' },
-    { 
-      header: 'الإجراءات',
+    { header: t('vehicles.vehicleNumber'), accessor: 'vehicleNumber' },
+    { header: t('vehicles.serialNumber'), accessor: 'serialNumber' },
+    { header: t('vehicles.vehicleType'), accessor: 'vehicleType' },
+    { header: t('vehicles.manufacturer'), accessor: 'manufacturer' },
+    { header: t('vehicles.manufactureYear'), accessor: 'manufactureYear' },
+    { header: t('vehicles.location'), accessor: 'location' },
+    {
+      header: t('common.actions'),
       render: (row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => handleViewDetails(row)}
             className="text-green-600 hover:text-green-800 p-1"
-            title="عرض التفاصيل"
+            title={t('vehicles.viewDetails')}
           >
             <Eye size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleEdit(row)}
             className="text-blue-600 hover:text-blue-800 p-1"
-            title="تعديل"
+            title={t('common.edit')}
           >
             <Edit size={18} />
           </button>
-          <button 
+          <button
             onClick={() => handleDelete(row.vehicleNumber)}
             className="text-red-600 hover:text-red-800 p-1"
-            title="حذف"
+            title={t('common.delete')}
           >
             <Trash2 size={18} />
           </button>
@@ -261,8 +263,8 @@ export default function VehicleManagePage() {
               <Settings size={32} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold mb-1">إدارة المركبات</h1>
-              <p className="text-purple-100">عرض وتعديل وحذف بيانات المركبات</p>
+              <h1 className="text-3xl font-bold mb-1">{t('vehicles.manageVehiclesTitle')}</h1>
+              <p className="text-purple-100">{t('vehicles.manageVehiclesSubtitle')}</p>
             </div>
           </div>
           <button
@@ -270,25 +272,25 @@ export default function VehicleManagePage() {
             className="flex items-center gap-2 bg-white text-purple-600 hover:bg-purple-50 px-6 py-3 rounded-lg transition font-medium"
           >
             <Plus size={18} />
-            <span>إضافة مركبة جديدة</span>
+            <span>{t('vehicles.addNewVehicle')}</span>
           </button>
         </div>
       </div>
 
       <div className="px-6 space-y-6">
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title={t('common.success')}
             message={successMessage}
             onClose={() => setSuccessMessage('')}
           />
         )}
 
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title={t('common.error')}
             message={errorMessage}
             onClose={() => setErrorMessage('')}
           />
@@ -299,7 +301,7 @@ export default function VehicleManagePage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 mb-1">إجمالي المركبات</p>
+                <p className="text-sm text-blue-600 mb-1">{t('vehicles.totalVehicles')}</p>
                 <p className="text-3xl font-bold text-blue-700">{vehicles.length}</p>
               </div>
               <Car className="text-blue-500" size={40} />
@@ -309,7 +311,7 @@ export default function VehicleManagePage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 mb-1">مركبات محددة الموقع</p>
+                <p className="text-sm text-green-600 mb-1">{t('vehicles.locatedVehicles')}</p>
                 <p className="text-3xl font-bold text-green-700">
                   {vehicles.filter(v => v.location).length}
                 </p>
@@ -321,7 +323,7 @@ export default function VehicleManagePage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">النتائج المعروضة</p>
+                <p className="text-sm text-orange-600 mb-1">{t('vehicles.displayedResults')}</p>
                 <p className="text-3xl font-bold text-orange-700">{filteredVehicles.length}</p>
               </div>
               <Search className="text-orange-500" size={40} />
@@ -335,7 +337,7 @@ export default function VehicleManagePage() {
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="البحث برقم اللوحة، رقم المركبة، النوع، أو الموقع..."
+                placeholder={t('vehicles.searchPlaceholderManage')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -343,9 +345,9 @@ export default function VehicleManagePage() {
             </div>
           </div>
 
-          <Table 
-            columns={columns} 
-            data={filteredVehicles} 
+          <Table
+            columns={columns}
+            data={filteredVehicles}
             loading={loading}
           />
         </Card>
@@ -357,126 +359,126 @@ export default function VehicleManagePage() {
             setIsModalOpen(false);
             resetForm();
           }}
-          title={editingVehicle ? 'تعديل بيانات المركبة' : 'إضافة مركبة جديدة'}
+          title={editingVehicle ? t('vehicles.editVehicleTitle') : t('vehicles.addNewVehicle')}
           size="xl"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-4">المعلومات الأساسية</h3>
+              <h3 className="font-bold text-gray-800 mb-4">{t('vehicles.basicInfo')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="رقم المركبة"
+                  label={t('vehicles.vehicleNumber')}
                   type="text"
                   name="vehicleNumber"
                   value={formData.vehicleNumber}
                   onChange={handleInputChange}
                   required
                   disabled={editingVehicle !== null}
-                  placeholder="أدخل رقم المركبة"
+                  placeholder={t('vehicles.vehicleNumber')}
                 />
 
                 <Input
-                  label="نوع المركبة"
+                  label={t('vehicles.vehicleType')}
                   type="text"
                   name="vehicleType"
                   value={formData.vehicleType}
                   onChange={handleInputChange}
                   required
-                  placeholder="مثال: دراجة نارية، سيارة..."
+                  placeholder={t('vehicles.vehicleType')}
                 />
 
                 <Input
-                  label="الرقم التسلسلي"
+                  label={t('vehicles.serialNumber')}
                   type="number"
                   name="serialNumber"
                   value={formData.serialNumber}
                   onChange={handleInputChange}
                   required
-                  placeholder="أدخل الرقم التسلسلي"
+                  placeholder={t('vehicles.serialNumber')}
                 />
 
                 <Input
-                  label="رقم اللوحة (عربي)"
+                  label={t('vehicles.plateNumberArabic')}
                   type="text"
                   name="plateNumberA"
                   value={formData.plateNumberA}
                   onChange={handleInputChange}
                   required
-                  placeholder="أدخل رقم اللوحة بالعربي"
+                  placeholder={t('vehicles.plateNumberArabic')}
                 />
 
                 <Input
-                  label="رقم اللوحة (إنجليزي)"
+                  label={t('vehicles.plateNumberEnglish')}
                   type="text"
                   name="plateNumberE"
                   value={formData.plateNumberE}
                   onChange={handleInputChange}
-                  placeholder="أدخل رقم اللوحة بالإنجليزي"
+                  placeholder={t('vehicles.plateNumberEnglish')}
                 />
 
                 <Input
-                  label="الموقع"
+                  label={t('vehicles.location')}
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  placeholder="أدخل موقع المركبة"
+                  placeholder={t('vehicles.location')}
                 />
               </div>
             </div>
 
             {/* Owner Information */}
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-4">معلومات المالك</h3>
+              <h3 className="font-bold text-gray-800 mb-4">{t('vehicles.ownerInfo')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="رقم هوية المالك"
+                  label={t('vehicles.ownerId')}
                   type="number"
                   name="ownerId"
                   value={formData.ownerId}
                   onChange={handleInputChange}
                   required
-                  placeholder="أدخل رقم الهوية"
+                  placeholder={t('vehicles.ownerId')}
                 />
 
                 <Input
-                  label="اسم المالك"
+                  label={t('vehicles.ownerName')}
                   type="text"
                   name="ownerName"
                   value={formData.ownerName}
                   onChange={handleInputChange}
-                  placeholder="أدخل اسم المالك"
+                  placeholder={t('vehicles.ownerName')}
                 />
               </div>
             </div>
 
             {/* Vehicle Details */}
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-4">تفاصيل المركبة</h3>
+              <h3 className="font-bold text-gray-800 mb-4">{t('vehicles.vehicleDetails')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="الشركة المصنعة"
+                  label={t('vehicles.manufacturer')}
                   type="text"
                   name="manufacturer"
                   value={formData.manufacturer}
                   onChange={handleInputChange}
-                  placeholder="مثال: هوندا، تويوتا..."
+                  placeholder={t('vehicles.manufacturer')}
                 />
 
                 <Input
-                  label="سنة الصنع"
+                  label={t('vehicles.manufactureYear')}
                   type="number"
                   name="manufactureYear"
                   value={formData.manufactureYear}
                   onChange={handleInputChange}
-                  placeholder="مثال: 2023"
+                  placeholder={t('vehicles.yearPlaceholder')}
                   min="1900"
                   max={new Date().getFullYear() + 1}
                 />
 
                 <Input
-                  label="تاريخ انتهاء الرخصة"
+                  label={t('vehicles.licenseExpiryDate')}
                   type="date"
                   name="licenseExpiryDate"
                   value={formData.licenseExpiryDate}
@@ -487,43 +489,43 @@ export default function VehicleManagePage() {
 
             {/* Images (Optional) */}
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-bold text-gray-800 mb-2">الصور (اختياري)</h3>
-              <p className="text-sm text-gray-600 mb-4">يمكنك إضافة روابط الصور أو تركها فارغة</p>
+              <h3 className="font-bold text-gray-800 mb-2">{t('vehicles.imagesOptional')}</h3>
+              <p className="text-sm text-gray-600 mb-4">{t('vehicles.imagesNote')}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="صورة المركبة"
+                  label={t('vehicles.vehicleImage')}
                   type="text"
                   name="vehicleImagePath"
                   value={formData.vehicleImagePath}
                   onChange={handleInputChange}
-                  placeholder="رابط صورة المركبة"
+                  placeholder={t('vehicles.vehicleImage')}
                 />
 
                 <Input
-                  label="صورة الرخصة"
+                  label={t('vehicles.licenseImage')}
                   type="text"
                   name="licenseImagePath"
                   value={formData.licenseImagePath}
                   onChange={handleInputChange}
-                  placeholder="رابط صورة الرخصة"
+                  placeholder={t('vehicles.licenseImage')}
                 />
 
                 <Input
-                  label="صورة إضافية 1"
+                  label={t('vehicles.extraImage1')}
                   type="text"
                   name="extraImage"
                   value={formData.extraImage}
                   onChange={handleInputChange}
-                  placeholder="رابط صورة إضافية"
+                  placeholder={t('vehicles.extraImage1')}
                 />
 
                 <Input
-                  label="صورة إضافية 2"
+                  label={t('vehicles.extraImage2')}
                   type="text"
                   name="extraImage1"
                   value={formData.extraImage1}
                   onChange={handleInputChange}
-                  placeholder="رابط صورة إضافية"
+                  placeholder={t('vehicles.extraImage2Placeholder')}
                 />
               </div>
             </div>
@@ -538,10 +540,10 @@ export default function VehicleManagePage() {
                 }}
                 disabled={loading}
               >
-                إلغاء
+                {t('common.cancel')}
               </Button>
               <Button type="submit" loading={loading} disabled={loading}>
-                {editingVehicle ? 'تحديث' : 'إضافة'}
+                {editingVehicle ? t('common.update') : t('common.add')}
               </Button>
             </div>
           </form>
@@ -554,60 +556,60 @@ export default function VehicleManagePage() {
             setIsDetailsModalOpen(false);
             setSelectedVehicle(null);
           }}
-          title="تفاصيل المركبة"
+          title={t('vehicles.vehicleDetailsTitle')}
           size="lg"
         >
           {selectedVehicle && (
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-bold text-gray-800 mb-3">المعلومات الأساسية</h3>
+                <h3 className="font-bold text-gray-800 mb-3">{t('vehicles.basicInfo')}</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">رقم المركبة</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.vehicleNumber')}</p>
                     <p className="font-medium">{selectedVehicle.vehicleNumber}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">نوع المركبة</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.vehicleType')}</p>
                     <p className="font-medium">{selectedVehicle.vehicleType}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">رقم اللوحة (عربي)</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.plateNumberArabic')}</p>
                     <p className="font-medium">{selectedVehicle.plateNumberA}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">رقم اللوحة (إنجليزي)</p>
-                    <p className="font-medium">{selectedVehicle.plateNumberE || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.plateNumberEnglish')}</p>
+                    <p className="font-medium">{selectedVehicle.plateNumberE || t('vehicles.notSpecified')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">الرقم التسلسلي</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.serialNumber')}</p>
                     <p className="font-medium">{selectedVehicle.serialNumber}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">الموقع</p>
-                    <p className="font-medium">{selectedVehicle.location || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.location')}</p>
+                    <p className="font-medium">{selectedVehicle.location || t('vehicles.notSpecified')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">الشركة المصنعة</p>
-                    <p className="font-medium">{selectedVehicle.manufacturer || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.manufacturer')}</p>
+                    <p className="font-medium">{selectedVehicle.manufacturer || t('vehicles.notSpecified')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">سنة الصنع</p>
-                    <p className="font-medium">{selectedVehicle.manufactureYear || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.manufactureYear')}</p>
+                    <p className="font-medium">{selectedVehicle.manufactureYear || t('vehicles.notSpecified')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">اسم المالك</p>
-                    <p className="font-medium">{selectedVehicle.ownerName || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.ownerName')}</p>
+                    <p className="font-medium">{selectedVehicle.ownerName || t('vehicles.notSpecified')}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">رقم هوية المالك</p>
-                    <p className="font-medium">{selectedVehicle.ownerId || 'غير محدد'}</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.ownerId')}</p>
+                    <p className="font-medium">{selectedVehicle.ownerId || t('vehicles.notSpecified')}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-gray-600 mb-1">تاريخ انتهاء الرخصة</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.licenseExpiryDate')}</p>
                     <p className="font-medium">
-                      {selectedVehicle.licenseExpiryDate 
+                      {selectedVehicle.licenseExpiryDate
                         ? new Date(selectedVehicle.licenseExpiryDate).toLocaleDateString('en-US')
-                        : 'غير محدد'}
+                        : t('vehicles.notSpecified')}
                     </p>
                   </div>
                 </div>

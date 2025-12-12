@@ -16,9 +16,11 @@ import {
   Activity,
   FileText,
 } from "lucide-react";
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from "@/lib/api/apiService";
 
 export default function VehicleHistory() {
+  const { t } = useLanguage();
   const [allVehicles, setAllVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicleHistory, setSelectedVehicleHistory] = useState(null);
@@ -38,7 +40,7 @@ export default function VehicleHistory() {
       setAllVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading vehicles:", err);
-      setError("فشل في تحميل قائمة المركبات");
+      setError(t('common.loadError'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export default function VehicleHistory() {
         Array.isArray(response) ? response : [response]
       );
     } catch (err) {
-      setError(err.message || "فشل في جلب بيانات المركبة");
+      setError(err.message || t('common.loadError'));
       setSelectedVehicleHistory(null);
     } finally {
       setLoadingDetails(false);
@@ -144,11 +146,11 @@ export default function VehicleHistory() {
                   <Car size={36} />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold">سجل المركبات</h1>
+                  <h1 className="text-4xl font-bold">{t('vehicles.vehicleHistoryTitle')}</h1>
                   <p className="text-blue-100 mt-1">
                     {loading
-                      ? "جاري التحميل..."
-                      : `${allVehicles.length} مركبة جاهزة للتسليم للمراجعة`}
+                      ? t('common.loading')
+                      : `${allVehicles.length} ${t('vehicles.vehicleHistorySubtitle')}`}
                   </p>
                 </div>
               </div>
@@ -159,7 +161,7 @@ export default function VehicleHistory() {
               className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 backdrop-blur-sm border border-white/20 hover:scale-105 transform"
             >
               <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-              تحديث
+              {t('common.refresh')}
             </button>
           </div>
         </div>
@@ -175,7 +177,7 @@ export default function VehicleHistory() {
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="text-red-600" size={24} />
                   <div>
-                    <h3 className="font-bold text-red-800 text-lg">خطأ</h3>
+                    <h3 className="font-bold text-red-800 text-lg">{t('common.error')}</h3>
                     <p className="text-red-600 text-sm mt-1">{error}</p>
                   </div>
                 </div>
@@ -188,7 +190,7 @@ export default function VehicleHistory() {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Filter size={20} className="text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">بحث وتصفية</h3>
+                <h3 className="text-xl font-bold text-gray-800">{t('vehicles.searchAndFilter')}</h3>
               </div>
 
               <div className="relative">
@@ -200,7 +202,7 @@ export default function VehicleHistory() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="ابحث برقم اللوحة، الرقم التسلسلي، الموقع..."
+                  placeholder={t('vehicles.searchPlaceholderHistory')}
                   className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -208,13 +210,13 @@ export default function VehicleHistory() {
               {searchTerm && (
                 <div className="mt-3 flex items-center justify-between text-sm bg-blue-50 p-3 rounded-lg">
                   <span className="text-blue-700 font-medium">
-                    النتائج: {filteredVehicles.length} من {allVehicles.length}
+                    {t('common.results')}: {filteredVehicles.length} {t('common.of')} {allVehicles.length}
                   </span>
                   <button
                     onClick={() => setSearchTerm("")}
                     className="text-blue-600 hover:text-blue-700 font-bold hover:underline"
                   >
-                    مسح
+                    {t('common.clear')}
                   </button>
                 </div>
               )}
@@ -225,7 +227,7 @@ export default function VehicleHistory() {
               <div className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
                 <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
                   <Activity size={20} className="text-blue-600" />
-                  قائمة المركبات
+                  {t('vehicles.vehiclesList')}
                 </h3>
               </div>
 
@@ -234,15 +236,15 @@ export default function VehicleHistory() {
                   <div className="text-center py-16">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
                     <p className="mt-4 text-gray-600 font-medium">
-                      جاري تحميل المركبات...
+                      {t('vehicles.loadingVehicles')}
                     </p>
                   </div>
                 ) : filteredVehicles.length === 0 ? (
                   <div className="text-center py-16">
                     <Car className="mx-auto text-gray-300 mb-4" size={64} />
-                    <p className="text-gray-600 font-medium">لا توجد نتائج</p>
+                    <p className="text-gray-600 font-medium">{t('common.noResults')}</p>
                     <p className="text-gray-400 text-sm mt-1">
-                      جرب البحث بمعايير مختلفة
+                      {t('common.tryDifferentSearch')}
                     </p>
                   </div>
                 ) : (
@@ -257,11 +259,10 @@ export default function VehicleHistory() {
                         <button
                           key={vehicle.id || vehicle.plateNumberA}
                           onClick={() => handleVehicleClick(vehicle)}
-                          className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${
-                            isSelected
-                              ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
-                              : ""
-                          }`}
+                          className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${isSelected
+                            ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
+                            : ""
+                            }`}
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
@@ -272,26 +273,25 @@ export default function VehicleHistory() {
                             </div>
                             {vehicle.statusTypeDisplay && (
                               <span
-                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
-                                  vehicle.statusTypeDisplay.toLowerCase() ===
+                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${vehicle.statusTypeDisplay.toLowerCase() ===
                                   "taken"
-                                    ? "bg-blue-100 text-blue-700 border border-blue-200"
-                                    : vehicle.statusTypeDisplay.toLowerCase() ===
-                                      "available"
+                                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                  : vehicle.statusTypeDisplay.toLowerCase() ===
+                                    "available"
                                     ? "bg-green-100 text-green-700 border border-green-200"
                                     : vehicle.statusTypeDisplay.toLowerCase() ===
                                       "stolen"
-                                    ? "bg-red-100 text-red-700 border border-red-200"
-                                    : "bg-orange-100 text-orange-700 border border-orange-200"
-                                }`}
+                                      ? "bg-red-100 text-red-700 border border-red-200"
+                                      : "bg-orange-100 text-orange-700 border border-orange-200"
+                                  }`}
                               >
-                                {vehicle.statusTypeDisplay}
+                                {t(`vehicles.status${vehicle.statusTypeDisplay}`) || vehicle.statusTypeDisplay}
                               </span>
                             )}
                           </div>
                           <div className="space-y-1">
                             <p className="text-sm text-gray-700 font-medium">
-                              {vehicle.vehicleNumber || "N/A"}
+                              {vehicle.vehicleNumber || t('vehicles.notSpecified')}
                             </p>
                             {vehicle.manufacturer && (
                               <p className="text-xs text-gray-500">
@@ -321,7 +321,7 @@ export default function VehicleHistory() {
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
                   <p className="mt-6 text-gray-600 font-medium text-lg">
-                    جاري تحميل سجل المركبة...
+                    {t('vehicles.loadingVehicleHistory')}
                   </p>
                 </div>
               </div>
@@ -346,13 +346,13 @@ export default function VehicleHistory() {
                                 {firstRecord.plateNumberA}
                               </h2>
                               <p className="text-blue-100 mt-1 font-medium">
-                                رقم المركبة: {firstRecord.vehicleNumber}
+                                {t('vehicles.vehicleNumber')}: {firstRecord.vehicleNumber}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="text-blue-100 text-sm">
-                              إجمالي السجلات
+                              {t('vehicles.totalRecords')}
                             </p>
                             <p className="text-3xl font-bold">
                               {selectedVehicleHistory.length}
@@ -369,7 +369,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Package size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  رقم المركبة
+                                  {t('vehicles.vehicleNumber')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -383,7 +383,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <FileText size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  الرقم التسلسلي
+                                  {t('vehicles.serialNumber')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -397,7 +397,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Car size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  رقم اللوحة (إنجليزي)
+                                  {t('vehicles.plateNumberEnglish')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -411,7 +411,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Car size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  الشركة المصنعة
+                                  {t('vehicles.manufacturer')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -425,7 +425,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Calendar size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  سنة الصنع
+                                  {t('vehicles.manufactureYear')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -439,7 +439,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <MapPin size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  الموقع
+                                  {t('vehicles.location')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -453,7 +453,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <User size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  اسم المالك
+                                  {t('vehicles.ownerName')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -467,7 +467,7 @@ export default function VehicleHistory() {
                               <div className="flex items-center gap-2 mb-2">
                                 <Package size={16} className="text-blue-600" />
                                 <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  رقم هوية المالك
+                                  {t('vehicles.ownerId')}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -489,7 +489,7 @@ export default function VehicleHistory() {
                         <Clock size={24} />
                       </div>
                       <h3 className="text-2xl font-bold">
-                        سجل الحركة والأنشطة
+                        {t('vehicles.movementHistory')}
                       </h3>
                     </div>
                   </div>
@@ -523,14 +523,13 @@ export default function VehicleHistory() {
                               </div>
 
                               <span
-                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
-                                  record.isActive
-                                    ? "bg-green-600 text-white"
-                                    : "bg-red-600 text-white"
-                                }`}
+                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${record.isActive
+                                  ? "bg-green-600 text-white"
+                                  : "bg-red-600 text-white"
+                                  }`}
                               >
                                 <CheckCircle size={14} />
-                                {record.isActive ? "نشط" : "غير نشط"}
+                                {record.isActive ? t('common.active') : t('common.inactive')}
                               </span>
                             </div>
 
@@ -540,7 +539,7 @@ export default function VehicleHistory() {
                                   <div className="flex items-center gap-2 mb-1">
                                     <User size={14} className="text-gray-500" />
                                     <span className="text-xs text-gray-500 font-semibold">
-                                      اسم المندوب
+                                      {t('vehicles.riderName')}
                                     </span>
                                   </div>
                                   <p className="text-sm font-bold text-gray-900">
@@ -554,7 +553,7 @@ export default function VehicleHistory() {
                                   <div className="flex items-center gap-2 mb-1">
                                     <User size={14} className="text-gray-500" />
                                     <span className="text-xs text-gray-500 font-semibold">
-                                      اسم المندوب (إنجليزي)
+                                      {t('vehicles.riderNameE')}
                                     </span>
                                   </div>
                                   <p className="text-sm font-bold text-gray-900">
@@ -571,7 +570,7 @@ export default function VehicleHistory() {
                                       className="text-gray-500"
                                     />
                                     <span className="text-xs text-gray-500 font-semibold">
-                                      رقم إقامة الموظف
+                                      {t('vehicles.employeeIqama')}
                                     </span>
                                   </div>
                                   <p className="text-sm font-bold text-gray-900">
@@ -588,7 +587,7 @@ export default function VehicleHistory() {
                                       className="text-gray-500"
                                     />
                                     <span className="text-xs text-gray-500 font-semibold">
-                                      السبب
+                                      {t('common.reason')}
                                     </span>
                                   </div>
                                   <p className="text-sm font-bold text-gray-900">
@@ -611,10 +610,10 @@ export default function VehicleHistory() {
                     <Eye className="text-blue-400" size={64} />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                    اختر مركبة لعرض السجل
+                    {t('vehicles.selectVehicleToViewHistory')}
                   </h3>
                   <p className="text-gray-600 text-lg">
-                    اختر مركبة من القائمة على اليسار لعرض سجل التفاصيل الكامل
+                    {t('vehicles.selectVehicleToViewHistoryDesc')}
                   </p>
                 </div>
               </div>

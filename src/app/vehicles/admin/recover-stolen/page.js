@@ -18,8 +18,10 @@ import {
   MapPin,
   CheckCircle,
 } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function RecoverStolenPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
@@ -43,7 +45,7 @@ export default function RecoverStolenPage() {
       }
     } catch (err) {
       console.error("Error loading stolen vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل المركبات المسروقة");
+      setErrorMessage(t('common.loadError'));
     } finally {
       setLoadingVehicles(false);
     }
@@ -53,12 +55,12 @@ export default function RecoverStolenPage() {
     e.preventDefault();
 
     if (!selectedVehicle) {
-      setErrorMessage("الرجاء اختيار المركبة أولاً");
+      setErrorMessage(t('vehicles.selectVehicleFirst'));
       return;
     }
 
     if (!recoveryDetails.trim()) {
-      setErrorMessage("الرجاء إدخال تفاصيل الاسترجاع");
+      setErrorMessage(t('vehicles.enterRecoveryDetails'));
       return;
     }
 
@@ -68,12 +70,11 @@ export default function RecoverStolenPage() {
 
     try {
       await ApiService.put(
-        `/api/vehicles/recover-stolen?plate=${
-          selectedVehicle.plateNumberA
+        `/api/vehicles/recover-stolen?plate=${selectedVehicle.plateNumberA
         }&reason=${encodeURIComponent(recoveryDetails)}`
       );
 
-      setSuccessMessage("تم استرجاع المركبة بنجاح");
+      setSuccessMessage(t('vehicles.recoverStolenSuccess'));
       setTimeout(() => {
         setSelectedVehicle(null);
         setRecoveryDetails("");
@@ -81,7 +82,7 @@ export default function RecoverStolenPage() {
       }, 2000);
     } catch (err) {
       console.error("Error recovering stolen vehicle:", err);
-      setErrorMessage(err?.message || "حدث خطأ أثناء استرجاع المركبة");
+      setErrorMessage(err?.message || t('vehicles.recoverStolenError'));
     } finally {
       setLoading(false);
     }
@@ -98,11 +99,11 @@ export default function RecoverStolenPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="استرجاع المركبات المسروقة"
-        subtitle={`${stolenVehicles.length} مركبة مبلغ عن سرقتها`}
+        title={t('vehicles.recoverStolenPageTitle')}
+        subtitle={`${stolenVehicles.length} ${t('vehicles.stolenVehiclesSubtitleCount')}`}
         icon={RefreshCw}
         actionButton={{
-          text: "تحديث",
+          text: t('common.refresh'),
           icon: <RefreshCw size={18} />,
           onClick: loadStolenVehicles,
           variant: "secondary",
@@ -113,7 +114,7 @@ export default function RecoverStolenPage() {
         {errorMessage && (
           <Alert
             type="error"
-            title="خطأ"
+            title={t('common.error')}
             message={errorMessage}
             onClose={() => setErrorMessage("")}
           />
@@ -122,7 +123,7 @@ export default function RecoverStolenPage() {
         {successMessage && (
           <Alert
             type="success"
-            title="نجاح"
+            title={t('common.success')}
             message={successMessage}
             onClose={() => setSuccessMessage("")}
           />
@@ -133,7 +134,7 @@ export default function RecoverStolenPage() {
           <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-red-600 mb-1">مركبات مسروقة</p>
+                <p className="text-sm text-red-600 mb-1">{t('vehicles.stolenVehiclesCount')}</p>
                 <p className="text-3xl font-bold text-red-700">
                   {stolenVehicles.length}
                 </p>
@@ -146,7 +147,7 @@ export default function RecoverStolenPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-600 mb-1">
-                  تم الاسترجاع اليوم
+                  {t('vehicles.recoveredToday')}
                 </p>
                 <p className="text-3xl font-bold text-green-700">0</p>
               </div>
@@ -157,7 +158,7 @@ export default function RecoverStolenPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 mb-1">نتائج البحث</p>
+                <p className="text-sm text-orange-600 mb-1">{t('vehicles.searchResults')}</p>
                 <p className="text-3xl font-bold text-orange-700">
                   {filteredVehicles.length}
                 </p>
@@ -177,7 +178,7 @@ export default function RecoverStolenPage() {
               />
               <input
                 type="text"
-                placeholder="البحث برقم اللوحة، الرقم التسلسلي، أو الموقع..."
+                placeholder={t('vehicles.searchPlaceholderStolen')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -190,29 +191,28 @@ export default function RecoverStolenPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Shield size={20} className="text-red-600" />
-            المركبات المبلغ عن سرقتها
+            {t('vehicles.stolenVehiclesListTitle')}
           </h3>
 
           {loadingVehicles ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t('common.loading')}</p>
             </div>
           ) : filteredVehicles.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle className="mx-auto text-green-500 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد مركبات مسروقة حالياً</p>
+              <p className="text-gray-600">{t('vehicles.noStolenVehicles')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {filteredVehicles.map((vehicle) => (
                 <div
                   key={vehicle.vehicleNumber}
-                  className={`border-2 rounded-lg p-4 transition ${
-                    selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
-                      ? "border-green-500 bg-green-50"
-                      : "border-red-200 bg-red-50"
-                  }`}
+                  className={`border-2 rounded-lg p-4 transition ${selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
+                    ? "border-green-500 bg-green-50"
+                    : "border-red-200 bg-red-50"
+                    }`}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -229,14 +229,14 @@ export default function RecoverStolenPage() {
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-medium">
-                      مسروقة
+                      {t('vehicles.stolenStatus')}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2 text-gray-700">
                       <Car size={14} />
-                      <span className="text-gray-600">الرقم التسلسلي:</span>
+                      <span className="text-gray-600">{t('vehicles.serialNumber')}:</span>
                       <span className="font-medium">
                         {vehicle.serialNumber}
                       </span>
@@ -245,7 +245,7 @@ export default function RecoverStolenPage() {
                     {vehicle.riderName && vehicle.riderName !== "Unknown" && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <User size={14} />
-                        <span className="text-gray-600">آخر مندوب:</span>
+                        <span className="text-gray-600">{t('vehicles.lastRider')}:</span>
                         <span className="font-medium">{vehicle.riderName}</span>
                       </div>
                     )}
@@ -253,23 +253,23 @@ export default function RecoverStolenPage() {
                     {vehicle.location && (
                       <div className="flex items-center gap-2 text-gray-700">
                         <MapPin size={14} />
-                        <span className="text-gray-600">آخر موقع:</span>
+                        <span className="text-gray-600">{t('vehicles.lastLocation')}:</span>
                         <span className="font-medium">{vehicle.location}</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-2 text-gray-700">
                       <Clock size={14} />
-                      <span className="text-gray-600">تاريخ الإبلاغ:</span>
+                      <span className="text-gray-600">{t('vehicles.reportDate')}:</span>
                       <span className="font-medium">
-                        {new Date(vehicle.since).toLocaleDateString("ar-SA")}
+                        {new Date(vehicle.since).toLocaleDateString("en-US")}
                       </span>
                     </div>
 
                     {vehicle.reason && (
                       <div className="bg-red-100 p-2 rounded mt-2">
                         <p className="text-xs text-red-800">
-                          <strong>تفاصيل:</strong> {vehicle.reason}
+                          <strong>{t('vehicles.details')}:</strong> {vehicle.reason}
                         </p>
                       </div>
                     )}
@@ -289,8 +289,8 @@ export default function RecoverStolenPage() {
                   >
                     <RefreshCw size={16} className="ml-2" />
                     {selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
-                      ? "محددة"
-                      : "استرجاع المركبة"}
+                      ? t('vehicles.selected')
+                      : t('vehicles.recoverVehicle')}
                   </Button>
                 </div>
               ))}
@@ -307,10 +307,10 @@ export default function RecoverStolenPage() {
                   <CheckCircle className="text-green-600 mt-1" size={24} />
                   <div>
                     <h3 className="font-semibold text-green-800 mb-1">
-                      استرجاع مركبة مسروقة
+                      {t('vehicles.recoverStolenTitle')}
                     </h3>
                     <p className="text-sm text-green-600">
-                      المركبة المحددة:{" "}
+                      {t('vehicles.selectVehicle')}:{" "}
                       <strong>{selectedVehicle.plateNumberA}</strong>
                     </p>
                   </div>
@@ -319,23 +319,23 @@ export default function RecoverStolenPage() {
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="font-bold text-gray-800 mb-3">
-                  معلومات المركبة
+                  {t('vehicles.vehicleInfo')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">رقم اللوحة</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.plateNumber')}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.plateNumberA}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">الرقم التسلسلي</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.serialNumber')}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.serialNumber}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">نوع المركبة</p>
+                    <p className="text-gray-600 mb-1">{t('vehicles.vehicleType')}</p>
                     <p className="font-medium text-gray-800">
                       {selectedVehicle.vehicleType}
                     </p>
@@ -345,14 +345,14 @@ export default function RecoverStolenPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  تفاصيل الاسترجاع <span className="text-red-500">*</span>
+                  {t('vehicles.recoveryDetails')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={recoveryDetails}
                   onChange={(e) => setRecoveryDetails(e.target.value)}
                   required
                   rows={4}
-                  placeholder="اشرح كيف تم استرجاع المركبة، حالتها، والإجراءات المتخذة..."
+                  placeholder={t('vehicles.recoveryDetailsPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -367,7 +367,7 @@ export default function RecoverStolenPage() {
                   }}
                   disabled={loading}
                 >
-                  إلغاء
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleRecoverStolen}
@@ -375,7 +375,7 @@ export default function RecoverStolenPage() {
                   disabled={loading}
                 >
                   <CheckCircle size={18} className="ml-2" />
-                  تأكيد الاسترجاع
+                  {t('vehicles.confirmRecovery')}
                 </Button>
               </div>
             </div>

@@ -9,8 +9,10 @@ import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function TopRidersPage() {
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [report, setReport] = useState(null);
@@ -35,7 +37,7 @@ export default function TopRidersPage() {
 
   const loadReport = async () => {
     if (!startDate || !endDate) {
-      setMessage({ type: 'error', text: 'الرجاء تحديد تاريخ البداية والنهاية' });
+      setMessage({ type: 'error', text: t('reports.pleaseSelectDates') });
       return;
     }
 
@@ -52,9 +54,9 @@ export default function TopRidersPage() {
         minimumShifts: 5
       });
       setReport(data);
-      setMessage({ type: 'success', text: 'تم تحميل التقرير بنجاح' });
+      setMessage({ type: 'success', text: t('reports.reportLoadedSuccess') });
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'فشل تحميل التقرير' });
+      setMessage({ type: 'error', text: error.message || t('reports.failedToLoadReports') });
       setReport(null);
     } finally {
       setLoading(false);
@@ -80,10 +82,10 @@ export default function TopRidersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title="أفضل المناديب"
-        subtitle="ترتيب وتحليل أداء أفضل المناديب"
+        title={t('reports.topRiders')}
+        subtitle={t('reports.topRidersByCompanyDesc')}
         icon={Award}
       />
 
@@ -102,7 +104,7 @@ export default function TopRidersPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Input
             type="date"
-            label="من تاريخ"
+            label={t('common.from')}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
@@ -110,7 +112,7 @@ export default function TopRidersPage() {
 
           <Input
             type="date"
-            label="إلى تاريخ"
+            label={t('common.to')}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
@@ -118,7 +120,7 @@ export default function TopRidersPage() {
 
           <Input
             type="number"
-            label="عدد المناديب"
+            label={t('reports.ridersCount')}
             value={topCount}
             onChange={(e) => setTopCount(parseInt(e.target.value))}
             min="5"
@@ -126,13 +128,13 @@ export default function TopRidersPage() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">الشركة (اختياري)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('reports.companyOptional')}</label>
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">جميع الشركات</option>
+              <option value="">{t('reports.allCompanies')}</option>
               {companies.map((company, idx) => (
                 <option key={idx} value={company.name}>{company.name}</option>
               ))}
@@ -148,7 +150,7 @@ export default function TopRidersPage() {
               className="w-full"
             >
               <Search size={18} />
-              عرض التقرير
+              {t('reports.showReport')}
             </Button>
           </div>
         </div>
@@ -161,28 +163,28 @@ export default function TopRidersPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">إجمالي المناديب</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.totalRiders')}</p>
                 <p className="text-3xl font-bold text-blue-600">{report.totalRiders}</p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">إجمالي الورديات</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.totalShifts')}</p>
                 <p className="text-3xl font-bold text-purple-600">{report.totalShifts}</p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">إجمالي الطلبات</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.totalOrders')}</p>
                 <p className="text-3xl font-bold text-green-600">{report.totalOrders}</p>
               </div>
             </Card>
 
             <Card>
               <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">الفترة</p>
+                <p className="text-gray-500 text-sm mb-2">{t('reports.period')}</p>
                 <p className="text-sm font-bold text-gray-600">
                   {report.startDate} - {report.endDate}
                 </p>
@@ -191,20 +193,20 @@ export default function TopRidersPage() {
           </div>
 
           {/* Top Riders Table */}
-          <Card title={`أفضل ${report.topRiders?.length || 0} مندوب`}>
+          <Card title={`${t('reports.topRiders')} ${report.topRiders?.length || 0}`}>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الترتيب</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم المندوب</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الشركة</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الورديات</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الطلبات</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الإنجاز</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الأداء</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">التقييم</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.rank')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.workingId')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.riderName')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('companies.company')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.title')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.orders')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.completionRate')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.performanceRate')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.rating')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -235,32 +237,29 @@ export default function TopRidersPage() {
                         <div className="text-center">
                           <p className="font-bold text-green-600">{rider.totalAcceptedOrders}</p>
                           <p className="text-xs text-gray-500">
-                            متوسط: {rider.averageOrdersPerShift.toFixed(1)}
+                            {t('reports.average')}: {rider.averageOrdersPerShift.toFixed(1)}
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          rider.completionRate >= 90 ? 'bg-green-100 text-green-800' :
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.completionRate >= 90 ? 'bg-green-100 text-green-800' :
                           rider.completionRate >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                            'bg-red-100 text-red-800'
+                          }`}>
                           {rider.completionRate.toFixed(1)}%
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          rider.performanceScore >= 90 ? 'bg-green-100 text-green-800' :
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.performanceScore >= 90 ? 'bg-green-100 text-green-800' :
                           rider.performanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                            'bg-red-100 text-red-800'
+                          }`}>
                           {rider.performanceScore.toFixed(1)}%
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border-2 ${
-                          getPerformanceColor(rider.performanceGrade)
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border-2 ${getPerformanceColor(rider.performanceGrade)
+                          }`}>
                           {rider.performanceGrade}
                         </span>
                       </td>
@@ -273,7 +272,7 @@ export default function TopRidersPage() {
 
           {/* Company Breakdown */}
           {report.companyBreakdown?.companiesSummary && (
-            <Card title="توزيع الشركات">
+            <Card title={t('reports.companyDistribution')}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {report.companyBreakdown.companiesSummary.map((company, idx) => (
                   <div key={idx} className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
@@ -285,31 +284,31 @@ export default function TopRidersPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-gray-500">إجمالي المناديب</p>
+                        <p className="text-gray-500">{t('reports.totalRiders')}</p>
                         <p className="font-bold">{company.totalRiders}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">الورديات</p>
+                        <p className="text-gray-500">{t('shifts.title')}</p>
                         <p className="font-bold">{company.totalShifts}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">الطلبات</p>
+                        <p className="text-gray-500">{t('reports.orders')}</p>
                         <p className="font-bold text-green-600">{company.totalOrders}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">المتميزون</p>
+                        <p className="text-gray-500">{t('reports.topPerformers')}</p>
                         <p className="font-bold text-purple-600">{company.topPerformersCount}</p>
                       </div>
                     </div>
                     {company.topPerformer && (
                       <div className="mt-3 pt-3 border-t border-gray-300">
-                        <p className="text-xs text-gray-500 mb-1">الأفضل أداءً:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('reports.bestPerformer')}:</p>
                         <div className="flex items-center justify-between">
                           <p className="font-medium">{company.topPerformer.riderNameAR}</p>
                           <div className="flex items-center gap-2">
                             <Trophy className="text-yellow-500" size={16} />
                             <span className="text-sm font-bold">
-                              {company.topPerformer.totalAcceptedOrders} طلب
+                              {company.topPerformer.totalAcceptedOrders} {t('reports.order')}
                             </span>
                           </div>
                         </div>

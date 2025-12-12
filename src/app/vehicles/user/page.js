@@ -8,6 +8,7 @@ import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
+import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   Car,
   RefreshCw,
@@ -22,6 +23,7 @@ import {
 
 export default function VehiclesUserPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [availableVehicles, setAvailableVehicles] = useState([]);
@@ -46,7 +48,7 @@ export default function VehiclesUserPage() {
       setProblemVehicles(problemData?.vehicles || []);
     } catch (err) {
       console.error("Error loading dashboard data:", err);
-      setErrorMessage("حدث خطأ في تحميل البيانات");
+      setErrorMessage(t("vehicles.loadingError"));
     } finally {
       setLoading(false);
     }
@@ -54,24 +56,24 @@ export default function VehiclesUserPage() {
 
   const quickActions = [
     {
-      title: "طلب استلام مركبة",
-      description: "قدم طلب لاستلام مركبة جاهزة للتسليم",
+      title: t("vehicles.requestTakeVehicle"),
+      description: t("vehicles.submitTakeRequest"),
       icon: Car,
       color: "green",
       path: "/vehicles/user/request-take",
       count: availableVehicles.length,
     },
     {
-      title: "طلب إرجاع مركبة",
-      description: "قدم طلب لإرجاع مركبة مستخدمة",
+      title: t("vehicles.requestReturnVehicle"),
+      description: t("vehicles.submitReturnRequest"),
       icon: RefreshCw,
       color: "blue",
       path: "/vehicles/user/request-return",
       count: takenVehicles.length,
     },
     {
-      title: "الإبلاغ عن مشكلة",
-      description: "أبلغ عن مشكلة في مركبة",
+      title: t("vehicles.reportProblem"),
+      description: t("vehicles.reportProblemDesc"),
       icon: AlertTriangle,
       color: "orange",
       path: "/vehicles/user/request-problem",
@@ -109,11 +111,11 @@ export default function VehiclesUserPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة طلبات المركبات"
-        subtitle="قدم طلبات الاستلام والإرجاع والإبلاغ عن المشاكل"
+        title={t("vehicles.userDashboard")}
+        subtitle={t("vehicles.userDashboardSubtitle")}
         icon={Car}
         actionButton={{
-          text: "تحديث البيانات",
+          text: t("vehicles.refreshData"),
           icon: <RefreshCw size={18} />,
           onClick: loadDashboardData,
           variant: "secondary",
@@ -123,7 +125,7 @@ export default function VehiclesUserPage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t("common.error")}
           message={errorMessage}
           onClose={() => setErrorMessage("")}
         />
@@ -135,7 +137,7 @@ export default function VehiclesUserPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-green-100 text-sm mb-1">
-                مركبات جاهزة للتسليم
+                {t("vehicles.availableVehicles")}
               </p>
               <p className="text-4xl font-bold">{availableVehicles.length}</p>
             </div>
@@ -145,14 +147,14 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-green-100 text-sm">
             <CheckCircle size={16} />
-            <span>جاهزة للاستلام</span>
+            <span>{t("vehicles.readyForPickup")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-blue-100 text-sm mb-1">مركبات مستخدمة</p>
+              <p className="text-blue-100 text-sm mb-1">{t("vehicles.usedVehicles")}</p>
               <p className="text-4xl font-bold">{takenVehicles.length}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -161,14 +163,14 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-blue-100 text-sm">
             <User size={16} />
-            <span>في الخدمة</span>
+            <span>{t("vehicles.inServiceStatus")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-orange-100 text-sm mb-1">مشاكل مبلغ عنها</p>
+              <p className="text-orange-100 text-sm mb-1">{t("vehicles.reportedProblems")}</p>
               <p className="text-4xl font-bold">{problemVehicles.length}</p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -177,14 +179,14 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-orange-100 text-sm">
             <AlertTriangle size={16} />
-            <span>في الصيانة</span>
+            <span>{t("vehicles.inMaintenance")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-purple-100 text-sm mb-1">إجمالي المركبات</p>
+              <p className="text-purple-100 text-sm mb-1">{t("vehicles.total")}</p>
               <p className="text-4xl font-bold">
                 {availableVehicles.length +
                   takenVehicles.length +
@@ -197,7 +199,7 @@ export default function VehiclesUserPage() {
           </div>
           <div className="flex items-center gap-2 text-purple-100 text-sm">
             <Package size={16} />
-            <span>في النظام</span>
+            <span>{t("vehicles.inSystem")}</span>
           </div>
         </div>
       </div>
@@ -208,24 +210,13 @@ export default function VehiclesUserPage() {
           <FileText className="text-blue-600 mt-1" size={24} />
           <div>
             <h3 className="font-semibold text-blue-800 mb-2">
-              كيفية استخدام النظام
+              {t("vehicles.howToUse")}
             </h3>
             <ul className="text-sm text-blue-600 space-y-1">
-              <li>
-                • لاستلام مركبة: اختر "طلب استلام مركبة" وابحث عن المركبة
-                الجاهزة للتسليم
-              </li>
-              <li>
-                • لإرجاع مركبة: اختر "طلب إرجاع مركبة" وحدد المركبة التي تريد
-                إرجاعها
-              </li>
-              <li>
-                • للإبلاغ عن مشكلة: اختر "الإبلاغ عن مشكلة" واكتب وصفاً تفصيلياً
-                للمشكلة
-              </li>
-              <li>
-                • سيتم مراجعة جميع الطلبات من قبل الإدارة قبل الموافقة عليها
-              </li>
+              <li>• {t("vehicles.howToTake")}</li>
+              <li>• {t("vehicles.howToReturn")}</li>
+              <li>• {t("vehicles.howToReport")}</li>
+              <li>• {t("vehicles.requestsReviewed")}</li>
             </ul>
           </div>
         </div>
@@ -234,7 +225,7 @@ export default function VehiclesUserPage() {
       {/* Quick Actions Grid */}
       <Card>
         <h2 className="text-xl font-bold text-gray-800 mb-6">
-          الإجراءات السريعة
+          {t("vehicles.quickActions")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {quickActions.map((action) => {
@@ -265,7 +256,7 @@ export default function VehiclesUserPage() {
                     {action.description}
                   </p>
                   <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
-                    <span>الانتقال</span>
+                    <span>{t("vehicles.goTo")}</span>
                     <ArrowRight size={16} />
                   </div>
                 </div>
@@ -280,7 +271,7 @@ export default function VehiclesUserPage() {
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
           </div>
         </Card>
       ) : (
@@ -290,11 +281,11 @@ export default function VehiclesUserPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <CheckCircle size={20} className="text-green-600" />
-                مركبات جاهزة للتسليم للاستلام
+                {t("vehicles.availableForPickup")}
               </h3>
               <Link href="/vehicles/user/request-take">
                 <Button variant="secondary" className="text-sm">
-                  عرض الكل
+                  {t("common.view")}
                   <ArrowRight size={16} className="mr-2" />
                 </Button>
               </Link>
@@ -304,7 +295,7 @@ export default function VehiclesUserPage() {
               <div className="text-center py-8">
                 <Car className="mx-auto text-gray-400 mb-3" size={40} />
                 <p className="text-gray-600 text-sm">
-                  لا توجد مركبات جاهزة للتسليم حالياً
+                  {t("vehicles.noAvailableVehicles")}
                 </p>
               </div>
             ) : (
@@ -329,14 +320,14 @@ export default function VehiclesUserPage() {
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                        جاهزة للتسليم
+                        {t("vehicles.available")}
                       </span>
                     </div>
                   </div>
                 ))}
                 {availableVehicles.length > 3 && (
                   <p className="text-center text-sm text-gray-600 pt-2">
-                    و {availableVehicles.length - 3} مركبات أخرى
+                    {t("vehicles.andMore", { count: availableVehicles.length - 3 })}
                   </p>
                 )}
               </div>
@@ -348,11 +339,11 @@ export default function VehiclesUserPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <User size={20} className="text-blue-600" />
-                مركبات في الخدمة
+                {t("vehicles.vehiclesInService")}
               </h3>
               <Link href="/vehicles/user/request-return">
                 <Button variant="secondary" className="text-sm">
-                  عرض الكل
+                  {t("common.view")}
                   <ArrowRight size={16} className="mr-2" />
                 </Button>
               </Link>
@@ -362,7 +353,7 @@ export default function VehiclesUserPage() {
               <div className="text-center py-8">
                 <User className="mx-auto text-gray-400 mb-3" size={40} />
                 <p className="text-gray-600 text-sm">
-                  لا توجد مركبات مستخدمة حالياً
+                  {t("vehicles.noUsedVehicles")}
                 </p>
               </div>
             ) : (
@@ -387,7 +378,7 @@ export default function VehiclesUserPage() {
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-medium">
-                        مستخدمة
+                        {t("vehicles.taken")}
                       </span>
                     </div>
                     {vehicle.riderName && vehicle.riderName !== "N/A" && (
@@ -400,7 +391,7 @@ export default function VehiclesUserPage() {
                 ))}
                 {takenVehicles.length > 3 && (
                   <p className="text-center text-sm text-gray-600 pt-2">
-                    و {takenVehicles.length - 3} مركبات أخرى
+                    {t("vehicles.andMore", { count: takenVehicles.length - 3 })}
                   </p>
                 )}
               </div>
@@ -417,16 +408,15 @@ export default function VehiclesUserPage() {
               <AlertTriangle className="text-orange-600 mt-1" size={24} />
               <div className="flex-1">
                 <h3 className="font-semibold text-orange-800 mb-2">
-                  مركبات تحتاج إلى انتباه
+                  {t("vehicles.needsAttention")}
                 </h3>
                 <p className="text-sm text-orange-600 mb-3">
-                  يوجد {problemVehicles.length} مركبة مبلغ عنها بمشاكل. تأكد من
-                  عدم استخدامها حتى يتم إصلاحها.
+                  {t("vehicles.problemsWarning", { count: problemVehicles.length })}
                 </p>
                 <Link href="/vehicles/user/request-problem">
                   <Button variant="secondary" className="text-sm">
                     <AlertTriangle size={16} className="ml-2" />
-                    الإبلاغ عن مشكلة جديدة
+                    {t("vehicles.reportNewProblem")}
                   </Button>
                 </Link>
               </div>
@@ -438,7 +428,7 @@ export default function VehiclesUserPage() {
       {/* Usage Tips */}
       <Card>
         <h2 className="text-xl font-bold text-gray-800 mb-4">
-          نصائح الاستخدام
+          {t("vehicles.usageTips")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -447,9 +437,9 @@ export default function VehiclesUserPage() {
                 <CheckCircle className="text-blue-600" size={18} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800 mb-1">عند الاستلام</h4>
+                <h4 className="font-bold text-gray-800 mb-1">{t("vehicles.tipOnPickup")}</h4>
                 <p className="text-sm text-gray-600">
-                  تأكد من فحص المركبة والتأكد من عدم وجود أضرار قبل الاستلام
+                  {t("vehicles.tipOnPickupDesc")}
                 </p>
               </div>
             </div>
@@ -461,9 +451,9 @@ export default function VehiclesUserPage() {
                 <RefreshCw className="text-green-600" size={18} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800 mb-1">عند الإرجاع</h4>
+                <h4 className="font-bold text-gray-800 mb-1">{t("vehicles.tipOnReturn")}</h4>
                 <p className="text-sm text-gray-600">
-                  تأكد من إرجاع المركبة نظيفة وبنفس الحالة التي استلمتها بها
+                  {t("vehicles.tipOnReturnDesc")}
                 </p>
               </div>
             </div>
@@ -476,11 +466,10 @@ export default function VehiclesUserPage() {
               </div>
               <div>
                 <h4 className="font-bold text-gray-800 mb-1">
-                  عند ملاحظة مشكلة
+                  {t("vehicles.tipOnProblem")}
                 </h4>
                 <p className="text-sm text-gray-600">
-                  أبلغ فوراً عن أي مشكلة ولا تستخدم المركبة إذا كانت المشكلة
-                  خطيرة
+                  {t("vehicles.tipOnProblemDesc")}
                 </p>
               </div>
             </div>
@@ -492,9 +481,9 @@ export default function VehiclesUserPage() {
                 <Clock className="text-purple-600" size={18} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800 mb-1">أوقات المعالجة</h4>
+                <h4 className="font-bold text-gray-800 mb-1">{t("vehicles.processingTime")}</h4>
                 <p className="text-sm text-gray-600">
-                  ستتم مراجعة طلبك خلال 24 ساعة من تقديمه
+                  {t("vehicles.processingTimeDesc")}
                 </p>
               </div>
             </div>

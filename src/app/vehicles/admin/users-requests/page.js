@@ -6,20 +6,22 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { 
-  ClipboardList, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Car, 
+import {
+  ClipboardList,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Car,
   User,
   AlertTriangle,
   RefreshCw,
   Package,
   Filter
 } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function PendingVehicleRequestsPage() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [resolving, setResolving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,49 +44,49 @@ export default function PendingVehicleRequestsPage() {
       setPendingRequests(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading pending requests:', err);
-      setErrorMessage('حدث خطأ في تحميل الطلبات المعلقة');
+      setErrorMessage(t('common.loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleResolve = async (request, isApproved) => {
-  setResolving(true);
-  setErrorMessage('');
-  setSuccessMessage('');
+    setResolving(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
-  try {
-    // resolution value (string)
-    const resolutionValue = isApproved ? "Approved" : "Rejected";
-    // Body to match backend schema
-    const requestBody = {
-      riderIqamaNo: parseInt(request?.riderIqamaNo),
-      Resolution: resolutionValue,
-      ResolvedBy: (request?.riderIqamaNo || "").toString(),   // Or logged-in user ID if available
-      Plate: request.vehiclePlateNumber
-    };
+    try {
+      // resolution value (string)
+      const resolutionValue = isApproved ? "Approved" : "Rejected";
+      // Body to match backend schema
+      const requestBody = {
+        riderIqamaNo: parseInt(request?.riderIqamaNo),
+        Resolution: resolutionValue,
+        ResolvedBy: (request?.riderIqamaNo || "").toString(),   // Or logged-in user ID if available
+        Plate: request.vehiclePlateNumber
+      };
 
-    // Query string (only note)
-    const query = note ? `?note=${encodeURIComponent(note)}` : "";
+      // Query string (only note)
+      const query = note ? `?note=${encodeURIComponent(note)}` : "";
 
-    // POST instead of GET (should use POST when body exists)
-    await ApiService.put(`/api/temp/vehicle-resolve${query}`, requestBody);
+      // POST instead of GET (should use POST when body exists)
+      await ApiService.put(`/api/temp/vehicle-resolve${query}`, requestBody);
 
-    setSuccessMessage(`تم ${isApproved ? 'قبول' : 'رفض'} الطلب بنجاح`);
-    setShowResolveModal(false);
-    setSelectedRequest(null);
-    setNote('');
+      setSuccessMessage(`${t('common.success')}: ${isApproved ? t('vehicles.approveRequest') : t('vehicles.rejectRequest')}`);
+      setShowResolveModal(false);
+      setSelectedRequest(null);
+      setNote('');
 
-    loadPendingRequests();
+      loadPendingRequests();
 
-    setTimeout(() => setSuccessMessage(''), 3000);
-  } catch (err) {
-    console.error('Error resolving request:', err);
-    setErrorMessage(err?.message || 'حدث خطأ أثناء معالجة الطلب');
-  } finally {
-    setResolving(false);
-  }
-};
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error resolving request:', err);
+      setErrorMessage(err?.message || t('common.error'));
+    } finally {
+      setResolving(false);
+    }
+  };
 
 
   const openResolveModal = (request) => {
@@ -95,9 +97,9 @@ export default function PendingVehicleRequestsPage() {
 
   const getOperationTypeLabel = (type) => {
     switch (type?.toLowerCase()) {
-      case 'taken': return 'طلب استلام مركبة';
-      case 'return': return 'طلب إرجاع مركبة';
-      case 'problem': return 'الإبلاغ عن مشكلة';
+      case 'taken': return t('vehicles.takeRequestLabel');
+      case 'return': return t('vehicles.returnRequestLabel');
+      case 'problem': return t('vehicles.problemReportLabel');
       default: return type;
     }
   };
@@ -120,7 +122,7 @@ export default function PendingVehicleRequestsPage() {
     }
   };
 
-  const filteredRequests = pendingRequests.filter(req => 
+  const filteredRequests = pendingRequests.filter(req =>
     filterType === 'all' || req.operationType?.toLowerCase() === filterType
   );
 
@@ -134,11 +136,11 @@ export default function PendingVehicleRequestsPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="الطلبات المعلقة للمركبات"
-        subtitle={`${filteredRequests.length} طلب في انتظار المراجعة`}
+        title={t('vehicles.pendingRequestsTitle')}
+        subtitle={`${filteredRequests.length} ${t('vehicles.pendingRequestsSubtitle')}`}
         icon={ClipboardList}
         actionButton={{
-          text: 'تحديث',
+          text: t('common.refresh'),
           icon: <RefreshCw size={18} />,
           onClick: loadPendingRequests,
           variant: 'secondary'
@@ -147,18 +149,18 @@ export default function PendingVehicleRequestsPage() {
 
       <div className="px-6 space-y-6">
         {errorMessage && (
-          <Alert 
-            type="error" 
-            title="خطأ" 
+          <Alert
+            type="error"
+            title={t('common.error')}
             message={errorMessage}
             onClose={() => setErrorMessage('')}
           />
         )}
 
         {successMessage && (
-          <Alert 
-            type="success" 
-            title="نجاح" 
+          <Alert
+            type="success"
+            title={t('common.success')}
             message={successMessage}
             onClose={() => setSuccessMessage('')}
           />
@@ -169,7 +171,7 @@ export default function PendingVehicleRequestsPage() {
           <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-purple-600 mb-1">إجمالي الطلبات</p>
+                <p className="text-xs text-purple-600 mb-1">{t('vehicles.totalRequests')}</p>
                 <p className="text-2xl font-bold text-purple-700">{stats.total}</p>
               </div>
               <ClipboardList className="text-purple-500" size={32} />
@@ -179,7 +181,7 @@ export default function PendingVehicleRequestsPage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-green-600 mb-1">طلبات الاستلام</p>
+                <p className="text-xs text-green-600 mb-1">{t('vehicles.takeRequests')}</p>
                 <p className="text-2xl font-bold text-green-700">{stats.take}</p>
               </div>
               <Car className="text-green-500" size={32} />
@@ -189,7 +191,7 @@ export default function PendingVehicleRequestsPage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-blue-600 mb-1">طلبات الإرجاع</p>
+                <p className="text-xs text-blue-600 mb-1">{t('vehicles.returnRequests')}</p>
                 <p className="text-2xl font-bold text-blue-700">{stats.return}</p>
               </div>
               <RefreshCw className="text-blue-500" size={32} />
@@ -199,7 +201,7 @@ export default function PendingVehicleRequestsPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-orange-600 mb-1">تقارير المشاكل</p>
+                <p className="text-xs text-orange-600 mb-1">{t('vehicles.problemReports')}</p>
                 <p className="text-2xl font-bold text-orange-700">{stats.problem}</p>
               </div>
               <AlertTriangle className="text-orange-500" size={32} />
@@ -211,49 +213,45 @@ export default function PendingVehicleRequestsPage() {
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <Filter size={20} className="text-gray-600" />
-            <h3 className="text-lg font-bold text-gray-800">تصفية الطلبات</h3>
+            <h3 className="text-lg font-bold text-gray-800">{t('vehicles.filterRequests')}</h3>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilterType('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filterType === 'all'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'all'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
-              الكل ({stats.total})
+              {t('common.all')} ({stats.total})
             </button>
             <button
               onClick={() => setFilterType('taken')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filterType === 'taken'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'taken'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
-              استلام ({stats.take})
+              {t('vehicles.statusTaken')} ({stats.take})
             </button>
             <button
               onClick={() => setFilterType('return')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filterType === 'return'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'return'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
-              إرجاع ({stats.return})
+              {t('vehicles.returnRequests')} ({stats.return})
             </button>
             <button
               onClick={() => setFilterType('problem')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filterType === 'problem'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'problem'
+                ? 'bg-orange-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
-              مشاكل ({stats.problem})
+              {t('vehicles.statusProblem')} ({stats.problem})
             </button>
           </div>
         </Card>
@@ -261,25 +259,25 @@ export default function PendingVehicleRequestsPage() {
         {/* Requests Grid */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            قائمة الطلبات ({filteredRequests.length})
+            {t('vehicles.requestsList')} ({filteredRequests.length})
           </h3>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t('common.loading')}</p>
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle className="mx-auto text-green-500 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد طلبات معلقة</p>
+              <p className="text-gray-600">{t('vehicles.noPendingRequests')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredRequests.map((request, index) => {
                 const colors = getOperationTypeColor(request.operationType);
                 const OperationIcon = getOperationIcon(request.operationType);
-                
+
                 return (
                   <div
                     key={index}
@@ -298,28 +296,28 @@ export default function PendingVehicleRequestsPage() {
                         </div>
                       </div>
                       <span className={`px-2 py-1 ${colors.badge} text-white rounded-full text-xs font-medium`}>
-                        معلق
+                        {t('vehicles.pending')}
                       </span>
                     </div>
 
                     <div className="space-y-2 text-sm mb-4">
                       <div className="flex items-center gap-2 text-gray-700">
                         <User size={14} />
-                        <span className="text-gray-600">رقم الإقامة:</span>
+                        <span className="text-gray-600">{t('vehicles.iqamaNumber')}:</span>
                         <span className="font-medium">{request.riderIqamaNo}</span>
                       </div>
 
                       {request.requestedBy && (
                         <div className="flex items-center gap-2 text-gray-700">
                           <User size={14} />
-                          <span className="text-gray-600">المقدم:</span>
+                          <span className="text-gray-600">{t('vehicles.requester')}:</span>
                           <span className="font-medium">{request.requestedBy}</span>
                         </div>
                       )}
 
                       <div className="flex items-center gap-2 text-gray-700">
                         <Clock size={14} />
-                        <span className="text-gray-600">التاريخ:</span>
+                        <span className="text-gray-600">{t('common.date')}:</span>
                         <span className="text-xs font-medium">
                           {new Date(request.requestedAt || Date.now()).toLocaleString('en-Us')}
                         </span>
@@ -328,7 +326,7 @@ export default function PendingVehicleRequestsPage() {
                       {request.reason && (
                         <div className="bg-white p-2 rounded mt-2">
                           <p className="text-xs text-gray-700">
-                            <strong>السبب:</strong> {request.reason}
+                            <strong>{t('common.reason')}:</strong> {request.reason}
                           </p>
                         </div>
                       )}
@@ -341,7 +339,7 @@ export default function PendingVehicleRequestsPage() {
                         className="flex-1 text-sm"
                       >
                         <CheckCircle size={16} className="ml-1" />
-                        مراجعة
+                        {t('vehicles.review')}
                       </Button>
                     </div>
                   </div>
@@ -357,7 +355,7 @@ export default function PendingVehicleRequestsPage() {
             <div className="bg-white rounded-lg max-w-2xl w-full">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">مراجعة الطلب</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">{t('vehicles.reviewRequestTitle')}</h2>
                   <button
                     onClick={() => {
                       setShowResolveModal(false);
@@ -374,31 +372,31 @@ export default function PendingVehicleRequestsPage() {
 
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-gray-800 mb-3">تفاصيل الطلب</h3>
+                    <h3 className="font-bold text-gray-800 mb-3">{t('vehicles.requestDetails')}</h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600 mb-1">نوع العملية</p>
+                        <p className="text-gray-600 mb-1">{t('vehicles.operationType')}</p>
                         <p className="font-medium text-gray-800">
                           {getOperationTypeLabel(selectedRequest.operationType)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 mb-1">رقم اللوحة</p>
+                        <p className="text-gray-600 mb-1">{t('vehicles.plateNumber')}</p>
                         <p className="font-medium text-gray-800">{selectedRequest.vehiclePlateNumber}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600 mb-1">رقم إقامة الموظف</p>
+                        <p className="text-gray-600 mb-1">{t('vehicles.employeeIqama')}</p>
                         <p className="font-medium text-gray-800">{selectedRequest.riderIqamaNo}</p>
                       </div>
                       {selectedRequest.requestedBy && (
                         <div>
-                          <p className="text-gray-600 mb-1">مقدم الطلب</p>
+                          <p className="text-gray-600 mb-1">{t('vehicles.requesterLabel')}</p>
                           <p className="font-medium text-gray-800">{selectedRequest.requestedBy}</p>
                         </div>
                       )}
                       {selectedRequest.reason && (
                         <div className="col-span-2">
-                          <p className="text-gray-600 mb-1">السبب</p>
+                          <p className="text-gray-600 mb-1">{t('common.reason')}</p>
                           <p className="font-medium text-gray-800">{selectedRequest.reason}</p>
                         </div>
                       )}
@@ -407,13 +405,13 @@ export default function PendingVehicleRequestsPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ملاحظات (اختياري)
+                      {t('vehicles.notesOptional')}
                     </label>
                     <textarea
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
-                      placeholder="أضف أي ملاحظات إضافية..."
+                      placeholder={t('vehicles.notesPlaceholder')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -427,7 +425,7 @@ export default function PendingVehicleRequestsPage() {
                       className="bg-red-50 text-red-600 hover:bg-red-100"
                     >
                       <XCircle size={18} className="ml-2" />
-                      رفض الطلب
+                      {t('vehicles.rejectRequest')}
                     </Button>
                     <Button
                       onClick={() => handleResolve(selectedRequest, true)}
@@ -435,7 +433,7 @@ export default function PendingVehicleRequestsPage() {
                       disabled={resolving}
                     >
                       <CheckCircle size={18} className="ml-2" />
-                      قبول الطلب
+                      {t('vehicles.approveRequest')}
                     </Button>
                   </div>
                 </div>

@@ -8,6 +8,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import {
     BarChart3, TrendingUp, Clock, CheckCircle, XCircle,
     RefreshCw, Calendar, PieChart, Activity
@@ -15,6 +16,7 @@ import {
 
 export default function StatisticsPage() {
     const router = useRouter();
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
     const [statistics, setStatistics] = useState(null);
@@ -31,7 +33,7 @@ export default function StatisticsPage() {
             setStatistics(data);
         } catch (err) {
             console.error('Error loading statistics:', err);
-            setErrorMessage(err?.message || 'حدث خطأ في تحميل الإحصائيات');
+            setErrorMessage(err?.message || t('employees.loadingStatistics'));
         } finally {
             setLoading(false);
         }
@@ -49,23 +51,16 @@ export default function StatisticsPage() {
         return colors[status] || 'bg-gray-500';
     };
 
-    const getStatusLabel = (status) => {
-        const labels = {
-            enable: 'نشط',
-            disable: 'غير نشط',
-            fleeing: 'هارب',
-            vacation: 'إجازة',
-            accident: 'حادث',
-            sick: 'مريض'
-        };
-        return labels[status] || status;
-    };
-
     const getMonthName = (monthIndex) => {
-        const months = [
+        const monthsAr = [
             'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
             'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
         ];
+        const monthsEn = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const months = language === 'ar' ? monthsAr : monthsEn;
         return months[monthIndex - 1] || monthIndex;
     };
 
@@ -73,14 +68,14 @@ export default function StatisticsPage() {
         return (
             <div className="space-y-6">
                 <PageHeader
-                    title="إحصائيات تغيير الحالة"
-                    subtitle="جاري التحميل..."
+                    title={t('employees.statisticsTitle')}
+                    subtitle={t('common.loading')}
                     icon={BarChart3}
                 />
                 <Card>
                     <div className="text-center py-12">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                        <p className="mt-4 text-gray-600">جاري تحميل الإحصائيات...</p>
+                        <p className="mt-4 text-gray-600">{t('employees.loadingStatistics')}</p>
                     </div>
                 </Card>
             </div>
@@ -91,14 +86,14 @@ export default function StatisticsPage() {
         return (
             <div className="space-y-6">
                 <PageHeader
-                    title="إحصائيات تغيير الحالة"
-                    subtitle="لا توجد بيانات"
+                    title={t('employees.statisticsTitle')}
+                    subtitle={t('employees.noDataToDisplay')}
                     icon={BarChart3}
                 />
                 {errorMessage && (
                     <Alert
                         type="error"
-                        title="خطأ"
+                        title={t('common.error')}
                         message={errorMessage}
                         onClose={() => setErrorMessage('')}
                     />
@@ -113,11 +108,11 @@ export default function StatisticsPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="إحصائيات تغيير حالة الموظفين"
-                subtitle="نظرة شاملة على طلبات تغيير الحالة"
+                title={t('employees.statisticsTitle')}
+                subtitle={t('employees.statisticsSubtitle')}
                 icon={BarChart3}
                 actionButton={{
-                    text: 'تحديث',
+                    text: t('common.refresh'),
                     icon: <RefreshCw size={18} />,
                     onClick: loadStatistics,
                     variant: 'secondary'
@@ -127,7 +122,7 @@ export default function StatisticsPage() {
             {errorMessage && (
                 <Alert
                     type="error"
-                    title="خطأ"
+                    title={t('common.error')}
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
                 />
@@ -140,7 +135,7 @@ export default function StatisticsPage() {
                         <TrendingUp size={32} className="opacity-80" />
                         <Activity size={24} className="opacity-60" />
                     </div>
-                    <p className="text-blue-100 text-sm mb-1">إجمالي الطلبات</p>
+                    <p className="text-blue-100 text-sm mb-1">{t('employees.totalRequests')}</p>
                     <p className="text-4xl font-bold">{statistics.totalRequests}</p>
                 </div>
 
@@ -149,7 +144,7 @@ export default function StatisticsPage() {
                         <Clock size={32} className="opacity-80" />
                         <Activity size={24} className="opacity-60" />
                     </div>
-                    <p className="text-yellow-100 text-sm mb-1">طلبات معلقة</p>
+                    <p className="text-yellow-100 text-sm mb-1">{t('employees.pendingRequests')}</p>
                     <p className="text-4xl font-bold">{statistics.pendingRequests}</p>
                 </div>
 
@@ -158,7 +153,7 @@ export default function StatisticsPage() {
                         <CheckCircle size={32} className="opacity-80" />
                         <Activity size={24} className="opacity-60" />
                     </div>
-                    <p className="text-green-100 text-sm mb-1">تمت الموافقة</p>
+                    <p className="text-green-100 text-sm mb-1">{t('employees.approvedRequests')}</p>
                     <p className="text-4xl font-bold">{statistics.approvedRequests}</p>
                 </div>
 
@@ -167,7 +162,7 @@ export default function StatisticsPage() {
                         <XCircle size={32} className="opacity-80" />
                         <Activity size={24} className="opacity-60" />
                     </div>
-                    <p className="text-red-100 text-sm mb-1">مرفوضة</p>
+                    <p className="text-red-100 text-sm mb-1">{t('employees.rejectedRequests')}</p>
                     <p className="text-4xl font-bold">{statistics.rejectedRequests}</p>
                 </div>
             </div>
@@ -176,7 +171,7 @@ export default function StatisticsPage() {
             <Card>
                 <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                     <PieChart size={20} />
-                    توزيع الطلبات حسب الحالة
+                    {t('employees.requestsByStatus')}
                 </h3>
 
                 <div className="space-y-4">
@@ -191,7 +186,7 @@ export default function StatisticsPage() {
                                     <div className="flex items-center gap-3">
                                         <StatusBadge status={status} />
                                         <span className="text-sm text-gray-600">
-                                            ({count} طلب)
+                                            ({count} {t('employees.request')})
                                         </span>
                                     </div>
                                     <span className="text-sm font-bold text-gray-700">
@@ -211,7 +206,7 @@ export default function StatisticsPage() {
 
                 {(!statistics.statusBreakdown || Object.keys(statistics.statusBreakdown).length === 0) && (
                     <div className="text-center py-8 text-gray-500">
-                        لا توجد بيانات لعرضها
+                        {t('employees.noDataToDisplay')}
                     </div>
                 )}
             </Card>
@@ -220,7 +215,7 @@ export default function StatisticsPage() {
             <Card>
                 <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                     <Calendar size={20} />
-                    الطلبات الشهرية
+                    {t('employees.monthlyRequests')}
                 </h3>
 
                 <div className="space-y-4">
@@ -233,7 +228,7 @@ export default function StatisticsPage() {
                                         {getMonthName(parseInt(month))}
                                     </span>
                                     <span className="text-sm font-bold text-blue-600">
-                                        {count} طلب
+                                        {count} {t('employees.request')}
                                     </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
@@ -248,14 +243,14 @@ export default function StatisticsPage() {
 
                 {(!statistics.requestsByMonth || Object.keys(statistics.requestsByMonth).length === 0) && (
                     <div className="text-center py-8 text-gray-500">
-                        لا توجد بيانات شهرية لعرضها
+                        {t('employees.noMonthlyData')}
                     </div>
                 )}
             </Card>
 
             {/* Quick Actions */}
             <Card>
-                <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">{t('common.quickActions')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Button
                         variant="secondary"
@@ -263,7 +258,7 @@ export default function StatisticsPage() {
                         className="w-full"
                     >
                         <Clock size={18} className="ml-2" />
-                        عرض الطلبات المعلقة ({statistics.pendingRequests})
+                        {t('employees.viewPendingRequests')} ({statistics.pendingRequests})
                     </Button>
                     <Button
                         variant="secondary"
@@ -271,7 +266,7 @@ export default function StatisticsPage() {
                         className="w-full"
                     >
                         <Calendar size={18} className="ml-2" />
-                        البحث بالتاريخ
+                        {t('employees.searchByDateRange')}
                     </Button>
                     <Button
                         variant="secondary"
@@ -279,10 +274,11 @@ export default function StatisticsPage() {
                         className="w-full"
                     >
                         <TrendingUp size={18} className="ml-2" />
-                        إدارة الموظفين
+                        {t('employees.manageEmployees')}
                     </Button>
                 </div>
             </Card>
         </div>
     );
 }
+

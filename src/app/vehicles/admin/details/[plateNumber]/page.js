@@ -23,17 +23,17 @@ import {
   Clock,
   Activity,
 } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function VehicleDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const plate = params?.plateNumber || "";
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [vehicle, setVehicle] = useState(null);
-
-  // console.log("PARAMS:", useParams());
 
   useEffect(() => {
     if (plate) {
@@ -48,7 +48,7 @@ export default function VehicleDetailsPage() {
       setVehicle(data);
     } catch (err) {
       console.error("Error loading vehicle details:", err);
-      setErrorMessage("حدث خطأ في تحميل تفاصيل المركبة");
+      setErrorMessage(t("vehicles.loadDetailsError"));
     } finally {
       setLoading(false);
     }
@@ -57,18 +57,18 @@ export default function VehicleDetailsPage() {
   const getStatusInfo = () => {
     if (!vehicle) return { text: "", color: "gray", icon: Car };
 
-    if (vehicle.isStolen) return { text: "مسروقة", color: "red", icon: Shield };
+    if (vehicle.isStolen) return { text: t("vehicles.stolen"), color: "red", icon: Shield };
     if (vehicle.isBreakUp)
-      return { text: "خارج الخدمة", color: "gray", icon: PackageX };
+      return { text: t("vehicles.outOfService"), color: "gray", icon: PackageX };
     if (vehicle.hasActiveProblem)
       return {
-        text: `مشاكل نشطة (${vehicle.activeProblemsCount})`,
+        text: `${t("vehicles.activeProblemsStatus")} (${vehicle.activeProblemsCount})`,
         color: "orange",
         icon: AlertTriangle,
       };
     if (!vehicle.isAvailable)
-      return { text: "مستخدمة", color: "blue", icon: User };
-    return { text: "جاهزة للتسليم", color: "green", icon: CheckCircle };
+      return { text: t("vehicles.inUse"), color: "blue", icon: User };
+    return { text: t("vehicles.readyForDelivery"), color: "green", icon: CheckCircle };
   };
 
   const statusInfo = getStatusInfo();
@@ -78,14 +78,14 @@ export default function VehicleDetailsPage() {
     return (
       <div className="w-full">
         <PageHeader
-          title="تفاصيل المركبة"
-          subtitle="جاري التحميل..."
+          title={t("vehicles.vehicleDetails")}
+          subtitle={t("common.loading")}
           icon={Car}
         />
         <div className="px-6">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل تفاصيل المركبة...</p>
+            <p className="mt-4 text-gray-600">{t("vehicles.loadingVehicleDetails")}</p>
           </div>
         </div>
       </div>
@@ -96,11 +96,11 @@ export default function VehicleDetailsPage() {
     return (
       <div className="w-full">
         <PageHeader
-          title="تفاصيل المركبة"
-          subtitle="حدث خطأ"
+          title={t("vehicles.vehicleDetails")}
+          subtitle={t("riders.errorOccurred")}
           icon={Car}
           actionButton={{
-            text: "العودة",
+            text: t("common.back"),
             icon: <ArrowRight size={18} />,
             onClick: () => router.back(),
             variant: "secondary",
@@ -109,8 +109,8 @@ export default function VehicleDetailsPage() {
         <div className="px-6">
           <Alert
             type="error"
-            title="خطأ"
-            message={errorMessage || "لم يتم العثور على المركبة"}
+            title={t("common.error")}
+            message={errorMessage || t("vehicles.vehicleNotFound")}
           />
         </div>
       </div>
@@ -120,11 +120,11 @@ export default function VehicleDetailsPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title={`مركبة ${vehicle.plateNumberA}`}
+        title={`${t("vehicles.vehicle")} ${vehicle.plateNumberA}`}
         subtitle={vehicle.vehicleType}
         icon={Car}
         actionButton={{
-          text: "العودة",
+          text: t("common.back"),
           icon: <ArrowRight size={18} />,
           onClick: () => router.back(),
           variant: "secondary",
@@ -148,7 +148,7 @@ export default function VehicleDetailsPage() {
                 {statusInfo.text}
               </h2>
               <p className={`text-${statusInfo.color}-600`}>
-                الحالة الحالية للمركبة
+                {t("vehicles.currentVehicleStatus")}
               </p>
             </div>
           </div>
@@ -160,13 +160,13 @@ export default function VehicleDetailsPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Car size={20} />
-              معلومات المركبة
+              {t("vehicles.vehicleInfo")}
             </h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">
-                    رقم اللوحة (عربي)
+                    {t("vehicles.plateNumberArabic")}
                   </p>
                   <p className="font-bold text-gray-800 text-lg">
                     {vehicle.plateNumberA}
@@ -174,23 +174,23 @@ export default function VehicleDetailsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">
-                    رقم اللوحة (إنجليزي)
+                    {t("vehicles.plateNumberEnglish")}
                   </p>
                   <p className="font-bold text-gray-800 text-lg">
-                    {vehicle.plateNumberE || "غير محدد"}
+                    {vehicle.plateNumberE || t("profile.notSpecified")}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">رقم المركبة</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("vehicles.vehicleNumber")}</p>
                   <p className="font-medium text-gray-800">
                     {vehicle.vehicleNumber}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">الرقم التسلسلي</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("vehicles.serialNumberFull")}</p>
                   <p className="font-medium text-gray-800">
                     {vehicle.serialNumber}
                   </p>
@@ -199,16 +199,16 @@ export default function VehicleDetailsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">نوع المركبة</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("vehicles.vehicleType")}</p>
                   <p className="font-medium text-gray-800">
                     {vehicle.vehicleType}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">الموقع الحالي</p>
+                  <p className="text-sm text-gray-600 mb-1">{t("vehicles.currentLocation")}</p>
                   <p className="font-medium text-gray-800 flex items-center gap-1">
                     <MapPin size={14} />
-                    {vehicle.location || "غير محدد"}
+                    {vehicle.location || t("profile.notSpecified")}
                   </p>
                 </div>
               </div>
@@ -216,15 +216,15 @@ export default function VehicleDetailsPage() {
               {vehicle.manufacturer && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">الشركة المصنعة</p>
+                    <p className="text-sm text-gray-600 mb-1">{t("vehicles.manufacturer")}</p>
                     <p className="font-medium text-gray-800">
                       {vehicle.manufacturer}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">سنة الصنع</p>
+                    <p className="text-sm text-gray-600 mb-1">{t("vehicles.manufactureYear")}</p>
                     <p className="font-medium text-gray-800">
-                      {vehicle.manufactureYear || "غير محدد"}
+                      {vehicle.manufactureYear || t("profile.notSpecified")}
                     </p>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export default function VehicleDetailsPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar size={16} className="text-yellow-600" />
                     <p className="text-sm font-bold text-yellow-800">
-                      تاريخ انتهاء الرخصة
+                      {t("vehicles.licenseExpiryDate")}
                     </p>
                   </div>
                   <p className="text-yellow-700 font-medium">
@@ -257,19 +257,19 @@ export default function VehicleDetailsPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <Building size={20} />
-              معلومات المالك
+              {t("vehicles.ownerInfo")}
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">اسم المالك</p>
+                <p className="text-sm text-gray-600 mb-1">{t("vehicles.ownerName")}</p>
                 <p className="font-medium text-gray-800 text-lg">
-                  {vehicle.ownerName || "غير محدد"}
+                  {vehicle.ownerName || t("profile.notSpecified")}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم هوية المالك</p>
+                <p className="text-sm text-gray-600 mb-1">{t("vehicles.ownerIdNumber")}</p>
                 <p className="font-medium text-gray-800">
-                  {vehicle.ownerId || "غير محدد"}
+                  {vehicle.ownerId || t("profile.notSpecified")}
                 </p>
               </div>
             </div>
@@ -281,30 +281,30 @@ export default function VehicleDetailsPage() {
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <User size={20} className="text-blue-600" />
-              المندوب الحالي
+              {t("vehicles.currentRider")}
             </h3>
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-blue-600 mb-1">رقم الإقامة</p>
+                  <p className="text-sm text-blue-600 mb-1">{t("employees.iqamaNumber")}</p>
                   <p className="font-bold text-blue-800">
                     {vehicle.currentRider.employeeIqamaNo}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-blue-600 mb-1">الاسم (عربي)</p>
+                  <p className="text-sm text-blue-600 mb-1">{t("riders.nameArabic")}</p>
                   <p className="font-medium text-gray-800">
                     {vehicle.currentRider.riderName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-blue-600 mb-1">الاسم (إنجليزي)</p>
+                  <p className="text-sm text-blue-600 mb-1">{t("riders.nameEnglish")}</p>
                   <p className="font-medium text-gray-800">
                     {vehicle.currentRider.riderNameE}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-blue-600 mb-1">تاريخ الاستلام</p>
+                  <p className="text-sm text-blue-600 mb-1">{t("vehicles.receiveDate")}</p>
                   <p className="font-medium text-gray-800 flex items-center gap-1">
                     <Clock size={14} />
                     {new Date(
@@ -314,7 +314,7 @@ export default function VehicleDetailsPage() {
                 </div>
                 {vehicle.currentRider.takenReason && (
                   <div className="col-span-full">
-                    <p className="text-sm text-blue-600 mb-1">سبب الاستلام</p>
+                    <p className="text-sm text-blue-600 mb-1">{t("vehicles.receiveReason")}</p>
                     <p className="font-medium text-gray-800">
                       {vehicle.currentRider.takenReason}
                     </p>
@@ -329,16 +329,16 @@ export default function VehicleDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Activity size={20} />
-            حالة المركبة
+            {t("vehicles.vehicleStatus")}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">الحالة الحالية</p>
+              <p className="text-sm text-gray-600 mb-1">{t("vehicles.currentStatus")}</p>
               <p className="font-bold text-gray-800">{vehicle.currentStatus}</p>
             </div>
             {vehicle.statusSince && (
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">في هذه الحالة منذ</p>
+                <p className="text-sm text-gray-600 mb-1">{t("vehicles.inThisStatusSince")}</p>
                 <p className="font-medium text-gray-800">
                   {new Date(vehicle.statusSince).toLocaleString("en-Us", {
                     year: "numeric",
@@ -352,25 +352,25 @@ export default function VehicleDetailsPage() {
             )}
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">
-                جاهزة للتسليم للاستخدام
+                {t("vehicles.readyForUse")}
               </p>
               <p className="font-bold text-gray-800 flex items-center gap-2">
                 {vehicle.isAvailable ? (
                   <>
                     <CheckCircle size={18} className="text-green-600" />
-                    <span className="text-green-600">نعم</span>
+                    <span className="text-green-600">{t("common.yes")}</span>
                   </>
                 ) : (
                   <>
                     <AlertTriangle size={18} className="text-red-600" />
-                    <span className="text-red-600">لا</span>
+                    <span className="text-red-600">{t("common.no")}</span>
                   </>
                 )}
               </p>
             </div>
             {vehicle.hasActiveProblem && (
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                <p className="text-sm text-orange-600 mb-1">مشاكل نشطة</p>
+                <p className="text-sm text-orange-600 mb-1">{t("vehicles.activeProblemsStatus")}</p>
                 <p className="font-bold text-orange-800">
                   {vehicle.activeProblemsCount}
                 </p>
@@ -383,68 +383,60 @@ export default function VehicleDetailsPage() {
         {(vehicle.isStolen ||
           vehicle.isBreakUp ||
           vehicle.hasActiveProblem) && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {vehicle.isStolen && (
-              <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Shield className="text-red-600" size={24} />
-                  <div>
-                    <p className="font-bold text-red-800">مركبة مسروقة</p>
-                    <p className="text-sm text-red-600">
-                      مبلغ عن سرقة هذه المركبة
-                    </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {vehicle.isStolen && (
+                <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Shield className="text-red-600" size={24} />
+                    <div>
+                      <p className="font-bold text-red-800">{t("vehicles.stolenVehicle")}</p>
+                      <p className="text-sm text-red-600">
+                        {t("vehicles.stolenReport")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            {vehicle.isBreakUp && (
-              <div className="bg-gray-50 border-r-4 border-gray-500 p-4 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <PackageX className="text-gray-600" size={24} />
-                  <div>
-                    <p className="font-bold text-gray-800">خارج الخدمة</p>
-                    <p className="text-sm text-gray-600">
-                      المركبة غير قابلة للاستخدام
-                    </p>
+              )}
+              {vehicle.isBreakUp && (
+                <div className="bg-gray-50 border-r-4 border-gray-500 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <PackageX className="text-gray-600" size={24} />
+                    <div>
+                      <p className="font-bold text-gray-800">{t("vehicles.outOfService")}</p>
+                      <p className="text-sm text-gray-600">
+                        {t("vehicles.vehicleNotUsable")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            {vehicle.hasActiveProblem && (
-              <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="text-orange-600" size={24} />
-                  <div>
-                    <p className="font-bold text-orange-800">مشاكل نشطة</p>
-                    <p className="text-sm text-orange-600">
-                      {vehicle.activeProblemsCount} مشكلة تحتاج إلى إصلاح
-                    </p>
+              )}
+              {vehicle.hasActiveProblem && (
+                <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="text-orange-600" size={24} />
+                    <div>
+                      <p className="font-bold text-orange-800">{t("vehicles.activeProblemsStatus")}</p>
+                      <p className="text-sm text-orange-600">
+                        {vehicle.activeProblemsCount} {t("vehicles.problemsNeedFix")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
         {/* Action Buttons */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            إجراءات سريعة
+            {t("riders.quickActions")}
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {/* <Button
-            
-              onClick={() => router.push(`/vehicles/admin/history/${vehicle.plateNumberA}`)}
-              variant="secondary"
-            >
-              <FileText size={18} className="ml-2" />
-              السجل
-            </Button> */}
             <Button
               onClick={() => router.push("/vehicles/admin/change-location")}
               variant="secondary"
             >
               <MapPin size={18} className="ml-2" />
-              تغيير الموقع
+              {t("vehicles.changeLocation")}
             </Button>
             {vehicle.hasActiveProblem && (
               <Button
@@ -452,7 +444,7 @@ export default function VehicleDetailsPage() {
                 variant="secondary"
               >
                 <AlertTriangle size={18} className="ml-2" />
-                إصلاح المشاكل
+                {t("vehicles.fixProblems")}
               </Button>
             )}
             <Button
@@ -460,7 +452,7 @@ export default function VehicleDetailsPage() {
               variant="secondary"
             >
               <Car size={18} className="ml-2" />
-              تعديل البيانات
+              {t("riders.editData")}
             </Button>
           </div>
         </Card>

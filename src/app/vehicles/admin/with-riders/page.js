@@ -22,8 +22,10 @@ import {
   Filter,
   Eye,
 } from "lucide-react";
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function VehiclesWithRidersPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,7 +46,7 @@ export default function VehiclesWithRidersPage() {
       setVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading vehicles:", err);
-      setErrorMessage("حدث خطأ في تحميل بيانات المركبات");
+      setErrorMessage(t('common.loadError'));
     } finally {
       setLoading(false);
     }
@@ -59,12 +61,12 @@ export default function VehiclesWithRidersPage() {
   };
 
   const getStatusText = (vehicle) => {
-    if (vehicle.isStolen) return "مسروقة";
-    if (vehicle.isBreakUp) return "خارج الخدمة";
+    if (vehicle.isStolen) return t('vehicles.statusStolen');
+    if (vehicle.isBreakUp) return t('vehicles.statusBreakup');
     if (vehicle.hasActiveProblem)
-      return `مشاكل (${vehicle.activeProblemsCount})`;
-    if (!vehicle.isAvailable) return "مستخدمة";
-    return "جاهزة للتسليم";
+      return `${t('vehicles.statusProblem')} (${vehicle.activeProblemsCount})`;
+    if (!vehicle.isAvailable) return t('vehicles.statusTaken');
+    return t('vehicles.statusAvailable');
   };
 
   const getStatusIcon = (vehicle) => {
@@ -116,11 +118,11 @@ export default function VehiclesWithRidersPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title="جميع المركبات مع المناديب"
-        subtitle={`${filteredVehicles.length} مركبة - عرض شامل لجميع المركبات وحالاتها`}
+        title={t('vehicles.vehiclesWithRidersTitle')}
+        subtitle={`${filteredVehicles.length} ${t('vehicles.vehiclesWithRidersSubtitle')}`}
         icon={Users}
         actionButton={{
-          text: "تحديث",
+          text: t('common.refresh'),
           icon: <Users size={18} />,
           onClick: loadVehicles,
           variant: "secondary",
@@ -131,7 +133,7 @@ export default function VehiclesWithRidersPage() {
         {errorMessage && (
           <Alert
             type="error"
-            title="خطأ"
+            title={t('common.error')}
             message={errorMessage}
             onClose={() => setErrorMessage("")}
           />
@@ -142,7 +144,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-blue-600 mb-1">إجمالي</p>
+                <p className="text-xs text-blue-600 mb-1">{t('common.total')}</p>
                 <p className="text-2xl font-bold text-blue-700">
                   {stats.total}
                 </p>
@@ -154,7 +156,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-green-600 mb-1">جاهزة للتسليم</p>
+                <p className="text-xs text-green-600 mb-1">{t('vehicles.statusAvailable')}</p>
                 <p className="text-2xl font-bold text-green-700">
                   {stats.available}
                 </p>
@@ -166,7 +168,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-indigo-50 border-r-4 border-indigo-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-indigo-600 mb-1">مستخدمة</p>
+                <p className="text-xs text-indigo-600 mb-1">{t('vehicles.statusTaken')}</p>
                 <p className="text-2xl font-bold text-indigo-700">
                   {stats.taken}
                 </p>
@@ -178,7 +180,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-orange-600 mb-1">مشاكل</p>
+                <p className="text-xs text-orange-600 mb-1">{t('vehicles.statusProblem')}</p>
                 <p className="text-2xl font-bold text-orange-700">
                   {stats.problems}
                 </p>
@@ -190,7 +192,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-red-600 mb-1">مسروقة</p>
+                <p className="text-xs text-red-600 mb-1">{t('vehicles.statusStolen')}</p>
                 <p className="text-2xl font-bold text-red-700">
                   {stats.stolen}
                 </p>
@@ -202,7 +204,7 @@ export default function VehiclesWithRidersPage() {
           <div className="bg-gray-50 border-r-4 border-gray-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-600 mb-1">خارج عن الخدمة</p>
+                <p className="text-xs text-gray-600 mb-1">{t('vehicles.statusBreakup')}</p>
                 <p className="text-2xl font-bold text-gray-700">
                   {stats.breakup}
                 </p>
@@ -217,69 +219,63 @@ export default function VehiclesWithRidersPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <Filter size={20} className="text-gray-600" />
-              <h3 className="text-lg font-bold text-gray-800">تصفية النتائج</h3>
+              <h3 className="text-lg font-bold text-gray-800">{t('vehicles.filterResults')}</h3>
             </div>
 
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setStatusFilter("all")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                الكل ({stats.total})
+                {t('common.all')} ({stats.total})
               </button>
               <button
                 onClick={() => setStatusFilter("available")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "available"
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "available"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                جاهزة للتسليم ({stats.available})
+                {t('vehicles.statusAvailable')} ({stats.available})
               </button>
               <button
                 onClick={() => setStatusFilter("taken")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "taken"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "taken"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                مستخدمة ({stats.taken})
+                {t('vehicles.statusTaken')} ({stats.taken})
               </button>
               <button
                 onClick={() => setStatusFilter("problem")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "problem"
-                    ? "bg-orange-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "problem"
+                  ? "bg-orange-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                مشاكل ({stats.problems})
+                {t('vehicles.statusProblem')} ({stats.problems})
               </button>
               <button
                 onClick={() => setStatusFilter("stolen")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "stolen"
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "stolen"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                مسروقة ({stats.stolen})
+                {t('vehicles.statusStolen')} ({stats.stolen})
               </button>
               <button
                 onClick={() => setStatusFilter("breakup")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  statusFilter === "breakup"
-                    ? "bg-gray-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "breakup"
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
-                خارج الخدمة ({stats.breakup})
+                {t('vehicles.statusBreakup')} ({stats.breakup})
               </button>
             </div>
 
@@ -290,7 +286,7 @@ export default function VehiclesWithRidersPage() {
               />
               <input
                 type="text"
-                placeholder="البحث برقم اللوحة، الرقم التسلسلي، النوع، اسم المندوب، أو الموقع..."
+                placeholder={t('vehicles.searchPlaceholderManage')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -302,18 +298,18 @@ export default function VehiclesWithRidersPage() {
         {/* Vehicles Grid */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            نتائج البحث ({filteredVehicles.length})
+            {t('common.results')} ({filteredVehicles.length})
           </h3>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+              <p className="mt-4 text-gray-600">{t('common.loading')}</p>
             </div>
           ) : filteredVehicles.length === 0 ? (
             <div className="text-center py-12">
               <Car className="mx-auto text-gray-400 mb-4" size={48} />
-              <p className="text-gray-600">لا توجد نتائج تطابق معايير البحث</p>
+              <p className="text-gray-600">{t('common.noResults')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -387,7 +383,7 @@ export default function VehiclesWithRidersPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-700">
                         <Package size={14} />
-                        <span className="text-gray-600">تسلسلي:</span>
+                        <span className="text-gray-600">{t('vehicles.serialNumber')}:</span>
                         <span className="font-medium">
                           {vehicle.serialNumber}
                         </span>
@@ -395,7 +391,7 @@ export default function VehiclesWithRidersPage() {
 
                       <div className="flex items-center gap-2 text-gray-700">
                         <Car size={14} />
-                        <span className="text-gray-600">رقم المركبة:</span>
+                        <span className="text-gray-600">{t('vehicles.vehicleNumber')}:</span>
                         <span className="font-medium">
                           {vehicle.vehicleNumber}
                         </span>
@@ -429,7 +425,7 @@ export default function VehiclesWithRidersPage() {
                           <div className="flex items-center gap-2 mb-2">
                             <User size={14} className="text-green-600" />
                             <span className="font-bold text-green-800 text-xs">
-                              المندوب الحالي
+                              {t('vehicles.currentRider')}
                             </span>
                           </div>
                           <div className="space-y-1">
@@ -437,10 +433,10 @@ export default function VehiclesWithRidersPage() {
                               <strong>{vehicle.currentRider.riderName}</strong>
                             </p>
                             <p className="text-xs text-gray-600">
-                              إقامة: {vehicle.currentRider.employeeIqamaNo}
+                              {t('vehicles.iqama')}: {vehicle.currentRider.employeeIqamaNo}
                             </p>
                             <p className="text-xs text-gray-600">
-                              منذ:{" "}
+                              {t('vehicles.since')}:{" "}
                               {new Date(
                                 vehicle.currentRider.takenDate
                               ).toLocaleDateString("en-US")}
@@ -452,7 +448,7 @@ export default function VehiclesWithRidersPage() {
                       {vehicle.statusSince && (
                         <div className="flex items-center gap-2 text-gray-700 mt-2">
                           <Calendar size={14} />
-                          <span className="text-gray-600">الحالة منذ:</span>
+                          <span className="text-gray-600">{t('vehicles.statusSince')}:</span>
                           <span className="text-xs font-medium">
                             {new Date(vehicle.statusSince).toLocaleDateString(
                               "en-US"
@@ -473,7 +469,7 @@ export default function VehiclesWithRidersPage() {
                         className="w-full"
                       >
                         <Eye size={16} className="ml-2" />
-                        عرض التفاصيل
+                        {t('vehicles.viewDetails')}
                       </Button>
                     </div>
                   </div>

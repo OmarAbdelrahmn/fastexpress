@@ -1,45 +1,51 @@
+'use client';
+
+import { useLanguage } from '@/lib/context/LanguageContext';
+
 /**
  * StatusBadge Component
- * Displays employee/rider status with appropriate colors and Arabic labels
+ * Displays employee/rider status with appropriate colors and labels
  * 
  * Status Colors:
- * - enable (نشط): Green - Active/Working
- * - disable (غير نشط): Red - Inactive
- * - fleeing (هارب): Dark Red/Crimson - Critical situation
- * - vacation (إجازة): Blue - Temporary absence
- * - accident (حادث): Orange - Medical leave due to accident
- * - sick (مريض): Yellow/Amber - Medical leave due to illness
+ * - enable (Active): Green - Active/Working
+ * - disable (Inactive): Red - Inactive
+ * - fleeing (Fleeing): Dark Red/Crimson - Critical situation
+ * - vacation (On Vacation): Blue - Temporary absence
+ * - accident (Accident): Orange - Medical leave due to accident
+ * - sick (Sick): Yellow/Amber - Medical leave due to illness
  */
 
 export default function StatusBadge({ status }) {
+    const { t } = useLanguage();
+
     const statusConfig = {
         enable: {
-            label: 'نشط',
+            labelKey: 'status.enable',
             bgColor: 'bg-green-100',
             textColor: 'text-green-800',
         },
         disable: {
-            label: 'غير نشط',
+            labelKey: 'status.disable',
             bgColor: 'bg-red-100',
             textColor: 'text-red-800',
         },
         fleeing: {
-            label: 'هارب',
+            labelKey: 'status.fleeing',
             bgColor: 'bg-rose-100',
             textColor: 'text-rose-800',
         },
         vacation: {
-            label: 'إجازة',
+            labelKey: 'status.vacation',
             bgColor: 'bg-blue-100',
             textColor: 'text-blue-800',
         },
         accident: {
-            label: 'حادث',
+            labelKey: 'status.accident',
             bgColor: 'bg-orange-100',
             textColor: 'text-orange-800',
         },
         sick: {
-            label: 'مريض',
+            labelKey: 'status.sick',
             bgColor: 'bg-yellow-100',
             textColor: 'text-yellow-800',
         },
@@ -49,7 +55,8 @@ export default function StatusBadge({ status }) {
 
     return (
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}>
-            {config.label}
+            {t(config.labelKey)}
         </span>
     );
 }
+

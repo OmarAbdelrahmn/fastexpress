@@ -34,8 +34,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function HousingPeriodPage() {
+  const { t, language } = useLanguage();
   const [reportData, setReportData] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState("");
@@ -84,11 +86,11 @@ export default function HousingPeriodPage() {
         }
       );
       setReportData(data);
-      setSuccessMessage("تم جلب تقرير المقارنة بنجاح");
+      setSuccessMessage(t('reports.housing.fetchSuccess'));
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       console.error("Error fetching housing riders comparison:", err);
-      setError(err.message || "فشل تحميل التقرير");
+      setError(err.message || t('reports.housing.fetchError'));
     } finally {
       setLoading(false);
     }
@@ -105,8 +107,8 @@ export default function HousingPeriodPage() {
       value > 0
         ? "text-green-600"
         : value < 0
-        ? "text-red-600"
-        : "text-gray-600";
+          ? "text-red-600"
+          : "text-gray-600";
     const sign = value > 0 ? "+" : "";
     return (
       <span className={`${color} font-semibold`}>
@@ -139,15 +141,15 @@ export default function HousingPeriodPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="تقرير مقارنة الإسكان والمناديب"
-        subtitle="مقارنة شاملة لأداء الإسكان والمناديب بين فترتين زمنيتين"
+        title={t('reports.housing.riderCompareTitle')}
+        subtitle={t('reports.housing.riderCompareSubtitle')}
         icon={Home}
       />
 
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('reports.housing.successTitle')}
           message={successMessage}
           onClose={() => setSuccessMessage("")}
         />
@@ -156,18 +158,18 @@ export default function HousingPeriodPage() {
       {error && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('reports.housing.errorTitle')}
           message={error}
           onClose={() => setError("")}
         />
       )}
 
       {/* Form */}
-      <Card title="اختيار الفترات للمقارنة">
+      <Card title={t('reports.housing.selectPeriodsTitle')}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              اسم الإسكان
+              {t('reports.housing.housingName')}
             </label>
             <select
               value={form.housingName}
@@ -178,7 +180,7 @@ export default function HousingPeriodPage() {
               disabled={loadingHousing}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
-              <option value="">اختر الإسكان</option>
+              <option value="">{t('reports.housing.selectHousing')}</option>
               {housingList.map((housing) => (
                 <option key={housing.id} value={housing.name}>
                   {housing.name}
@@ -191,11 +193,11 @@ export default function HousingPeriodPage() {
             {/* Period 1 */}
             <div className="border rounded-lg p-4 bg-blue-50">
               <h3 className="text-lg font-semibold mb-3 text-blue-900">
-                الفترة الأولى
+                {t('reports.housing.period1')}
               </h3>
               <div className="space-y-3">
                 <Input
-                  label="تاريخ البداية"
+                  label={t('reports.housing.startDate')}
                   type="date"
                   value={form.period1Start}
                   onChange={(e) =>
@@ -204,7 +206,7 @@ export default function HousingPeriodPage() {
                   required
                 />
                 <Input
-                  label="تاريخ النهاية"
+                  label={t('reports.housing.endDate')}
                   type="date"
                   value={form.period1End}
                   onChange={(e) =>
@@ -218,11 +220,11 @@ export default function HousingPeriodPage() {
             {/* Period 2 */}
             <div className="border rounded-lg p-4 bg-green-50">
               <h3 className="text-lg font-semibold mb-3 text-green-900">
-                الفترة الثانية
+                {t('reports.housing.period2')}
               </h3>
               <div className="space-y-3">
                 <Input
-                  label="تاريخ البداية"
+                  label={t('reports.housing.startDate')}
                   type="date"
                   value={form.period2Start}
                   onChange={(e) =>
@@ -231,7 +233,7 @@ export default function HousingPeriodPage() {
                   required
                 />
                 <Input
-                  label="تاريخ النهاية"
+                  label={t('reports.housing.endDate')}
                   type="date"
                   value={form.period2End}
                   onChange={(e) =>
@@ -244,7 +246,7 @@ export default function HousingPeriodPage() {
           </div>
 
           <Button type="submit" loading={loading} className="w-full">
-            عرض المقارنة
+            {t('reports.housing.showComparison')}
           </Button>
         </form>
       </Card>
@@ -258,7 +260,7 @@ export default function HousingPeriodPage() {
               <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <AlertCircle className="text-purple-500" size={24} />
-                  رؤى وملاحظات
+                  {t('reports.housing.insightsNotes')}
                 </h3>
                 <ul className="space-y-2">
                   {reportData.insights.map((insight, index) => (
@@ -273,13 +275,13 @@ export default function HousingPeriodPage() {
 
           {/* Comparison Overview */}
           {reportData.comparison && (
-            <Card title="نظرة عامة على المقارنة">
+            <Card title={t('reports.housing.overviewTitle')}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Daily Orders */}
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      الطلبات اليومية
+                      {t('reports.housing.dailyOrders')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.dailyOrdersChangePercent
@@ -292,7 +294,7 @@ export default function HousingPeriodPage() {
                         : ""}
                       {reportData.comparison.dailyOrdersDifference}
                     </span>
-                    <span className="text-lg text-gray-600">طلب</span>
+                    <span className="text-lg text-gray-600">{t('reports.housing.order')}</span>
                   </div>
                   <div className="text-lg">
                     {renderChangePercent(
@@ -305,7 +307,7 @@ export default function HousingPeriodPage() {
                 <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      الطلبات المكتملة
+                      {t('reports.housing.completedOrders')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.completedOrdersChangePercent
@@ -318,7 +320,7 @@ export default function HousingPeriodPage() {
                         : ""}
                       {reportData.comparison.completedOrdersDifference}
                     </span>
-                    <span className="text-lg text-gray-600">طلب</span>
+                    <span className="text-lg text-gray-600">{t('reports.housing.order')}</span>
                   </div>
                   <div className="text-lg">
                     {renderChangePercent(
@@ -331,7 +333,7 @@ export default function HousingPeriodPage() {
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      معدل الإكمال
+                      {t('reports.housing.completionRate')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.completionRateChangePercent
@@ -359,7 +361,7 @@ export default function HousingPeriodPage() {
                 <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      عدد المناديب
+                      {t('reports.housing.riderCount')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.riderCountChangePercent
@@ -372,7 +374,7 @@ export default function HousingPeriodPage() {
                         : ""}
                       {reportData.comparison.riderCountDifference}
                     </span>
-                    <span className="text-lg text-gray-600">مندوب</span>
+                    <span className="text-lg text-gray-600">{t('reports.housing.rider')}</span>
                   </div>
                   <div className="text-lg">
                     {renderChangePercent(
@@ -385,7 +387,7 @@ export default function HousingPeriodPage() {
                 <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      الطلبات المرفوضة
+                      {t('reports.housing.rejectedOrders')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.rejectionRateChangePercent * -1
@@ -398,7 +400,7 @@ export default function HousingPeriodPage() {
                         : ""}
                       {reportData.comparison.rejectedOrdersDifference}
                     </span>
-                    <span className="text-lg text-gray-600">طلب</span>
+                    <span className="text-lg text-gray-600">{t('reports.housing.order')}</span>
                   </div>
                   <div className="text-lg">
                     {renderChangePercent(
@@ -411,7 +413,7 @@ export default function HousingPeriodPage() {
                 <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-200 rounded-xl p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-base font-medium text-gray-700">
-                      مساهمة الإسكان
+                      {t('reports.housing.housingContribution')}
                     </span>
                     {renderTrendIcon(
                       reportData.comparison.housingContributionDifference
@@ -440,7 +442,7 @@ export default function HousingPeriodPage() {
               <Card>
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-lg -mt-6 -mx-6 mb-6">
                   <h2 className="text-2xl font-bold text-white">
-                    الفترة الأولى - التفاصيل
+                    {t('reports.housing.period1DetailsHeader')}
                   </h2>
                   <p className="text-blue-100">
                     {form.period1Start} - {form.period1End}
@@ -454,7 +456,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <Users className="text-blue-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          الطلبات اليومية
+                          {t('reports.housing.dailyOrders')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-blue-600">
@@ -465,7 +467,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <CheckCircle className="text-green-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          مكتمل
+                          {t('reports.housing.completed')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-green-600">
@@ -476,7 +478,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <XCircle className="text-red-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          مرفوض
+                          {t('reports.housing.rejected')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-red-600">
@@ -487,7 +489,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <TrendingUp className="text-purple-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          معدل الإكمال
+                          {t('reports.housing.completionRate')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-purple-600">
@@ -499,14 +501,14 @@ export default function HousingPeriodPage() {
                   {/* Additional Metrics */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                      <p className="text-sm text-gray-600 mb-1">عدد المناديب</p>
+                      <p className="text-sm text-gray-600 mb-1">{t('reports.housing.riderCount')}</p>
                       <p className="text-2xl font-bold text-yellow-600">
                         {reportData.period1Breakdown.riderCount}
                       </p>
                     </div>
                     <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        متوسط الطلبات/مندوب
+                        {t('reports.housing.avgOrdersPerRiderLabel')}
                       </p>
                       <p className="text-2xl font-bold text-orange-600">
                         {reportData.period1Breakdown.averageOrdersPerRider}
@@ -514,7 +516,7 @@ export default function HousingPeriodPage() {
                     </div>
                     <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        الطلبات الإشكالية
+                        {t('reports.housing.problematicOrdersLabel')}
                       </p>
                       <p className="text-2xl font-bold text-pink-600">
                         {reportData.period1Breakdown.problematicOrdersCount}
@@ -522,7 +524,7 @@ export default function HousingPeriodPage() {
                     </div>
                     <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        مساهمة الإسكان
+                        {t('reports.housing.housingContribution')}
                       </p>
                       <p className="text-2xl font-bold text-indigo-600">
                         {reportData.period1Breakdown.housingContribution}%
@@ -538,7 +540,7 @@ export default function HousingPeriodPage() {
                         <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <BarChart3 className="text-blue-500" />
-                            الطلبات حسب المندوب
+                            {t('reports.housing.ordersByRider')}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <BarChart
@@ -559,12 +561,12 @@ export default function HousingPeriodPage() {
                               <Bar
                                 dataKey="completed"
                                 fill="#10b981"
-                                name="مكتمل"
+                                name={t('reports.housing.completed')}
                               />
                               <Bar
                                 dataKey="rejected"
                                 fill="#ef4444"
-                                name="مرفوض"
+                                name={t('reports.housing.rejected')}
                               />
                             </BarChart>
                           </ResponsiveContainer>
@@ -573,20 +575,20 @@ export default function HousingPeriodPage() {
                         {/* Pie Chart - Completion Rate */}
                         <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
                           <h3 className="text-lg font-semibold mb-4">
-                            توزيع الطلبات
+                            {t('reports.housing.ordersDistribution')}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                               <Pie
                                 data={[
                                   {
-                                    name: "مكتمل",
+                                    name: t('reports.housing.completed'),
                                     value:
                                       reportData.period1Breakdown
                                         .completedOrdersCount,
                                   },
                                   {
-                                    name: "مرفوض",
+                                    name: t('reports.housing.rejected'),
                                     value:
                                       reportData.period1Breakdown
                                         .rejectedOrdersCount,
@@ -617,7 +619,7 @@ export default function HousingPeriodPage() {
                     <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
                       <div className="bg-blue-500 px-6 py-3">
                         <h4 className="text-lg font-semibold text-white">
-                          تفاصيل المناديب
+                          {t('reports.housing.riderDetails')}
                         </h4>
                       </div>
                       <div className="overflow-x-auto">
@@ -625,22 +627,22 @@ export default function HousingPeriodPage() {
                           <thead className="bg-gray-50">
                             <tr>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                المندوب
+                                {t('reports.housing.riderColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                الورديات
+                                {t('reports.housing.shiftsColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                ساعات العمل
+                                {t('reports.housing.workingHoursColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                مكتمل
+                                {t('reports.housing.completed')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                مرفوض
+                                {t('reports.housing.rejected')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                المعدل
+                                {t('reports.housing.rateColumn')}
                               </th>
                             </tr>
                           </thead>
@@ -678,13 +680,12 @@ export default function HousingPeriodPage() {
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                        rider.completionRate >= 90
-                                          ? "bg-green-100 text-green-700"
-                                          : rider.completionRate >= 70
+                                      className={`px-3 py-1 rounded-full text-sm font-bold ${rider.completionRate >= 90
+                                        ? "bg-green-100 text-green-700"
+                                        : rider.completionRate >= 70
                                           ? "bg-yellow-100 text-yellow-700"
                                           : "bg-red-100 text-red-700"
-                                      }`}
+                                        }`}
                                     >
                                       {rider.completionRate}%
                                     </span>
@@ -706,7 +707,7 @@ export default function HousingPeriodPage() {
               <Card>
                 <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-t-lg -mt-6 -mx-6 mb-6">
                   <h2 className="text-2xl font-bold text-white">
-                    الفترة الثانية - التفاصيل
+                    {t('reports.housing.period2DetailsTitle')}
                   </h2>
                   <p className="text-green-100">
                     {form.period2Start} - {form.period2End}
@@ -720,7 +721,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <Users className="text-blue-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          الطلبات اليومية
+                          {t('reports.housing.dailyOrders')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-blue-600">
@@ -731,7 +732,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <CheckCircle className="text-green-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          مكتمل
+                          {t('reports.housing.completed')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-green-600">
@@ -742,7 +743,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <XCircle className="text-red-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          مرفوض
+                          {t('reports.housing.rejected')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-red-600">
@@ -753,7 +754,7 @@ export default function HousingPeriodPage() {
                       <div className="flex items-center gap-3 mb-2">
                         <TrendingUp className="text-purple-500" size={24} />
                         <span className="text-sm font-medium text-gray-700">
-                          معدل الإكمال
+                          {t('reports.housing.completionRate')}
                         </span>
                       </div>
                       <p className="text-4xl font-bold text-purple-600">
@@ -765,14 +766,14 @@ export default function HousingPeriodPage() {
                   {/* Additional Metrics */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                      <p className="text-sm text-gray-600 mb-1">عدد المناديب</p>
+                      <p className="text-sm text-gray-600 mb-1">{t('reports.housing.riderCount')}</p>
                       <p className="text-2xl font-bold text-yellow-600">
                         {reportData.period2Breakdown.riderCount}
                       </p>
                     </div>
                     <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        متوسط الطلبات/مندوب
+                        {t('reports.housing.avgOrdersPerRiderLabel')}
                       </p>
                       <p className="text-2xl font-bold text-orange-600">
                         {reportData.period2Breakdown.averageOrdersPerRider}
@@ -780,7 +781,7 @@ export default function HousingPeriodPage() {
                     </div>
                     <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        الطلبات الإشكالية
+                        {t('reports.housing.problematicOrdersLabel')}
                       </p>
                       <p className="text-2xl font-bold text-pink-600">
                         {reportData.period2Breakdown.problematicOrdersCount}
@@ -788,7 +789,7 @@ export default function HousingPeriodPage() {
                     </div>
                     <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                       <p className="text-sm text-gray-600 mb-1">
-                        مساهمة الإسكان
+                        {t('reports.housing.housingContribution')}
                       </p>
                       <p className="text-2xl font-bold text-indigo-600">
                         {reportData.period2Breakdown.housingContribution}%
@@ -804,7 +805,7 @@ export default function HousingPeriodPage() {
                         <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <BarChart3 className="text-green-500" />
-                            الطلبات حسب المندوب
+                            {t('reports.housing.ordersByRider')}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <BarChart
@@ -825,12 +826,12 @@ export default function HousingPeriodPage() {
                               <Bar
                                 dataKey="completed"
                                 fill="#10b981"
-                                name="مكتمل"
+                                name={t('reports.housing.completed')}
                               />
                               <Bar
                                 dataKey="rejected"
                                 fill="#ef4444"
-                                name="مرفوض"
+                                name={t('reports.housing.rejected')}
                               />
                             </BarChart>
                           </ResponsiveContainer>
@@ -839,20 +840,20 @@ export default function HousingPeriodPage() {
                         {/* Pie Chart - Completion Rate */}
                         <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
                           <h3 className="text-lg font-semibold mb-4">
-                            توزيع الطلبات
+                            {t('reports.housing.ordersDistribution')}
                           </h3>
                           <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                               <Pie
                                 data={[
                                   {
-                                    name: "مكتمل",
+                                    name: t('reports.housing.completed'),
                                     value:
                                       reportData.period2Breakdown
                                         .completedOrdersCount,
                                   },
                                   {
-                                    name: "مرفوض",
+                                    name: t('reports.housing.rejected'),
                                     value:
                                       reportData.period2Breakdown
                                         .rejectedOrdersCount,
@@ -883,7 +884,7 @@ export default function HousingPeriodPage() {
                     <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
                       <div className="bg-green-500 px-6 py-3">
                         <h4 className="text-lg font-semibold text-white">
-                          تفاصيل المناديب
+                          {t('reports.housing.riderDetails')}
                         </h4>
                       </div>
                       <div className="overflow-x-auto">
@@ -891,22 +892,22 @@ export default function HousingPeriodPage() {
                           <thead className="bg-gray-50">
                             <tr>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                المندوب
+                                {t('reports.housing.riderColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                الورديات
+                                {t('reports.housing.shiftsColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                ساعات العمل
+                                {t('reports.housing.workingHoursColumn')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                مكتمل
+                                {t('reports.housing.completed')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                مرفوض
+                                {t('reports.housing.rejected')}
                               </th>
                               <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                                المعدل
+                                {t('reports.housing.rateColumn')}
                               </th>
                             </tr>
                           </thead>
@@ -944,13 +945,12 @@ export default function HousingPeriodPage() {
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <span
-                                      className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                        rider.completionRate >= 90
-                                          ? "bg-green-100 text-green-700"
-                                          : rider.completionRate >= 70
+                                      className={`px-3 py-1 rounded-full text-sm font-bold ${rider.completionRate >= 90
+                                        ? "bg-green-100 text-green-700"
+                                        : rider.completionRate >= 70
                                           ? "bg-yellow-100 text-yellow-700"
                                           : "bg-red-100 text-red-700"
-                                      }`}
+                                        }`}
                                     >
                                       {rider.completionRate}%
                                     </span>

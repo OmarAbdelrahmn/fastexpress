@@ -9,10 +9,12 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Home, Save, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 function HousingCreateForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const editHousingName = searchParams.get('edit');
   const isEditMode = !!editHousingName;
 
@@ -46,7 +48,7 @@ function HousingCreateForm() {
       });
     } catch (err) {
       console.error('Error loading housing:', err);
-      setErrorMessage('حدث خطأ في تحميل بيانات السكن');
+      setErrorMessage(t('housing.loadError'));
     } finally {
       setLoading(false);
     }
@@ -67,23 +69,21 @@ function HousingCreateForm() {
 
     try {
       if (isEditMode) {
-        // PUT /api/Housing/{name}
         await ApiService.put(`/api/housing/${editHousingName}`, {
           name: formData.name,
           address: formData.address,
           capacity: parseInt(formData.capacity),
           managerIqamaNo: formData.managerIqamaNo,
         });
-        setSuccessMessage('تم تحديث بيانات السكن بنجاح');
+        setSuccessMessage(t('housing.updateSuccess'));
       } else {
-        // POST /api/Housing
         await ApiService.post('/api/housing', {
           name: formData.name,
           address: formData.address,
           capacity: parseInt(formData.capacity),
           managerIqamaNo: formData.managerIqamaNo,
         });
-        setSuccessMessage('تم إضافة السكن بنجاح');
+        setSuccessMessage(t('housing.createSuccess'));
       }
 
       setTimeout(() => {
@@ -92,11 +92,11 @@ function HousingCreateForm() {
     } catch (err) {
       console.error('Error saving housing:', err);
       if (err?.status === 409) {
-        setErrorMessage('هذا السكن موجود بالفعل. الرجاء استخدام اسم مختلف.');
+        setErrorMessage(t('housing.duplicateError') || 'This housing already exists. Please use a different name.');
       } else if (err?.status === 400) {
-        setErrorMessage('بيانات غير صحيحة. الرجاء التحقق من المدخلات.');
+        setErrorMessage(t('errors.generalError'));
       } else {
-        setErrorMessage(err?.message || 'حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.');
+        setErrorMessage(err?.message || t('errors.generalError'));
       }
     } finally {
       setLoading(false);
@@ -106,11 +106,11 @@ function HousingCreateForm() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isEditMode ? 'تعديل بيانات السكن' : 'إضافة سكن جديد'}
-        subtitle={isEditMode ? 'تعديل معلومات السكن الحالي' : 'أدخل معلومات السكن الجديد'}
+        title={isEditMode ? t('housing.editHousing') : t('housing.addHousing')}
+        subtitle={isEditMode ? t('housing.editHousing') : t('housing.createHousing')}
         icon={Home}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('common.back'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/housing/manage'),
           variant: 'secondary'
@@ -120,7 +120,7 @@ function HousingCreateForm() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -129,7 +129,7 @@ function HousingCreateForm() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجاح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -139,43 +139,43 @@ function HousingCreateForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              label="اسم السكن"
+              label={t('housing.housingName')}
               type="text"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
               required
-              placeholder="أدخل اسم السكن"
+              placeholder={t('housing.housingName')}
             />
 
             <Input
-              label="رقم إقامة المدير"
+              label={t('housing.managerIqama')}
               type="text"
               name="managerIqamaNo"
               value={formData.managerIqamaNo}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم إقامة المدير"
+              placeholder={t('housing.managerIqama')}
             />
 
             <Input
-              label="العنوان"
+              label={t('housing.address')}
               type="text"
               name="address"
               value={formData.address}
               onChange={handleInputChange}
               required
-              placeholder="أدخل العنوان"
+              placeholder={t('housing.address')}
             />
 
             <Input
-              label="السعة"
+              label={t('housing.capacity')}
               type="number"
               name="capacity"
               value={formData.capacity}
               onChange={handleInputChange}
               required
-              placeholder="أدخل السعة"
+              placeholder={t('housing.capacity')}
               min="1"
             />
           </div>
@@ -187,11 +187,11 @@ function HousingCreateForm() {
               onClick={() => router.push('/housing/manage')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              {isEditMode ? 'حفظ التعديلات' : 'إضافة السكن'}
+              {isEditMode ? t('common.save') : t('housing.addHousing')}
             </Button>
           </div>
         </form>
@@ -201,8 +201,9 @@ function HousingCreateForm() {
 }
 
 export default function HousingCreatePage() {
+  const { t } = useLanguage();
   return (
-    <Suspense fallback={<div className="p-6">جاري التحميل...</div>}>
+    <Suspense fallback={<div className="p-6">{t('common.loading')}</div>}>
       <HousingCreateForm />
     </Suspense>
   );

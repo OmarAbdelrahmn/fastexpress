@@ -9,10 +9,12 @@ import Alert from "@/components/Ui/Alert";
 import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { UserPlus, Save, ArrowRight, Home, Users } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 
 export default function HousingAddEmployeePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [loadingHousings, setLoadingHousings] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,7 +36,7 @@ export default function HousingAddEmployeePage() {
       setHousings(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading housings:", err);
-      setErrorMessage("حدث خطأ في تحميل قائمة السكنات");
+      setErrorMessage(t("housing.loadError"));
     } finally {
       setLoadingHousings(false);
     }
@@ -59,22 +61,20 @@ export default function HousingAddEmployeePage() {
         null
       );
 
-      setSuccessMessage("تم إضافة الموظف إلى السكن بنجاح");
+      setSuccessMessage(t("housing.addToHousingSuccess"));
       setTimeout(() => {
         router.push(`/housing/manage`);
       }, 1500);
     } catch (err) {
       console.error("Error adding employee to housing:", err);
       if (err?.status === 404) {
-        setErrorMessage("الموظف أو السكن غير موجود");
+        setErrorMessage(t("errors.generalError"));
       } else if (err?.status === 400) {
-        setErrorMessage("بيانات غير صحيحة. الرجاء التحقق من المدخلات.");
+        setErrorMessage(t("errors.generalError"));
       } else if (err?.status === 409) {
-        setErrorMessage("الموظف موجود بالفعل في سكن آخر");
+        setErrorMessage(t("housing.addToHousingError"));
       } else {
-        setErrorMessage(
-          err?.message || "حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى."
-        );
+        setErrorMessage(err?.message || t("errors.generalError"));
       }
     } finally {
       setLoading(false);
@@ -84,11 +84,11 @@ export default function HousingAddEmployeePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إضافة موظف إلى سكن"
-        subtitle="قم بإضافة موظف إلى السكن المحدد"
+        title={t("housing.addEmployee")}
+        subtitle={t("housing.addEmployee")}
         icon={UserPlus}
         actionButton={{
-          text: "العودة للقائمة",
+          text: t("common.back"),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push(`housing/manage`),
           variant: "secondary",
@@ -98,7 +98,7 @@ export default function HousingAddEmployeePage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t("common.error")}
           message={errorMessage}
           onClose={() => setErrorMessage("")}
         />
@@ -107,7 +107,7 @@ export default function HousingAddEmployeePage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجاح"
+          title={t("common.success")}
           message={successMessage}
           onClose={() => setSuccessMessage("")}
         />
@@ -119,7 +119,7 @@ export default function HousingAddEmployeePage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-blue-600 mb-1">
-                إجمالي السكنات الجاهزة للتسليم
+                {t("housing.totalHousing")}
               </p>
               <p className="text-3xl font-bold text-blue-700">
                 {housings.length}
@@ -133,7 +133,7 @@ export default function HousingAddEmployeePage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-600 mb-1">
-                إجمالي السعة الجاهزة للتسليم
+                {t("housing.availableSpaces")}
               </p>
               <p className="text-3xl font-bold text-green-700">
                 {housings.reduce(
@@ -159,10 +159,10 @@ export default function HousingAddEmployeePage() {
                 <UserPlus className="text-blue-600 mt-1" size={24} />
                 <div>
                   <h3 className="font-semibold text-blue-800 mb-1">
-                    معلومات الموظف
+                    {t("employees.title")}
                   </h3>
                   <p className="text-sm text-blue-600">
-                    الرجاء إدخال رقم إقامة الموظف واختيار السكن المناسب
+                    {t("housing.addEmployee")}
                   </p>
                 </div>
               </div>
@@ -170,18 +170,18 @@ export default function HousingAddEmployeePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
-                label="رقم الإقامة"
+                label={t("employees.iqamaNumber")}
                 type="text"
                 name="iqamaNo"
                 value={formData.iqamaNo}
                 onChange={handleInputChange}
                 required
-                placeholder="أدخل رقم إقامة الموظف"
+                placeholder={t("employees.enterIqamaNumber")}
               />
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  اسم السكن <span className="text-red-500">*</span>
+                  {t("housing.housingName")} <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="housingName"
@@ -190,13 +190,13 @@ export default function HousingAddEmployeePage() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
-                  <option value="">اختر السكن</option>
+                  <option value="">{t("housing.selectHousing")}</option>
                   {housings.map((housing) => (
                     <option key={housing.name} value={housing.name}>
-                      {housing.name} - السعة: {housing.employees.length || 0}/
+                      {housing.name} - {t("housing.capacity")}: {housing.employees.length || 0}/
                       {housing.capacity}
                       {housing.employees.length >= housing.capacity &&
-                        " (ممتلئ)"}
+                        ` (${t("housing.full")})`}
                     </option>
                   ))}
                 </select>
@@ -206,12 +206,12 @@ export default function HousingAddEmployeePage() {
             {formData.housingName && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-gray-800 mb-3">
-                  معلومات السكن المحدد
+                  {t("common.details")}
                 </h3>
                 {housings.find((h) => h.name === formData.housingName) && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">العنوان</p>
+                      <p className="text-sm text-gray-600 mb-1">{t("housing.address")}</p>
                       <p className="font-medium text-gray-800">
                         {
                           housings.find((h) => h.name === formData.housingName)
@@ -220,7 +220,7 @@ export default function HousingAddEmployeePage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">السعة الكلية</p>
+                      <p className="text-sm text-gray-600 mb-1">{t("housing.totalCapacity")}</p>
                       <p className="font-medium text-gray-800">
                         {
                           housings.find((h) => h.name === formData.housingName)
@@ -230,17 +230,16 @@ export default function HousingAddEmployeePage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600 mb-1">
-                        الإشغال الحالي
+                        {t("housing.currentOccupancy")}
                       </p>
                       <p
-                        className={`font-medium ${
-                          housings.find((h) => h.name === formData.housingName)
+                        className={`font-medium ${housings.find((h) => h.name === formData.housingName)
                             .employees.length >=
-                          housings.find((h) => h.name === formData.housingName)
-                            .capacity
+                            housings.find((h) => h.name === formData.housingName)
+                              .capacity
                             ? "text-red-600"
                             : "text-green-600"
-                        }`}
+                          }`}
                       >
                         {housings.find((h) => h.name === formData.housingName)
                           .employees.length || 0}{" "}
@@ -263,11 +262,11 @@ export default function HousingAddEmployeePage() {
                 onClick={() => router.push(`/housing/manage`)}
                 disabled={loading}
               >
-                إلغاء
+                {t("common.cancel")}
               </Button>
               <Button type="submit" loading={loading} disabled={loading}>
                 <Save size={18} className="ml-2" />
-                إضافة الموظف
+                {t("housing.addEmployee")}
               </Button>
             </div>
           </form>

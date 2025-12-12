@@ -1,10 +1,11 @@
 export const i18nConfig = {
-  locales: ['ar', 'en'],
+  locales: ['ar', 'en', 'bn'],
   defaultLocale: 'ar',
   localeDetection: false
 };
 
 export const localeNames = {
   ar: 'العربية',
-  en: 'English'
+  en: 'English',
+  bn: 'বাংলা'
 };

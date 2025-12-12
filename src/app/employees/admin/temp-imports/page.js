@@ -8,10 +8,12 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import { Clock, CheckCircle, XCircle, AlertCircle, User } from 'lucide-react';
 
 export default function TempImportsPage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [processLoading, setProcessLoading] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState([]);
@@ -30,14 +32,14 @@ export default function TempImportsPage() {
       setPendingUpdates(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading pending updates:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل البيانات المؤقتة');
+      setErrorMessage(err?.message || t('employees.errorLoadingTempData'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleApproveAll = async () => {
-    if (!confirm('هل أنت متأكد من الموافقة على جميع التحديثات؟')) return;
+    if (!confirm(t('employees.confirmApproveAll'))) return;
 
     setProcessLoading(true);
     try {
@@ -45,21 +47,21 @@ export default function TempImportsPage() {
         resolution: 'Approved',
         resolvedBy: 'Admin'
       });
-      
-      setSuccessMessage('تم الموافقة على جميع التحديثات بنجاح');
+
+      setSuccessMessage(t('employees.approveAllSuccess'));
       setTimeout(() => {
-        router.push('/employee/admin');
+        router.push('/employees/admin');
       }, 2000);
     } catch (err) {
       console.error('Error approving updates:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء الموافقة على التحديثات');
+      setErrorMessage(err?.message || t('employees.approveAllError'));
     } finally {
       setProcessLoading(false);
     }
   };
 
   const handleRejectAll = async () => {
-    if (!confirm('هل أنت متأكد من رفض جميع التحديثات؟')) return;
+    if (!confirm(t('employees.confirmRejectAll'))) return;
 
     setProcessLoading(true);
     try {
@@ -67,12 +69,12 @@ export default function TempImportsPage() {
         resolution: 'Rejected',
         resolvedBy: 'Admin'
       });
-      
-      setSuccessMessage('تم رفض جميع التحديثات');
+
+      setSuccessMessage(t('employees.rejectAllSuccess'));
       loadPendingUpdates();
     } catch (err) {
       console.error('Error rejecting updates:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء رفض التحديثات');
+      setErrorMessage(err?.message || t('employees.rejectAllError'));
     } finally {
       setProcessLoading(false);
     }
@@ -82,14 +84,14 @@ export default function TempImportsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="البيانات المؤقتة"
-          subtitle="جاري التحميل..."
+          title={t('employees.tempDataTitle')}
+          subtitle={t('common.loading')}
           icon={Clock}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+            <p className="mt-4 text-gray-600">{t('employees.loadingTempData')}</p>
           </div>
         </Card>
       </div>
@@ -99,24 +101,24 @@ export default function TempImportsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="البيانات المؤقتة من Excel"
-        subtitle={`عدد التحديثات المعلقة: ${pendingUpdates.length}`}
+        title={t('employees.tempDataFromExcel')}
+        subtitle={`${t('employees.pendingUpdatesCount')}: ${pendingUpdates.length}`}
         icon={Clock}
       />
 
       {successMessage && (
-        <Alert 
-          type="success" 
-          title="نجح" 
+        <Alert
+          type="success"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
       )}
 
       {errorMessage && (
-        <Alert 
-          type="error" 
-          title="خطأ" 
+        <Alert
+          type="error"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -127,13 +129,13 @@ export default function TempImportsPage() {
           <div className="text-center py-12">
             <CheckCircle className="mx-auto text-green-500 mb-4" size={64} />
             <h3 className="text-xl font-bold text-gray-800 mb-2">
-              لا توجد تحديثات معلقة
+              {t('employees.noPendingUpdates')}
             </h3>
             <p className="text-gray-600 mb-4">
-              جميع التحديثات تمت معالجتها
+              {t('employees.allUpdatesProcessed')}
             </p>
             <Button onClick={() => router.push('/employees/admin/import-excel')}>
-              استيراد ملف جديد
+              {t('employees.importNewFile')}
             </Button>
           </div>
         </Card>
@@ -149,7 +151,7 @@ export default function TempImportsPage() {
                 disabled={processLoading}
               >
                 <XCircle size={18} className="ml-2" />
-                رفض الكل
+                {t('employees.rejectAll')}
               </Button>
               <Button
                 onClick={handleApproveAll}
@@ -157,7 +159,7 @@ export default function TempImportsPage() {
                 disabled={processLoading}
               >
                 <CheckCircle size={18} className="ml-2" />
-                الموافقة على الكل
+                {t('employees.approveAll')}
               </Button>
             </div>
           </Card>
@@ -168,9 +170,8 @@ export default function TempImportsPage() {
               <Card key={update.id}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-lg ${
-                      update.isNewEmployee ? 'bg-green-100' : 'bg-blue-100'
-                    }`}>
+                    <div className={`p-3 rounded-lg ${update.isNewEmployee ? 'bg-green-100' : 'bg-blue-100'
+                      }`}>
                       <User className={update.isNewEmployee ? 'text-green-600' : 'text-blue-600'} size={24} />
                     </div>
                     <div>
@@ -178,28 +179,27 @@ export default function TempImportsPage() {
                         {update.employeeNameAR} - {update.employeeNameEN}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        رقم الإقامة: {update.iqamaNo}
+                        {t('employees.iqamaNumber')}: {update.iqamaNo}
                       </p>
-                      <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${
-                        update.isNewEmployee 
-                          ? 'bg-green-100 text-green-800' 
+                      <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${update.isNewEmployee
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {update.isNewEmployee ? 'موظف جديد' : 'تحديث بيانات'}
+                        }`}>
+                        {update.isNewEmployee ? t('employees.newEmployee') : t('employees.dataUpdate')}
                       </span>
                     </div>
                   </div>
                   <div className="text-right text-sm text-gray-600">
-                    <p>رفع بواسطة: {update.uploadedBy}</p>
+                    <p>{t('employees.uploadedBy')}: {update.uploadedBy}</p>
                     <p className="text-xs mt-1">
-                      {new Date(update.uploadedAt).toLocaleString('ar-SA')}
+                      {new Date(update.uploadedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
                     </p>
                   </div>
                 </div>
 
                 {update.changes && update.changes.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="font-bold text-gray-700 mb-3">التغييرات المقترحة:</h4>
+                    <h4 className="font-bold text-gray-700 mb-3">{t('employees.proposedChanges')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {update.changes.map((change, idx) => (
                         <div key={idx} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -208,13 +208,13 @@ export default function TempImportsPage() {
                             {change.oldValue && (
                               <>
                                 <span className="bg-red-100 text-red-800 px-2 py-1 rounded">
-                                  القديم: {change.oldValue}
+                                  {t('employees.oldValue')}: {change.oldValue}
                                 </span>
                                 <span>→</span>
                               </>
                             )}
                             <span className="bg-green-100 text-green-800 px-2 py-1 rounded">
-                              {change.oldValue ? 'الجديد: ' : ''}{change.newValue}
+                              {change.oldValue ? `${t('employees.newValue')}: ` : ''}{change.newValue}
                             </span>
                           </div>
                         </div>
@@ -230,14 +230,14 @@ export default function TempImportsPage() {
 
       {/* Information Card */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات إضافية</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('common.additionalInfo')}</h3>
         <div className="space-y-3 text-sm text-gray-600">
           <div className="flex items-start gap-2">
             <div className="bg-blue-100 p-1 rounded mt-0.5">
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>الموافقة:</strong> سيتم حفظ جميع التحديثات في قاعدة البيانات الرئيسية
+              <strong>{t('employees.approve')}:</strong> {t('employees.approvalInfo')}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -245,7 +245,7 @@ export default function TempImportsPage() {
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>الرفض:</strong> سيتم حذف جميع التحديثات المقترحة دون حفظها
+              <strong>{t('employees.reject')}:</strong> {t('employees.rejectionInfo')}
             </p>
           </div>
           <div className="flex items-start gap-2">
@@ -253,7 +253,7 @@ export default function TempImportsPage() {
               <AlertCircle size={14} className="text-blue-600" />
             </div>
             <p>
-              <strong>البيانات الجديدة:</strong> سيتم إنشاء سجلات موظفين جديدة
+              <strong>{t('employees.newEmployee')}:</strong> {t('employees.newDataInfo')}
             </p>
           </div>
         </div>

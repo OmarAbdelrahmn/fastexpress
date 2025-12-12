@@ -10,8 +10,10 @@ import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { UserPlus, ArrowRight, Save } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function CreateEmployeePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -69,16 +71,15 @@ export default function CreateEmployeePage() {
         iban: formData.iban,
         inksa: formData.inksa
       };
-      // console.log('Request Data:', requestData);
       await ApiService.post(API_ENDPOINTS.EMPLOYEE.CREATE, requestData);
 
-      setSuccessMessage('تم إضافة الموظف بنجاح');
+      setSuccessMessage(t('employees.createSuccess'));
       setTimeout(() => {
         router.push('/employees/admin');
       }, 1000);
     } catch (err) {
       console.error('Error creating employee:', err);
-      setErrorMessage(err?.message || 'حدث خطأ أثناء إضافة الموظف');
+      setErrorMessage(err?.message || t('employees.createError'));
     } finally {
       setLoading(false);
     }
@@ -87,11 +88,11 @@ export default function CreateEmployeePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إضافة موظف جديد"
-        subtitle="أدخل بيانات الموظف الكاملة"
+        title={t('employees.addEmployee')}
+        subtitle={t('employees.enterEmployeeData')}
         icon={UserPlus}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/employees/admin'),
           variant: 'secondary'
@@ -101,7 +102,7 @@ export default function CreateEmployeePage() {
       {successMessage && (
         <Alert
           type="success"
-          title="نجح"
+          title={t('common.success')}
           message={successMessage}
           onClose={() => setSuccessMessage('')}
         />
@@ -110,7 +111,7 @@ export default function CreateEmployeePage() {
       {errorMessage && (
         <Alert
           type="error"
-          title="خطأ"
+          title={t('common.error')}
           message={errorMessage}
           onClose={() => setErrorMessage('')}
         />
@@ -119,59 +120,59 @@ export default function CreateEmployeePage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات الشخصية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.personalInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="رقم الإقامة"
+              label={t('employees.iqamaNumber')}
               type="number"
               name="iqamaNo"
               value={formData.iqamaNo}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم الإقامة"
+              placeholder={t('employees.enterIqamaNumber')}
             />
 
             <Input
-              label="الاسم (عربي)"
+              label={t('employees.nameArabic')}
               type="text"
               name="nameAR"
               value={formData.nameAR}
               onChange={handleInputChange}
               required
-              placeholder="أدخل الاسم بالعربي"
+              placeholder={t('employees.enterNameArabic')}
             />
 
             <Input
-              label="الاسم (إنجليزي)"
+              label={t('employees.nameEnglish')}
               type="text"
               name="nameEN"
               value={formData.nameEN}
               onChange={handleInputChange}
               required
-              placeholder="أدخل الاسم بالإنجليزي"
+              placeholder={t('employees.enterNameEnglish')}
             />
 
             <Input
-              label="رقم الجواز"
+              label={t('employees.passportNumber')}
               type="text"
               name="passportNo"
               value={formData.passportNo}
               onChange={handleInputChange}
-              placeholder="أدخل رقم الجواز"
+              placeholder={t('employees.enterPassportNumber')}
             />
 
             <Input
-              label="البلد"
+              label={t('employees.country')}
               type="text"
               name="country"
               value={formData.country}
               onChange={handleInputChange}
               required
-              placeholder="أدخل البلد"
+              placeholder={t('employees.enterCountry')}
             />
 
             <Input
-              label="رقم الهاتف"
+              label={t('common.phone')}
               type="text"
               name="phone"
               value={formData.phone}
@@ -181,7 +182,7 @@ export default function CreateEmployeePage() {
             />
 
             <Input
-              label="تاريخ الميلاد"
+              label={t('employees.dateOfBirth')}
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
@@ -191,7 +192,7 @@ export default function CreateEmployeePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الحالة
+                {t('common.status')}
               </label>
               <select
                 name="status"
@@ -199,12 +200,12 @@ export default function CreateEmployeePage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
-                <option value="enable">نشط</option>
-                <option value="disable">غير نشط</option>
-                <option value="fleeing">هارب</option>
-                <option value="vacation">إجازة</option>
-                <option value="accident">حادث</option>
-                <option value="sick">مريض</option>
+                <option value="enable">{t('status.enable')}</option>
+                <option value="disable">{t('status.disable')}</option>
+                <option value="fleeing">{t('status.fleeing')}</option>
+                <option value="vacation">{t('status.vacation')}</option>
+                <option value="accident">{t('status.accident')}</option>
+                <option value="sick">{t('status.sick')}</option>
               </select>
             </div>
           </div>
@@ -212,10 +213,10 @@ export default function CreateEmployeePage() {
 
         {/* Iqama & Passport Details */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">تفاصيل الإقامة والجواز</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.iqamaPassportDetails')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="تاريخ انتهاء الإقامة (ميلادي)"
+              label={t('employees.iqamaEndDateM')}
               type="date"
               name="iqamaEndM"
               value={formData.iqamaEndM}
@@ -224,10 +225,10 @@ export default function CreateEmployeePage() {
             />
 
             <Input
-              label="تاريخ انتهاء الإقامة (هجري)"
+              label={t('employees.iqamaEndDateH')}
               type="text"
               name="iqamaEndH"
-              placeholder="مثال: 25-01-1425"
+              placeholder={t('employees.iqamaEndDateHExample')}
               value={formData.iqamaEndH}
               onChange={(e) =>
                 setFormData({ ...formData, iqamaEndH: e.target.value })
@@ -237,7 +238,7 @@ export default function CreateEmployeePage() {
             />
 
             <Input
-              label="تاريخ انتهاء الجواز"
+              label={t('employees.passportEndDate')}
               type="date"
               name="passportEnd"
               value={formData.passportEnd}
@@ -248,46 +249,46 @@ export default function CreateEmployeePage() {
 
         {/* Sponsor Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">معلومات الكفالة</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.sponsorInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              label="رقم الكفيل"
+              label={t('employees.sponsorNumber')}
               type="number"
               name="sponsorNo"
               value={formData.sponsorNo}
               onChange={handleInputChange}
               required
-              placeholder="أدخل رقم الكفيل"
+              placeholder={t('employees.enterSponsorNumber')}
             />
 
             <Input
-              label="الكفيل"
+              label={t('employees.sponsor')}
               type="text"
               name="sponsor"
               value={formData.sponsor}
               onChange={handleInputChange}
               required
-              placeholder="أدخل اسم الكفيل"
+              placeholder={t('employees.enterSponsorName')}
             />
 
             <Input
-              label="المسمى الوظيفي"
+              label={t('employees.jobTitle')}
               type="text"
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
               required
-              placeholder="مثال: موظف إداري"
+              placeholder={t('employees.jobTitleExample')}
             />
           </div>
         </Card>
 
         {/* Banking Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">المعلومات البنكية</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.bankingInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
-              label="رقم الآيبان"
+              label={t('employees.iban')}
               type="text"
               name="iban"
               value={formData.iban}
@@ -304,7 +305,7 @@ export default function CreateEmployeePage() {
                 className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
               />
               <label className="text-sm text-gray-700">
-                في السعودية (INKSA)
+                {t('employees.inKSA')}
               </label>
             </div>
           </div>
@@ -319,11 +320,11 @@ export default function CreateEmployeePage() {
               onClick={() => router.push('/employees/admin')}
               disabled={loading}
             >
-              إلغاء
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading} disabled={loading}>
               <Save size={18} className="ml-2" />
-              حفظ الموظف
+              {t('employees.saveEmployee')}
             </Button>
           </div>
         </Card>

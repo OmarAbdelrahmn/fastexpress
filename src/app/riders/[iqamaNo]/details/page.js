@@ -8,25 +8,27 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { 
-  User, 
-  ArrowRight, 
-  Edit, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  CreditCard, 
-  Building, 
+import {
+  User,
+  ArrowRight,
+  Edit,
+  Calendar,
+  MapPin,
+  Phone,
+  CreditCard,
+  Building,
   Package,
   FileText,
   Shield,
   Briefcase
 } from 'lucide-react';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RiderDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -43,15 +45,15 @@ export default function RiderDetailsPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(iqamaNo));
-      
+
       if (data && data.length > 0) {
         setRider(data[0]);
       } else {
-        setErrorMessage('لم يتم العثور على المندوب');
+        setErrorMessage(t('riders.riderNotFound'));
       }
     } catch (err) {
       console.error('Error loading rider details:', err);
-      setErrorMessage(err?.message || 'حدث خطأ في تحميل تفاصيل المندوب');
+      setErrorMessage(err?.message || t('riders.loadDetailsError'));
     } finally {
       setLoading(false);
     }
@@ -61,14 +63,14 @@ export default function RiderDetailsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تفاصيل المندوب"
-          subtitle="جاري التحميل..."
+          title={t('riders.riderDetails')}
+          subtitle={t('common.loading')}
           icon={User}
         />
         <Card>
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">جاري تحميل التفاصيل...</p>
+            <p className="mt-4 text-gray-600">{t('riders.loadingDetails')}</p>
           </div>
         </Card>
       </div>
@@ -79,27 +81,27 @@ export default function RiderDetailsPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="تفاصيل المندوب"
-          subtitle="حدث خطأ"
+          title={t('riders.riderDetails')}
+          subtitle={t('riders.errorOccurred')}
           icon={User}
           actionButton={{
-            text: 'العودة',
+            text: t('common.back'),
             icon: <ArrowRight size={18} />,
             onClick: () => router.back(),
             variant: 'secondary'
           }}
         />
-        <Alert 
-          type="error" 
-          title="خطأ" 
-          message={errorMessage || 'لم يتم العثور على المندوب'}
+        <Alert
+          type="error"
+          title={t('common.error')}
+          message={errorMessage || t('riders.riderNotFound')}
         />
       </div>
     );
   }
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'غير محدد';
+    if (!dateString) return t('profile.notSpecified');
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -111,35 +113,32 @@ export default function RiderDetailsPage() {
     <div className="space-y-6">
       <PageHeader
         title={`${rider.nameAR}`}
-        subtitle={`رقم العمل: ${rider.workingId || 'N/A'} | رقم الإقامة: ${rider.iqamaNo}`}
+        subtitle={`${t('riders.workingId')}: ${rider.workingId || 'N/A'} | ${t('riders.iqamaNumber')}: ${rider.iqamaNo}`}
         icon={User}
         actionButton={{
-          text: 'تعديل',
+          text: t('common.edit'),
           icon: <Edit size={18} />,
           onClick: () => router.push(`/riders/${iqamaNo}/edit`)
         }}
       />
 
       {/* Status Banner */}
-      <div className={`p-6 rounded-lg ${
-        rider.status === 'enable' 
-          ? 'bg-green-50 border-r-4 border-green-500' 
+      <div className={`p-6 rounded-lg ${rider.status === 'enable'
+          ? 'bg-green-50 border-r-4 border-green-500'
           : 'bg-red-50 border-r-4 border-red-500'
-      }`}>
+        }`}>
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${
-            rider.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
-          }`}>
+          <div className={`p-3 rounded-xl ${rider.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
+            }`}>
             <Shield className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={32} />
           </div>
           <div>
-            <h2 className={`text-2xl font-bold ${
-              rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
-            }`}>
-              {rider.status === 'enable' ? 'مندوب نشط' : 'غير نشط'}
+            <h2 className={`text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
+              }`}>
+              {rider.status === 'enable' ? t('riders.activeRider') : t('riders.inactiveStatus')}
             </h2>
             <p className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'}>
-              الحالة الحالية للمندوب
+              {t('riders.currentStatus')}
             </p>
           </div>
         </div>
@@ -150,41 +149,41 @@ export default function RiderDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <User size={20} />
-            المعلومات الشخصية
+            {t('riders.personalInfo')}
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">الاسم (عربي)</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.nameArabic')}</p>
                 <p className="font-bold text-gray-800 text-lg">{rider.nameAR}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">الاسم (إنجليزي)</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.nameEnglish')}</p>
                 <p className="font-bold text-gray-800 text-lg">{rider.nameEN}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الإقامة</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.iqamaNumber')}</p>
                 <p className="font-medium text-gray-800">{rider.iqamaNo}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الجواز</p>
-                <p className="font-medium text-gray-800">{rider.passportNo || 'غير محدد'}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.passportNumber')}</p>
+                <p className="font-medium text-gray-800">{rider.passportNo || t('profile.notSpecified')}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">البلد</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.country')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <MapPin size={14} />
                   {rider.country}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الهاتف</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.phone')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <Phone size={14} />
                   {rider.phone}
@@ -193,7 +192,7 @@ export default function RiderDetailsPage() {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 mb-1">تاريخ الميلاد</p>
+              <p className="text-sm text-gray-600 mb-1">{t('riders.dateOfBirth')}</p>
               <p className="font-medium text-gray-800 flex items-center gap-2">
                 <Calendar size={14} />
                 {formatDate(rider.dateOfBirth)}
@@ -206,30 +205,30 @@ export default function RiderDetailsPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
             <Briefcase size={20} />
-            معلومات العمل
+            {t('riders.workInfo')}
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم العمل</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.workingId')}</p>
                 <p className="font-bold text-blue-700 text-xl">{rider.workingId || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">المسمى الوظيفي</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.jobTitle')}</p>
                 <p className="font-medium text-gray-800">{rider.jobTitle}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">الشركة</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.company')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <Building size={14} />
                   {rider.companyName}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">رقم الرخصة</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.licenseNumber')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <FileText size={14} />
                   {rider.licenseNumber}
@@ -239,16 +238,16 @@ export default function RiderDetailsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">مقاس التيشرت</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.tshirtSize')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
                   <Package size={14} />
                   {rider.tshirtSize}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">السكن</p>
+                <p className="text-sm text-gray-600 mb-1">{t('riders.housing')}</p>
                 <p className="font-medium text-gray-800">
-                  {rider.housingAddress || 'غير محدد'}
+                  {rider.housingAddress || t('profile.notSpecified')}
                 </p>
               </div>
             </div>
@@ -260,19 +259,19 @@ export default function RiderDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <FileText size={20} />
-          تفاصيل الإقامة والجواز
+          {t('riders.iqamaPassportDetails')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الإقامة (ميلادي)</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('riders.iqamaEndGregorian')}</p>
             <p className="font-bold text-gray-800">{formatDate(rider.iqamaEndM)}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الإقامة (هجري)</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('riders.iqamaEndHijri')}</p>
             <p className="font-bold text-gray-800">{formatDate(rider.iqamaEndH)}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">انتهاء الجواز</p>
+            <p className="text-blue-600 mb-1 text-sm">{t('riders.passportEnd')}</p>
             <p className="font-bold text-gray-800">{formatDate(rider.passportEnd)}</p>
           </div>
         </div>
@@ -282,16 +281,16 @@ export default function RiderDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Shield size={20} />
-          معلومات الكفالة
+          {t('riders.sponsorInfo')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">الكفيل</p>
+            <p className="text-sm text-gray-600 mb-1">{t('riders.sponsor')}</p>
             <p className="font-medium text-gray-800">{rider.sponsor}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">رقم الكفيل</p>
-            <p className="font-medium text-gray-800">{rider.sponserNo || 'غير محدد'}</p>
+            <p className="text-sm text-gray-600 mb-1">{t('riders.sponsorNumber')}</p>
+            <p className="font-medium text-gray-800">{rider.sponserNo || t('profile.notSpecified')}</p>
           </div>
         </div>
       </Card>
@@ -300,17 +299,17 @@ export default function RiderDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <CreditCard size={20} />
-          المعلومات البنكية
+          {t('riders.bankingInfo')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">رقم الآيبان</p>
-            <p className="font-medium text-gray-800 font-mono">{rider.iban || 'غير محدد'}</p>
+            <p className="text-sm text-gray-600 mb-1">{t('riders.ibanNumber')}</p>
+            <p className="font-medium text-gray-800 font-mono">{rider.iban || t('profile.notSpecified')}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">في السعودية (INKSA)</p>
+            <p className="text-sm text-gray-600 mb-1">{t('riders.inKSA')}</p>
             <p className={`font-bold ${rider.inksa ? 'text-green-600' : 'text-gray-600'}`}>
-              {rider.inksa ? 'نعم' : 'لا'}
+              {rider.inksa ? t('common.yes') : t('common.no')}
             </p>
           </div>
         </div>
@@ -320,10 +319,10 @@ export default function RiderDetailsPage() {
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Calendar size={20} />
-          التسجيل
+          {t('riders.registration')}
         </h3>
         <div>
-          <p className="text-sm text-gray-600 mb-1">تاريخ الإضافة للنظام</p>
+          <p className="text-sm text-gray-600 mb-1">{t('riders.addedToSystem')}</p>
           <p className="font-medium text-gray-800">
             {formatDate(rider.createdAt)}
           </p>
@@ -332,35 +331,35 @@ export default function RiderDetailsPage() {
 
       {/* Action Buttons */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">إجراءات سريعة</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.quickActions')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Button
             onClick={() => router.push(`/riders/${iqamaNo}/edit`)}
             variant="secondary"
           >
             <Edit size={18} className="ml-2" />
-            تعديل البيانات
+            {t('riders.editData')}
           </Button>
           <Button
             onClick={() => router.push('/riders')}
             variant="secondary"
           >
             <ArrowRight size={18} className="ml-2" />
-            العودة للقائمة
+            {t('navigation.backToList')}
           </Button>
           <Button
             onClick={() => router.push(`/shifts/rider/${rider.workingId}`)}
             variant="secondary"
           >
             <Calendar size={18} className="ml-2" />
-            عرض الورديات
+            {t('riders.viewShifts')}
           </Button>
           <Button
             onClick={() => router.push(`/reports/riders/${rider.workingId}/renge`)}
             variant="secondary"
           >
             <FileText size={18} className="ml-2" />
-            التقارير
+            {t('reports.title')}
           </Button>
         </div>
       </Card>
