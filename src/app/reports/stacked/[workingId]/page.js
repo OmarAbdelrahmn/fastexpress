@@ -69,7 +69,7 @@ export default function RiderStackedDetailPage() {
   // The original code had hardcoded Arabic months. I should replace with localized version.
   const getMonthName = (m) => {
     const date = new Date(year, m - 1, 1);
-    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'long' });
+    return date.toLocaleString(language === 'ar' ? 'en-US' : 'en-US', { month: 'long' });
   };
 
   return (
@@ -231,7 +231,7 @@ export default function RiderStackedDetailPage() {
                 <p className="text-3xl font-bold text-red-600">{report.maxStackedInDay}</p>
                 {report.maxStackedDate && (
                   <p className="text-xs text-gray-500">
-                    {new Date(report.maxStackedDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                    {new Date(report.maxStackedDate).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                   </p>
                 )}
               </div>
@@ -344,12 +344,12 @@ export default function RiderStackedDetailPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {report.dailyBreakdown?.map((day, idx) => {
                     const dayDate = new Date(day.date);
-                    const dayName = dayDate.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { weekday: 'long' });
+                    const dayName = dayDate.toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US', { weekday: 'long' });
 
                     return (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-4 py-3 whitespace-nowrap font-medium">
-                          {dayDate.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                          {dayDate.toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-gray-600">
                           {dayName}
@@ -404,7 +404,7 @@ export default function RiderStackedDetailPage() {
                   .map((day, idx) => (
                     <div key={idx} className="flex items-center justify-between p-2 bg-red-50 rounded border border-red-100">
                       <span className="text-sm font-medium">
-                        {new Date(day.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                        {new Date(day.date).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-red-600">

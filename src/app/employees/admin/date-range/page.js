@@ -84,11 +84,11 @@ export default function DateRangeHistoryPage() {
                 record.requestedStatus,
                 `"${record.reason || ''}"`,
                 record.requestedBy,
-                new Date(record.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US'),
+                new Date(record.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US'),
                 record.isResolved ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No'),
                 record.resolution || '-',
                 record.resolvedBy || '-',
-                record.resolvedAt ? new Date(record.resolvedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US') : '-'
+                record.resolvedAt ? new Date(record.resolvedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US') : '-'
             ].join(','))
         ].join('\n');
 
@@ -159,7 +159,7 @@ export default function DateRangeHistoryPage() {
             accessor: 'requestedAt',
             render: (row) => (
                 <span className="text-sm text-gray-600">
-                    {new Date(row.requestedAt).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                    {new Date(row.requestedAt).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                 </span>
             )
         },
@@ -246,9 +246,9 @@ export default function DateRangeHistoryPage() {
                             <div>
                                 <h3 className="text-lg font-bold text-gray-800">{t('employees.searchResults')}</h3>
                                 <p className="text-sm text-gray-600">
-                                    {t('employees.fromStatus')} {new Date(searchResults.startDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                                    {t('employees.fromStatus')} {new Date(searchResults.startDate).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                                     {' '}{t('employees.toStatus')}{' '}
-                                    {new Date(searchResults.endDate).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                                    {new Date(searchResults.endDate).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
                                 </p>
                             </div>
                             <div className="flex items-center gap-3">

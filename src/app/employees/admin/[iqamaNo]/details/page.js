@@ -101,7 +101,7 @@ export default function EmployeeDetailsPage() {
 
   const formatDate = (dateString) => {
     if (!dateString) return t('employees.notDefined');
-    return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -123,8 +123,8 @@ export default function EmployeeDetailsPage() {
 
       {/* Status Banner */}
       <div className={`p-6 rounded-lg ${employee.status === 'enable'
-          ? 'bg-green-50 border-r-4 border-green-500'
-          : 'bg-red-50 border-r-4 border-red-500'
+        ? 'bg-green-50 border-r-4 border-green-500'
+        : 'bg-red-50 border-r-4 border-red-500'
         }`}>
         <div className="flex items-center gap-4">
           <div className={`p-3 rounded-xl ${employee.status === 'enable' ? 'bg-green-100' : 'bg-red-100'

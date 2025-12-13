@@ -182,8 +182,8 @@ export default function TempImportsPage() {
                         {t('employees.iqamaNumber')}: {update.iqamaNo}
                       </p>
                       <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${update.isNewEmployee
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-blue-100 text-blue-800'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-blue-100 text-blue-800'
                         }`}>
                         {update.isNewEmployee ? t('employees.newEmployee') : t('employees.dataUpdate')}
                       </span>
@@ -192,7 +192,7 @@ export default function TempImportsPage() {
                   <div className="text-right text-sm text-gray-600">
                     <p>{t('employees.uploadedBy')}: {update.uploadedBy}</p>
                     <p className="text-xs mt-1">
-                      {new Date(update.uploadedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                      {new Date(update.uploadedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US')}
                     </p>
                   </div>
                 </div>

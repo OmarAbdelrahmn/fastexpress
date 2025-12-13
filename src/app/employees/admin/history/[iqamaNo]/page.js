@@ -258,7 +258,7 @@ export default function EmployeeHistoryPage() {
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                 <Clock size={14} />
-                                                <span>{t('employees.requestDate')}: {new Date(change.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
+                                                <span>{t('employees.requestDate')}: {new Date(change.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US')}</span>
                                             </div>
                                             {change.isResolved && change.resolvedBy && (
                                                 <>
@@ -268,7 +268,7 @@ export default function EmployeeHistoryPage() {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                                         <Clock size={14} />
-                                                        <span>{t('employees.resolvedDate')}: {new Date(change.resolvedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
+                                                        <span>{t('employees.resolvedDate')}: {new Date(change.resolvedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US')}</span>
                                                     </div>
                                                 </>
                                             )}

@@ -177,7 +177,7 @@ export default function StatusRequestsPage() {
                         <p className="text-xs text-gray-600 mb-1">{t('employees.requestDate')}</p>
                         <p className="font-medium text-gray-800 flex items-center gap-2">
                           <Clock size={14} />
-                          {new Date(request.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                          {new Date(request.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US')}
                         </p>
                       </div>
                     </div>

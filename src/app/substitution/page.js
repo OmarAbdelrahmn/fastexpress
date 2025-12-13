@@ -121,7 +121,7 @@ export default function SubstitutionsPage() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'en-US' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -196,8 +196,8 @@ export default function SubstitutionsPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-6 py-2 rounded-lg font-medium transition-all ${filter === f
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 {f === 'all' ? t('common.all') : f === 'active' ? t('substitution.active') : t('substitution.inactive')}
@@ -272,8 +272,8 @@ export default function SubstitutionsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 ${sub.isActive
-                              ? 'bg-green-100 text-green-700 border border-green-200'
-                              : 'bg-gray-100 text-gray-600 border border-gray-200'
+                            ? 'bg-green-100 text-green-700 border border-green-200'
+                            : 'bg-gray-100 text-gray-600 border border-gray-200'
                             }`}>
                             <span className={`w-2 h-2 rounded-full ${sub.isActive ? 'bg-green-500' : 'bg-gray-500'}`}></span>
                             {sub.isActive ? t('substitution.active') : t('substitution.stopped')}

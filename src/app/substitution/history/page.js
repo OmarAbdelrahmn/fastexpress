@@ -5,8 +5,6 @@ import { History, Search, Clock, CheckCircle, XCircle, AlertCircle, Calendar } f
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function SubstitutionHistoryPage() {
@@ -18,7 +16,7 @@ export default function SubstitutionHistoryPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     if (!workingId) {
       setMessage({ type: 'error', text: t('substitution.enterWorkingId') });
@@ -44,13 +42,15 @@ export default function SubstitutionHistoryPage() {
     }
   };
 
-  return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const calculateDuration = (startDate, endDate) => {
     const start = new Date(startDate);
@@ -72,17 +72,19 @@ export default function SubstitutionHistoryPage() {
     }
   };
 
-  return isActive ? (
-    <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-200">
-      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-      {t('substitution.active')}
-    </span>
-  ) : (
-    <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 border border-gray-200">
-      <span className="w-2 h-2 rounded-full bg-gray-500"></span>
-      {t('substitution.stopped')}
-    </span>
-  );
+  const getStatusBadge = (isActive) => {
+    return isActive ? (
+      <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-green-100 text-green-700 border border-green-200">
+        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+        {t('substitution.active')}
+      </span>
+    ) : (
+      <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 border border-gray-200">
+        <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+        {t('substitution.stopped')}
+      </span>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
@@ -96,7 +98,7 @@ export default function SubstitutionHistoryPage() {
       <div className="p-6 space-y-6">
         {/* Search Section */}
         <div className="bg-white rounded-xl shadow-md p-6">
-          <form onSubmit={handleSearch} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t('substitution.workingId')} <span className="text-red-500">*</span>
@@ -107,11 +109,12 @@ export default function SubstitutionHistoryPage() {
                   placeholder={t('substitution.searchPlaceholder')}
                   value={workingId}
                   onChange={(e) => setWorkingId(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   disabled={loading}
                 />
                 <button
-                  type="submit"
+                  onClick={handleSearch}
                   disabled={loading}
                   className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 font-bold flex items-center gap-2 transition-all shadow-md"
                 >
@@ -133,18 +136,19 @@ export default function SubstitutionHistoryPage() {
                 {t('substitution.searchNote')}
               </p>
             </div>
-          </form>
+          </div>
         </div>
 
         {/* Message */}
         {message.text && (
-          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
-              message.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
-                'bg-blue-50 text-blue-800 border border-blue-200'
-            }`}>
+          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${
+            message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+            message.type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+            'bg-blue-50 text-blue-800 border border-blue-200'
+          }`}>
             {message.type === 'success' ? <CheckCircle size={20} /> :
               message.type === 'error' ? <XCircle size={20} /> :
-                <AlertCircle size={20} />}
+              <AlertCircle size={20} />}
             <span className="flex-1">{message.text}</span>
             <button onClick={() => setMessage({ type: '', text: '' })}>✕</button>
           </div>
@@ -191,8 +195,9 @@ export default function SubstitutionHistoryPage() {
                       {history.map((item, index) => (
                         <tr
                           key={item.id}
-                          className={`hover:bg-blue-50/50 transition-colors ${item.actualRiderWorkingId === workingId ? 'bg-yellow-50/30' : ''
-                            }`}
+                          className={`hover:bg-blue-50/50 transition-colors ${
+                            item.actualRiderWorkingId === workingId ? 'bg-yellow-50/30' : ''
+                          }`}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-gray-600 font-medium">{index + 1}</span>
@@ -201,10 +206,11 @@ export default function SubstitutionHistoryPage() {
                             <div className="font-medium text-gray-900">{item.actualRiderName}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${item.actualRiderWorkingId === workingId
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              item.actualRiderWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-blue-100 text-blue-800'
-                              }`}>
+                            }`}>
                               {item.actualRiderWorkingId}
                             </span>
                           </td>
@@ -212,10 +218,11 @@ export default function SubstitutionHistoryPage() {
                             <div className="font-medium text-gray-900">{item.substituteRiderName}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${item.substituteWorkingId === workingId
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              item.substituteWorkingId === workingId
                                 ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                                 : 'bg-purple-100 text-purple-800'
-                              }`}>
+                            }`}>
                               {item.substituteWorkingId}
                             </span>
                           </td>

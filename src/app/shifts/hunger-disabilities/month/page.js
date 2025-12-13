@@ -20,7 +20,7 @@ export default function MonthPage() {
 
     const months = Array.from({ length: 12 }, (_, i) => {
         const value = i + 1;
-        const label = new Date(2000, i, 1).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'long' });
+        const label = new Date(2000, i, 1).toLocaleString(language === 'ar' ? 'en-US' : 'en-US', { month: 'long' });
         return { value, label };
     });
 
