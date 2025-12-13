@@ -34,6 +34,7 @@
     "inactive": "নিষ্ক্রিয়",
     "exportExcel": "এক্সেল এক্সপোর্ট",
     "exportPDF": "পিডিএফ এক্সপোর্ট",
+    "print": "প্রিন্ট",
     "selectAll": "সব নির্বাচন করুন",
     "sendRequest": "অনুরোধ পাঠান",
     "date": "তারিখ",
@@ -550,6 +551,7 @@
     "statusAvailable": "উপলব্ধ"
   },
   "employees": {
+    "currentMonth": "কর্মচারী",
     "title": "কর্মচারী",
     "excelColumns": {
       "iqamaNumber": "ইকামা নম্বর",
@@ -1509,7 +1511,16 @@
       "mixedPerformanceCount": "মিশ্রিত কর্মক্ষমতা",
       "detailedComparisonResults": "বিস্তারিত তুলনা ফলাফল",
       "noDataForPeriods": "নির্দিষ্ট সময়কালের জন্য কোন ডেটা তুলনা নেই",
-      "pleaseSelectPeriods": "দয়া করে তুলনার জন্য সময়কাল নির্বাচন করুন"
+      "pleaseSelectPeriods": "দয়া করে তুলনার জন্য সময়কাল নির্বাচন করুন",
+      "loadingDataText": "ডেটা লোড হচ্ছে...",
+      "noDataSelectPeriods": "দয়া করে তুলনার জন্য সময়কাল নির্বাচন করুন",
+      "noDataForComparisonPeriods": "নির্দিষ্ট সময়কালের জন্য কোন ডেটা তুলনা নেই",
+      "workingNumber": "কাজের নম্বর",
+      "mixedPerformanceLabel": "মিশ্রিত কর্মক্ষমতা",
+      "errorLoadingComparison": "ডেটা লোড করতে ত্রুটি হয়েছে",
+      "ridersLoadedSuccess": "{{count}} রাইডার ডেটা সফলভাবে লোড হয়েছে",
+      "ridersCompareTitle": "রাইডার তুলনা",
+      "ridersCompareSubtitle": "দুটি সময়কালের মধ্যে রাইডারদের কর্মক্ষমতার তুলনা"
     },
     "companyPerformance": "কোম্পানি কর্মক্ষমতা",
     "riderPerformance": "রাইডার কর্মক্ষমতা",
@@ -1668,6 +1679,8 @@
     "completionRate": "সমাপ্তির হার",
     "rejectionRate": "প্রত্যাখ্যান হার",
     "completed": "সম্পন্ন",
+    "failed": "ব্যর্থ",
+    "incomplete": "অসম্পূর্ণ",
     "loadedProblems": "সমস্যা সহ শিফট লোড হয়েছে:",
     "incompleteInfo": "অসম্পূর্ণ তথ্য। দয়া করে কাজের আইডি এবং তারিখ নিশ্চিত করুন।",
     "noReportsFound": "কোন রিপোর্ট পাওয়া যায়নি",

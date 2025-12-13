@@ -198,7 +198,7 @@ export default function TopRidersYearlyPage() {
                 <TrendingUp className="w-8 h-8 text-orange-600 mx-auto mb-2" />
                 <p className="text-gray-500 text-sm mb-2">{t('reports.topRidersYearly.averagePerformance')}</p>
                 <p className="text-3xl font-bold text-orange-600">
-                  {(reportData.topRiders.reduce((sum, r) => sum + r.performanceScore, 0) / reportData.topRiders.length).toFixed(1)}
+                  {(reportData.topRiders.reduce((sum, r) => sum + r.performanceScore, 0) / reportData.topRiders.length).toFixed(2)}
                 </p>
               </div>
             </Card>
@@ -221,7 +221,7 @@ export default function TopRidersYearlyPage() {
                   </div>
                   <div className="bg-white p-3 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
-                    <p className="text-2xl font-bold text-gray-700">{reportData.topRiders[1].performanceScore.toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-gray-700">{reportData.topRiders[1].performanceScore.toFixed(2)}</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
@@ -229,7 +229,7 @@ export default function TopRidersYearlyPage() {
                   </div>
                   <div className="bg-white p-2 rounded-lg">
                     <p className="text-xs text-gray-600">{t('reports.topRidersYearly.workingHoursLabel')}</p>
-                    <p className="text-lg font-bold text-gray-700">{reportData.topRiders[1].totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</p>
+                    <p className="text-lg font-bold text-gray-700">{reportData.topRiders[1].totalWorkingHours ? Number(reportData.topRiders[1].totalWorkingHours).toFixed(2) : '0.00'}{t('reports.topRidersYearly.hourShort')}</p>
                   </div>
                 </div>
               </Card>
@@ -248,7 +248,7 @@ export default function TopRidersYearlyPage() {
                   </div>
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
-                    <p className="text-3xl font-bold text-yellow-600">{reportData.topRiders[0].performanceScore.toFixed(1)}</p>
+                    <p className="text-3xl font-bold text-yellow-600">{reportData.topRiders[0].performanceScore.toFixed(2)}</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
@@ -276,7 +276,7 @@ export default function TopRidersYearlyPage() {
                   </div>
                   <div className="bg-white p-3 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.yearlyPoints')}</p>
-                    <p className="text-2xl font-bold text-orange-600">{reportData.topRiders[2].performanceScore.toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-orange-600">{reportData.topRiders[2].performanceScore.toFixed(2)}</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg">
                     <p className="text-sm text-gray-600">{t('reports.topRidersYearly.orders')}</p>
@@ -284,7 +284,7 @@ export default function TopRidersYearlyPage() {
                   </div>
                   <div className="bg-white p-2 rounded-lg">
                     <p className="text-xs text-gray-600">{t('reports.topRidersYearly.workingHoursLabel')}</p>
-                    <p className="text-lg font-bold text-orange-600">{reportData.topRiders[2].totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</p>
+                    <p className="text-lg font-bold text-orange-600">{reportData.topRiders[2].totalWorkingHours ? Number(reportData.topRiders[2].totalWorkingHours).toFixed(2) : '0.00'}{t('reports.topRidersYearly.hourShort')}</p>
                   </div>
                 </div>
               </Card>
@@ -345,7 +345,7 @@ export default function TopRidersYearlyPage() {
                         <div className="flex items-center justify-between">
                           <h4 className="text-lg font-bold text-gray-800">{company.companyName}</h4>
                           <span className={`px-3 py-1 rounded-full text-xs font-bold ${getGradeColor(company.topPerformer?.performanceGrade)}`}>
-                            {company.companyPerformanceScore.toFixed(1)}
+                            {company.companyPerformanceScore.toFixed(2)}
                           </span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -424,7 +424,7 @@ export default function TopRidersYearlyPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-lg font-bold text-purple-600">{rider.performanceScore.toFixed(1)}</span>
+                        <span className="text-lg font-bold text-purple-600">{rider.performanceScore.toFixed(2)}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getGradeColor(rider.performanceGrade)}`}>
@@ -437,10 +437,10 @@ export default function TopRidersYearlyPage() {
                       <td className="px-6 py-4 whitespace-nowrap">{rider.totalShifts}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`font-semibold ${rider.rejectionRate > 20 ? 'text-red-600' : rider.rejectionRate > 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                          {rider.rejectionRate}%
+                          {typeof rider.rejectionRate === 'number' ? rider.rejectionRate.toFixed(2) : rider.rejectionRate}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{rider.totalWorkingHours}{t('reports.topRidersYearly.hourShort')}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : '0.00'}{t('reports.topRidersYearly.hourShort')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -455,25 +455,25 @@ export default function TopRidersYearlyPage() {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageOrders')}</p>
                 <p className="text-2xl font-bold">
-                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalAcceptedOrders, 0) / reportData.topRiders.length).toFixed(1)}
+                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalAcceptedOrders, 0) / reportData.topRiders.length).toFixed(2)}
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageWorkingHours')}</p>
                 <p className="text-2xl font-bold">
-                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalWorkingHours, 0) / reportData.topRiders.length).toFixed(1)}{t('reports.topRidersYearly.hourShort')}
+                  {(reportData.topRiders.reduce((sum, r) => sum + r.totalWorkingHours, 0) / reportData.topRiders.length).toFixed(2)}{t('reports.topRidersYearly.hourShort')}
                 </p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">{t('reports.topRidersYearly.highestPoints')}</p>
                 <p className="text-2xl font-bold">
-                  {Math.max(...reportData.topRiders.map(r => r.performanceScore)).toFixed(1)}
+                  {Math.max(...reportData.topRiders.map(r => r.performanceScore)).toFixed(2)}
                 </p>
               </div>
               <div className="bg-orange-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">{t('reports.topRidersYearly.averageRejectionRate')}</p>
                 <p className="text-2xl font-bold">
-                  {(reportData.topRiders.reduce((sum, r) => sum + r.rejectionRate, 0) / reportData.topRiders.length).toFixed(1)}%
+                  {(reportData.topRiders.reduce((sum, r) => sum + r.rejectionRate, 0) / reportData.topRiders.length).toFixed(2)}%
                 </p>
               </div>
             </div>

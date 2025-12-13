@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Search, FileText } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { Calendar, Search, FileText, FileSpreadsheet } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -109,6 +110,28 @@ export default function CustomRangeReportsPage() {
     }
   };
 
+  const handleExport = () => {
+    if (!reports || reports.length === 0) return;
+
+    const exportData = reports.map(report => ({
+      [t('riders.workingId')]: report.workingId,
+      [t('reports.riderName')]: report.riderName,
+      [t('reports.workingDays')]: report.totalWorkingDays,
+      [t('reports.acceptedOrders')]: report.totalAcceptedOrders,
+      [t('reports.rejectedOrders')]: report.totalRejectedOrders,
+      [t('reports.workingHours')]: report.totalWorkingHours.toFixed(1),
+      [t('reports.performanceRate')]: `${report.overallPerformanceScore.toFixed(1)}%`,
+      [t('reports.completedShifts')]: report.completedShifts,
+      [t('reports.incompleteShifts')]: report.incompleteShifts,
+      [t('reports.failedShifts')]: report.failedShifts
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Custom Range Report');
+    XLSX.writeFile(workbook, `Custom_Range_Report_${startDate}_${endDate}.xlsx`);
+  };
+
   const viewDetails = (report) => {
     setSelectedReport(report);
     setShowModal(true);
@@ -172,16 +195,28 @@ export default function CustomRangeReportsPage() {
             </Button>
           </div>
 
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button
               variant="primary"
               onClick={loadSingleRider}
               disabled={loading || !workingId || !startDate || !endDate}
               loading={loading}
-              className="w-full"
+              className="flex-1"
             >
               <Search size={18} />
               {t('common.search')}
+            </Button>
+          </div>
+
+          <div className="flex items-end">
+            <Button
+              onClick={handleExport}
+              disabled={!reports.length}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+            >
+              <FileSpreadsheet size={18} />
+              {t('reports.exportReport')}
             </Button>
           </div>
         </div>

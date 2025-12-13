@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Search, FileText } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { AlertTriangle, Search, FileText, Filter, FileSpreadsheet } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -17,6 +18,7 @@ export default function ProblemsReportPage() {
   const [problems, setProblems] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [message, setMessage] = useState({ type: '', text: '' });
 
   const loadProblems = async () => {
@@ -43,6 +45,31 @@ export default function ProblemsReportPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filteredProblems = problems.filter(p => {
+    if (statusFilter === 'All') return true;
+    return p.status === statusFilter;
+  });
+
+  const handleExport = () => {
+    if (!filteredProblems || filteredProblems.length === 0) return;
+
+    const exportData = filteredProblems.map(p => ({
+      [t('common.date')]: p.shiftDate,
+      [t('riders.workingId')]: p.workingId,
+      [t('reports.riderName')]: p.riderName,
+      [t('companies.company')]: p.companyName,
+      [t('reports.acceptedOrders')]: p.acceptedOrders,
+      [t('reports.rejectedOrders')]: p.rejectedOrders,
+      [`${t('reports.real')} ${t('reports.rejectedOrders')}`]: p.realRejectedOrders,
+      [t('common.status')]: p.status,
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Problems Report');
+    XLSX.writeFile(workbook, `Problems_Report_${startDate}_${endDate}.xlsx`);
   };
 
   const getTotalPenalty = () => {
@@ -78,7 +105,7 @@ export default function ProblemsReportPage() {
 
       {/* Filters */}
       <div className="m-6 bg-white rounded-xl shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <Input
             type="date"
             label={t('common.from')}
@@ -95,7 +122,26 @@ export default function ProblemsReportPage() {
             required
           />
 
-          <div className="flex items-end">
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('common.status')}
+            </label>
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 appearance-none border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1b428e] focus:border-transparent bg-white"
+                style={{ direction: language === 'ar' ? 'rtl' : 'ltr' }}
+              >
+                <option value="All">{t('common.all')}</option>
+                <option value="Failed">{t('reports.failed') || 'Failed'}</option>
+                <option value="Incomplete">{t('reports.incomplete') || 'Incomplete'}</option>
+              </select>
+              <Filter className={`absolute ${language === 'ar' ? 'left-3' : 'right-3'} top-2.5 text-gray-400 pointer-events-none`} size={18} />
+            </div>
+          </div>
+
+          <div>
             <Button
               variant="danger"
               onClick={loadProblems}
@@ -105,6 +151,18 @@ export default function ProblemsReportPage() {
             >
               <Search size={18} />
               {t('reports.showProblems')}
+            </Button>
+          </div>
+
+          <div>
+            <Button
+              onClick={handleExport}
+              disabled={!filteredProblems.length}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+            >
+              <FileSpreadsheet size={18} />
+              {t('reports.exportReport')}
             </Button>
           </div>
         </div>
@@ -142,11 +200,16 @@ export default function ProblemsReportPage() {
 
       {/* Problems Table */}
       <div className="m-6 bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="bg-red-600 px-6 py-4">
+        <div className="bg-red-600 px-6 py-4 flex justify-between items-center">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
             <AlertTriangle size={20} />
-            {t('reports.problematicShifts')} ({problems.length})
+            {t('reports.problematicShifts')} ({filteredProblems.length})
           </h3>
+          {statusFilter !== 'All' && (
+            <span className="text-sm bg-white/20 text-white px-2 py-1 rounded">
+              {t('common.filter')}: {statusFilter === 'Failed' ? (t('reports.failed') || 'Failed') : (t('reports.incomplete') || 'Incomplete')}
+            </span>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -176,48 +239,56 @@ export default function ProblemsReportPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {problems.map((problem, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap font-medium">
-                      {problem.shiftDate}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium">
-                      {problem.workingId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {problem.riderName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {problem.companyName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
-                      {problem.acceptedOrders}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <p className="text-red-600 font-semibold">
-                          {problem.rejectedOrders}
-                        </p>
-                        <p className="text-xs text-red-500">
-                          {t('reports.real')}: {problem.realRejectedOrders}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(problem.status)
-                        }`}>
-                        {problem.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="max-w-xs">
-                        <p className="text-sm text-red-600">
-                          {problem.problemDescription}
-                        </p>
-                      </div>
+                {filteredProblems.length > 0 ? (
+                  filteredProblems.map((problem, idx) => (
+                    <tr key={idx} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap font-medium">
+                        {problem.shiftDate}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap font-medium">
+                        {problem.workingId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {problem.riderName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {problem.companyName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
+                        {problem.acceptedOrders}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <p className="text-red-600 font-semibold">
+                            {problem.rejectedOrders}
+                          </p>
+                          <p className="text-xs text-red-500">
+                            {t('reports.real')}: {problem.realRejectedOrders}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(problem.status)
+                          }`}>
+                          {problem.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="max-w-xs">
+                          <p className="text-sm text-red-600">
+                            {problem.problemDescription}
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                      {t('common.noData')}
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           )}

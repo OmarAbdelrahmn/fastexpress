@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Search, FileText, BarChart3 } from 'lucide-react';
+import { Calendar, Search, FileText, FileSpreadsheet, BarChart3 } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -10,6 +10,7 @@ import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Modal from '@/components/Ui/Model';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import * as XLSX from 'xlsx';
 
 export default function YearlyReportsPage() {
   const { t, locale } = useLanguage();
@@ -21,6 +22,29 @@ export default function YearlyReportsPage() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const handleExport = () => {
+    if (!reports || reports.length === 0) return;
+
+    const exportData = reports.map(report => ({
+      [t('riders.workingId')]: report.workingId,
+      [t('reports.riderName')]: report.riderName,
+      [t('reports.workingDays')]: report.totalWorkingDays || 0,
+      [t('reports.acceptedOrders')]: report.totalAcceptedOrders || 0,
+      [t('reports.rejectedOrders')]: report.totalRejectedOrders || 0,
+      [t('reports.workingHours')]: report.totalWorkingHours ? report.totalWorkingHours.toFixed(2) : '0.0',
+      [t('reports.performanceRate')]: report.averagePerformanceScore ? `${report.averagePerformanceScore.toFixed(2)}%` : '0.0%',
+      [t('reports.completedShifts')]: report.completedShifts || 0,
+      [t('reports.incompleteShifts')]: report.incompleteShifts || 0,
+      [t('reports.failedShifts')]: report.failedShifts || 0
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Yearly Report ${year}`);
+    XLSX.writeFile(workbook, `Yearly_Report_${year}.xlsx`);
+  };
+
 
   const loadAllRiders = async () => {
     setLoading(true);
@@ -103,13 +127,7 @@ export default function YearlyReportsPage() {
     setShowModal(true);
   };
 
-  const monthNames = locale === 'ar' ? [
-    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-  ] : [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+  // ...
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
@@ -131,7 +149,7 @@ export default function YearlyReportsPage() {
 
       {/* Filters */}
       <div className="m-6 bg-white rounded-xl shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Input
             type="number"
             label={t('reports.year')}
@@ -174,6 +192,18 @@ export default function YearlyReportsPage() {
               {t('common.search')}
             </Button>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <Button
+            onClick={handleExport}
+            disabled={!reports.length}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+          >
+            <FileSpreadsheet size={18} />
+            {t('reports.exportReport')}
+          </Button>
         </div>
       </div>
 
@@ -221,13 +251,13 @@ export default function YearlyReportsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-red-600 font-semibold">
                       {report.totalRejectedOrders}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingHours.toFixed(1)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingHours ? report.totalWorkingHours.toFixed(2) : '0.0'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${report.averagePerformanceScore >= 90 ? 'bg-green-100 text-green-800' :
                         report.averagePerformanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'
                         }`}>
-                        {report.averagePerformanceScore.toFixed(1)}%
+                        {report.averagePerformanceScore ? report.averagePerformanceScore.toFixed(2) : '0.0'}%
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -307,7 +337,7 @@ export default function YearlyReportsPage() {
                     <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-bold text-blue-600">{monthNames[monthly.month - 1]}</span>
-                        <span className="text-sm font-bold">{monthly.performanceScore.toFixed(1)}%</span>
+                        <span className="text-sm font-bold">{monthly.performanceScore.toFixed(2)}%</span>
                       </div>
                       <div className="text-xs space-y-1">
                         <div className="flex justify-between">
@@ -340,7 +370,7 @@ export default function YearlyReportsPage() {
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-600">{t('reports.days')}: {company.totalWorkingDays}</span>
                         <span className="text-sm text-green-600">{t('reports.orders')}: {company.totalAcceptedOrders}</span>
-                        <span className="text-sm font-bold">{company.averagePerformanceScore.toFixed(1)}%</span>
+                        <span className="text-sm font-bold">{company.averagePerformanceScore.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}
@@ -350,6 +380,6 @@ export default function YearlyReportsPage() {
           </div>
         )}
       </Modal>
-    </div>
+    </div >
   );
 }

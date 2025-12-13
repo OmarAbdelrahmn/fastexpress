@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building, Users, Package, Award, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, AlertTriangle, BarChart3, Calendar } from 'lucide-react';
+import { Building, Users, Package, Award, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, AlertTriangle, BarChart3, Calendar, Printer } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -163,23 +163,34 @@ export default function HousingPeriodReport() {
             </div>
           </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-bold text-lg transition-all"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent"></div>
-                {t('reports.housing.loadingText')}
-              </>
-            ) : (
-              <>
-                <BarChart3 size={24} />
-                {t('reports.housing.viewReport')}
-              </>
-            )}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-bold text-lg transition-all"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent"></div>
+                  {t('reports.housing.loadingText')}
+                </>
+              ) : (
+                <>
+                  <BarChart3 size={24} />
+                  {t('reports.housing.viewReport')}
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => window.print()}
+              className="bg-gray-100 text-gray-700 py-4 px-6 rounded-xl hover:bg-gray-200 hover:shadow-lg flex items-center justify-center gap-3 font-bold text-lg transition-all"
+              title={t('common.print')}
+            >
+              <Printer size={24} />
+              <span className="hidden md:inline">{t('common.print')}</span>
+            </button>
+          </div>
         </div>
       </div>
 

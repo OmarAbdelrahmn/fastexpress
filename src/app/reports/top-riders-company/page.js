@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Trophy, Search, Download, Award, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
@@ -19,7 +19,27 @@ export default function TopRidersCompanyPage() {
   const [endDate, setEndDate] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('all');
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [companies, setCompanies] = useState([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    loadCompanies();
+  }, []);
+
+  const loadCompanies = async () => {
+    try {
+      setLoadingCompanies(true);
+      const result = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
+      if (result) {
+        setCompanies(result.map(c => c.name || c.companyName || c));
+      }
+    } catch (error) {
+      console.error('Error loading companies:', error);
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
 
   const loadReports = async () => {
     if (!startDate || !endDate) {
@@ -91,7 +111,7 @@ export default function TopRidersCompanyPage() {
     ? allRiders
     : allRiders.filter(r => r.company === selectedCompany);
 
-  const companies = Object.keys(data);
+
 
   const exportToCSV = () => {
     const csvContent = [
@@ -101,12 +121,12 @@ export default function TopRidersCompanyPage() {
         r.workingId,
         r.riderNameAR,
         r.companyName,
-        r.performanceScore.toFixed(1),
+        r.performanceScore.toFixed(2),
         t('reports.grades.' + r.performanceGrade?.toLowerCase()),
         r.totalAcceptedOrders,
         r.totalRejectedOrders,
         r.totalWorkingHours,
-        r.rejectionRate + '%'
+        (typeof r.rejectionRate === 'number' ? r.rejectionRate.toFixed(2) : r.rejectionRate) + '%'
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -222,7 +242,7 @@ export default function TopRidersCompanyPage() {
               <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
               <p className="text-gray-500 text-sm mb-2">{t('reports.averagePerformance')}</p>
               <p className="text-3xl font-bold text-purple-600">
-                {(allRiders.reduce((sum, r) => sum + r.performanceScore, 0) / allRiders.length).toFixed(1)}
+                {(allRiders.reduce((sum, r) => sum + r.performanceScore, 0) / allRiders.length).toFixed(2)}
               </p>
             </div>
           </Card>
@@ -268,7 +288,7 @@ export default function TopRidersCompanyPage() {
                     </div>
                   </div>
                   <div className={`px-4 py-2 rounded-lg font-bold text-center ${getGradeColor(rider.performanceGrade)}`}>
-                    <div className="text-2xl">{rider.performanceScore.toFixed(1)}</div>
+                    <div className="text-2xl">{rider.performanceScore.toFixed(2)}</div>
                     <div className="text-xs">{t('reports.grades.' + rider.performanceGrade?.toLowerCase())}</div>
                   </div>
                 </div>
@@ -300,7 +320,7 @@ export default function TopRidersCompanyPage() {
                       <XCircle className="w-4 h-4 text-red-600" />
                       <span className="text-xs text-gray-600">{t('reports.rejectionRate')}</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-800">{rider.rejectionRate}%</p>
+                    <p className="text-2xl font-bold text-gray-800">{typeof rider.rejectionRate === 'number' ? rider.rejectionRate.toFixed(2) : rider.rejectionRate}%</p>
                     <p className="text-xs text-gray-500">{rider.totalRejectedOrders} {t('reports.rejected')}</p>
                   </div>
 
@@ -309,7 +329,7 @@ export default function TopRidersCompanyPage() {
                       <Clock className="w-4 h-4 text-blue-600" />
                       <span className="text-xs text-gray-600">{t('reports.workingHours')}</span>
                     </div>
-                    <p className="text-2xl font-bold text-gray-800">{rider.totalWorkingHours}h</p>
+                    <p className="text-2xl font-bold text-gray-800">{rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : '0.00'}h</p>
                     <p className="text-xs text-gray-500">{rider.totalShifts} {t('shifts.title')}</p>
                   </div>
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Award, Search, Trophy, Medal } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { Award, Search, Trophy, Medal, Download } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -44,15 +45,9 @@ export default function TopRidersPage() {
     setLoading(true);
     setMessage({ type: '', text: '' });
     try {
-      const data = await ApiService.post(API_ENDPOINTS.REPORTS.TOP_RIDERS_YEARLY, {
-        startDate,
-        endDate,
-        topCount,
-        companyFilter: companyFilter || null,
-        sortBy: 0, // TotalOrders
-        includeAllCompanies: true,
-        minimumShifts: 5
-      });
+      const year = new Date(startDate).getFullYear();
+      const url = `${API_ENDPOINTS.REPORTS.TOP_RIDERS_YEARLY}?year=${year}&topCount=${topCount}`;
+      const data = await ApiService.get(url);
       setReport(data);
       setMessage({ type: 'success', text: t('reports.reportLoadedSuccess') });
     } catch (error) {
@@ -61,6 +56,33 @@ export default function TopRidersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+
+
+  const handleExport = () => {
+    if (!report || !report.topRiders) return;
+
+    const exportData = report.topRiders.map(rider => ({
+      [t('reports.rank')]: rider.rank,
+      [t('riders.workingId')]: rider.workingId,
+      [t('reports.riderName') + ' (AR)']: rider.riderNameAR,
+      [t('reports.riderName') + ' (EN)']: rider.riderNameEN,
+      [t('companies.company')]: rider.companyName,
+      [t('reports.totalShifts')]: rider.totalShifts,
+      [t('reports.completedShifts')]: rider.completedShifts,
+      [t('reports.incompleteShifts')]: rider.incompleteShifts,
+      [t('reports.failedShifts')]: rider.failedShifts,
+      [t('reports.orders')]: rider.totalAcceptedOrders,
+      [t('reports.average')]: rider.averageOrdersPerShift.toFixed(1),
+      [t('reports.performanceRate')]: rider.performanceScore.toFixed(1) + '%',
+      [t('reports.rating')]: rider.performanceGrade
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Top Riders');
+    XLSX.writeFile(workbook, `Top_Riders_${startDate}_${endDate}.xlsx`);
   };
 
   const getRankIcon = (rank) => {
@@ -154,6 +176,19 @@ export default function TopRidersPage() {
             </Button>
           </div>
         </div>
+
+        {report && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <Button
+              variant="success"
+              onClick={handleExport}
+              className="w-full flex justify-center items-center gap-2"
+            >
+              <Download size={18} />
+              {t('common.exportExcel')}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Report Display */}
@@ -204,7 +239,7 @@ export default function TopRidersPage() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('companies.company')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.title')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.orders')}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.completionRate')}</th>
+
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.performanceRate')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('reports.rating')}</th>
                   </tr>
@@ -241,14 +276,7 @@ export default function TopRidersPage() {
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.completionRate >= 90 ? 'bg-green-100 text-green-800' :
-                          rider.completionRate >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                          {rider.completionRate.toFixed(1)}%
-                        </span>
-                      </td>
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.performanceScore >= 90 ? 'bg-green-100 text-green-800' :
                           rider.performanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :

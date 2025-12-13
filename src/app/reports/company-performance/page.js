@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Building2, Search, TrendingUp, Users, AlertCircle } from 'lucide-react';
+import { Building2, Search, TrendingUp, Users, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -11,6 +11,7 @@ import Input from '@/components/Ui/Input';
 import Card from '@/components/Ui/Card';
 import ExportButtons from '@/components/Ui/ExportButtons';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import * as XLSX from 'xlsx';
 
 export default function CompanyPerformancePage() {
   const { t, language } = useLanguage();
@@ -76,9 +77,28 @@ export default function CompanyPerformancePage() {
     }
   };
 
+  const handleExport = () => {
+    if (!report || !report.riderPerformances || report.riderPerformances.length === 0) return;
+
+    const exportData = report.riderPerformances.map(rider => ({
+      [t('riders.workingId')]: rider.workingId,
+      [t('reports.riderName')]: rider.riderName,
+      [t('shifts.title')]: rider.totalShifts,
+      [t('reports.completed')]: rider.completedShifts,
+      [t('reports.acceptedOrders')]: rider.totalAcceptedOrders,
+      [t('reports.rejectedOrders')]: rider.totalRejectedOrders,
+      [t('reports.performanceRate')]: `${rider.performanceScore.toFixed(1)}%`
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Company Performance');
+    XLSX.writeFile(workbook, `Company_Performance_${selectedCompany}_${startDate}_${endDate}.xlsx`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
-      <PageHeader 
+      <PageHeader
         title={t('reports.companyPerformance')}
         subtitle={t('reports.companyPerformanceDesc')}
         icon={Building2}
@@ -127,16 +147,26 @@ export default function CompanyPerformancePage() {
             required
           />
 
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <Button
               variant="primary"
               onClick={loadReport}
               disabled={loading || !selectedCompany || !startDate || !endDate}
               loading={loading}
-              className="w-full"
+              className="flex-1"
             >
               <Search size={18} />
               {t('reports.showReport')}
+            </Button>
+
+            <Button
+              onClick={handleExport}
+              disabled={!report}
+              variant="outline"
+              className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+            >
+              <FileSpreadsheet size={18} />
+              {t('reports.exportReport')}
             </Button>
           </div>
         </div>

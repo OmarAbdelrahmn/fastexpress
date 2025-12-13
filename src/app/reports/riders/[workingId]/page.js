@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight, User, Calendar, TrendingUp, AlertTriangle, Award, Clock, Package } from 'lucide-react';
+import { ArrowRight, User, Calendar, TrendingUp, AlertTriangle, Award, Clock, Package, Printer } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -123,20 +123,30 @@ export default function RiderDetailPage({ params }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
-        title={t('reports.riderReportTitle', { name: report.riderName })}
+        title={t('reports.stackedReport.rider')+ ' ' + report.riderName }
         subtitle={`${t('riders.workingId')}: ${report.workingId} | ${t('common.from')} ${report.startDate} ${t('common.to')} ${report.endDate}`}
         icon={User}
       />
 
       <div className="m-6">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          {language === 'ar' ? <ArrowRight size={18} /> : <ArrowRight size={18} className="rotate-180" />}
-          {t('common.back')}
-        </Button>
+        <div className="flex items-center gap-2 mb-4 print:hidden">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+          >
+            {language === 'ar' ? <ArrowRight size={18} /> : <ArrowRight size={18} className="rotate-180" />}
+            {t('common.back')}
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => window.print()}
+            className="flex items-center gap-2"
+          >
+            <Printer size={18} />
+            {t('common.print')}
+          </Button>
+        </div>
 
         {message.text && (
           <Alert
@@ -289,8 +299,8 @@ export default function RiderDetailPage({ params }) {
                       </div>
                     </div>
                     <span className={`px-4 py-2 rounded-full text-lg font-bold ${company.performanceScore >= 90 ? 'bg-green-100 text-green-800' :
-                        company.performanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                      company.performanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
                       }`}>
                       {company.performanceScore.toFixed(1)}%
                     </span>

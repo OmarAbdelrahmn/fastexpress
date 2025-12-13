@@ -151,11 +151,6 @@ export default function ReportsPage() {
           path: "/reports/stacked",
           desc: t('reports.stackedDeliveriesDesc'),
         },
-        {
-          name: t('reports.stackedDeliveriesRider'),
-          path: "/reports/stacked",
-          desc: t('reports.stackedDeliveriesRiderDesc'),
-        },
       ],
     },
   ];

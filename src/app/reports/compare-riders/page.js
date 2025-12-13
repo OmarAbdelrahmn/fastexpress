@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GitCompare, Search, TrendingUp, TrendingDown, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Package, DollarSign, BarChart3, Users } from 'lucide-react';
+import { GitCompare, Search, TrendingUp, TrendingDown, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Package, DollarSign, BarChart3, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -17,6 +17,14 @@ export default function CompareRidersPage() {
   const [period2End, setPeriod2End] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [expandedRider, setExpandedRider] = useState(null);
+
+  const toggleRider = (workingId) => {
+    if (expandedRider === workingId) {
+      setExpandedRider(null);
+    } else {
+      setExpandedRider(workingId);
+    }
+  };
 
   const loadComparison = async () => {
     if (!period1Start || !period1End || !period2Start || !period2End) {
@@ -282,7 +290,10 @@ export default function CompareRidersPage() {
               {comparisons.map((comparison, idx) => (
                 <div key={idx} className="border-2 border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all">
                   {/* Rider Header */}
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b-2 border-gray-200">
+                  <div
+                    className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b-2 border-gray-200 cursor-pointer transition-colors hover:bg-gray-100"
+                    onClick={() => toggleRider(comparison.workingId)}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg">
@@ -295,7 +306,7 @@ export default function CompareRidersPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {comparison.verdict?.improvementScore && (
-                          <div className="text-center bg-white rounded-lg px-4 py-2 shadow-sm">
+                          <div className="text-center bg-white rounded-lg px-4 py-2 shadow-sm hidden md:block">
                             <p className="text-xs text-gray-500">{t('reports.comparison.improvementScore')}</p>
                             <p className="text-2xl font-bold text-blue-600">{formatNumber(comparison.verdict.improvementScore)}</p>
                           </div>
@@ -306,285 +317,292 @@ export default function CompareRidersPage() {
                             comparison.verdict?.overallResult === 'Worse' ? t('reports.comparison.declinedPerformance') :
                               comparison.verdict?.overallResult === 'Mixed' ? t('reports.comparison.mixedPerformanceLabel') : t('reports.comparison.stablePerformance')}
                         </span>
+                        {expandedRider === comparison.workingId ? (
+                          <ChevronUp size={24} className="text-gray-500" />
+                        ) : (
+                          <ChevronDown size={24} className="text-gray-500" />
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    {/* Verdict Summary */}
-                    {comparison.verdict?.summary && (
-                      <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-r-4 border-blue-500">
-                        <p className="text-base text-gray-800 font-medium">{comparison.verdict.summary}</p>
-                      </div>
-                    )}
+                  {expandedRider === comparison.workingId && (
+                    <div className="p-6">
+                      {/* Verdict Summary */}
+                      {comparison.verdict?.summary && (
+                        <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-r-4 border-blue-500">
+                          <p className="text-base text-gray-800 font-medium">{comparison.verdict.summary}</p>
+                        </div>
+                      )}
 
-                    {/* Core Metrics */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <BarChart3 size={20} className="text-blue-600" />
-                        {t('reports.comparison.coreMetrics')}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <MetricCard
-                          label={t('reports.comparison.workingDays')}
-                          period1Value={comparison.period1?.workingDays}
-                          period2Value={comparison.period2?.workingDays}
-                          difference={comparison.comparison?.workingDaysDifference}
-                          changePercent={comparison.comparison?.workingDaysChangePercent}
-                          icon={Calendar}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.acceptedOrders')}
-                          period1Value={comparison.period1?.totalAcceptedOrders}
-                          period2Value={comparison.period2?.totalAcceptedOrders}
-                          difference={comparison.comparison?.ordersDifference}
-                          changePercent={comparison.comparison?.ordersChangePercent}
-                          icon={Package}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.averageOrdersPerDay')}
-                          period1Value={formatNumber(comparison.period1?.averageOrdersPerDay)}
-                          period2Value={formatNumber(comparison.period2?.averageOrdersPerDay)}
-                          difference={comparison.comparison?.averageOrdersPerDayDifference}
-                          changePercent={comparison.comparison?.averageOrdersPerDayChangePercent}
-                          icon={TrendingUp}
-                        />
-                        <MetricCard
-                          label={`${t('reports.comparison.completionRate')} %`}
-                          period1Value={formatNumber(comparison.period1?.completionRate)}
-                          period2Value={formatNumber(comparison.period2?.completionRate)}
-                          difference={comparison.comparison?.completionRateDifference}
-                          changePercent={comparison.comparison?.completionRateChangePercent}
-                          icon={CheckCircle}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Performance & Hours */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <Clock size={20} className="text-purple-600" />
-                        {t('reports.comparison.performanceAndHours')}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <MetricCard
-                          label={`${t('reports.comparison.performanceScore')} %`}
-                          period1Value={formatNumber(comparison.period1?.performanceScore)}
-                          period2Value={formatNumber(comparison.period2?.performanceScore)}
-                          difference={comparison.comparison?.performanceScoreDifference}
-                          changePercent={comparison.comparison?.performanceScoreChangePercent}
-                          icon={BarChart3}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.workingHours')}
-                          period1Value={formatNumber(comparison.period1?.totalWorkingHours)}
-                          period2Value={formatNumber(comparison.period2?.totalWorkingHours)}
-                          difference={comparison.comparison?.workingHoursDifference}
-                          changePercent={comparison.comparison?.workingHoursChangePercent}
-                          icon={Clock}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.stackedDeliveries')}
-                          period1Value={comparison.period1?.totalStackedDeliveries || 0}
-                          period2Value={comparison.period2?.totalStackedDeliveries || 0}
-                          difference={0}
-                          changePercent={0}
-                          icon={Package}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.stackedPerDay')}
-                          period1Value={formatNumber(comparison.period1?.averageStackedPerDay)}
-                          period2Value={formatNumber(comparison.period2?.averageStackedPerDay)}
-                          difference={0}
-                          changePercent={0}
-                          icon={TrendingUp}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Shifts Breakdown */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <Calendar size={20} className="text-green-600" />
-                        {t('reports.comparison.shiftsBreakdown')}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <MetricCard
-                          label={t('reports.comparison.completed')}
-                          period1Value={comparison.period1?.completedShifts}
-                          period2Value={comparison.period2?.completedShifts}
-                          difference={0}
-                          changePercent={0}
-                          icon={CheckCircle}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.incomplete')}
-                          period1Value={comparison.period1?.incompleteShifts}
-                          period2Value={comparison.period2?.incompleteShifts}
-                          difference={0}
-                          changePercent={0}
-                          icon={AlertTriangle}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.failed')}
-                          period1Value={comparison.period1?.failedShifts}
-                          period2Value={comparison.period2?.failedShifts}
-                          difference={0}
-                          changePercent={0}
-                          icon={XCircle}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.absent')}
-                          period1Value={comparison.period1?.absentShifts}
-                          period2Value={comparison.period2?.absentShifts}
-                          difference={0}
-                          changePercent={0}
-                          icon={XCircle}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Orders & Rejections */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <Package size={20} className="text-orange-600" />
-                        {t('reports.comparison.ordersAndRejection')}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <MetricCard
-                          label={t('reports.comparison.totalRejected')}
-                          period1Value={comparison.period1?.totalRejectedOrders}
-                          period2Value={comparison.period2?.totalRejectedOrders}
-                          difference={0}
-                          changePercent={0}
-                          icon={XCircle}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.realRejected')}
-                          period1Value={comparison.period1?.totalRealRejectedOrders}
-                          period2Value={comparison.period2?.totalRealRejectedOrders}
-                          difference={0}
-                          changePercent={0}
-                          icon={XCircle}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.rejectionRate')}
-                          period1Value={`${formatNumber((comparison.period1?.totalRejectedOrders / comparison.period1?.totalAcceptedOrders * 100) || 0)}%`}
-                          period2Value={`${formatNumber((comparison.period2?.totalRejectedOrders / comparison.period2?.totalAcceptedOrders * 100) || 0)}%`}
-                          difference={comparison.comparison?.rejectionRateDifference}
-                          changePercent={comparison.comparison?.rejectionRateChangePercent}
-                          icon={TrendingDown}
-                        />
-                        <MetricCard
-                          label={t('reports.comparison.problematicShifts')}
-                          period1Value={comparison.period1?.problematicShiftsCount}
-                          period2Value={comparison.period2?.problematicShiftsCount}
-                          difference={comparison.comparison?.problematicShiftsDifference}
-                          changePercent={comparison.comparison?.problematicShiftsChangePercent}
-                          icon={AlertTriangle}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Penalties */}
-                    <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <DollarSign size={20} className="text-red-600" />
-                        {t('reports.comparison.penalties')}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <MetricCard
-                          label={t('reports.comparison.totalPenalties')}
-                          period1Value={`${formatNumber(comparison.period1?.totalPenaltyAmount)}`}
-                          period2Value={`${formatNumber(comparison.period2?.totalPenaltyAmount)}`}
-                          difference={comparison.comparison?.penaltyDifference}
-                          changePercent={comparison.comparison?.penaltyChangePercent}
-                          icon={DollarSign}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Top Improvements & Declines */}
-                    {(comparison.verdict?.topImprovements?.length > 0 || comparison.verdict?.topDeclines?.length > 0) && (
+                      {/* Core Metrics */}
                       <div className="mb-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Top Improvements */}
-                          {comparison.verdict?.topImprovements?.length > 0 && (
-                            <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
-                              <h5 className="font-bold text-green-800 mb-3 flex items-center gap-2">
-                                <TrendingUp size={18} />
-                                {t('reports.comparison.largestImprovements')}
-                              </h5>
-                              <div className="space-y-2">
-                                {comparison.verdict.topImprovements.map((imp, i) => (
-                                  <div key={i} className="bg-white rounded p-3 text-sm">
-                                    <p className="font-bold text-gray-800">{imp.metricName}</p>
-                                    <p className="text-green-600 font-bold">
-                                      +{formatNumber(imp.changePercent)}% ({imp.changeValue > 0 ? '+' : ''}{formatNumber(imp.changeValue)})
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Top Declines */}
-                          {comparison.verdict?.topDeclines?.length > 0 && (
-                            <div className="bg-red-50 rounded-lg p-4 border-2 border-red-200">
-                              <h5 className="font-bold text-red-800 mb-3 flex items-center gap-2">
-                                <TrendingDown size={18} />
-                                {t('reports.comparison.largestDeclines')}
-                              </h5>
-                              <div className="space-y-2">
-                                {comparison.verdict.topDeclines.map((dec, i) => (
-                                  <div key={i} className="bg-white rounded p-3 text-sm">
-                                    <p className="font-bold text-gray-800">{dec.metricName}</p>
-                                    <p className="text-red-600 font-bold">
-                                      {formatNumber(dec.changePercent)}% ({formatNumber(dec.changeValue)})
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Key Insights */}
-                    {comparison.keyInsights && comparison.keyInsights.length > 0 && (
-                      <div className="mb-6 bg-blue-50 rounded-lg p-5 border-r-4 border-blue-500">
-                        <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
-                          💡 {t('reports.comparison.keyInsights')}
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <BarChart3 size={20} className="text-blue-600" />
+                          {t('reports.comparison.coreMetrics')}
                         </h4>
-                        <div className="space-y-2">
-                          {comparison.keyInsights.map((insight, i) => (
-                            <p key={i} className="text-sm text-gray-700 pr-4 flex items-start">
-                              <span className="text-blue-500 ml-2">•</span>
-                              {insight}
-                            </p>
-                          ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <MetricCard
+                            label={t('reports.comparison.workingDays')}
+                            period1Value={comparison.period1?.workingDays}
+                            period2Value={comparison.period2?.workingDays}
+                            difference={comparison.comparison?.workingDaysDifference}
+                            changePercent={comparison.comparison?.workingDaysChangePercent}
+                            icon={Calendar}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.acceptedOrders')}
+                            period1Value={comparison.period1?.totalAcceptedOrders}
+                            period2Value={comparison.period2?.totalAcceptedOrders}
+                            difference={comparison.comparison?.ordersDifference}
+                            changePercent={comparison.comparison?.ordersChangePercent}
+                            icon={Package}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.averageOrdersPerDay')}
+                            period1Value={formatNumber(comparison.period1?.averageOrdersPerDay)}
+                            period2Value={formatNumber(comparison.period2?.averageOrdersPerDay)}
+                            difference={comparison.comparison?.averageOrdersPerDayDifference}
+                            changePercent={comparison.comparison?.averageOrdersPerDayChangePercent}
+                            icon={TrendingUp}
+                          />
+                          <MetricCard
+                            label={`${t('reports.comparison.completionRate')} %`}
+                            period1Value={formatNumber(comparison.period1?.completionRate)}
+                            period2Value={formatNumber(comparison.period2?.completionRate)}
+                            difference={comparison.comparison?.completionRateDifference}
+                            changePercent={comparison.comparison?.completionRateChangePercent}
+                            icon={CheckCircle}
+                          />
                         </div>
                       </div>
-                    )}
 
-                    {/* Recommendations */}
-                    {comparison.recommendations && comparison.recommendations.length > 0 && (
-                      <div className="bg-purple-5 0 rounded-lg p-5 border-r-4 border-purple-500">
-                        <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
-                          📋 {t('reports.comparison.recommendations')}
+                      {/* Performance & Hours */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <Clock size={20} className="text-purple-600" />
+                          {t('reports.comparison.performanceAndHours')}
                         </h4>
-                        <div className="space-y-2">
-                          {comparison.recommendations.map((rec, i) => (
-                            <p key={i} className="text-sm text-gray-700 pr-4 flex items-start">
-                              <span className="text-purple-500 ml-2">•</span>
-                              {rec}
-                            </p>
-                          ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <MetricCard
+                            label={`${t('reports.comparison.performanceScore')} %`}
+                            period1Value={formatNumber(comparison.period1?.performanceScore)}
+                            period2Value={formatNumber(comparison.period2?.performanceScore)}
+                            difference={comparison.comparison?.performanceScoreDifference}
+                            changePercent={comparison.comparison?.performanceScoreChangePercent}
+                            icon={BarChart3}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.workingHours')}
+                            period1Value={formatNumber(comparison.period1?.totalWorkingHours)}
+                            period2Value={formatNumber(comparison.period2?.totalWorkingHours)}
+                            difference={comparison.comparison?.workingHoursDifference}
+                            changePercent={comparison.comparison?.workingHoursChangePercent}
+                            icon={Clock}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.stackedDeliveries')}
+                            period1Value={comparison.period1?.totalStackedDeliveries || 0}
+                            period2Value={comparison.period2?.totalStackedDeliveries || 0}
+                            difference={0}
+                            changePercent={0}
+                            icon={Package}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.stackedPerDay')}
+                            period1Value={formatNumber(comparison.period1?.averageStackedPerDay)}
+                            period2Value={formatNumber(comparison.period2?.averageStackedPerDay)}
+                            difference={0}
+                            changePercent={0}
+                            icon={TrendingUp}
+                          />
                         </div>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Shifts Breakdown */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <Calendar size={20} className="text-green-600" />
+                          {t('reports.comparison.shiftsBreakdown')}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <MetricCard
+                            label={t('reports.comparison.completed')}
+                            period1Value={comparison.period1?.completedShifts}
+                            period2Value={comparison.period2?.completedShifts}
+                            difference={0}
+                            changePercent={0}
+                            icon={CheckCircle}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.incomplete')}
+                            period1Value={comparison.period1?.incompleteShifts}
+                            period2Value={comparison.period2?.incompleteShifts}
+                            difference={0}
+                            changePercent={0}
+                            icon={AlertTriangle}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.failed')}
+                            period1Value={comparison.period1?.failedShifts}
+                            period2Value={comparison.period2?.failedShifts}
+                            difference={0}
+                            changePercent={0}
+                            icon={XCircle}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.absent')}
+                            period1Value={comparison.period1?.absentShifts}
+                            period2Value={comparison.period2?.absentShifts}
+                            difference={0}
+                            changePercent={0}
+                            icon={XCircle}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Orders & Rejections */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <Package size={20} className="text-orange-600" />
+                          {t('reports.comparison.ordersAndRejection')}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <MetricCard
+                            label={t('reports.comparison.totalRejected')}
+                            period1Value={comparison.period1?.totalRejectedOrders}
+                            period2Value={comparison.period2?.totalRejectedOrders}
+                            difference={0}
+                            changePercent={0}
+                            icon={XCircle}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.realRejected')}
+                            period1Value={comparison.period1?.totalRealRejectedOrders}
+                            period2Value={comparison.period2?.totalRealRejectedOrders}
+                            difference={0}
+                            changePercent={0}
+                            icon={XCircle}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.rejectionRate')}
+                            period1Value={`${formatNumber((comparison.period1?.totalRejectedOrders / comparison.period1?.totalAcceptedOrders * 100) || 0)}%`}
+                            period2Value={`${formatNumber((comparison.period2?.totalRejectedOrders / comparison.period2?.totalAcceptedOrders * 100) || 0)}%`}
+                            difference={comparison.comparison?.rejectionRateDifference}
+                            changePercent={comparison.comparison?.rejectionRateChangePercent}
+                            icon={TrendingDown}
+                          />
+                          <MetricCard
+                            label={t('reports.comparison.problematicShifts')}
+                            period1Value={comparison.period1?.problematicShiftsCount}
+                            period2Value={comparison.period2?.problematicShiftsCount}
+                            difference={comparison.comparison?.problematicShiftsDifference}
+                            changePercent={comparison.comparison?.problematicShiftsChangePercent}
+                            icon={AlertTriangle}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Penalties */}
+                      <div className="mb-6">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <DollarSign size={20} className="text-red-600" />
+                          {t('reports.comparison.penalties')}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <MetricCard
+                            label={t('reports.comparison.totalPenalties')}
+                            period1Value={`${formatNumber(comparison.period1?.totalPenaltyAmount)}`}
+                            period2Value={`${formatNumber(comparison.period2?.totalPenaltyAmount)}`}
+                            difference={comparison.comparison?.penaltyDifference}
+                            changePercent={comparison.comparison?.penaltyChangePercent}
+                            icon={DollarSign}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Top Improvements & Declines */}
+                      {(comparison.verdict?.topImprovements?.length > 0 || comparison.verdict?.topDeclines?.length > 0) && (
+                        <div className="mb-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Top Improvements */}
+                            {comparison.verdict?.topImprovements?.length > 0 && (
+                              <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
+                                <h5 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+                                  <TrendingUp size={18} />
+                                  {t('reports.comparison.largestImprovements')}
+                                </h5>
+                                <div className="space-y-2">
+                                  {comparison.verdict.topImprovements.map((imp, i) => (
+                                    <div key={i} className="bg-white rounded p-3 text-sm">
+                                      <p className="font-bold text-gray-800">{imp.metricName}</p>
+                                      <p className="text-green-600 font-bold">
+                                        +{formatNumber(imp.changePercent)}% ({imp.changeValue > 0 ? '+' : ''}{formatNumber(imp.changeValue)})
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Top Declines */}
+                            {comparison.verdict?.topDeclines?.length > 0 && (
+                              <div className="bg-red-50 rounded-lg p-4 border-2 border-red-200">
+                                <h5 className="font-bold text-red-800 mb-3 flex items-center gap-2">
+                                  <TrendingDown size={18} />
+                                  {t('reports.comparison.largestDeclines')}
+                                </h5>
+                                <div className="space-y-2">
+                                  {comparison.verdict.topDeclines.map((dec, i) => (
+                                    <div key={i} className="bg-white rounded p-3 text-sm">
+                                      <p className="font-bold text-gray-800">{dec.metricName}</p>
+                                      <p className="text-red-600 font-bold">
+                                        {formatNumber(dec.changePercent)}% ({formatNumber(dec.changeValue)})
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Key Insights */}
+                      {comparison.keyInsights && comparison.keyInsights.length > 0 && (
+                        <div className="mb-6 bg-blue-50 rounded-lg p-5 border-r-4 border-blue-500">
+                          <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                            💡 {t('reports.comparison.keyInsights')}
+                          </h4>
+                          <div className="space-y-2">
+                            {comparison.keyInsights.map((insight, i) => (
+                              <p key={i} className="text-sm text-gray-700 pr-4 flex items-start">
+                                <span className="text-blue-500 ml-2">•</span>
+                                {insight}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Recommendations */}
+                      {comparison.recommendations && comparison.recommendations.length > 0 && (
+                        <div className="bg-purple-5 0 rounded-lg p-5 border-r-4 border-purple-500">
+                          <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                            📋 {t('reports.comparison.recommendations')}
+                          </h4>
+                          <div className="space-y-2">
+                            {comparison.recommendations.map((rec, i) => (
+                              <p key={i} className="text-sm text-gray-700 pr-4 flex items-start">
+                                <span className="text-purple-500 ml-2">•</span>
+                                {rec}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

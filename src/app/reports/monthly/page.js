@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Search, FileText, TrendingUp, AlertCircle } from 'lucide-react';
+import { Calendar, Search, FileText, TrendingUp, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -10,8 +10,10 @@ import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Modal from '@/components/Ui/Model';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import * as XLSX from 'xlsx';
 
 export default function MonthlyReportsPage() {
+
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
@@ -22,6 +24,28 @@ export default function MonthlyReportsPage() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const handleExport = () => {
+    if (!reports || reports.length === 0) return;
+
+    const exportData = reports.map(report => ({
+      [t('riders.workingId')]: report.workingId,
+      [t('reports.riderName')]: report.riderName,
+      [t('reports.workingDays')]: report.totalWorkingDays,
+      [t('reports.acceptedOrders')]: report.totalAcceptedOrders,
+      [t('reports.rejectedOrders')]: report.totalRejectedOrders,
+      [t('reports.workingHours')]: report.totalWorkingHours.toFixed(2),
+      [t('reports.performanceRate')]: `${report.overallPerformanceScore.toFixed(2)}%`,
+      [t('reports.completedShifts')]: report.completedShifts,
+      [t('reports.incompleteShifts')]: report.incompleteShifts,
+      [t('reports.failedShifts')]: report.failedShifts
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Monthly Report ${month}-${year}`);
+    XLSX.writeFile(workbook, `Monthly_Report_${month}_${year}.xlsx`);
+  };
 
   const loadAllRiders = async () => {
     setLoading(true);
@@ -158,7 +182,7 @@ export default function MonthlyReportsPage() {
               onClick={loadAllRiders}
               disabled={loading}
               loading={loading}
-              className="flex-1"
+              className="flex-2"
             >
               <FileText size={18} />
               {t('reports.allRiders')}
@@ -171,12 +195,24 @@ export default function MonthlyReportsPage() {
               onClick={loadSingleRider}
               disabled={loading || !workingId}
               loading={loading}
-              className="w-full"
+              className="flex-2"
             >
               <Search size={18} />
               {t('common.search')}
             </Button>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <Button
+            onClick={handleExport}
+            disabled={!reports.length}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+          >
+            <FileSpreadsheet size={18} />
+            {t('reports.exportReport')}
+          </Button>
         </div>
       </div>
 
@@ -224,13 +260,13 @@ export default function MonthlyReportsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-red-600 font-semibold">
                       {report.totalRejectedOrders}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingHours.toFixed(1)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{report.totalWorkingHours.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${report.overallPerformanceScore >= 90 ? 'bg-green-100 text-green-800' :
                         report.overallPerformanceScore >= 70 ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'
                         }`}>
-                        {report.overallPerformanceScore.toFixed(1)}%
+                        {report.overallPerformanceScore.toFixed(2)}%
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -309,7 +345,7 @@ export default function MonthlyReportsPage() {
                       <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-600">{t('reports.days')}: {company.workingDays}</span>
                         <span className="text-sm text-green-600">{t('reports.orders')}: {company.totalAcceptedOrders}</span>
-                        <span className="text-sm font-bold">{company.performanceScore.toFixed(1)}%</span>
+                        <span className="text-sm font-bold">{company.performanceScore.toFixed(2)}%</span>
                       </div>
                     </div>
                   ))}

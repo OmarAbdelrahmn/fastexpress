@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
 import { useRouter } from 'next/navigation';
 import { Users, Search, ArrowLeft } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
@@ -118,26 +119,22 @@ export default function RidersReportPage() {
     router.push(`/reports/riders/${report.workingId}?startDate=${startDate}&endDate=${endDate}`);
   };
 
-  const exportToCSV = () => {
+  const handleExport = () => {
     const filteredReports = getFilteredReports();
-    const csvContent = [
-      [t('riders.workingId'), t('employees.iqamaNumber'), t('reports.riderName'), t('reports.workingDays'), t('reports.acceptedOrders'), t('reports.rejectedOrders'), t('reports.performanceRate')],
-      ...filteredReports.map(r => [
-        r.workingId,
-        r.IqamaNo || '',
-        r.riderName,
-        r.totalWorkingDays,
-        r.totalAcceptedOrders,
-        r.totalRejectedOrders,
-        r.overallPerformanceScore.toFixed(1)
-      ])
-    ].map(row => row.join(',')).join('\n');
+    const exportData = filteredReports.map(r => ({
+      [t('riders.workingId')]: r.workingId,
+      [t('employees.iqamaNumber')]: r.iqamaNo || '',
+      [t('reports.riderName')]: r.riderName,
+      [t('reports.workingDays')]: r.totalWorkingDays,
+      [t('reports.acceptedOrders')]: r.totalAcceptedOrders,
+      [t('reports.rejectedOrders')]: r.totalRejectedOrders,
+      [t('reports.performanceRate')]: r.overallPerformanceScore.toFixed(1) + '%'
+    }));
 
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `riders_report_${startDate}_${endDate}.csv`;
-    link.click();
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Riders Report');
+    XLSX.writeFile(workbook, `Riders_Report_${startDate}_${endDate}.xlsx`);
   };
 
   // Real-time filtering function
@@ -214,10 +211,10 @@ export default function RidersReportPage() {
             <div className="flex items-end">
               <Button
                 variant="success"
-                onClick={exportToCSV}
+                onClick={handleExport}
                 className="w-full"
               >
-                {t('reports.exportCSV')}
+                {t('common.exportExcel')}
               </Button>
             </div>
           )}

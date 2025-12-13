@@ -34,6 +34,7 @@
     "inactive": "Inactive",
     "exportExcel": "Export Excel",
     "exportPDF": "Export PDF",
+    "print": "Print",
     "selectAll": "Select All",
     "sendRequest": "Send Request",
     "date": "Date",
@@ -550,6 +551,7 @@
     "statusAvailable": "Available"
   },
   "employees": {
+    "currentMonth": "Current Month",
     "title": "Employees",
     "excelColumns": {
       "iqamaNumber": "Iqama Number",
@@ -1509,7 +1511,25 @@
       "mixedPerformanceCount": "Mixed Perf.",
       "detailedComparisonResults": "Detailed Comparison Results",
       "noDataForPeriods": "No data for comparison in selected periods",
-      "pleaseSelectPeriods": "Please select periods to compare"
+      "pleaseSelectPeriods": "Please select periods to compare",
+      "loadingDataText": "Loading data...",
+      "noDataSelectPeriods": "Please select periods to compare",
+      "noDataForComparisonPeriods": "No comparison data for selected periods",
+      "workingNumber": "Working Number",
+      "mixedPerformanceLabel": "Mixed Performance",
+      "errorLoadingComparison": "Error loading comparison data",
+      "ridersLoadedSuccess": "Successfully loaded {{count}} riders data",
+      "ridersCompareTitle": "Riders Comparison",
+      "ridersCompareSubtitle": "Comprehensive comparison of riders performance between two periods",
+      "showRanking": "Show Ranking",
+      "searchCriteria": "Search Criteria",
+      "score": "Score",
+      "fullRanking": "Full Ranking",
+      "generalStats": "General Statistics",
+      "averageOrders": "Average Orders",
+      "averageWorkingHours": "Average Working Hours",
+      "highestScore": "Highest Score",
+      "averageRejectionRate": "Average Rejection Rate"
     },
     "stackedReport": {
       "title": "Stacked Deliveries Report",
@@ -1669,6 +1689,8 @@
     "completionRate": "Completion Rate",
     "rejectionRate": "Rejection Rate",
     "completed": "Completed",
+    "failed": "Failed",
+    "incomplete": "Incomplete",
     "loadedProblems": "Loaded problematic shifts:",
     "incompleteInfo": "Incomplete information. Please check Working ID and dates.",
     "noReportsFound": "No reports found",

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Search, Calendar } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { Package, Search,FileSpreadsheet, Calendar } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -34,11 +35,11 @@ export default function StackedDeliveriesPage() {
     setMessage({ type: '', text: '' });
     try {
       const data = await ApiService.get(
-        API_ENDPOINTS.REPORTS.STACKED,
+        API_ENDPOINTS.REPORTS.STACKEDd,
         { startDate, endDate }
       );
       setReport(data);
-      setMessage({ type: 'success', text: t('reports.reportLoadedSuccess') + ` - ${data.totalRiders} ${t('reports.riders')}` });
+      setMessage({ type: 'success', text: t('reports.reportLoadedSuccess') + ` - ${data.totalRiders} ${t('riders.title1')}` });
     } catch (error) {
       setMessage({ type: 'error', text: error.message || t('reports.failedToLoadReports') });
       setReport(null);
@@ -54,7 +55,7 @@ export default function StackedDeliveriesPage() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'numeric', day: 'numeric' });
+    return date.toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US', { year: 'numeric', month: 'numeric', day: 'numeric' });
   };
 
   // Set default dates (current month)
@@ -65,6 +66,30 @@ export default function StackedDeliveriesPage() {
 
     setStartDate(firstDay.toISOString().split('T')[0]);
     setEndDate(lastDay.toISOString().split('T')[0]);
+  };
+
+  const handleExport = () => {
+    if (!report || !report.riderSummaries || report.riderSummaries.length === 0) return;
+
+    const exportData = report.riderSummaries.map(rider => ({
+      [t('reports.riderName')]: rider.riderName,
+      [t('riders.workingId')]: rider.workingId,
+      [t('reports.stackedDeliveries')]: rider.totalStackedDeliveries,
+      [t('reports.totalShifts')]: rider.totalShifts,
+      [t('reports.stackedReport.averageStackedPerShift')]: rider.averageStackedPerShift.toFixed(2),
+      [t('reports.stackedReport.maxStacked')]: rider.maxStackedInDay,
+      [t('common.date')]: rider.maxStackedDate ? formatDate(rider.maxStackedDate) : '-',
+      [`${t('reports.stackedReport.stackedPercentage')} (%)`]: rider.totalStackedPercentage.toFixed(2),
+      [t('common.status')]: rider.averageStackedPerShift < 3 ? t('reports.stackedReport.excellent') :
+        rider.averageStackedPerShift < 5 ? t('reports.stackedReport.acceptable') :
+          rider.averageStackedPerShift < 8 ? t('reports.stackedReport.needsImprovement') :
+            t('reports.stackedReport.critical')
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stacked Report');
+    XLSX.writeFile(workbook, `Stacked_Report_${startDate}_${endDate}.xlsx`);
   };
 
   return (
@@ -87,10 +112,10 @@ export default function StackedDeliveriesPage() {
 
       {/* Filters */}
       <div className="m-6 bg-white rounded-xl shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Input
             type="date"
-            label={t('common.startDate')}
+            label={t('employees.startDate')}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
@@ -98,7 +123,7 @@ export default function StackedDeliveriesPage() {
 
           <Input
             type="date"
-            label={t('common.endDate')}
+            label={t('employees.endDate')}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
@@ -111,7 +136,7 @@ export default function StackedDeliveriesPage() {
               className="w-full"
             >
               <Calendar size={18} />
-              {t('common.currentMonth') || "Current Month"}
+              {t('employees.currentMonth') || "Current Month"}
             </Button>
           </div>
 
@@ -125,6 +150,18 @@ export default function StackedDeliveriesPage() {
             >
               <Search size={18} />
               {t('reports.generateReport')}
+            </Button>
+          </div>
+
+          <div className="flex items-end">
+            <Button
+              onClick={handleExport}
+              disabled={!report}
+              variant="outline"
+              className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+            >
+              <FileSpreadsheet size={18} />
+              {t('reports.exportReport')}
             </Button>
           </div>
         </div>
@@ -208,10 +245,10 @@ export default function StackedDeliveriesPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.rider')}</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.comparison.workingNumber')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('riders.title')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.workingNumber')}</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.stackedDeliveries')}</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.shifts')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('shifts.title')}</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.stackedReport.averageStackedPerShift')}</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">{t('reports.stackedReport.maxStacked')}</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">%</th>
@@ -363,11 +400,11 @@ export default function StackedDeliveriesPage() {
                 </div>
                 <div className="space-y-2 text-sm mt-4">
                   <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-gray-600">{t('reports.avgShiftsPerRider')}</span>
+                    <span className="text-gray-600">{t('reports.dashboardPage.avgShifts')}</span>
                     <span className="font-bold">{(report.totalShifts / report.totalRiders).toFixed(1)}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-gray-600">{t('reports.totalWorkingDays')}</span>
+                    <span className="text-gray-600">{t('reports.comparison.workingDays')}</span>
                     <span className="font-bold">{report.totalShifts}</span>
                   </div>
                 </div>
