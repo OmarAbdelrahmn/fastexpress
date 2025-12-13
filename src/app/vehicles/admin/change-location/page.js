@@ -8,7 +8,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from "@/lib/context/LanguageContext";
 import { MapPin, Save, Search, Car, Navigation } from 'lucide-react';
 
 export default function ChangeLocationPage() {
