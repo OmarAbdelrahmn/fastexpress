@@ -19,6 +19,9 @@ import {
   BarChart3,
   ShoppingBag,
   AlertCircle,
+  FileText,
+  Printer,
+  ChevronRight // Added new icon
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
@@ -305,129 +308,6 @@ export default function EnhancedDashboard() {
     }
   };
 
-  const StatCard = ({
-    title,
-    value,
-    subtitle,
-    icon: Icon,
-    color,
-    trend,
-    linkText,
-  }) => {
-    const colorClasses = {
-      blue: "from-blue-500 to-blue-600",
-      green: "from-green-500 to-green-600",
-      orange: "from-orange-500 to-orange-600",
-      purple: "from-purple-500 to-purple-600",
-      teal: "from-teal-500 to-teal-600",
-      indigo: "from-indigo-500 to-indigo-600",
-      rose: "from-rose-500 to-rose-600",
-      amber: "from-amber-500 to-amber-600",
-      yellow: "from-yellow-500 to-yellow-600",
-      emerald: "from-emerald-500 to-emerald-600",
-      sky: "from-sky-500 to-sky-600",
-      cyan: "from-cyan-500 to-cyan-600",
-      red: "bg-red-50 border-red-200 text-red-700",
-    };
-
-    const getTrendIcon = () => {
-      if (!trend) return null;
-      if (trend > 0) return <ArrowUp size={12} />;
-      if (trend < 0) return <ArrowDown size={12} />;
-      return <Minus size={12} />;
-    };
-
-    const getTrendColor = () => {
-      if (!trend) return "text-gray-400";
-      if (trend > 0) return "text-green-400";
-      if (trend < 0) return "text-red-400";
-      return "text-gray-400";
-    };
-
-    return (
-      <div
-        className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300`}
-      >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            {/* Fixed: Using semi-transparent white to create glass effect that shows gradient */}
-            <div className=" bg-opacity-20 p-2.5 rounded-xl backdrop-blur-sm">
-              <Icon size={22} className="text-white" />
-            </div>
-            {trend !== undefined && (
-              <div
-                className={`flex items-center gap-1 ${getTrendColor()} bg-white bg-opacity-20 px-2 py-1 rounded-full backdrop-blur-sm text-xs font-bold`}
-              >
-                {getTrendIcon()}
-                <span>{Math.abs(trend)}%</span>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <p className="text-white text-opacity-90 text-xs font-medium mb-1">
-              {title}
-            </p>
-            <p className="text-white text-3xl font-bold mb-1.5">
-              {loading ? "..." : value}
-            </p>
-            <p className="text-white text-opacity-80 text-xs">{subtitle}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const MiniStatCard = ({ icon: Icon, label, value, color }) => {
-    const colorClasses = {
-      blue: "bg-blue-50 border-blue-200 text-blue-700",
-      green: "bg-green-50 border-green-200 text-green-700",
-      orange: "bg-orange-50 border-orange-200 text-orange-700",
-      red: "bg-red-50 border-red-200 text-red-700",
-      purple: "bg-purple-50 border-purple-200 text-purple-700",
-      teal: "bg-teal-50 border-teal-200 text-teal-700",
-    };
-
-    return (
-      <div
-        className={`${colorClasses[color]} border-2 rounded-xl p-3 hover:shadow-md transition-all`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium opacity-75 mb-1">{label}</p>
-            <p className="text-xl font-bold">{loading ? "..." : value}</p>
-          </div>
-          <Icon size={20} className="opacity-60" />
-        </div>
-      </div>
-    );
-  };
-
-  const QuickActionCard = ({
-    icon: Icon,
-    title,
-    description,
-    color,
-    onClick,
-  }) => {
-    const colorClasses = {
-      blue: "hover:bg-blue-50 border-blue-300 text-blue-600",
-      green: "hover:bg-green-50 border-green-300 text-green-600",
-      orange: "hover:bg-orange-50 border-orange-300 text-orange-600",
-      purple: "hover:bg-purple-50 border-purple-300 text-purple-600",
-    };
-
-    return (
-      <button
-        onClick={onClick}
-        className={`w-full p-4 border-2 border-dashed ${colorClasses[color]} rounded-xl transition-all hover:border-solid hover:shadow-lg text-right`}
-      >
-        <Icon className="mb-2" size={24} />
-        <p className="font-bold text-base mb-0.5">{title}</p>
-        <p className="text-xs opacity-75">{description}</p>
-      </button>
-    );
-  };
 
   const [specialReportData, setSpecialReportData] = useState(null);
   const [housingReportData, setHousingReportData] = useState(null);
@@ -437,33 +317,25 @@ export default function EnhancedDashboard() {
   const handleHousingDetailedReport = async () => {
     try {
       const response = await get("/api/report/special2");
-
-      // Mock/Default data
       const data = response.data || {
         reportDate: "2025-12-14",
         housingDetails: [],
         grandTotalOrders: 0,
         grandTotalRiders: 0
       };
-
       setHousingDetailedReportData(data);
-
       setTimeout(() => {
         window.print();
       }, 500);
-
     } catch (error) {
       console.error("Failed to fetch housing detailed report:", error);
       alert(t('common.error'));
     }
   };
-  // Add Special Report Logic
+
   const handleSpecialReport = async () => {
     try {
       const response = await get("/api/report/special");
-
-      // Mock data if API fails or returns empty (for development safety/fallback, 
-      // though detailed requirements said receive specific response, so we trust api)
       const reportData = response.data || {
         "period1Start": "2025-11-01",
         "period1End": "2025-11-13",
@@ -475,26 +347,19 @@ export default function EnhancedDashboard() {
         "changePercentage": 10,
         "trendDescription": "🚀"
       };
-
       setSpecialReportData(reportData);
-
-      // Allow state to update then print
       setTimeout(() => {
         window.print();
       }, 500);
-
     } catch (error) {
       console.error("Failed to fetch special report:", error);
       alert(t('common.error'));
     }
   };
 
-  // Housing Report Handler
   const handleHousingReport = async () => {
     try {
       const response = await get("/api/report/special1");
-
-      // Mock/Default data for safety if API returns empty
       const data = response.data || {
         reportDate: "2025-12-14",
         housingSummaries: [],
@@ -502,413 +367,290 @@ export default function EnhancedDashboard() {
         totalRiders: 0,
         averageOrdersPerRider: 0
       };
-
       setHousingReportData(data);
-
       setTimeout(() => {
         window.print();
       }, 500);
-
     } catch (error) {
       console.error("Failed to fetch housing report:", error);
       alert(t('common.error'));
     }
   };
 
+  // Color Palette Constants
+  const COLORS = {
+    blue: "#2563eb",   // blue-600
+    orange: "#f97316", // orange-500
+    gray: "#64748b",   // slate-500
+    grayLight: "#94a3b8", // slate-400
+  };
+
+  // Helper for background color with opacity (approx 10%)
+  const getBgStyle = (hex) => ({
+    backgroundColor: `${hex}1A` // 1A is ~10% opacity in hex
+  });
+
+  const PageHeader = () => (
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-1">
+          {t("dashboard.title")}
+        </h1>
+        <p className="text-gray-500 text-sm">
+          {t("dashboard.subtitle")}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100">
+        <Clock size={16} color={COLORS.blue} />
+        <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+      </div>
+    </div>
+  );
+
+  const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background }) => (
+    <Link href={link} className="block group">
+      <div className={`rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background}`}>
+        <div className="flex justify-between items-start mb-4 ">
+          <div className="p-3 rounded-xl transition-colors" style={getBgStyle(color)}>
+            <Icon size={24} color={color} />
+          </div>
+          {/* Subtle background decoration */}
+          <Icon className="absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={100} color={color} />
+        </div>
+
+        <div className="relative z-10 ">
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{loading ? "..." : value}</h3>
+          <p className="font-medium text-gray-700 mb-1">{title}</p>
+          <p className="text-xs text-gray-400">{subtitle}</p>
+        </div>
+      </div>
+    </Link>
+  );
+
+  const QuickActionBtn = ({ title, subtitle, icon: Icon, color, onClick,background }) => {
+    return (
+      <button
+        onClick={onClick}
+        className={`w-full flex items-center justify-between p-4 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-300 group text-right hover:border-blue-100`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-lg transition-colors" style={getBgStyle(color)}>
+            <Icon size={24} color={color} />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900">{title}</h3>
+            <p className="text-xs text-gray-500">{subtitle}</p>
+          </div>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+          <ChevronRight size={16} color={COLORS.grayLight} className="rtl:rotate-180" />
+        </div>
+      </button>
+    );
+  };
+
+  const MiniStatRow = ({ label, value, icon: Icon, color }) => (
+    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-default group">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-md group-hover:bg-opacity-20 transition-all" style={getBgStyle(color)}>
+          <Icon size={18} color={color} />
+        </div>
+        <span className="text-sm font-medium text-gray-600">{label}</span>
+      </div>
+      <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{value}</span>
+    </div>
+  );
+
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 md:p-6"
-      dir="rtl"
-    >
-      {/* Special Report Printable Template */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100/500 p-4 md:p-8" dir="rtl">
+      {/* Printable Components */}
       {specialReportData && <SpecialReportTemplate data={specialReportData} />}
       {housingReportData && <HousingReportTemplate data={housingReportData} />}
       {housingDetailedReportData && <HousingDetailedReportTemplate data={housingDetailedReportData} />}
 
-      {/* Welcome Header - Mobile Optimized */}
-      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white rounded-2xl shadow-xl p-4 md:p-8 mb-4 md:mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-white opacity-5 rounded-full -mr-16 md:-mr-32 -mt-16 md:-mt-32"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 md:w-48 md:h-48 bg-white opacity-5 rounded-full -ml-12 md:-ml-24 -mb-12 md:-mb-24"></div>
-        <div className="relative z-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 flex items-center gap-2 md:gap-3">
-                <Activity size={28} className="md:w-10 md:h-10" />
-                {t("dashboard.title")}
-              </h1>
-              <p className="text-blue-100 text-sm md:text-lg">
-                {t("dashboard.subtitle")}
-              </p>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4 mt-3 md:mt-4 text-xs md:text-sm">
-                <div className="flex items-center gap-2  bg-opacity-20 px-3 py-1.5 md:px-4 md:py-2 rounded-lg backdrop-blur-sm">
-                  <Calendar size={14} className="md:w-4 md:h-4" />
-                  <span className="text-xs md:text-sm">
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2  bg-opacity-20 px-3 py-1.5 md:px-4 md:py-2 rounded-lg backdrop-blur-sm">
-                  <Clock size={14} className="md:w-4 md:h-4" />
-                  <span className="text-xs md:text-sm">
-                    {new Date().toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="hidden md:flex flex-col items-end gap-2">
-              <div className=" bg-opacity-20 px-6 py-3 rounded-lg backdrop-blur-sm">
-                <p className="text-sm text-blue-100">{t("dashboard.systemStatus")}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-lg font-bold">{t("dashboard.active")}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto">
+        <PageHeader />
 
-      {/* Main Stats Grid - Mobile Optimized */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-6">
-        <Link href="/vehicles/admin">
+        {/* Primary Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           <StatCard
             title={t("dashboard.totalVehicles")}
             value={stats.vehicles}
             subtitle={t("dashboard.vehiclesInFleet")}
             icon={Car}
-            color="blue"
-            linkText={t("dashboard.viewDetails")}
+            color={COLORS.black}
+            link="/vehicles/admin"
+            background="bg-gray-300"
           />
-        </Link>
-        <Link href="/riders/">
           <StatCard
             title={t("dashboard.allRiders")}
             value={stats.riders}
-            subtitle={`${stats.riders} ${t("dashboard.fromRiders")}`}
+            subtitle={t("dashboard.fromRiders")}
             icon={Users}
-            color="yellow"
-            linkText={t("dashboard.manageRiders")}
+            color={COLORS.black}
+            link="/riders/"
+            background="bg-blue-200"
           />
-        </Link>
-        <Link href="shifts/">
           <StatCard
             title={t("dashboard.todayShifts")}
             value={stats.activeShifts}
-            subtitle={`${stats.todayShifts} ${t("dashboard.fromShifts")}`}
+            subtitle={t("dashboard.shiftsSchedule")}
             icon={Calendar}
-            color="purple"
-
-            linkText={t("dashboard.shiftsSchedule")}
+            color={COLORS.black}
+            link="shifts/"
+            background="bg-gray-300"
           />
-        </Link>
-        <Link href="employees/admin">
-          <StatCard
-            title={t("dashboard.totalEmployees")}
-            value={stats.employees}
-            subtitle={t("dashboard.activeEmployee")}
-            icon={Package}
-            color="orange"
-            linkText={t("dashboard.employeesList")}
-          />
-        </Link>
-        <Link href="vehicles/admin/users-requests">
           <StatCard
             title={t("dashboard.pendingApprovals")}
             value={stats.pendingRequests}
-            subtitle={
-              stats.pendingRequests > 0
-                ? t("dashboard.hasPendingApprovals")
-                : t("dashboard.noPendingApprovals")
-            }
-            icon={AlertCircle}
-            color={"green"}
-            linkText={t("dashboard.viewRequests")}
+            subtitle={t("dashboard.hasPendingApprovals")}
+            icon={FileText}
+            color={COLORS.black}
+            link="vehicles/admin/users-requests"
+            background="bg-blue-200"
           />
-        </Link>
-        <Link href="/reports/dashboard">
-          <StatCard
-            title={t("dashboard.yesterdayAcceptedOrders")}
-            value={stats.previousDayTotalOrders}
-            subtitle={t("common.order")}
-            icon={ShoppingBag}
-            color="cyan"
-            linkText={t("dashboard.viewDetails")}
-          />
-        </Link>
-      </div>
-
-      {/* NEW SECTION: Special Actions Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <button
-          onClick={() => {
-            setHousingDetailedReportData(null)
-            setHousingReportData(null);
-            handleSpecialReport();
-          }}
-          className="flex items-center justify-between p-4 bg-white rounded-xl shadow-lg border-l-4 border-indigo-600 hover:shadow-xl hover:bg-indigo-50 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-lg group-hover:bg-indigo-200 transition-colors">
-              <BarChart3 size={24} />
-            </div>
-            <div className="text-right">
-              <h3 className="font-bold text-gray-800 text-lg">تقرير الفرق الخاص</h3>
-              <p className="text-xs text-gray-500">طباعة تقرير الفروقات</p>
-            </div>
-          </div>
-          <ArrowUp className="text-gray-300 group-hover:text-indigo-600 transition-colors rotate-45 rtl:rotate-[-45deg]" />
-        </button>
-
-        <button
-          className="flex items-center justify-between p-4 bg-white rounded-xl shadow-lg border-l-4 border-emerald-500 hover:shadow-xl hover:bg-emerald-50 transition-all group"
-          onClick={() => {
-            setSpecialReportData(null);
-            setHousingDetailedReportData(null)
-            handleHousingReport();
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-lg group-hover:bg-emerald-200 transition-colors">
-              <TrendingUp size={24} />
-            </div>
-            <div className="text-right">
-              <h3 className="font-bold text-gray-800 text-lg">تحليل المجموعات</h3>
-              <p className="text-xs text-gray-500">تقرير السكنات والطلبات</p>
-            </div>
-          </div>
-          <ArrowUp className="text-gray-300 group-hover:text-emerald-600 transition-colors rotate-45 rtl:rotate-[-45deg]" />
-        </button>
-
-        <button
-          className="flex items-center justify-between p-4 bg-white rounded-xl shadow-lg border-l-4 border-amber-500 hover:shadow-xl hover:bg-amber-50 transition-all group"
-          onClick={() => {
-            setSpecialReportData(null);
-            setHousingReportData(null);
-            handleHousingDetailedReport();
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-100 text-amber-600 rounded-lg group-hover:bg-amber-200 transition-colors">
-              <Users size={24} />
-            </div>
-            <div className="text-right">
-              <h3 className="font-bold text-gray-800 text-lg">إدارة الفريق</h3>
-              <p className="text-xs text-gray-500">توزيع المهام والموارد</p>
-            </div>
-          </div>
-          <ArrowUp className="text-gray-300 group-hover:text-amber-600 transition-colors rotate-45 rtl:rotate-[-45deg]" />
-        </button>
-      </div>
-
-      {/* Detailed Statistics Grid - Mobile Optimized */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
-        {/* Vehicles Breakdown */}
-        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-blue-100 p-2 md:p-3 rounded-lg">
-              <Car size={20} className="text-blue-600 md:w-6 md:h-6" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              {t("dashboard.vehiclesBreakdown")}
-            </h3>
-          </div>
-          <div className="space-y-2 md:space-y-3">
-            <MiniStatCard
-              icon={CheckCircle}
-              label={t("dashboard.readyForDelivery")}
-              value={stats.availableVehicles}
-              color="green"
-            />
-            <MiniStatCard
-              icon={Users}
-              label={t("dashboard.inService")}
-              value={stats.takenVehicles}
-              color="blue"
-            />
-            <MiniStatCard
-              icon={AlertTriangle}
-              label={t("dashboard.inMaintenance")}
-              value={stats.problemVehicles}
-              color="orange"
-            />
-          </div>
         </div>
 
-        {/* Riders Status */}
-        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-green-100 p-2 md:p-3 rounded-lg">
-              <Users size={20} className="text-green-600 md:w-6 md:h-6" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              {t("dashboard.ridersStatus")}
-            </h3>
-          </div>
-          <div className="space-y-2 md:space-y-3">
-            <MiniStatCard
-              icon={CheckCircle}
-              label={t("dashboard.active")}
-              value={stats.activeRiders}
-              color="green"
-            />
-            <MiniStatCard
-              icon={Clock}
-              label={t("dashboard.inactive")}
-              value={stats.inactiveRiders}
-              color="red"
-            />
-            <MiniStatCard
-              icon={TrendingUp}
-              label={t("dashboard.performanceRate")}
-              value={`${stats.riderEfficiency.toFixed(0)}%`}
-              color="purple"
-            />
-          </div>
-        </div>
+        {/* Quick Actions & Secondary Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* System Overview */}
-        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-purple-100 p-2 md:p-3 rounded-lg">
-              <BarChart3 size={20} className="text-purple-600 md:w-6 md:h-6" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-800">
-              {t("dashboard.overview")}
-            </h3>
-          </div>
-          <div className="space-y-2 md:space-y-3">
-            <MiniStatCard
-              icon={Building2}
-              label={t("dashboard.theCompanies")}
-              value={stats.companies}
-              color="blue"
-            />
-            <MiniStatCard
-              icon={Home}
-              label={t("dashboard.theHousing")}
-              value={stats.housing}
-              color="teal"
-            />
-            <MiniStatCard
-              icon={Users}
-              label={t("dashboard.theUsers")}
-              value={stats.users}
-              color="purple"
-            />
-          </div>
-        </div>
-      </div>
+          {/* Left Column: Quick Actions */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{t("reports.title")}</h2>
 
-      {/* Quick Actions - Mobile Optimized */}
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100 mb-4 md:mb-6">
-        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2">
-          <Activity size={20} className="text-indigo-600 md:w-6 md:h-6" />
-          {t("dashboard.quickActions")}
-        </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <Link href="/vehicles/admin/manage">
-            <QuickActionCard
-              icon={Car}
-              title={t("dashboard.addVehicle")}
-              description={t("dashboard.registerNewVehicle")}
-              color="blue"
-              onClick={() => console.log("Add vehicle")}
-            />
-          </Link>
-          <Link href="/riders/create">
-            <QuickActionCard
-              icon={Users}
-              title={t("dashboard.addRider")}
-              description={t("dashboard.registerNewRider")}
-              color="green"
-              onClick={() => console.log("Add rider")}
-            />
-          </Link>
-          <Link href="/shifts/">
-            <QuickActionCard
-              icon={Calendar}
-              title={t("dashboard.scheduleShift")}
-              description={t("dashboard.createNewShift")}
-              color="purple"
-              onClick={() => console.log("Schedule shift")}
-            />
-          </Link>
-          <Link href="/reports/">
-            <QuickActionCard
+            <QuickActionBtn
+              title="تقرير الفرق الخاص"
+              subtitle="طباعة تقرير الفروقات"
               icon={BarChart3}
-              title={t("dashboard.viewReports")}
-              description={t("dashboard.detailedReports")}
-              color="orange"
-              onClick={() => console.log("View reports")}
+              color={COLORS.black}
+              background="bg-blue-300"
+              onClick={() => {
+                setHousingDetailedReportData(null);
+                setHousingReportData(null);
+                handleSpecialReport();
+              }}
             />
-          </Link>
-        </div>
-      </div>
 
-      {/* Performance Metrics - Mobile Optimized */}
-      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="bg-indigo-100 p-2 md:p-3 rounded-lg">
-            <TrendingUp size={20} className="text-indigo-600 md:w-6 md:h-6" />
+            <QuickActionBtn
+              title="تحليل المجموعات"
+              subtitle="تقرير السكنات والطلبات"
+              icon={TrendingUp}
+              color={COLORS.black}
+              background="bg-blue-300"
+              onClick={() => {
+                setSpecialReportData(null);
+                setHousingDetailedReportData(null);
+                handleHousingReport();
+              }}
+            />
+
+            <QuickActionBtn
+              title="إدارة الفريق"
+              subtitle="توزيع المهام والموارد"
+              icon={Users}
+              color={COLORS.black}
+              background="bg-blue-300"
+              onClick={() => {
+                setSpecialReportData(null);
+                setHousingReportData(null);
+                handleHousingDetailedReport();
+              }}
+            />
           </div>
-          <h3 className="text-base md:text-lg font-bold text-gray-800">
-            {t("dashboard.performanceIndicators")}
-          </h3>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-xs md:text-sm font-medium text-gray-600">
-                {t("dashboard.vehicleUtilization")}
-              </span>
-              <span className="text-xs md:text-sm font-bold text-indigo-600">
-                {stats.vehicleUtilization.toFixed(1)}%
-              </span>
+
+          {/* Middle & Right Column: Detailed Breakdown (Spans 2 columns on large screens) */}
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Vehicle Status */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Car size={20} color={COLORS.blue} />
+                {t("dashboard.vehiclesBreakdown")}
+              </h3>
+              <div className="space-y-4">
+                <MiniStatRow
+                  label={t("dashboard.readyForDelivery")}
+                  value={stats.availableVehicles}
+                  icon={CheckCircle}
+                  color={COLORS.blue}
+                />
+                <MiniStatRow
+                  label={t("dashboard.inService")}
+                  value={stats.takenVehicles}
+                  icon={Users}
+                  color={COLORS.gray}
+                />
+                <MiniStatRow
+                  label={t("dashboard.inMaintenance")}
+                  value={stats.problemVehicles}
+                  icon={AlertTriangle}
+                  color={COLORS.orange}
+                />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
-              <div
-                className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 md:h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(stats.vehicleUtilization, 100)}%` }}
-              ></div>
+
+            {/* Rider Status */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Users size={20} color={COLORS.orange} />
+                {t("dashboard.ridersStatus")}
+              </h3>
+              <div className="space-y-4">
+                <MiniStatRow
+                  label={t("dashboard.active")}
+                  value={stats.activeRiders}
+                  icon={CheckCircle}
+                  color={COLORS.blue}
+                />
+                <MiniStatRow
+                  label={t("dashboard.inactive")}
+                  value={stats.inactiveRiders}
+                  icon={Clock}
+                  color={COLORS.gray}
+                />
+                <div className="pt-4 border-t border-gray-100 mt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-semibold uppercase text-gray-400">{t("dashboard.performanceRate")}</span>
+                    <span className="text-xl font-bold text-blue-600">{stats.riderEfficiency.toFixed(0)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                      style={{ width: `${Math.min(stats.riderEfficiency, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-xs md:text-sm font-medium text-gray-600">
-                {t("dashboard.riderEfficiency")}
-              </span>
-              <span className="text-xs md:text-sm font-bold text-green-600">
-                {stats.riderEfficiency.toFixed(1)}%
-              </span>
+            {/* System Overview */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <BarChart3 size={20} color={COLORS.gray} />
+                {t("dashboard.overview")}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <MiniStatRow
+                  label={t("dashboard.theCompanies")}
+                  value={stats.companies}
+                  icon={Building2}
+                  color={COLORS.blue}
+                />
+                <MiniStatRow
+                  label={t("dashboard.theHousing")}
+                  value={stats.housing}
+                  icon={Home}
+                  color={COLORS.gray}
+                />
+                <MiniStatRow
+                  label={t("dashboard.theUsers")}
+                  value={stats.users}
+                  icon={Users}
+                  color={COLORS.orange}
+                />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
-              <div
-                className="bg-gradient-to-r from-green-500 to-green-600 h-2 md:h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(stats.riderEfficiency, 100)}%` }}
-              ></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-xs md:text-sm font-medium text-gray-600">
-                {t("dashboard.housingOccupancy")}
-              </span>
-              <span className="text-xs md:text-sm font-bold text-purple-600">
-                {stats.housingOccupancy}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
-              <div
-                className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 md:h-3 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(stats.housingOccupancy, 100)}%` }}
-              ></div>
-            </div>
+
           </div>
         </div>
       </div>

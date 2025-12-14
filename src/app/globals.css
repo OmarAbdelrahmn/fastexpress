@@ -2,17 +2,21 @@
 
 
 :root {
-  --primary-blue: #1b428e;
-  --golden-yellow: #ebb62b;
-  --vibrant-orange: #e08911;
+  --primary-blue: #2563eb; /* Lighter vivid blue */
+  --primary-blue-dark: #1e40af;
+  --golden-yellow: #f59e0b;
+  --vibrant-orange: #f97316;
+  --bg-main: #f8fafc;
+  --surface-card: #ffffff;
 }
-
-
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Keeping dark mode as is for now, or resetting to light if strictly requested. 
+       User asked for "clean ui" matching image which is light. 
+       I will force light theme defaults for now in root. */
+    --background: #f8fafc;
+    --foreground: #0f172a;
   }
 }
 /* src/app/globals.css */

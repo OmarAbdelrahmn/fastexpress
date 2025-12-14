@@ -28,22 +28,24 @@ export default function Sidebar() {
   };
 
   const SidebarContent = () => (
-    <nav>
-      <ul className="space-y-3">
+    <nav className="p-4">
+      <div className="mb-8 px-4 flex items-center justify-center">
+        {/* Optional: Add Logo Here */}
+        <h2 className="text-2xl font-extrabold text-[#2563eb] tracking-tight">Express Service</h2>
+      </div>
+      <ul className="space-y-2">
         {/* Dashboard Home */}
         <li>
           <Link
             href="/dashboard"
             onClick={closeMobileMenu}
-            className={`block w-full text-right px-5 py-4 rounded-xl transition-all duration-200 text-lg font-medium ${isActive('/dashboard')
-              ? 'bg-gradient-to-r from-[#ebb62b] to-[#e08911] text-white shadow-md transform scale-105'
-              : 'hover:bg-white hover:shadow-md text-gray-700'
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium ${isActive('/dashboard')
+              ? 'bg-blue-50 text-[#2563eb] border-r-4 border-[#2563eb]'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
           >
-            <span className="flex items-center gap-3">
-              <span className="text-2xl">{navigationConfig.dashboard.icon}</span>
-              <span>{t(navigationConfig.dashboard.title)}</span>
-            </span>
+            <span className="text-xl">{navigationConfig.dashboard.icon}</span>
+            <span>{t(navigationConfig.dashboard.title)}</span>
           </Link>
         </li>
 
@@ -54,32 +56,32 @@ export default function Sidebar() {
             <li key={key}>
               <button
                 onClick={() => toggleSection(key)}
-                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl transition-all duration-200 text-lg font-bold ${openSections[key]
-                  ? 'bg-white shadow-md text-[#ebb62b]'
-                  : 'text-black-700 hover:bg-white hover:shadow-md'
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 font-medium ${openSections[key]
+                  ? 'bg-gray-50 text-gray-900'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
               >
-                <span className="flex items-center gap-3">
-                  <span className="text-2xl">{section.icon}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{section.icon}</span>
                   <span>{t(section.title)}</span>
-                </span>
+                </div>
                 {openSections[key] ? (
-                  <ChevronDown size={22} className="text-[#e08911]" />
+                  <ChevronDown size={18} className="text-gray-400" />
                 ) : (
-                  <ChevronLeft size={22} />
+                  <ChevronLeft size={18} className="text-gray-400" />
                 )}
               </button>
 
               {openSections[key] && section.routes && (
-                <ul className="mr-8 mt-2 space-y-2 border-r-3 border-[#ebb62b] pr-4">
+                <ul className="mr-8 mt-1 space-y-1 border-r-2 border-gray-100 pr-3">
                   {section.routes.map((route) => (
                     <li key={route.path}>
                       <Link
                         href={route.path}
                         onClick={closeMobileMenu}
-                        className={`block w-full text-right px-4 py-3 rounded-lg text-lg font-medium transition-all duration-200 ${isActive(route.path)
-                          ? 'bg-gradient-to-r from-[#1b428e] to-[#2858b8] text-white font-medium shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-[#1b428e] hover:pr-5'
+                        className={`block w-full text-right px-3 py-2 rounded-md text-sm transition-all duration-200 ${isActive(route.path)
+                          ? 'text-[#2563eb] font-semibold bg-blue-50/50'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                           }`}
                       >
                         {t(route.label)}
@@ -99,39 +101,36 @@ export default function Sidebar() {
       {/* Mobile Burger Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-20 right-4 z-50 bg-gradient-to-r from-[#ebb62b] to-[#e08911] text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+        className="lg:hidden fixed top-4 right-4 z-50 bg-white text-gray-700 p-2 rounded-md shadow-md hover:bg-gray-50 border border-gray-200"
         aria-label="Toggle menu"
       >
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Mobile Overlay with Blur */}
+      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 backdrop-blur-sm bg-white/30 z-40"
+          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 min-h-screen bg-gradient-to-b from-gray-50 to-white shadow-lg p-4 overflow-y-auto flex-shrink-0">
+      <aside className="hidden lg:block w-72 min-h-screen bg-white border-l border-gray-100 shadow-sm flex-shrink-0">
         <SidebarContent />
       </aside>
 
       {/* Mobile Sidebar */}
       <aside
-        className={`lg:hidden fixed top-0 right-0 h-full w-80 bg-gradient-to-b from-gray-50 to-white shadow-2xl p-4 overflow-y-auto z-40 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`lg:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">{t("navigation.menu")}</h2>
-          <button
-            onClick={closeMobileMenu}
-            className="text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <X size={24} />
-          </button>
-        </div>
+        <button
+          onClick={closeMobileMenu}
+          className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600"
+        >
+          <X size={24} />
+        </button>
         <SidebarContent />
       </aside>
     </>

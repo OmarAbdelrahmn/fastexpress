@@ -32,7 +32,7 @@ export default function PageHeader({
   }, [lastScrollY]);
 
   return (
-    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${
+    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 transition-transform duration-300 ${
       isVisible ? 'translate-y-0' : '-translate-y-full'
     }`}>
       

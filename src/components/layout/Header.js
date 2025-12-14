@@ -1,3 +1,4 @@
+// File: src/components/layout/Header.js
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,7 +6,6 @@ import { LogOut, Clock, User } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import LanguageSwitcher from '@/components/Ui/LanguageSwitcher';
 
 export default function Header() {
   const { logout } = useAuth();
@@ -37,7 +37,6 @@ export default function Header() {
     return () => clearInterval(interval);
   }, [logout]);
 
-  // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -62,42 +61,36 @@ export default function Header() {
 
   return (
     <header
-      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-[#2563eb] via-[#2858b8] to-[#2563eb] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
     >
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">
+        <h1 className="text-xl font-bold text-white">
           {t("auth.fullCompanyName")}
         </h1>
 
-        <div className="flex items-center gap-6">
-          {/* <LanguageSwitcher /> */}
+        <div className="flex items-center gap-4">
 
           {/* User Info */}
           {user && (
-            <div className="flex items-center gap-2 text-sm">
-              <User size={18} />
-              <span>{user.username || user.name}</span>
-              {user.role && (
-                <span
-                  className="px-2 py-0.5 rounded text-xs font-medium"
-                  style={{ backgroundColor: '#463aeeff', color: '#1b428e' }}
-                >
-                  {user.role}
-                </span>
-              )}
+            <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/20 bg-white/10 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-white text-[#2563eb] flex items-center justify-center font-bold text-sm">
+                {user.Name?.toUpperCase() || 'U'}
+              </div>
+              <div className="text-sm text-white">
+                <div className="font-semibold">{user.Name || user.name}</div>
+                {user.role && <div className="text-[10px] text-white/80 uppercase tracking-wider">{user.role}</div>}
+              </div>
             </div>
           )}
+
           {/* Logout Button */}
           <button
             onClick={logout}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-            style={{ backgroundColor: '#180e0eff' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f53232ff'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#17006bff'}
+            className="p-2 text-white hover:text-red-200 transition-colors rounded-lg hover:bg-white/10"
+            title={t("auth.logout")}
           >
-            <LogOut size={18} />
-            <span>{t("auth.logout")}</span>
+            <LogOut size={20} />
           </button>
         </div>
       </div>
