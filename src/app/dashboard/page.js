@@ -546,8 +546,8 @@ export default function EnhancedDashboard() {
             />
 
             <QuickActionBtn
-              title="إدارة الفريق"
-              subtitle="توزيع المهام والموارد"
+              title="تقرير المجموعات بالتفصيل"
+              subtitle="تقرير المجموعات بالتفصيل"
               icon={Users}
               color={COLORS.black}
               background="bg-blue-300"
