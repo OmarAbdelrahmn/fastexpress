@@ -59,6 +59,7 @@
     "saving": "جاري الحفظ...",
     "saveData": "حفظ البيانات",
     "selectLanguage": "اختر اللغة",
+    "email": "البريد الإلكتروني",
     "languageDescription": "اختر لغتك المفضلة للمتابعة"
   },
   "navigation": {
@@ -132,7 +133,8 @@
     "changePassword": "تغيير كلمة المرور",
     "languages": "اللغات",
     "menu": "القائمة",
-    "backToList": "العودة للقائمة"
+    "backToList": "العودة للقائمة",
+    "backtoDashboard": "العودة للوحة التحكم"
   },
   "dashboard": {
     "title": "لوحة التحكم الرئيسية",
@@ -1299,6 +1301,10 @@
     "search": "بحث"
   },
   "companies": {
+    "totalCompanies": "إجمالي الشركات",
+    "withPhone": "مع رقم هاتف",
+    "withAddress": "مع عنوان",
+    "withEmail": "مع بريد إلكتروني",
     "title": "الشركات",
     "company": "الشركة",
     "addCompany": "إضافة شركة",
@@ -1428,15 +1434,15 @@
   },
   "reports": {
     "pleaseSelectPeriods": "الرجاء تحديد الفترتين للمقارنة",
-      "showRanking": "عرض الترتيب",
-      "searchCriteria": "معايير البحث",
-      "score": "الدرجة",
-      "fullRanking": "الترتيب الكامل",
-      "generalStats": "إحصائيات عامة",
-      "averageOrders": "متوسط الطلبات",
-      "averageWorkingHours": "متوسط ساعات العمل",
-      "highestScore": "أعلى درجة",
-      "averageRejectionRate": "متوسط معدل الرفض",
+    "showRanking": "عرض الترتيب",
+    "searchCriteria": "معايير البحث",
+    "score": "الدرجة",
+    "fullRanking": "الترتيب الكامل",
+    "generalStats": "إحصائيات عامة",
+    "averageOrders": "متوسط الطلبات",
+    "averageWorkingHours": "متوسط ساعات العمل",
+    "highestScore": "أعلى درجة",
+    "averageRejectionRate": "متوسط معدل الرفض",
     "title": "التقارير",
     "grades": {
       "exceptional": "استثنائي",

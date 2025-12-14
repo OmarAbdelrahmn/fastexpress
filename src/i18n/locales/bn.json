@@ -59,6 +59,7 @@
     "saving": "সংরক্ষণ হচ্ছে...",
     "saveData": "ডেটা সংরক্ষণ করুন",
     "selectLanguage": "ভাষা নির্বাচন করুন",
+    "email": "ইমেল",
     "languageDescription": "চালিয়ে যেতে আপনার পছন্দের ভাষা নির্বাচন করুন"
   },
   "navigation": {
@@ -132,7 +133,8 @@
     "changePassword": "পাসওয়ার্ড পরিবর্তন",
     "languages": "ভাষা",
     "menu": "মেনু",
-    "backToList": "তালিকায় ফিরে যান"
+    "backToList": "তালিকায় ফিরে যান",
+    "backtoDashboard": "ড্যাশবোর্ডে ফিরে যান"
   },
   "dashboard": {
     "title": "প্রধান ড্যাশবোর্ড",
@@ -1298,6 +1300,10 @@
     "search": "অনুসন্ধান"
   },
   "companies": {
+    "totalCompanies": "মোট কোম্পানি",
+    "withPhone": "ফোন নম্বর সহ",
+    "withAddress": "ঠিকানা সহ",
+    "withEmail": "ইমেল সহ",
     "title": "কোম্পানি",
     "company": "কোম্পানি",
     "addCompany": "কোম্পানি যোগ করুন",

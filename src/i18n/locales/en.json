@@ -59,6 +59,7 @@
     "saving": "Saving...",
     "saveData": "Save Data",
     "selectLanguage": "Select Language",
+    "email": "Email",
     "languageDescription": "Choose your preferred language to continue"
   },
   "navigation": {
@@ -132,7 +133,8 @@
     "changePassword": "Change Password",
     "languages": "Languages",
     "menu": "Menu",
-    "backToList": "Back to List"
+    "backToList": "Back to List",
+    "backtoDashboard": "Back to Dashboard"
   },
   "dashboard": {
     "title": "Main Dashboard",
@@ -1298,6 +1300,10 @@
     "search": "Search"
   },
   "companies": {
+    "totalCompanies": "Total Companies",
+    "withPhone": "With Phone",
+    "withAddress": "With Address",
+    "withEmail": "With Email",
     "title": "Companies",
     "company": "Company",
     "addCompany": "Add Company",
