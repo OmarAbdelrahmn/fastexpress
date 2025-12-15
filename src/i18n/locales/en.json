@@ -188,7 +188,18 @@
     "previousDayTotalOrders": "Yesterday's Total Orders",
     "previousDayTotalOrdersSubtitle": "orders from yesterday",
     "employeesSubtitle": "registered employees",
-    "housingOccupancySubtitle": "current occupancy rate"
+    "housingOccupancySubtitle": "current occupancy rate",
+    "activeRidersByCompany": "Active Riders by Company",
+    "hunger": "Hunger",
+    "keeta": "Keeta",
+    "monthlyPerformanceDiff": "Monthly Performance Difference Report",
+    "printMonthlyPerformanceDiff": "Print Monthly Performance Difference Report",
+    "dailyTotalOrders": "Daily Total Orders Report",
+    "dailyDetailedOrders": "Daily Detailed Orders Report",
+    "statistics": "Statistics",
+    "companyTotal": "Company Total",
+    "companyRiders": "Riders",
+    "companyEmployees": "Employees"
   },
   "vehicles": {
     "title": "Vehicles",

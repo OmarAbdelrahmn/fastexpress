@@ -188,7 +188,18 @@
     "previousDayTotalOrders": "إجمالي طلبات الأمس",
     "previousDayTotalOrdersSubtitle": "طلبات من الأمس",
     "employeesSubtitle": "الموظفين المسجلين",
-    "housingOccupancySubtitle": "معدل الإشغال الحالي"
+    "housingOccupancySubtitle": "معدل الإشغال الحالي",
+    "activeRidersByCompany": "المناديب النشطين حسب الشركة",
+    "hunger": "هنجر",
+    "keeta": "كيتا",
+    "monthlyPerformanceDiff": "تقرير الفرق في الاداء الشهري",
+    "printMonthlyPerformanceDiff": "طباعة تقرير الفرق في الاداء الشهري",
+    "dailyTotalOrders": "تقرير الطلبات اليومي الاجمالي",
+    "dailyDetailedOrders": "تقرير الطلبات اليومي التفصيلي",
+    "statistics": "الإحصائيات",
+    "companyTotal": "إجمالي الموظفين",
+    "companyRiders": "المناديب",
+    "companyEmployees": "الأدارة"
   },
   "vehicles": {
     "title": "المركبات",

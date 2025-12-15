@@ -121,6 +121,7 @@ const API_ENDPOINTS = {
   RIDER: {
     LIST: "/api/rider",
     INACTIVE: "/api/Rider/inactive",
+    STATISTICS: "/api/rider/statistics",
   },
   ADMIN: { USERS: "/api/admin/users" },
   COMPANY: { LIST: "/api/company/" },
@@ -163,7 +164,12 @@ export default function EnhancedDashboard() {
     vehicleUtilization: 0,
     riderEfficiency: 0,
     previousDayTotalOrders: 0,
-    pendempst: 0
+    pendempst: 0,
+    activeHungerRiders: 0,
+    activeKeetaRiders: 0,
+    companyTotal: 0,
+    companyRidersCount: 0,
+    companyEmployeesCount: 0
   });
 
   const [trends, setTrends] = useState({
@@ -202,7 +208,9 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.EMPLOYEE.LIST),
         get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING),
         get(API_ENDPOINTS.TEMP.VEHICLES.employees),
+        get(API_ENDPOINTS.TEMP.VEHICLES.employees),
         get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED),
+        get(API_ENDPOINTS.RIDER.STATISTICS),
       ]);
 
       const vehiclesSummary = vehicleStatusRes.data?.summary || {};
@@ -216,6 +224,22 @@ export default function EnhancedDashboard() {
       const totalRiders = allRiders.length;
       const inactiveRiders = inactiveRidersRes.data?.length || 0;
       const activeRiders = totalRiders - inactiveRiders;
+
+      let activeHungerRiders = 0;
+      let activeKeetaRiders = 0;
+
+      if (Array.isArray(allRiders)) {
+        allRiders.forEach(rider => {
+          if (rider.status === 'enable') {
+            const companyProps = (rider.companyName || "").toLowerCase();
+            if (companyProps.includes('hunger')) {
+              activeHungerRiders++;
+            } else if (companyProps.includes('keeta') || companyProps.includes('keta')) {
+              activeKeetaRiders++;
+            }
+          }
+        });
+      }
 
       const housingData = Array.isArray(housingRes.data)
         ? housingRes.data
@@ -279,6 +303,16 @@ export default function EnhancedDashboard() {
         );
         previousDayRiders = previousDayOrdersRes.data.length;
       }
+
+      // Handle Statistics Response (assuming structure, normalizing keys just in case)
+      const statsData = statisticsRes?.data || {};
+      // Try to find keys ignoring case if needed, or assume specific keys based on user request "Total and Riders and Employees"
+      // Assuming API returns { total: X, riders: Y, employees: Z } or similar. 
+      // User said "get three numbers the Total and Riders and Employees"
+      // Let's look for likely keys.
+      const companyTotal = statsData.total || statsData.Total || 0;
+      const companyRidersCount = statsData.riders || statsData.Riders || 0;
+      const companyEmployeesCount = statsData.employees || statsData.Employees || 0;
       setStats({
         vehicles: totalVehicles,
         availableVehicles: availableVehicles,
@@ -299,7 +333,14 @@ export default function EnhancedDashboard() {
         riderEfficiency: parseFloat(riderEfficiency),
         previousDayTotalOrders: previousDayTotal,
         previousDayTotalRiders: previousDayRiders,
-        pendempst: tempEmployeesResData
+        previousDayTotalOrders: previousDayTotal,
+        previousDayTotalRiders: previousDayRiders,
+        pendempst: tempEmployeesResData,
+        activeHungerRiders,
+        activeKeetaRiders,
+        companyTotal,
+        companyRidersCount,
+        companyEmployeesCount
       });
 
       setTrends({
@@ -437,7 +478,7 @@ export default function EnhancedDashboard() {
     return (
       <button
         onClick={onClick}
-        className={`w-full flex items-center justify-between p-4 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-300 group text-right hover:border-blue-100`}
+        className={`w-full flex items-center justify-between p-4 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.03] transition-all duration-300 group text-right hover:border-blue-100`}
       >
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-lg transition-colors" style={getBgStyle(color)}>
@@ -456,7 +497,7 @@ export default function EnhancedDashboard() {
   };
 
   const MiniStatRow = ({ label, value, icon: Icon, color }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-default group">
+    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">
       <div className="flex items-center gap-3">
         <div className="p-2 rounded-md group-hover:bg-opacity-20 transition-all" style={getBgStyle(color)}>
           <Icon size={18} color={color} />
@@ -480,18 +521,18 @@ export default function EnhancedDashboard() {
         {/* Primary Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           <StatCard
-            title={t("dashboard.totalVehicles")}
-            value={stats.vehicles}
-            subtitle={t("dashboard.vehiclesInFleet")}
+            title={t("vehicles.activeVehicles")}
+            value={stats.takenVehicles}
+            subtitle={t("vehicles.taken")}
             icon={Car}
             color={COLORS.black}
             link="/vehicles/admin"
             background="bg-gray-300"
           />
           <StatCard
-            title={t("dashboard.allRiders")}
-            value={stats.riders}
-            subtitle={t("dashboard.fromRiders")}
+            title={t("riders.activeRiders")}
+            value={stats.activeRiders}
+            subtitle={t("riders.title")}
             icon={Users}
             color={COLORS.black}
             link="/riders/"
@@ -556,14 +597,42 @@ export default function EnhancedDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           <div className="space-y-4">
+            {/* Company Statistics Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <BarChart3 size={20} color={COLORS.blue} />
+                {t("dashboard.statistics")}
+              </h3>
+              <div className="space-y-4">
+                <MiniStatRow
+                  label={t("dashboard.companyTotal")}
+                  value={stats.companyTotal}
+                  icon={Users}
+                  color={COLORS.blue}
+                />
+                <MiniStatRow
+                  label={t("dashboard.companyRiders")}
+                  value={stats.companyRidersCount}
+                  icon={Car}
+                  color={COLORS.orange}
+                />
+                <MiniStatRow
+                  label={t("dashboard.companyEmployees")}
+                  value={stats.companyEmployeesCount}
+                  icon={Users}
+                  color={COLORS.gray}
+                />
+              </div>
+            </div>
+
             <h2 className="text-lg font-bold text-gray-900 mb-4">{t("reports.title")}</h2>
 
             <QuickActionBtn
-              title="تقرير الفرق الخاص"
-              subtitle="طباعة تقرير الفروقات"
+              title={t("dashboard.monthlyPerformanceDiff")}
+              subtitle={t("dashboard.printMonthlyPerformanceDiff")}
               icon={BarChart3}
               color={COLORS.black}
-              background="bg-blue-300"
+              background="bg-gray-300"
               onClick={() => {
                 setHousingDetailedReportData(null);
                 setHousingReportData(null);
@@ -572,11 +641,11 @@ export default function EnhancedDashboard() {
             />
 
             <QuickActionBtn
-              title="تحليل المجموعات"
-              subtitle="تقرير السكنات والطلبات"
+              title={t("dashboard.dailyTotalOrders")}
+              subtitle={t("dashboard.dailyTotalOrders")}
               icon={TrendingUp}
               color={COLORS.black}
-              background="bg-blue-300"
+              background="bg-gray-300"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingDetailedReportData(null);
@@ -585,17 +654,19 @@ export default function EnhancedDashboard() {
             />
 
             <QuickActionBtn
-              title="تقرير المجموعات بالتفصيل"
-              subtitle="تقرير المجموعات بالتفصيل"
+              title={t("dashboard.dailyDetailedOrders")}
+              subtitle={t("dashboard.dailyDetailedOrders")}
               icon={Users}
               color={COLORS.black}
-              background="bg-blue-300"
+              background="bg-gray-300"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingReportData(null);
                 handleHousingDetailedReport();
               }}
             />
+
+            {/* Company Statistics Card moved up */}
           </div>
 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -683,6 +754,28 @@ export default function EnhancedDashboard() {
                   value={stats.users}
                   icon={Users}
                   color={COLORS.orange}
+                />
+              </div>
+            </div>
+
+            {/* Active Riders by Company */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Users size={20} color={COLORS.blue} />
+                {t("dashboard.activeRidersByCompany")}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <MiniStatRow
+                  label={t("dashboard.hunger")}
+                  value={stats.activeHungerRiders}
+                  icon={CheckCircle}
+                  color={COLORS.orange}
+                />
+                <MiniStatRow
+                  label={t("dashboard.keeta")}
+                  value={stats.activeKeetaRiders}
+                  icon={CheckCircle}
+                  color={COLORS.blue}
                 />
               </div>
             </div>

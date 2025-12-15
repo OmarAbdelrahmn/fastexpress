@@ -1,29 +1,675 @@
-'use client';
+"use client";
+import React, { useState, useEffect } from 'react';
+import {
+  Menu, X, Phone, Mail, MapPin, ChevronLeft, ArrowLeft,
+  Truck, Globe, BarChart3, ShieldCheck, Clock, Layers,
+  Package, Users, Building2, Zap, Search, Send,Star,UserCheck
+} from 'lucide-react';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { TokenManager } from '@/lib/auth/tokenManager';
-import { useLanguage } from '@/lib/context/LanguageContext';
-
-export default function Home() {
-  const router = useRouter();
-  const { t } = useLanguage();
+export default function ComprehensiveLandingPage() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const token = TokenManager.getToken();
-    if (!token || !TokenManager.isTokenValid()) {
-      router.push('/login');
-    } else {
-      router.push('/dashboard');
-    }
-  }, [router]);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+
+      const revealElements = document.querySelectorAll('.reveal-on-scroll');
+      revealElements.forEach((element) => {
+        const elementTop = element.getBoundingClientRect().top;
+        if (elementTop < window.innerHeight - 100) {
+          element.classList.add('is-visible');
+        }
+      });
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'الرئيسية', href: '#home' },
+    { name: 'من نحن', href: '#about' },
+    { name: 'خدماتنا', href: '#services' },
+    { name: 'كيف نعمل', href: '#process' },
+    { name: 'شركاؤنا', href: '#partners' },
+    { name: 'تواصل معنا', href: '#contact' }
+  ];
+
+  const services = [
+    {
+      icon: <Truck className="w-12 h-12" />,
+      title: "نقل بري وجوي",
+      desc: "أسطول ضخم يغطي كافة أنحاء جدة مع خيارات شحن سريع.",
+      details: ["شحن مبرد والجاف", "تغطية شاملة للمدن", "تتبع مباشر للشاحنات"]
+    },
+    {
+      icon: <Layers className="w-12 h-12" />,
+      title: "إدارة المخزون (WMS)",
+      desc: "أنظمة تخزين ذكية تضمن دقة 99.9% في إدارة مخزونك.",
+      details: ["تخزين آمن", "تقارير جرد لحظية", "أتمتة الطلبات"]
+    },
+    {
+      icon: <Globe className="w-12 h-12" />,
+      title: "التجارة الإلكترونية",
+      desc: "حلول متكاملة للمتاجر الإلكترونية من التخزين إلى التوصيل.",
+      details: ["ربط API مباشر", "تغليف مخصص", "إدارة المرجوعات"]
+    },
+    {
+      icon: <Zap className="w-12 h-12" />,
+      title: "توصيل الميل الأخير",
+      desc: "سرعة فائقة في توصيل الطلبات للعميل النهائي.",
+      details: ["توصيل في نفس اليوم", "جدولة ذكية", "تقييم العملاء"]
+    },
+    // {
+    //   icon: <ShieldCheck className="w-12 h-12" />,
+    //   title: "تخليص جمركي",
+    //   desc: "فريق مختص لإنهاء كافة الإجراءات الجمركية بسرعة.",
+    //   details: ["استشارات قانونية", "تصاريح وشهادات", "تخليص الموانئ"]
+    // },
+    // {
+    //   icon: <BarChart3 className="w-12 h-12" />,
+    //   title: "استشارات لوجستية",
+    //   desc: "تحليل وتحسين سلاسل الإمداد لتقليل التكاليف.",
+    //   details: ["تحليل البيانات", "تخطيط استراتيجي", "حلول خفض التكلفة"]
+    // }
+  ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#e08911] mx-auto"></div>
-        <p className="mt-4 text-gray-600">{t('common.loading')}</p>
-      </div>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 overflow-x-hidden scroll-smooth" dir="rtl">
+
+      {/* 1. Navbar */}
+      <nav className={`fixed w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-xl py-3' : 'bg-transparent py-4 lg:py-6'}`}>
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 flex justify-between items-center">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            {/* Logo Restored to Larger Size as per user correction */}
+            <div className={`bg-gradient-to-tr from-blue-700 to-blue-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-all ${isScrolled ? 'w-8 h-8' : 'w-10 h-10 md:w-12 md:h-12'}`}>
+              <span className={`text-white font-black ${isScrolled ? 'text-sm' : 'text-base md:text-xl'}`}>ES</span>
+            </div>
+            <div className="block">
+              <h1 className={`font-black tracking-tight transition-colors leading-tight ${isScrolled ? 'text-blue-900 text-base' : 'text-blue-900 lg:text-white text-lg md:text-xl'}`}>Express Service</h1>
+              <p className="text-[8px] md:text-[10px] font-bold text-orange-500 tracking-widest uppercase">Third Party Logistics</p>
+            </div>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {navLinks.map((link, i) => (
+              <a key={i} href={link.href} className={`text-xs xl:text-sm font-bold uppercase tracking-wider hover:text-orange-500 transition-colors ${isScrolled ? 'text-slate-600' : 'text-slate-200'} relative group`}>
+                {link.name}
+                <span className="absolute -bottom-2 right-0 w-0 h-0.5 bg-orange-500 transition-all group-hover:w-full"></span>
+              </a>
+            ))}
+            <a href="#contact" className="bg-orange-500 text-white px-5 py-2 rounded-lg font-bold hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 transform hover:-translate-y-0.5 text-xs xl:text-sm">
+              احصل على عرض سعر
+            </a>
+          </div>
+
+          <button className="lg:hidden text-orange-500 p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className={`fixed inset-0 bg-blue-900/98 backdrop-blur-xl z-40 transition-transform duration-500 lg:hidden ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col items-center justify-center h-full gap-8">
+            {navLinks.map((link, i) => (
+              <a key={i} href={link.href} onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-orange-500 transition-colors">
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* 2. Hero Section */}
+      <header id="home" className="relative w-full min-h-[90vh] lg:min-h-screen flex items-center pt-24 lg:pt-20 overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-950 via-blue-900 to-transparent"></div>
+
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 grid lg:grid-cols-2 gap-12 items-center relative z-10 w-full mb-12 lg:mb-0">
+          <div className="space-y-6 lg:space-y-8 reveal-on-scroll text-center lg:text-right">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full text-blue-200 font-medium border border-white/10 text-xs md:text-sm mx-auto lg:mx-0">
+              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+              حلول لوجستية متكاملة 3PL
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white leading-tight">
+              نغير مفهوم <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-l from-orange-400 to-orange-600">
+                السرعة والكفاءة
+              </span>
+            </h1>
+            <p className="text-base md:text-xl text-blue-100 max-w-xl leading-relaxed mx-auto lg:mx-0">
+              شريكك الاستراتيجي في إدارة سلاسل الإمداد. نقدم تقنيات متطورة وبنية تحتية قوية لضمان وصول منتجاتك إلى عملائك في الوقت المحدد.
+            </p>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start">
+              <button className="bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 group w-full sm:w-auto">
+                ابدأ الآن
+                <ArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+              </button>
+              <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all w-full sm:w-auto">
+                تعرف علينا
+              </button>
+            </div>
+
+            <div className="pt-8 border-t border-white/10 flex gap-8 justify-center lg:justify-start">
+              <div>
+                <div className="text-2xl md:text-3xl font-black text-white">500+</div>
+                <div className="text-blue-300 text-xs md:text-sm">مركبة</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-black text-white">3K+</div>
+                <div className="text-blue-300 text-xs md:text-sm">شحنة يومياً</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-[500px] sm:h-[500px] lg:h-[600px] flex items-center justify-center perspective-1000 mt-8 lg:mt-0">
+            <div className="relative w-full max-w-[280px] sm:max-w-md lg:max-w-2xl animate-float">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-blue-500/20 rounded-full blur-3xl -z-10"></div>
+              <img src="/2.png" alt="Logistics Dashboard" className="w-[70%] h-auto drop-shadow-2xl relative z-10" />
+
+              {/* Floating Cards - "Logo" (Icons) Made Smaller Here */}
+
+              {/* Top Right */}
+              <div className="flex absolute top-10 -right-5 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="bg-green-500/20 p-1 md:p-1.5 rounded-lg text-green-400">
+                    <ShieldCheck className="w-3 h-3 md:w-5 md:h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs md:text-sm">مؤمنة بالكامل</div>
+                    <div className="text-[8px] md:text-[10px] text-blue-200">حماية 100%</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Left */}
+              <div className="flex absolute top-25 -left-2 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1.5s' }}>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="bg-purple-500/20 p-1 md:p-1.5 rounded-lg text-purple-400">
+                    <Users className="w-3 h-3 md:w-5 md:h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs md:text-sm">كباتن محترفين</div>
+                    <div className="text-[8px] md:text-[10px] text-blue-200">+500 كابتن</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Right */}
+              <div className="flex absolute bottom-32 -right-8 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="bg-orange-500/20 p-1 md:p-1.5 rounded-lg text-orange-400">
+                    <Clock className="w-3 h-3 md:w-5 md:h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs md:text-sm">تسليم في الموعد</div>
+                    <div className="text-[8px] md:text-[10px] text-blue-200">دقة 99.9%</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Left */}
+              <div className="flex absolute bottom-25 -left-1 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="bg-blue-500/20 p-1 md:p-1.5 rounded-lg text-blue-400">
+                    <MapPin className="w-3 h-3 md:w-5 md:h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs md:text-sm">تغطية شاملة</div>
+                    <div className="text-[8px] md:text-[10px] text-blue-200">داخل جدة</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 3. About Section */}
+      <section id="about" className="py-16 lg:py-24 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
+            <div className="w-full lg:w-1/2 reveal-on-scroll order-2 lg:order-1">
+              <div className="relative mx-auto max-w-sm lg:max-w-none">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-100 rounded-full blur-2xl -z-10"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-100 h-48 lg:h-64 rounded-2xl"></div>
+                  <div className="bg-blue-100 h-48 lg:h-64 rounded-2xl mt-8 lg:mt-12"></div>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-white p-6 lg:p-8 rounded-3xl shadow-xl max-w-[250px] lg:max-w-sm text-center border border-slate-50">
+                    <div className="text-4xl lg:text-5xl font-black text-blue-600 mb-2">15+</div>
+                    <div className="text-base lg:text-lg font-bold text-slate-800">سنوات من التميز</div>
+                    <p className="text-slate-500 text-xs lg:text-sm mt-2">نخدم كبرى الشركات في  جدة</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full lg:w-1/2 space-y-6 reveal-on-scroll order-1 lg:order-2 text-center lg:text-right">
+              <span className="text-orange-600 font-bold tracking-wider">من نحن</span>
+              <h2 className="text-3xl lg:text-5xl font-black text-blue-900 leading-tight">شريكك الموثوق للنمو والتوسع</h2>
+              <p className="text-base lg:text-lg text-slate-600 leading-relaxed">
+                تأسست Express Service لتكون الذراع اللوجستي الأقوى للشركات. نحن نجمع بين الخبرة البشرية والتقنية الحديثة لنقدم حلولاً تتجاوز مجرد النقل والتخزين. نحن نبني جسوراً من الثقة بينك وبين عملائك.
+              </p>
+
+              <div className="space-y-4 pt-4 text-right">
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-100 p-2 rounded-lg text-blue-600 mt-1"><Building2 size={24} /></div>
+                  <div>
+                    <h4 className="font-bold text-lg">بنية تحتية متكاملة</h4>
+                    <p className="text-slate-500">مستودعات مجهزة ومراكز فرز آلية.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="bg-orange-100 p-2 rounded-lg text-orange-600 mt-1"><Users size={24} /></div>
+                  <div>
+                    <h4 className="font-bold text-lg">فريق خبراء</h4>
+                    <p className="text-slate-500">كوادر مدربة لإدارة أصعب التحديات اللوجستية.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Services Section */}
+      <section id="services" className="py-16 lg:py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16 reveal-on-scroll">
+            <span className="text-orange-600 font-bold tracking-wider">خدماتنا</span>
+            <h2 className="text-3xl lg:text-4xl font-black text-blue-900 mt-2">حلول مصممة لنجاحك</h2>
+            <p className="text-slate-600 mt-4 text-base lg:text-lg">نقدم مجموعة شاملة من الخدمات التي تغطي كل مرحلة من مراحل سلسلة الإمداد</p>
+          </div>
+
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {services.map((service, idx) => (
+              <div key={idx} className="group bg-white rounded-3xl p-6 lg:p-8 hover:bg-blue-900 transition-all duration-300 hover:-translate-y-2 shadow-lg hover:shadow-2xl reveal-on-scroll border border-slate-100">
+                <div className="mb-6 text-blue-600 group-hover:text-orange-400 transition-colors">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl lg:text-2xl font-bold text-blue-900 group-hover:text-white mb-3 transition-colors">{service.title}</h3>
+                <p className="text-slate-600 group-hover:text-blue-200 mb-6 transition-colors leading-relaxed text-sm lg:text-base">
+                  {service.desc}
+                </p>
+                <div className="border-t border-slate-100 group-hover:border-blue-800 pt-6">
+                  <ul className="space-y-2">
+                    {service.details.map((detail, dIdx) => (
+                      <li key={dIdx} className="flex items-center gap-2 text-xs lg:text-sm font-medium text-slate-500 group-hover:text-blue-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+    {/* 5. Process Section - Enhanced Logistics Flow */}
+<section id="process" className="py-16 lg:py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+  <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+  
+  {/* Animated background elements */}
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute top-20 right-10 w-64 h-64 bg-orange-500 rounded-full opacity-5 blur-3xl"></div>
+    <div className="absolute bottom-20 left-10 w-80 h-80 bg-blue-600 rounded-full opacity-5 blur-3xl"></div>
+  </div>
+
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+    <div className="text-center mb-12 lg:mb-16 reveal-on-scroll">
+      <h2 className="text-3xl lg:text-4xl font-black mb-3">رحلة الشحنة الذكية</h2>
+      <p className="text-blue-200 text-lg">منصة متكاملة تربط بين التاجر والسائق والعميل</p>
     </div>
+
+    {/* Main Flow */}
+    <div className="grid md:grid-cols-5 gap-6 lg:gap-8 relative mb-16">
+      {/* Connection Line */}
+      <div className="hidden md:block absolute top-14 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-700 via-orange-500 to-blue-700 -z-10 rounded-full"></div>
+
+      {[
+        { 
+          icon: <Package />, 
+          title: "طلب الشحن", 
+          desc: "التاجر يُنشئ طلب شحن عبر المنصة",
+          actor: "التاجر",
+          color: "blue"
+        },
+        { 
+          icon: <CheckCircle />, 
+          title: "تأكيد الطلب", 
+          desc: "نراجع ونؤكد تفاصيل الشحنة",
+          actor: "المنصة",
+          color: "orange"
+        },
+        { 
+          icon: <Truck />, 
+          title: "تعيين السائق", 
+          desc: "إسناد الشحنة لأقرب سائق متاح",
+          actor: "النظام",
+          color: "orange"
+        },
+        { 
+          icon: <MapPin />, 
+          title: "التوصيل", 
+          desc: "السائق يستلم ويوصل للعميل",
+          actor: "السائق",
+          color: "green"
+        },
+        { 
+          icon: <Star />, 
+          title: "التقييم", 
+          desc: "العميل يستلم ويقيّم الخدمة",
+          actor: "العميل",
+          color: "blue"
+        }
+      ].map((step, idx) => (
+        <div key={idx} className="relative text-center reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
+          <div className={`w-24 h-24 lg:w-28 lg:h-28 mx-auto bg-gradient-to-br ${
+            step.color === 'orange' ? 'from-orange-500 to-orange-600' :
+            step.color === 'green' ? 'from-green-500 to-green-600' :
+            'from-blue-700 to-blue-800'
+          } rounded-full flex items-center justify-center border-4 border-white/20 mb-4 shadow-2xl relative z-10 group hover:scale-110 hover:rotate-6 transition-all duration-300`}>
+            <div className="text-white group-hover:scale-110 transition-transform">
+              {React.cloneElement(step.icon, { size: 32 })}
+            </div>
+            <div className="absolute -top-3 -right-3 w-9 h-9 bg-white text-blue-900 rounded-full flex items-center justify-center font-black text-sm border-3 border-blue-900 shadow-lg">
+              {idx + 1}
+            </div>
+          </div>
+          
+          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all">
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${
+              step.color === 'orange' ? 'bg-orange-500/20 text-orange-200' :
+              step.color === 'green' ? 'bg-green-500/20 text-green-200' :
+              'bg-blue-500/20 text-blue-200'
+            }`}>
+              {step.actor}
+            </span>
+            <h3 className="text-lg lg:text-xl font-bold mb-2">{step.title}</h3>
+            <p className="text-blue-200 text-sm">{step.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Stakeholder Roles */}
+    <div className="grid md:grid-cols-3 gap-6 mt-12">
+      {[
+        {
+          icon: <Building2 />,
+          title: "التاجر / البائع",
+          points: ["إنشاء طلبات الشحن", "تتبع الشحنات", "إدارة المرتجعات"],
+          color: "from-blue-600 to-blue-700"
+        },
+        {
+          icon: <Users />,
+          title: "السائقون",
+          points: ["استلام المهام", "تحديث الحالة", "تحصيل المدفوعات"],
+          color: "from-orange-500 to-orange-600"
+        },
+        {
+          icon: <UserCheck />,
+          title: "العملاء النهائيون",
+          points: ["تتبع حي للشحنة", "استلام آمن", "تقييم الخدمة"],
+          color: "from-green-500 to-green-600"
+        }
+      ].map((role, idx) => (
+        <div key={idx} className="reveal-on-scroll" style={{ transitionDelay: `${idx * 150}ms` }}>
+          <div className={`bg-gradient-to-br ${role.color} p-6 rounded-xl shadow-xl border border-white/10 hover:scale-105 transition-transform duration-300`}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                {React.cloneElement(role.icon, { size: 24 })}
+              </div>
+              <h3 className="text-xl font-bold">{role.title}</h3>
+            </div>
+            <ul className="space-y-2">
+              {role.points.map((point, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-white/90">
+                  <CheckCircle size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+      {/* 6. Partners Section */}
+      <section id="partners" className="py-16 lg:py-24 bg-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-30"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-12 lg:mb-16">
+            <span className="text-orange-600 font-bold tracking-wider">شركاء النجاح</span>
+            <h2 className="text-3xl lg:text-4xl font-black text-blue-900 mt-2">نعمل مع الأفضل</h2>
+            <p className="text-slate-600 mt-4 text-sm lg:text-base">نفخر بكسب ثقة كبرى الشركات والمنصات في المنطقة</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
+            {[
+              { name: "Hunger Station", color: "from-yellow-400 to-yellow-600", icon: "🍔" },
+              { name: "Keeta", color: "from-purple-500 to-purple-700", icon: "📦" },
+              { name: "Amazon", color: "from-slate-700 to-slate-900", icon: "🛒" },
+              { name: "ToYou", color: "from-pink-500 to-rose-600", icon: "🚗" },
+            ].map((partner, idx) => (
+              <div key={idx} className="group relative h-32 lg:h-40 bg-white rounded-3xl shadow-lg lg:shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center justify-center overflow-hidden border border-slate-100 p-4 text-center">
+                <div className={`absolute inset-0 bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+                <div className="text-3xl lg:text-4xl mb-2 lg:mb-3 grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">
+                  {partner.icon}
+                </div>
+                <h3 className="text-sm lg:text-xl font-black text-slate-700 group-hover:text-blue-900 transition-colors z-10">{partner.name}</h3>
+                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full blur-2xl group-hover:opacity-100 opacity-50 transition-all"></div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-16 flex justify-center opacity-30">
+            <div className="w-3/4 h-1 bg-gradient-to-r from-transparent via-blue-200 to-transparent rounded-full"></div>
+          </div>
+
+          <div className="mt-8 flex justify-center gap-4 lg:gap-8 opacity-40 grayscale text-[10px] lg:text-sm font-bold text-slate-400">
+            <span>CLIENTS</span> • <span>PARTNERS</span> • <span>GROWTH</span> • <span>TRUST</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Contact Section */}
+      <section id="contact" className="py-16 lg:py-24 bg-slate-50 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden grid lg:grid-cols-2">
+            <div className="p-8 lg:p-16 bg-gradient-to-br from-blue-900 to-blue-800 text-white">
+              <span className="text-orange-400 font-bold tracking-wider mb-2 block">تواصل معنا</span>
+              <h2 className="text-3xl lg:text-4xl font-black mb-6">لنبدأ العمل معاً</h2>
+              <p className="text-blue-100 mb-8 lg:mb-12 text-sm lg:text-base">فريقنا جاهز للإجابة على استفساراتك وتقديم الحلول الأنسب لأعمالك.</p>
+
+              <div className="space-y-6 lg:space-y-8">
+                <div className="flex items-center gap-4 lg:gap-6">
+                  <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <Phone className="text-orange-400" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base lg:text-lg">اتصل بنا</h4>
+                    <p className="text-blue-200 text-base lg:text-lg" dir="ltr">+966 50 000 0000</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 lg:gap-6">
+                  <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <Mail className="text-orange-400" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base lg:text-lg">راسلنا</h4>
+                    <p className="text-blue-200 text-base lg:text-lg">info@expressservice.sa</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 lg:gap-6">
+                  <div className="w-12 h-12 lg:w-14 lg:h-14 bg-white/10 rounded-2xl flex items-center justify-center">
+                    <MapPin className="text-orange-400" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base lg:text-lg">زرنا</h4>
+                    <p className="text-blue-200 text-sm lg:text-base">طريق الملك فهد، الرياض، المملكة العربية السعودية</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 lg:mt-16 pt-8 border-t border-white/10">
+                <p className="text-xs lg:text-sm text-blue-300">ساعات العمل: الأحد - الخميس 8:00 ص - 6:00 م</p>
+              </div>
+            </div>
+
+            <div className="p-8 lg:p-16 bg-white">
+              <form className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-600">الاسم الكامل</label>
+                    <input type="text" className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-600">البريد الإلكتروني</label>
+                    <input type="email" className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-600">الموضوع</label>
+                  <select className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all">
+                    <option>استفسار عام</option>
+                    <option>طلب عرض سعر</option>
+                    <option>خدمات التخزين</option>
+                    <option>خدمات النقل</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-600">الرسالة</label>
+                  <textarea rows="4" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all"></textarea>
+                </div>
+                <button type="button" className="w-full h-14 bg-blue-900 text-white rounded-xl font-bold text-lg hover:bg-blue-800 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                  إرسال الرسالة
+                  <Send size={20} />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Footer */}
+      <footer className="bg-slate-950 text-slate-400 py-12 lg:py-16 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold">ES</div>
+              <span className="text-xl font-black text-white">Express Service</span>
+            </div>
+            <p className="leading-relaxed mb-6 text-sm">
+              نحن نقود التحول في قطاع الخدمات اللوجستية من خلال تبني تقنيات المستقبل ومعايير الجودة العالمية.
+            </p>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"><Globe size={18} /></div>
+              <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"><Mail size={18} /></div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-white font-bold mb-6">خدماتنا</h4>
+            <ul className="space-y-3 text-sm">
+              <li><a href="#" className="hover:text-orange-500 transition-colors">النقل البري</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">التخزين (WMS)</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">التجارة الإلكترونية</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">الميل الأخير</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-bold mb-6">الشركة</h4>
+            <ul className="space-y-3 text-sm">
+              <li><a href="#" className="hover:text-orange-500 transition-colors">من نحن</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">الوظائف</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">الأخبار</a></li>
+              <li><a href="#" className="hover:text-orange-500 transition-colors">سياسة الخصوصية</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-bold mb-6">النشرة البريدية</h4>
+            <p className="text-sm mb-4">اشترك ليصلك كل جديد في عالم اللوجستيات</p>
+            <div className="flex gap-2">
+              <input type="email" placeholder="بريدك الإلكتروني" className="bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 w-full focus:outline-none focus:border-blue-600" />
+              <button className="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-600 transition-colors">
+                <ArrowLeft size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-900 text-center text-sm">
+          جميع الحقوق محفوظة © 2025 Express Service
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 5s ease-in-out infinite 1s; }
+        .animate-marquee { animation: marquee 30s linear infinite; }
+        
+        .reveal-on-scroll {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal-on-scroll.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+      `}</style>
+
+      {/* Helper icon component import for CheckCircle which was used in map but imported */}
+    </div>
+  );
+}
+
+// Additional simple icon for checklist
+function CheckCircle(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
   );
 }
