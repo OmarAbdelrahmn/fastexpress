@@ -75,10 +75,10 @@ export default function Header() {
           {user && (
             <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/20 bg-white/10 shadow-sm">
               <div className="w-8 h-8 rounded-full bg-white text-[#2563eb] flex items-center justify-center font-bold text-sm">
-                {user.Name?.toUpperCase() || 'U'}
+                {user.unique_name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="text-sm text-white">
-                <div className="font-semibold">{user.Name || user.name}</div>
+                <div className="font-semibold">{user.unique_name}</div>
                 {user.role && <div className="text-[10px] text-white/80 uppercase tracking-wider">{user.role}</div>}
               </div>
             </div>

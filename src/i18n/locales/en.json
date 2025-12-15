@@ -60,7 +60,8 @@
     "saveData": "Save Data",
     "selectLanguage": "Select Language",
     "email": "Email",
-    "languageDescription": "Choose your preferred language to continue"
+    "languageDescription": "Choose your preferred language to continue",
+    "additionalInfo": "Additional Information"
   },
   "navigation": {
     "home": "Home",
@@ -181,7 +182,13 @@
     "performanceIndicators": "Performance Indicators",
     "vehicleUtilization": "Vehicle Utilization",
     "riderEfficiency": "Rider Efficiency",
-    "housingOccupancy": "Housing Occupancy"
+    "housingOccupancy": "Housing Occupancy",
+    "pendingStatusChanges": "Pending Status Changes",
+    "pendingStatusChangesSubtitle": "requests pending review",
+    "previousDayTotalOrders": "Yesterday's Total Orders",
+    "previousDayTotalOrdersSubtitle": "orders from yesterday",
+    "employeesSubtitle": "registered employees",
+    "housingOccupancySubtitle": "current occupancy rate"
   },
   "vehicles": {
     "title": "Vehicles",

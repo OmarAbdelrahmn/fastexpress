@@ -60,7 +60,8 @@
     "saveData": "ডেটা সংরক্ষণ করুন",
     "selectLanguage": "ভাষা নির্বাচন করুন",
     "email": "ইমেল",
-    "languageDescription": "চালিয়ে যেতে আপনার পছন্দের ভাষা নির্বাচন করুন"
+    "languageDescription": "চালিয়ে যেতে আপনার পছন্দের ভাষা নির্বাচন করুন",
+    "additionalInfo": "অতিরিক্ত তথ্য"
   },
   "navigation": {
     "home": "হোম",
@@ -181,7 +182,11 @@
     "performanceIndicators": "কার্যকারিতা সূচক",
     "vehicleUtilization": "যানবাহন ব্যবহার",
     "riderEfficiency": "রাইডার দক্ষতা",
-    "housingOccupancy": "হাউজিং দখল"
+    "housingOccupancy": "হাউজিং দখল",
+    "previousDayTotalOrders": "গতকালের মোট অর্ডার",
+    "previousDayTotalOrdersSubtitle": "গতকালের অর্ডার",
+    "employeesSubtitle": "নিবন্ধিত কর্মচারী",
+    "housingOccupancySubtitle": "বর্তমান দখল হার"
   },
   "vehicles": {
     "title": "যানবাহন",

@@ -135,6 +135,7 @@ const API_ENDPOINTS = {
   TEMP: {
     VEHICLES: {
       GET_PENDING: "/api/temp/vehicles",
+      employees: "/api/temp/employee-pending-status-changes"
     },
   },
 };
@@ -162,6 +163,7 @@ export default function EnhancedDashboard() {
     vehicleUtilization: 0,
     riderEfficiency: 0,
     previousDayTotalOrders: 0,
+    pendempst: 0
   });
 
   const [trends, setTrends] = useState({
@@ -187,6 +189,7 @@ export default function EnhancedDashboard() {
         housingRes,
         employeesRes,
         pendingRequestsRes,
+        tempEmployeesRes,
         previousDayOrdersRes,
       ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
@@ -198,6 +201,7 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.HOUSING.LIST),
         get(API_ENDPOINTS.EMPLOYEE.LIST),
         get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING),
+        get(API_ENDPOINTS.TEMP.VEHICLES.employees),
         get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED),
       ]);
 
@@ -228,7 +232,7 @@ export default function EnhancedDashboard() {
         totalHousingCapacity > 0
           ? Math.round((totalHousingOccupied / totalHousingCapacity) * 100)
           : 0;
-
+      const tempEmployeesResData = tempEmployeesRes.data?.length || 0;
       const totalCompanies = companiesRes.data?.length || 0;
       const totalUsers = usersRes.data?.length || 0;
       const totalEmployees = employeesRes.data?.length || 0;
@@ -295,6 +299,7 @@ export default function EnhancedDashboard() {
         riderEfficiency: parseFloat(riderEfficiency),
         previousDayTotalOrders: previousDayTotal,
         previousDayTotalRiders: previousDayRiders,
+        pendempst: tempEmployeesResData
       });
 
       setTrends({
@@ -428,7 +433,7 @@ export default function EnhancedDashboard() {
     </Link>
   );
 
-  const QuickActionBtn = ({ title, subtitle, icon: Icon, color, onClick,background }) => {
+  const QuickActionBtn = ({ title, subtitle, icon: Icon, color, onClick, background }) => {
     return (
       <button
         onClick={onClick}
@@ -509,6 +514,42 @@ export default function EnhancedDashboard() {
             color={COLORS.black}
             link="vehicles/admin/users-requests"
             background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.pendingStatusChanges")}
+            value={stats.pendempst}
+            subtitle={t("dashboard.pendingStatusChangesSubtitle")}
+            icon={Users}
+            color={COLORS.black}
+            link="/employees/admin/status-requests"
+            background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.previousDayTotalOrders")}
+            value={stats.previousDayTotalOrders}
+            subtitle={t("dashboard.previousDayTotalOrdersSubtitle")}
+            icon={Package}
+            color={COLORS.black}
+            link="/orders/"
+            background="bg-gray-300"
+          />
+          <StatCard
+            title={t("dashboard.totalEmployees")}
+            value={stats.employees}
+            subtitle={t("dashboard.employeesSubtitle")}
+            icon={Users}
+            color={COLORS.black}
+            link="/employees/admin"
+            background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.housingOccupancy")}
+            value={`${stats.housingOccupancy}%`}
+            subtitle={t("dashboard.housingOccupancySubtitle")}
+            icon={Home}
+            color={COLORS.black}
+            link="/housing"
+            background="bg-gray-300"
           />
         </div>
 

@@ -60,7 +60,8 @@
     "saveData": "حفظ البيانات",
     "selectLanguage": "اختر اللغة",
     "email": "البريد الإلكتروني",
-    "languageDescription": "اختر لغتك المفضلة للمتابعة"
+    "languageDescription": "اختر لغتك المفضلة للمتابعة",
+    "additionalInfo": "معلومات إضافية"
   },
   "navigation": {
     "home": "الرئيسية",
@@ -149,7 +150,7 @@
     "fromShifts": "وردية",
     "totalEmployees": "إجمالي الموظفين",
     "activeEmployee": "موظف نشط",
-    "pendingApprovals": "تعميدات تحتاج موافقة",
+    "pendingApprovals": "تعميدات مركبات تحتاج موافقة",
     "hasPendingApprovals": "يوجد تعميدات معلقة",
     "noPendingApprovals": "لا توجد تعميدات",
     "yesterdayAcceptedOrders": "طلبات الأمس المقبولة",
@@ -181,7 +182,13 @@
     "performanceIndicators": "مؤشرات الأداء",
     "vehicleUtilization": "استخدام المركبات",
     "riderEfficiency": "كفاءة المناديب",
-    "housingOccupancy": "إشغال السكنات"
+    "housingOccupancy": "إشغال السكنات",
+    "pendingStatusChanges": "طلبات تغيير الحالة المعلقة",
+    "pendingStatusChangesSubtitle": "طلبات بانتظار المراجعة",
+    "previousDayTotalOrders": "إجمالي طلبات الأمس",
+    "previousDayTotalOrdersSubtitle": "طلبات من الأمس",
+    "employeesSubtitle": "الموظفين المسجلين",
+    "housingOccupancySubtitle": "معدل الإشغال الحالي"
   },
   "vehicles": {
     "title": "المركبات",
