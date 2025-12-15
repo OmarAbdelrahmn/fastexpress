@@ -445,11 +445,11 @@ export default function EnhancedDashboard() {
           </div>
           <div>
             <h3 className="font-bold text-gray-900">{title}</h3>
-            <p className="text-xs text-gray-500">{subtitle}</p>
+            <p className="text-xs text-gray-700">{subtitle}</p>
           </div>
         </div>
-        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-          <ChevronRight size={16} color={COLORS.grayLight} className="rtl:rotate-180" />
+        <div className="w-8 h-8 rounded-full  flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+          <ChevronRight size={16} color={COLORS.black} className="rtl:rotate-180" />
         </div>
       </button>
     );
