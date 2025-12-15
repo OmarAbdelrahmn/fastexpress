@@ -8,22 +8,22 @@ const customFont = localFont({
   display: 'swap',
 });
 export const metadata = {
-  title: 'Fast Express - Smart Logistics Solution',
-  description: 'Fast Express is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
+  title: 'Express Service - Smart Logistics Solution',
+  description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: 'Fast Express - Smart Logistics Solution',
-    description: 'Fast Express is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
+    title: 'Express Service - Smart Logistics Solution',
+    description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
     url: 'https://forsenex.com',
-    siteName: 'Fast Express',
+    siteName: 'Express Service',
     images: [
       {
         url: '/2.png',
         width: 1200,
         height: 630,
-        alt: 'Fast Express Dashboard',
+        alt: 'Express Service Dashboard',
       },
     ],
     type: 'website',
