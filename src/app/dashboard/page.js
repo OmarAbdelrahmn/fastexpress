@@ -519,7 +519,7 @@ export default function EnhancedDashboard() {
             title={t("dashboard.pendingStatusChanges")}
             value={stats.pendempst}
             subtitle={t("dashboard.pendingStatusChangesSubtitle")}
-            icon={Users}
+            icon={FileText}
             color={COLORS.black}
             link="/employees/admin/status-requests"
             background="bg-blue-200"
@@ -553,10 +553,8 @@ export default function EnhancedDashboard() {
           />
         </div>
 
-        {/* Quick Actions & Secondary Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Left Column: Quick Actions */}
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-gray-900 mb-4">{t("reports.title")}</h2>
 
@@ -600,10 +598,8 @@ export default function EnhancedDashboard() {
             />
           </div>
 
-          {/* Middle & Right Column: Detailed Breakdown (Spans 2 columns on large screens) */}
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Vehicle Status */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Car size={20} color={COLORS.blue} />
@@ -631,7 +627,6 @@ export default function EnhancedDashboard() {
               </div>
             </div>
 
-            {/* Rider Status */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.orange} />
