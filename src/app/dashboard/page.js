@@ -197,6 +197,7 @@ export default function EnhancedDashboard() {
         pendingRequestsRes,
         tempEmployeesRes,
         previousDayOrdersRes,
+        statisticsRes
       ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
         get(API_ENDPOINTS.VEHICLES.GROUP_BY_STATUS),
@@ -207,7 +208,6 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.HOUSING.LIST),
         get(API_ENDPOINTS.EMPLOYEE.LIST),
         get(API_ENDPOINTS.TEMP.VEHICLES.GET_PENDING),
-        get(API_ENDPOINTS.TEMP.VEHICLES.employees),
         get(API_ENDPOINTS.TEMP.VEHICLES.employees),
         get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED),
         get(API_ENDPOINTS.RIDER.STATISTICS),
