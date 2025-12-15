@@ -20,8 +20,8 @@ const HousingReportTemplate = ({ data }) => {
 
                 {/* Title Section */}
                 <div className="flex flex-col items-start gap-4">
-                    <div className="border-2 border-[#f4a261] p-2 bg-white">
-                        <h1 className="text-xl font-bold text-[#1e3a8a]">تقرير إجمالي عدد الطلبات لكل مجموعة والإجمالي الكلي</h1>
+                    <div className="p-2 bg-white">
+                        <h1 className="text-xl font-bold text-[#1e3a8a]">تقرير إجمالي عدد الطلبات لكل مجموعة</h1>
                     </div>
 
                     <div className="flex flex-col gap-1 pr-2">
@@ -39,8 +39,8 @@ const HousingReportTemplate = ({ data }) => {
                         <p className="text-[#f59e0b] font-bold text-lg">للخدمات اللوجستية</p>
                     </div>
                     {/* Logo Placeholder */}
-                    <div className="w-12 h-12 border-2 border-[#1e3a8a] rounded flex items-center justify-center text-[#1e3a8a]">
-                        <span className="text-2xl font-bold">E</span>
+                    <div className="w-16 h-16 rounded flex items-center justify-center text-[#1e3a8a]">
+                        <img src="2.png" className="w-full h-full" alt="logo" />
                     </div>
                 </div>
             </div>
@@ -48,18 +48,18 @@ const HousingReportTemplate = ({ data }) => {
             {/* Table Headers */}
             <div className="flex gap-2 mb-2 text-white font-bold text-center text-sm md:text-base">
                 <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
-                    نسبة كل مجموعة<br />بالنسبة لإجمالي الطلبات
+                    نسبة كل مجموعة<br />
                 </div>
                 <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
                     عدد السائقين
                 </div>
-                <div className="bg-[#1a365d] w-[20%] py-2 flex items-center justify-center rounded-sm">
+                <div className="bg-[#1a365d] w-[25%] py-2 flex items-center justify-center rounded-sm">
                     متوسط عدد الطلبات
                 </div>
-                <div className="bg-[#1a365d] w-[20%] py-2 flex items-center justify-center rounded-sm">
-                    - عدد الطلبات الإجمالي
+                <div className="bg-[#1a365d] w-[23%] py-2 flex items-center justify-center rounded-sm">
+                     عدد الطلبات الإجمالي
                 </div>
-                <div className="bg-[#1a365d] w-[30%] py-2 flex items-center justify-center rounded-sm">
+                <div className="bg-[#1a365d] w-[22%] py-2 flex items-center justify-center rounded-sm">
                     المجموعة
                 </div>
             </div>
@@ -78,15 +78,15 @@ const HousingReportTemplate = ({ data }) => {
                                 {item.activeRiders}
                             </div>
                             {/* Avg Orders */}
-                            <div className="w-[20%] bg-[#a3e635] flex items-center justify-center underline decoration-black">
+                            <div className="w-[25%] bg-[#a3e635] flex items-center justify-center underline decoration-black">
                                 {item.averageOrdersPerRider}
                             </div>
                             {/* Total Orders */}
-                            <div className="w-[20%] bg-[#0000cc] text-white flex items-center justify-center underline decoration-white">
+                            <div className="w-[23%] bg-[#0000cc] text-white flex items-center justify-center underline decoration-white">
                                 {item.totalOrders}
                             </div>
                             {/* Housing Name */}
-                            <div className="w-[30%] bg-[#b91c1c] text-white flex items-center justify-center rounded-sm">
+                            <div className="w-[22%] bg-[#b91c1c] text-white flex items-center justify-center rounded-sm">
                                 {item.housingName}
                             </div>
                         </div>
@@ -102,8 +102,8 @@ const HousingReportTemplate = ({ data }) => {
                 {/* Total Orders */}
                 <div className="flex w-full max-w-2xl justify-between items-center">
                     <div className="font-bold text-2xl text-[#1e3a8a]">إجمالي عدد الطلبات الكلي</div>
-                    <div className="flex items-center w-1/2">
-                        <div className="bg-[#000080] text-white text-2xl font-bold py-2 text-center flex-grow">
+                    <div className="flex items-center w-1/4">
+                        <div className="bg-[#000080] text-white text-xl font-bold py-2 text-center flex-grow">
                             {data.totalOrders}
                         </div>
                         <div className="font-bold text-xl text-[#1e3a8a] px-4">
@@ -117,8 +117,8 @@ const HousingReportTemplate = ({ data }) => {
                 {/* Total Riders */}
                 <div className="flex w-full max-w-2xl justify-between items-center">
                     <div className="font-bold text-2xl text-[#1e3a8a]">إجمالي عدد السائقين النشطين خلال هذه الفترة</div>
-                    <div className="flex items-center w-1/2">
-                        <div className="bg-[#000080] text-white text-2xl font-bold py-2 text-center flex-grow">
+                    <div className="flex items-center w-1/4">
+                        <div className="bg-[#000080] text-white text-xl font-bold py-2 text-center flex-grow">
                             {data.totalRiders}
                         </div>
                         <div className="font-bold text-xl text-[#1e3a8a] px-4">

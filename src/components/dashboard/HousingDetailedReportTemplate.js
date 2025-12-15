@@ -19,7 +19,7 @@ const HousingDetailedReportTemplate = ({ data }) => {
 
                 {/* Title Section */}
                 <div className="flex flex-col items-start gap-4">
-                    <div className="border-2 border-[#f4a261] p-2 bg-white">
+                    <div className="p-2 bg-white">
                         <h1 className="text-xl font-bold text-[#1e3a8a]">تقرير تفصيلي لعدد الطلبات لجميع السائقين</h1>
                     </div>
 
@@ -37,8 +37,8 @@ const HousingDetailedReportTemplate = ({ data }) => {
                         <h2 className="text-2xl font-bold text-[#1e3a8a]">شركة الخدمة السريعة</h2>
                         <p className="text-[#f59e0b] font-bold text-lg">للخدمات اللوجستية</p>
                     </div>
-                    <div className="w-12 h-12 border-2 border-[#1e3a8a] rounded flex items-center justify-center text-[#1e3a8a]">
-                        <span className="text-2xl font-bold">E</span>
+                    <div className="w-16 h-16 flex items-center justify-center text-[#1e3a8a]">
+                        <img src="2.png" className="w-full h-full" alt="logo" />
                     </div>
                 </div>
             </div>
