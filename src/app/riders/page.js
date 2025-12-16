@@ -18,6 +18,7 @@ export default function RidersPage() {
   const { t } = useLanguage();
   const [riders, setRiders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -126,20 +127,37 @@ export default function RidersPage() {
     },
   ];
 
-  const filteredRiders = riders.filter(rider =>
-    rider.nameAR?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rider.workingId?.toString().includes(searchTerm) ||
-    rider.iqamaNo?.toString().includes(searchTerm) ||
-    rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRiders = riders.filter(rider => {
+    const matchesSearch =
+      rider.nameAR?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.workingId?.toString().includes(searchTerm) ||
+      rider.iqamaNo?.toString().includes(searchTerm) ||
+      rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && rider.status.toLowerCase() === 'enable') ||
+      (statusFilter === 'inactive' && rider.status.toLowerCase() === 'disable') ||
+      (statusFilter === 'fleeing' && rider.status.toLowerCase() === 'fleeing') ||
+      (statusFilter === 'vacation' && rider.status.toLowerCase() === 'vacation') ||
+      (statusFilter === 'sick' && rider.status.toLowerCase() === 'sick') ||
+      (statusFilter === 'accident' && rider.status.toLowerCase() === 'accident');
+
+    return matchesSearch && matchesStatus;
+  });
 
   // Statistics
   const stats = {
     total: riders.length,
-    active: riders.filter(r => r.status === 'enable').length,
+    active: riders.filter(r => r.status.toLowerCase() === 'enable').length,
+    inactive: riders.filter(r => r.status.toLowerCase() === 'disable').length,
+    fleeing: riders.filter(r => r.status.toLowerCase() === 'fleeing').length,
+    vacation: riders.filter(r => r.status.toLowerCase() === 'vacation').length,
+    sick: riders.filter(r => r.status.toLowerCase() === 'sick').length,
+    accident: riders.filter(r => r.status.toLowerCase() === 'accident').length,
     companies: new Set(riders.map(r => r.companyName)).size,
     withHousing: riders.filter(r => r.housingAddress).length
   };
@@ -158,7 +176,8 @@ export default function RidersPage() {
       />
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Row 1: Main Stats */}
         <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -172,10 +191,61 @@ export default function RidersPage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-600 mb-1">{t('riders.activeRiders')}</p>
+              <p className="text-sm text-green-600 mb-1">{t('common.active')}</p>
               <p className="text-3xl font-bold text-green-700">{stats.active}</p>
             </div>
             <UserCheck className="text-green-500" size={40} />
+          </div>
+        </div>
+
+        <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-red-600 mb-1">{t('common.inactive')}</p>
+              <p className="text-3xl font-bold text-red-700">{stats.inactive}</p>
+            </div>
+            <Users className="text-red-500" size={40} />
+          </div>
+        </div>
+
+        <div className="bg-rose-50 border-r-4 border-rose-500 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-rose-600 mb-1">{t('status.fleeing')}</p>
+              <p className="text-3xl font-bold text-rose-700">{stats.fleeing}</p>
+            </div>
+            <Users className="text-rose-500" size={40} />
+          </div>
+        </div>
+
+        {/* Row 2: Secondary Stats */}
+        <div className="bg-blue-50 border-r-4 border-blue-400 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-blue-600 mb-1">{t('status.vacation')}</p>
+              <p className="text-3xl font-bold text-blue-700">{stats.vacation}</p>
+            </div>
+            <Users className="text-blue-400" size={40} />
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 border-r-4 border-yellow-500 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-yellow-600 mb-1">{t('status.sick')}</p>
+              <p className="text-3xl font-bold text-yellow-700">{stats.sick}</p>
+            </div>
+            <Users className="text-yellow-500" size={40} />
+          </div>
+        </div>
+
+        <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-orange-600 mb-1">{t('status.accident')}</p>
+              <p className="text-3xl font-bold text-orange-700">{stats.accident}</p>
+            </div>
+            <Users className="text-orange-500" size={40} />
           </div>
         </div>
 
@@ -186,16 +256,6 @@ export default function RidersPage() {
               <p className="text-3xl font-bold text-purple-700">{stats.companies}</p>
             </div>
             <Building className="text-purple-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-orange-600 mb-1">{t('riders.withHousing')}</p>
-              <p className="text-3xl font-bold text-orange-700">{stats.withHousing}</p>
-            </div>
-            <Package className="text-orange-500" size={40} />
           </div>
         </div>
       </div>
@@ -287,7 +347,78 @@ export default function RidersPage() {
         </Card>
       </div>
       <Card>
-        <div className="mb-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter size={20} className="text-gray-600" />
+            <h3 className="text-lg font-bold text-gray-800">{t('common.filter')}</h3>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.all')} ({stats.total})
+            </button>
+            <button
+              onClick={() => setStatusFilter("active")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "active"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.active')} ({stats.active})
+            </button>
+            <button
+              onClick={() => setStatusFilter("inactive")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactive"
+                ? "bg-red-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.inactive')} ({stats.inactive})
+            </button>
+            <button
+              onClick={() => setStatusFilter("fleeing")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "fleeing"
+                ? "bg-rose-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.fleeing')} ({stats.fleeing})
+            </button>
+            <button
+              onClick={() => setStatusFilter("vacation")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "vacation"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.vacation')} ({stats.vacation})
+            </button>
+            <button
+              onClick={() => setStatusFilter("sick")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "sick"
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.sick')} ({stats.sick})
+            </button>
+            <button
+              onClick={() => setStatusFilter("accident")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "accident"
+                ? "bg-orange-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.accident')} ({stats.accident})
+            </button>
+          </div>
+
           <div className="relative">
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
@@ -299,6 +430,7 @@ export default function RidersPage() {
             />
           </div>
         </div>
+
 
         <Table
           columns={columns}

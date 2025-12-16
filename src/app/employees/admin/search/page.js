@@ -8,6 +8,7 @@ import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
+import StatusBadge from '@/components/Ui/StatusBadge';
 import { Search, User, Eye, Edit, Building, MapPin, Phone } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
@@ -137,12 +138,7 @@ export default function EmployeeSmartSearchPage() {
                         <p className="text-xs text-gray-500">{employee.nameEN}</p>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${employee.status === 'Enable'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-red-600 text-white'
-                      }`}>
-                      {employee.status === 'Enable' ? t('status.enable') : t('status.disable')}
-                    </span>
+                    <StatusBadge status={employee.status} />
                   </div>
 
                   <div className="space-y-2 text-sm mb-4">

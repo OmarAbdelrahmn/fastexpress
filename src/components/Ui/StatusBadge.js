@@ -51,7 +51,8 @@ export default function StatusBadge({ status }) {
         },
     };
 
-    const config = statusConfig[status] || statusConfig.disable;
+    const normalizedStatus = status?.toString().toLowerCase().trim();
+    const config = statusConfig[normalizedStatus] || statusConfig.disable;
 
     return (
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}>

@@ -192,7 +192,7 @@ export default function CreateRiderPage() {
               label={t('employees.country')}
               type="text"
               name="country"
-              value={formData.country}
+              value={formData.country || 'باكستان'} // Example default value
               onChange={handleInputChange}
               required
               placeholder={t('employees.enterCountry')}
@@ -292,7 +292,7 @@ export default function CreateRiderPage() {
               label={t('employees.sponsor')}
               type="text"
               name="sponsor"
-              value={formData.sponsor}
+              value={formData.sponsor || 'الخدمة السريعة'} 
               onChange={handleInputChange}
               required
               placeholder={t('employees.enterSponsorName')}
@@ -302,7 +302,7 @@ export default function CreateRiderPage() {
               label={t('employees.jobTitle')}
               type="text"
               name="jobTitle"
-              value={formData.jobTitle}
+              value={formData.jobTitle || 'سائق دراجة نارية'}
               onChange={handleInputChange}
               required
               placeholder={t('riders.jobTitleExample')}

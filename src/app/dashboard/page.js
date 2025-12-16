@@ -222,8 +222,8 @@ export default function EnhancedDashboard() {
 
       const allRiders = ridersRes.data || [];
       const totalRiders = allRiders.length;
-      const inactiveRiders = inactiveRidersRes.data?.length || 0;
-      const activeRiders = totalRiders - inactiveRiders;
+      const activeRiders = allRiders.filter(rider => rider.status === 'enable').length;
+      const inactiveRiders = allRiders.length - activeRiders;
 
       let activeHungerRiders = 0;
       let activeKeetaRiders = 0;
