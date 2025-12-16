@@ -153,6 +153,7 @@ export default function RidersPage() {
   const stats = {
     total: riders.length,
     active: riders.filter(r => r.status.toLowerCase() === 'enable').length,
+    other: riders.length - riders.filter(r => r.status.toLowerCase() === 'enable').length,
     inactive: riders.filter(r => r.status.toLowerCase() === 'disable').length,
     fleeing: riders.filter(r => r.status.toLowerCase() === 'fleeing').length,
     vacation: riders.filter(r => r.status.toLowerCase() === 'vacation').length,
@@ -202,50 +203,9 @@ export default function RidersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-red-600 mb-1">{t('common.inactive')}</p>
-              <p className="text-3xl font-bold text-red-700">{stats.inactive}</p>
+              <p className="text-3xl font-bold text-red-700">{stats.other}</p>
             </div>
             <Users className="text-red-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-rose-50 border-r-4 border-rose-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-rose-600 mb-1">{t('status.fleeing')}</p>
-              <p className="text-3xl font-bold text-rose-700">{stats.fleeing}</p>
-            </div>
-            <Users className="text-rose-500" size={40} />
-          </div>
-        </div>
-
-        {/* Row 2: Secondary Stats */}
-        <div className="bg-blue-50 border-r-4 border-blue-400 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-600 mb-1">{t('status.vacation')}</p>
-              <p className="text-3xl font-bold text-blue-700">{stats.vacation}</p>
-            </div>
-            <Users className="text-blue-400" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-yellow-50 border-r-4 border-yellow-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-yellow-600 mb-1">{t('status.sick')}</p>
-              <p className="text-3xl font-bold text-yellow-700">{stats.sick}</p>
-            </div>
-            <Users className="text-yellow-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-orange-600 mb-1">{t('status.accident')}</p>
-              <p className="text-3xl font-bold text-orange-700">{stats.accident}</p>
-            </div>
-            <Users className="text-orange-500" size={40} />
           </div>
         </div>
 
