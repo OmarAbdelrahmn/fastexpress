@@ -150,7 +150,7 @@ export default function VehiclesWithRidersPage() {
               <div>
                 <p className="text-xs text-green-600 mb-1">{t('vehicles.statusAvailable')}</p>
                 <p className="text-2xl font-bold text-green-700">
-                  {stats.available}
+                  {stats.returned}
                 </p>
               </div>
               <CheckCircle className="text-green-500" size={32} />
