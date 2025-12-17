@@ -39,40 +39,28 @@ export default function ComprehensiveLandingPage() {
   const services = [
     {
       icon: <Truck className="w-12 h-12" />,
-      title: "نقل بري وجوي",
-      desc: "أسطول ضخم يغطي كافة أنحاء جدة مع خيارات شحن سريع.",
-      details: ["شحن مبرد والجاف", "تغطية شاملة للمدن", "تتبع مباشر للشاحنات"]
-    },
-    {
-      icon: <Layers className="w-12 h-12" />,
-      title: "إدارة المخزون (WMS)",
-      desc: "أنظمة تخزين ذكية تضمن دقة 99.9% في إدارة مخزونك.",
-      details: ["تخزين آمن", "تقارير جرد لحظية", "أتمتة الطلبات"]
-    },
-    {
-      icon: <Globe className="w-12 h-12" />,
-      title: "التجارة الإلكترونية",
-      desc: "حلول متكاملة للمتاجر الإلكترونية من التخزين إلى التوصيل.",
-      details: ["ربط API مباشر", "تغليف مخصص", "إدارة المرجوعات"]
+      title: "إدارة الأسطول",
+      desc: "نوفر دراجات نارية حديثة موديل السنة مع صيانة دورية شاملة.",
+      details: ["دراجات 2023-2026", "صيانة فورية ومجانية", "مركبات بديلة"]
     },
     {
       icon: <Zap className="w-12 h-12" />,
-      title: "توصيل الميل الأخير",
-      desc: "سرعة فائقة في توصيل الطلبات للعميل النهائي.",
-      details: ["توصيل في نفس اليوم", "جدولة ذكية", "تقييم العملاء"]
+      title: "وقود مدفوع",
+      desc: "شراكة استراتيجية مع الدريس لتوفير الوقود بشكل مجاني للكباتن.",
+      details: ["شريحة بنزين ذكية", "تغطية كافة المحطات", "تتبع الاستهلاك"]
     },
-    // {
-    //   icon: <ShieldCheck className="w-12 h-12" />,
-    //   title: "تخليص جمركي",
-    //   desc: "فريق مختص لإنهاء كافة الإجراءات الجمركية بسرعة.",
-    //   details: ["استشارات قانونية", "تصاريح وشهادات", "تخليص الموانئ"]
-    // },
-    // {
-    //   icon: <BarChart3 className="w-12 h-12" />,
-    //   title: "استشارات لوجستية",
-    //   desc: "تحليل وتحسين سلاسل الإمداد لتقليل التكاليف.",
-    //   details: ["تحليل البيانات", "تخطيط استراتيجي", "حلول خفض التكلفة"]
-    // }
+    {
+      icon: <Building2 className="w-12 h-12" />,
+      title: "سكن وإعاشة",
+      desc: "سكن مؤثث ونظيف مع وجبات يومية لضمان راحة الكابتن.",
+      details: ["سكن مكيف ومجهز", "خدمات غسيل وتنظيف", "وجبات غذائية"]
+    },
+    {
+      icon: <ShieldCheck className="w-12 h-12" />,
+      title: "رعاية شاملة",
+      desc: "نتكفل بكافة الرسوم الحكومية والتأمين الطبي للكابتن.",
+      details: ["إصدار الإقامات والرخص", "تأمين طبي شامل", "تغطية الحوادث"]
+    }
   ];
 
   return (
@@ -276,96 +264,178 @@ export default function ComprehensiveLandingPage() {
         </div>
       </section>
 
-      {/* 4. Services Section */}
-      <section id="services" className="py-16 lg:py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16 reveal-on-scroll">
-            <span className="text-orange-600 font-bold tracking-wider">خدماتنا</span>
-            <h2 className="text-3xl lg:text-4xl font-black text-blue-900 mt-2">حلول مصممة لنجاحك</h2>
-            <p className="text-slate-600 mt-4 text-base lg:text-lg">نقدم مجموعة شاملة من الخدمات التي تغطي كل مرحلة من مراحل سلسلة الإمداد</p>
+      {/* 4. Company Overview Section (Replaces Services) */}
+      <section id="services" className="py-24 bg-slate-50 relative">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="text-center mb-16 reveal-on-scroll">
+            <span className="text-orange-600 font-bold tracking-wider">لماذا نحن؟</span>
+            <h2 className="text-4xl lg:text-5xl font-black text-blue-900 mt-2">محرك أعمالك اللوجستي</h2>
+            <p className="text-slate-600 mt-4 text-lg">نقدم منظومة عمل متكاملة تجمع بين التقنية، الأصول، والكوادر البشرية</p>
           </div>
 
-          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            {services.map((service, idx) => (
-              <div key={idx} className="group bg-white rounded-3xl p-6 lg:p-8 hover:bg-blue-900 transition-all duration-300 hover:-translate-y-2 shadow-lg hover:shadow-2xl reveal-on-scroll border border-slate-100">
-                <div className="mb-6 text-blue-600 group-hover:text-orange-400 transition-colors">
-                  {service.icon}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+            {/* 1. Tech Core (Large - Left) */}
+            <div className="md:col-span-2 lg:col-span-2 md:row-span-2 bg-gradient-to-br from-blue-900 to-slate-900 rounded-3xl p-8 lg:p-10 relative overflow-hidden group reveal-on-scroll text-white flex flex-col justify-between shadow-2xl">
+              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[100px] -mr-20 -mt-20"></div>
+
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-blue-500/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 border border-white/10 text-blue-300">
+                  <Zap size={32} />
                 </div>
-                <h3 className="text-xl lg:text-2xl font-bold text-blue-900 group-hover:text-white mb-3 transition-colors">{service.title}</h3>
-                <p className="text-slate-600 group-hover:text-blue-200 mb-6 transition-colors leading-relaxed text-sm lg:text-base">
-                  {service.desc}
+                <h3 className="text-3xl lg:text-4xl font-black mb-4 leading-tight">تقنية تقود <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">المستقبل</span></h3>
+                <p className="text-blue-100/80 text-lg leading-relaxed max-w-md">
+                  نمتلك منصة تقنية خاصة تربط كافة أطراف العملية اللوجستية في الوقت الفعلي. لوحة تحكم ذكية، تتبع مباشر، وتحليلات أداء دقيقة.
                 </p>
-                <div className="border-t border-slate-100 group-hover:border-blue-800 pt-6">
-                  <ul className="space-y-2">
-                    {service.details.map((detail, dIdx) => (
-                      <li key={dIdx} className="flex items-center gap-2 text-xs lg:text-sm font-medium text-slate-500 group-hover:text-blue-300">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                        {detail}
-                      </li>
+              </div>
+
+              <div className="mt-8 relative h-[300px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg group-hover:scale-[1.02] transition-transform duration-500">
+                <div className="absolute inset-0 bg-slate-900/50 z-10"></div>
+                {/* Abstract UI representation */}
+                <div className="absolute inset-4 bg-slate-950/90 backdrop-blur-md rounded-xl p-4 flex flex-col gap-3 font-mono text-xs overflow-hidden border border-white/10 shadow-inner">
+                  <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)] animate-pulse"></span>
+                      <span className="text-white font-bold uppercase tracking-wider text-[10px]">Live Operations</span>
+                    </div>
+                    <span className="text-blue-200 font-medium">14:02:35</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-blue-500/20 rounded-lg p-2 border border-blue-400/30">
+                      <div className="text-blue-100 text-[10px] font-medium">Active Riders</div>
+                      <div className="text-xl font-black text-white">1,245</div>
+                    </div>
+                    <div className="bg-orange-500/20 rounded-lg p-2 border border-orange-400/30">
+                      <div className="text-orange-100 text-[10px] font-medium">Pending Orders</div>
+                      <div className="text-xl font-black text-white">85</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-1">
+                    {[
+                      { id: "#8291", status: "Delivered", loc: "Al-Rawdah", time: "2m ago" },
+                      { id: "#8292", status: "In Transit", loc: "Al-Safa", time: "5m ago" },
+                      { id: "#8293", status: "Pickup", loc: "Al-Naseem", time: "8m ago" },
+                    ].map((order, i) => (
+                      <div key={i} className="flex justify-between items-center text-[10px] text-white bg-white/10 p-2 rounded hover:bg-white/20 transition-colors cursor-default">
+                        <span className="font-bold text-blue-300">{order.id}</span>
+                        <span className="text-slate-200">{order.loc}</span>
+                        <span className={`font-bold ${order.status === "Delivered" ? "text-green-400" : "text-orange-400"}`}>{order.status}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="md:col-span-1 bg-white rounded-3xl p-6 border border-slate-100 shadow-xl reveal-on-scroll relative overflow-hidden group hover:bg-slate-50 transition-colors">
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-orange-100 rounded-full blur-3xl group-hover:bg-orange-200 transition-colors"></div>
+
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-4">
+                    <Truck size={24} />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-800 mb-2">أسطولنا الضخم</h3>
+                  <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
+                    500+ مركبة مملوكة بالكامل. من الدراجات النارية وحتى الشاحنات المبردة، جاهزة لخدمتكم.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-1 bg-white rounded-3xl p-6 border border-slate-100 shadow-xl reveal-on-scroll relative overflow-hidden group hover:bg-slate-50 transition-colors">
+              <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl group-hover:bg-blue-100 transition-colors"></div>
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
+                    <Zap size={24} />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-800 mb-2">الوقود الذكي</h3>
+                  <p className="text-slate-500 text-xs leading-relaxed">
+                    شراكة استراتيجية مع <span className="font-bold text-blue-700">الدريس</span> لتوفير نظام تعبئة وقود ذكي ومراقبة الاستهلاك رقمياً.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-1 bg-gradient-to-br from-white to-blue-50 rounded-3xl p-6 border border-blue-100 shadow-xl reveal-on-scroll hover:-translate-y-1 transition-transform">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+                  <MapPin size={24} />
+                </div>
+                <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-1 rounded-full uppercase">Active</span>
+              </div>
+              <h3 className="text-xl font-black text-slate-800 mb-2">تغطية جغرافية</h3>
+              <p className="text-slate-500 text-xs">نصل إلى كل حي وشارع في مدينة جدة والمناطق المحيطة.</p>
+            </div>
+
+            <div className="md:col-span-1 bg-slate-900 text-white rounded-3xl p-6 shadow-xl reveal-on-scroll relative overflow-hidden group">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 bg-white/10 backdrop-blur text-white rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Building2 size={24} />
+                </div>
+                <h3 className="text-xl font-black mb-2">مستودعات </h3>
+                <p className="text-slate-400 text-xs line-clamp-3">
+                  مساحات تخزين آمنة تدار بأنظمة العالمية لضمان دقة المخزون وسرعة التحضير.
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 5. Process Section - Enhanced Logistics Flow */}
-      <section id="process" className="py-16 lg:py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+      <section id="process" className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
 
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-10 w-64 h-64 bg-orange-500 rounded-full opacity-5 blur-3xl"></div>
           <div className="absolute bottom-20 left-10 w-80 h-80 bg-blue-600 rounded-full opacity-5 blur-3xl"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-12 lg:mb-16 reveal-on-scroll">
-            <h2 className="text-3xl lg:text-4xl font-black mb-3">رحلة الشحنة الذكية</h2>
-            <p className="text-blue-200 text-lg">منصة متكاملة تربط بين التاجر والسائق والعميل</p>
+          <div className="text-center mb-16 reveal-on-scroll">
+            <h2 className="text-4xl lg:text-5xl font-black mb-4">منظومة دعم متكاملة</h2>
+            <p className="text-blue-200 text-lg max-w-2xl mx-auto">
+              لا نكتفي بتعيين المهام، بل نبني بيئة عمل شاملة. نتولى عنك كافة التفاصيل التشغيلية واللوجستية لتتفرغ للإنتاج.
+            </p>
           </div>
 
-          {/* Main Flow */}
-          <div className="grid md:grid-cols-5 gap-6 lg:gap-8 relative mb-16">
-            {/* Connection Line */}
-            <div className="hidden md:block absolute top-14 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-700 via-orange-500 to-blue-700 -z-10 rounded-full"></div>
+          <div className="grid md:grid-cols-5 gap-6 lg:gap-8 relative mb-20">
+            <div className="hidden md:block absolute top-14 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-600 via-orange-500 to-blue-600 -z-10 rounded-full opacity-30"></div>
 
             {[
               {
-                icon: <Package />,
-                title: "طلب الشحن",
-                desc: "التاجر يُنشئ طلب شحن عبر المنصة",
-                actor: "التاجر",
+                icon: <Truck />,
+                title: "أسطول حديث",
+                desc: "دراجات نارية جديدة ومجهزة بالكامل للعمل الشاق",
                 color: "blue"
               },
               {
-                icon: <CheckCircle />,
-                title: "تأكيد الطلب",
-                desc: "نراجع ونؤكد تفاصيل الشحنة",
-                actor: "المنصة",
+                icon: <Zap />,
+                title: "وقود وصيانة",
+                desc: "شراكة مع الدريس لتوفير الوقود والصيانة الدورية",
                 color: "orange"
               },
               {
-                icon: <Truck />,
-                title: "تعيين السائق",
-                desc: "إسناد الشحنة لأقرب سائق متاح",
-                actor: "النظام",
-                color: "orange"
+                icon: <Building2 />,
+                title: "سكن وإعاشة",
+                desc: "مجمعات سكنية مريحة مع خدمات إعاشة متكاملة",
+                color: "blue"
               },
               {
-                icon: <MapPin />,
-                title: "التوصيل",
-                desc: "السائق يستلم ويوصل للعميل",
-                actor: "السائق",
+                icon: <ShieldCheck />,
+                title: "أمان وحماية",
+                desc: "تأمين طبي شامل وتغطية ضد الحوادث والأعطال",
                 color: "green"
               },
               {
-                icon: <Star />,
-                title: "التقييم",
-                desc: "العميل يستلم ويقيّم الخدمة",
-                actor: "العميل",
+                icon: <UserCheck />,
+                title: "إدارة شاملة",
+                desc: "إصدار الرخص، الإقامات، وكافة الإجراءات الحكومية",
                 color: "blue"
               }
             ].map((step, idx) => (
@@ -373,78 +443,67 @@ export default function ComprehensiveLandingPage() {
                 <div className={`w-24 h-24 lg:w-28 lg:h-28 mx-auto bg-gradient-to-br ${step.color === 'orange' ? 'from-orange-500 to-orange-600' :
                   step.color === 'green' ? 'from-green-500 to-green-600' :
                     'from-blue-700 to-blue-800'
-                  } rounded-full flex items-center justify-center border-4 border-white/20 mb-4 shadow-2xl relative z-10 group hover:scale-110 hover:rotate-6 transition-all duration-300`}>
-                  <div className="text-white group-hover:scale-110 transition-transform">
-                    {React.cloneElement(step.icon, { size: 32 })}
+                  } rounded-2xl rotate-3 flex items-center justify-center border-4 border-white/10 mb-6 shadow-2xl relative z-10 group hover:rotate-0 hover:scale-110 transition-all duration-300`}>
+                  <div className="text-white transform -rotate-3 group-hover:rotate-0 transition-transform">
+                    {React.cloneElement(step.icon, { size: 36 })}
                   </div>
-                  <div className="absolute -top-3 -right-3 w-9 h-9 bg-white text-blue-900 rounded-full flex items-center justify-center font-black text-sm border-3 border-blue-900 shadow-lg">
+                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold text-xs border-2 border-slate-700">
                     {idx + 1}
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all">
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${step.color === 'orange' ? 'bg-orange-500/20 text-orange-200' :
-                    step.color === 'green' ? 'bg-green-500/20 text-green-200' :
-                      'bg-blue-500/20 text-blue-200'
-                    }`}>
-                    {step.actor}
-                  </span>
-                  <h3 className="text-lg lg:text-xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-blue-200 text-sm">{step.desc}</p>
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-all min-h-[140px] flex flex-col justify-center">
+                  <h3 className="text-lg lg:text-xl font-bold mb-2 text-white">{step.title}</h3>
+                  <p className="text-blue-200 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Stakeholder Roles */}
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
-            {[
-              {
-                icon: <Building2 />,
-                title: "التاجر / البائع",
-                points: ["إنشاء طلبات الشحن", "تتبع الشحنات", "إدارة المرتجعات"],
-                color: "from-blue-600 to-blue-700"
-              },
-              {
-                icon: <Users />,
-                title: "السائقون",
-                points: ["استلام المهام", "تحديث الحالة", "تحصيل المدفوعات"],
-                color: "from-orange-500 to-orange-600"
-              },
-              {
-                icon: <UserCheck />,
-                title: "العملاء النهائيون",
-                points: ["تتبع حي للشحنة", "استلام آمن", "تقييم الخدمة"],
-                color: "from-green-500 to-green-600"
-              }
-            ].map((role, idx) => (
-              <div key={idx} className="reveal-on-scroll" style={{ transitionDelay: `${idx * 150}ms` }}>
-                <div className={`bg-gradient-to-br ${role.color} p-6 rounded-xl shadow-xl border border-white/10 hover:scale-105 transition-transform duration-300`}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                      {React.cloneElement(role.icon, { size: 24 })}
-                    </div>
-                    <h3 className="text-xl font-bold">{role.title}</h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {role.points.map((point, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-white/90">
-                        <CheckCircle size={16} className="mt-0.5 flex-shrink-0" />
-                        <span>{point}</span>
-                      </li>
+          <div className="grid md:grid-cols-2 gap-8 mt-12">
+            <div className="bg-gradient-to-br from-blue-950 to-blue-900 p-8 rounded-3xl border border-white/10 relative overflow-hidden group reveal-on-scroll">
+              <div className="absolute top-0 right-0 p-32 bg-blue-600/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-600/30 transition-all"></div>
+              <div className="relative z-10 flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-right">
+                <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-600/40">
+                  <Search className="text-white w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3">إدارة العمليات الميدانية</h3>
+                  <p className="text-blue-200 leading-relaxed mb-4">
+                    نظام تقني متطور لمتابعة حالة الأسطول، مواقع السائقين، وجدولة الصيانات بشكل آلي لضمان استمرارية العمل دون توقف.
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    {["تتبع GPS مباشر", "أتمتة الصيانة", "دعم فني 24/7"].map((tag, i) => (
+                      <span key={i} className="px-3 py-1 bg-blue-800/50 rounded-lg text-xs text-blue-200 border border-blue-700/50">{tag}</span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-950 to-orange-900 p-8 rounded-3xl border border-white/10 relative overflow-hidden group reveal-on-scroll" style={{ transitionDelay: '200ms' }}>
+              <div className="absolute top-0 right-0 p-32 bg-orange-600/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-orange-600/30 transition-all"></div>
+              <div className="relative z-10 flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-right">
+                <div className="w-16 h-16 bg-orange-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-600/40">
+                  <Building2 className="text-white w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-3">الرعاية والسكن</h3>
+                  <p className="text-orange-200 leading-relaxed mb-4">
+                    نؤمن بأن راحة الكابتن هي أساس كفاءته. لذلك نوفر مساكن مؤثثة بالكامل مع خدمات النظافة والإعاشة، بالإضافة لبرامج ترفيهية.
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    {["سكن مفروش", "خدمات غسيل", "وجبات يومية"].map((tag, i) => (
+                      <span key={i} className="px-3 py-1 bg-orange-800/50 rounded-lg text-xs text-orange-200 border border-orange-700/50">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* 6. Partners Section */}
-      {/* 6. Partners Section */}
       <section id="partners" className="py-24 bg-white relative overflow-hidden">
-        {/* Abstract Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-blue-50/80 blur-3xl mix-blend-multiply"></div>
           <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-orange-50/80 blur-3xl mix-blend-multiply"></div>
@@ -476,7 +535,6 @@ export default function ComprehensiveLandingPage() {
               { name: "ToYou", color: "from-purple-500 to-indigo-600", shadow: "shadow-indigo-300/20", icon: "🚗", stats: "توصيل فوري" },
             ].map((partner, idx) => (
               <div key={idx} className="group relative bg-white rounded-[2rem] p-6 text-center hover:-translate-y-2 transition-all duration-500 hover:shadow-xl border border-slate-100 reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
-                {/* Hover Gradient Border Effect */}
                 <div className={`absolute inset-0 rounded-[2rem] bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`}></div>
 
                 <div className="relative z-10 bg-white rounded-[1.5rem] p-6 h-full flex flex-col items-center justify-center gap-4 border border-slate-50 shadow-sm group-hover:border-transparent transition-colors">
@@ -496,7 +554,6 @@ export default function ComprehensiveLandingPage() {
             ))}
           </div>
 
-          {/* Bottom Trust Indicators */}
           <div className="mt-20 pt-10 border-t border-slate-100 flex flex-wrap justify-center gap-8 md:gap-16 opacity-60">
             <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-300">
               <ShieldCheck className="w-6 h-6 text-blue-600" />
@@ -514,7 +571,6 @@ export default function ComprehensiveLandingPage() {
         </div>
       </section>
 
-      {/* 7. Contact Section */}
       <section id="contact" className="py-16 lg:py-24 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden grid lg:grid-cols-2">
@@ -594,12 +650,13 @@ export default function ComprehensiveLandingPage() {
         </div>
       </section>
 
-      {/* 8. Footer */}
       <footer className="bg-slate-950 text-slate-400 py-12 lg:py-16 border-t border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold">ES</div>
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                <img src="/2.png" alt="ES Logo" className="w-8 h-8 object-contain" />
+              </div>
               <span className="text-xl font-black text-white">Express Service</span>
             </div>
             <p className="leading-relaxed mb-6 text-sm">
@@ -615,7 +672,6 @@ export default function ComprehensiveLandingPage() {
             <h4 className="text-white font-bold mb-6">خدماتنا</h4>
             <ul className="space-y-3 text-sm">
               <li><a href="#" className="hover:text-orange-500 transition-colors">النقل البري</a></li>
-              <li><a href="#" className="hover:text-orange-500 transition-colors">التخزين (WMS)</a></li>
               <li><a href="#" className="hover:text-orange-500 transition-colors">التجارة الإلكترونية</a></li>
               <li><a href="#" className="hover:text-orange-500 transition-colors">الميل الأخير</a></li>
             </ul>
@@ -680,12 +736,10 @@ export default function ComprehensiveLandingPage() {
         }
       `}</style>
 
-      {/* Helper icon component import for CheckCircle which was used in map but imported */}
     </div>
   );
 }
 
-// Additional simple icon for checklist
 function CheckCircle(props) {
   return (
     <svg
