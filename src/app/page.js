@@ -273,10 +273,10 @@ export default function ComprehensiveLandingPage() {
             <p className="text-slate-600 mt-4 text-lg">نقدم منظومة عمل متكاملة تجمع بين التقنية، الأصول، والكوادر البشرية</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
             {/* 1. Tech Core (Large - Left) */}
-            <div className="md:col-span-2 lg:col-span-2 md:row-span-2 bg-gradient-to-br from-blue-900 to-slate-900 rounded-3xl p-8 lg:p-10 relative overflow-hidden group reveal-on-scroll text-white flex flex-col justify-between shadow-2xl">
+            <div className="md:col-span-2 lg:col-span-2 lg:row-span-2 bg-gradient-to-br from-blue-900 to-slate-900 rounded-3xl p-8 lg:p-10 relative overflow-hidden group reveal-on-scroll text-white flex flex-col justify-between shadow-2xl">
               <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[100px] -mr-20 -mt-20"></div>
 
               <div className="relative z-10">
