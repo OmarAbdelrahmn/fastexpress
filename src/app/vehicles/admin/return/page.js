@@ -43,8 +43,8 @@ export default function ReturnVehiclePage() {
       const data = await ApiService.get(
         "/api/vehicles/taken?statusFilter=unavailable"
       );
-      if (Array.isArray(data)) {
-        setTakenVehicles(data);
+      if (Array.isArray(data?.vehicles)) {
+        setTakenVehicles(data.vehicles);
       } else {
         setTakenVehicles([]);
       }

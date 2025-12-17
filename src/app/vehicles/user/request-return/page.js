@@ -38,9 +38,11 @@ export default function RequestReturnVehiclePage() {
   const loadTakenVehicles = async () => {
     setLoading(true);
     try {
-      const data = await ApiService.get("/api/vehicles/taken");
-      if (Array.isArray(data)) {
-        setTakenVehicles(data);
+      const data = await ApiService.get(
+        "/api/vehicles/taken?statusFilter=unavailable"
+      );
+      if (Array.isArray(data.Vehicles)) {
+        setTakenVehicles(data.Vehicles);
       } else {
         setTakenVehicles([]);
       }

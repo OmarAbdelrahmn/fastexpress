@@ -45,7 +45,7 @@ export default function VehiclesUserPage() {
 
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
       setTakenVehicles(takenData?.vehicles || []);
-      setProblemVehicles(problemData?.vehicles || []);
+      setProblemVehicles(problemData || []);
     } catch (err) {
       console.error("Error loading dashboard data:", err);
       setErrorMessage(t("vehicles.loadingError"));
@@ -77,7 +77,7 @@ export default function VehiclesUserPage() {
       icon: AlertTriangle,
       color: "orange",
       path: "/vehicles/user/request-problem",
-      count: null,
+      count: problemVehicles.length,
     },
   ];
 
