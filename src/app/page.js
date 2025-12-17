@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu, X, Phone, Mail, MapPin, ChevronLeft, ArrowLeft,
   Truck, Globe, BarChart3, ShieldCheck, Clock, Layers,
-  Package, Users, Building2, Zap, Search, Send,Star,UserCheck
+  Package, Users, Building2, Zap, Search, Send, Star, UserCheck
 } from 'lucide-react';
 
 export default function ComprehensiveLandingPage() {
@@ -83,8 +83,8 @@ export default function ComprehensiveLandingPage() {
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 flex justify-between items-center">
           <div className="flex items-center gap-3 group cursor-pointer">
             {/* Logo Restored to Larger Size as per user correction */}
-            <div className={`bg-gradient-to-tr from-blue-700 to-blue-900 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-all ${isScrolled ? 'w-8 h-8' : 'w-10 h-10 md:w-12 md:h-12'}`}>
-              <span className={`text-white font-black ${isScrolled ? 'text-sm' : 'text-base md:text-xl'}`}>ES</span>
+            <div className={`${isScrolled ? 'bg-gray-100' : 'bg-gradient-to-tr from-white to-white'} rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-all ${isScrolled ? 'w-8 h-8' : 'w-10 h-10 md:w-12 md:h-12'}`}>
+              <img src="/2.png" alt="ES Logo" className={`object-contain ${isScrolled ? 'w-7 h-7 ' : 'w-8 h-8 md:w-10 md:h-10'}`} />
             </div>
             <div className="block">
               <h1 className={`font-black tracking-tight transition-colors leading-tight ${isScrolled ? 'text-blue-900 text-base' : 'text-blue-900 lg:text-white text-lg md:text-xl'}`}>Express Service</h1>
@@ -164,14 +164,14 @@ export default function ComprehensiveLandingPage() {
           </div>
 
           <div className="relative h-[500px] sm:h-[500px] lg:h-[600px] flex items-center justify-center perspective-1000 mt-8 lg:mt-0">
-            <div className="relative w-full max-w-[280px] sm:max-w-md lg:max-w-2xl animate-float">
+            <div className="relative w-full max-w-[340px] sm:max-w-md lg:max-w-2xl animate-float">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-blue-500/20 rounded-full blur-3xl -z-10"></div>
-              <img src="/2.png" alt="Logistics Dashboard" className="w-[70%] h-auto drop-shadow-2xl relative z-10" />
+              <img src="/2.png" alt="Logistics Dashboard" className="w-[90%] md:w-[70%] h-auto drop-shadow-2xl relative z-10" />
 
               {/* Floating Cards - "Logo" (Icons) Made Smaller Here */}
 
               {/* Top Right */}
-              <div className="flex absolute top-10 -right-5 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform">
+              <div className="flex absolute top-4 md:top-10 -right-5 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform">
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="bg-green-500/20 p-1 md:p-1.5 rounded-lg text-green-400">
                     <ShieldCheck className="w-3 h-3 md:w-5 md:h-5" />
@@ -184,7 +184,7 @@ export default function ComprehensiveLandingPage() {
               </div>
 
               {/* Top Left */}
-              <div className="flex absolute top-25 -left-2 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1.5s' }}>
+              <div className="flex absolute top-24 -left-2 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1.5s' }}>
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="bg-purple-500/20 p-1 md:p-1.5 rounded-lg text-purple-400">
                     <Users className="w-3 h-3 md:w-5 md:h-5" />
@@ -197,7 +197,7 @@ export default function ComprehensiveLandingPage() {
               </div>
 
               {/* Bottom Right */}
-              <div className="flex absolute bottom-32 -right-8 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
+              <div className="flex absolute bottom-10 md:bottom-32 -right-8 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="bg-orange-500/20 p-1 md:p-1.5 rounded-lg text-orange-400">
                     <Clock className="w-3 h-3 md:w-5 md:h-5" />
@@ -210,7 +210,7 @@ export default function ComprehensiveLandingPage() {
               </div>
 
               {/* Bottom Left */}
-              <div className="flex absolute bottom-25 -left-1 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
+              <div className="flex absolute bottom-24 -left-1 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="bg-blue-500/20 p-1 md:p-1.5 rounded-lg text-blue-400">
                     <MapPin className="w-3 h-3 md:w-5 md:h-5" />
@@ -311,172 +311,205 @@ export default function ComprehensiveLandingPage() {
         </div>
       </section>
 
-    {/* 5. Process Section - Enhanced Logistics Flow */}
-<section id="process" className="py-16 lg:py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
-  <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-  
-  {/* Animated background elements */}
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <div className="absolute top-20 right-10 w-64 h-64 bg-orange-500 rounded-full opacity-5 blur-3xl"></div>
-    <div className="absolute bottom-20 left-10 w-80 h-80 bg-blue-600 rounded-full opacity-5 blur-3xl"></div>
-  </div>
+      {/* 5. Process Section - Enhanced Logistics Flow */}
+      <section id="process" className="py-16 lg:py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
 
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-    <div className="text-center mb-12 lg:mb-16 reveal-on-scroll">
-      <h2 className="text-3xl lg:text-4xl font-black mb-3">رحلة الشحنة الذكية</h2>
-      <p className="text-blue-200 text-lg">منصة متكاملة تربط بين التاجر والسائق والعميل</p>
-    </div>
-
-    {/* Main Flow */}
-    <div className="grid md:grid-cols-5 gap-6 lg:gap-8 relative mb-16">
-      {/* Connection Line */}
-      <div className="hidden md:block absolute top-14 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-700 via-orange-500 to-blue-700 -z-10 rounded-full"></div>
-
-      {[
-        { 
-          icon: <Package />, 
-          title: "طلب الشحن", 
-          desc: "التاجر يُنشئ طلب شحن عبر المنصة",
-          actor: "التاجر",
-          color: "blue"
-        },
-        { 
-          icon: <CheckCircle />, 
-          title: "تأكيد الطلب", 
-          desc: "نراجع ونؤكد تفاصيل الشحنة",
-          actor: "المنصة",
-          color: "orange"
-        },
-        { 
-          icon: <Truck />, 
-          title: "تعيين السائق", 
-          desc: "إسناد الشحنة لأقرب سائق متاح",
-          actor: "النظام",
-          color: "orange"
-        },
-        { 
-          icon: <MapPin />, 
-          title: "التوصيل", 
-          desc: "السائق يستلم ويوصل للعميل",
-          actor: "السائق",
-          color: "green"
-        },
-        { 
-          icon: <Star />, 
-          title: "التقييم", 
-          desc: "العميل يستلم ويقيّم الخدمة",
-          actor: "العميل",
-          color: "blue"
-        }
-      ].map((step, idx) => (
-        <div key={idx} className="relative text-center reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
-          <div className={`w-24 h-24 lg:w-28 lg:h-28 mx-auto bg-gradient-to-br ${
-            step.color === 'orange' ? 'from-orange-500 to-orange-600' :
-            step.color === 'green' ? 'from-green-500 to-green-600' :
-            'from-blue-700 to-blue-800'
-          } rounded-full flex items-center justify-center border-4 border-white/20 mb-4 shadow-2xl relative z-10 group hover:scale-110 hover:rotate-6 transition-all duration-300`}>
-            <div className="text-white group-hover:scale-110 transition-transform">
-              {React.cloneElement(step.icon, { size: 32 })}
-            </div>
-            <div className="absolute -top-3 -right-3 w-9 h-9 bg-white text-blue-900 rounded-full flex items-center justify-center font-black text-sm border-3 border-blue-900 shadow-lg">
-              {idx + 1}
-            </div>
-          </div>
-          
-          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${
-              step.color === 'orange' ? 'bg-orange-500/20 text-orange-200' :
-              step.color === 'green' ? 'bg-green-500/20 text-green-200' :
-              'bg-blue-500/20 text-blue-200'
-            }`}>
-              {step.actor}
-            </span>
-            <h3 className="text-lg lg:text-xl font-bold mb-2">{step.title}</h3>
-            <p className="text-blue-200 text-sm">{step.desc}</p>
-          </div>
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-10 w-64 h-64 bg-orange-500 rounded-full opacity-5 blur-3xl"></div>
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-blue-600 rounded-full opacity-5 blur-3xl"></div>
         </div>
-      ))}
-    </div>
 
-    {/* Stakeholder Roles */}
-    <div className="grid md:grid-cols-3 gap-6 mt-12">
-      {[
-        {
-          icon: <Building2 />,
-          title: "التاجر / البائع",
-          points: ["إنشاء طلبات الشحن", "تتبع الشحنات", "إدارة المرتجعات"],
-          color: "from-blue-600 to-blue-700"
-        },
-        {
-          icon: <Users />,
-          title: "السائقون",
-          points: ["استلام المهام", "تحديث الحالة", "تحصيل المدفوعات"],
-          color: "from-orange-500 to-orange-600"
-        },
-        {
-          icon: <UserCheck />,
-          title: "العملاء النهائيون",
-          points: ["تتبع حي للشحنة", "استلام آمن", "تقييم الخدمة"],
-          color: "from-green-500 to-green-600"
-        }
-      ].map((role, idx) => (
-        <div key={idx} className="reveal-on-scroll" style={{ transitionDelay: `${idx * 150}ms` }}>
-          <div className={`bg-gradient-to-br ${role.color} p-6 rounded-xl shadow-xl border border-white/10 hover:scale-105 transition-transform duration-300`}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                {React.cloneElement(role.icon, { size: 24 })}
-              </div>
-              <h3 className="text-xl font-bold">{role.title}</h3>
-            </div>
-            <ul className="space-y-2">
-              {role.points.map((point, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-white/90">
-                  <CheckCircle size={16} className="mt-0.5 flex-shrink-0" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-      {/* 6. Partners Section */}
-      <section id="partners" className="py-16 lg:py-24 bg-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-30"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-12 lg:mb-16">
-            <span className="text-orange-600 font-bold tracking-wider">شركاء النجاح</span>
-            <h2 className="text-3xl lg:text-4xl font-black text-blue-900 mt-2">نعمل مع الأفضل</h2>
-            <p className="text-slate-600 mt-4 text-sm lg:text-base">نفخر بكسب ثقة كبرى الشركات والمنصات في المنطقة</p>
+          <div className="text-center mb-12 lg:mb-16 reveal-on-scroll">
+            <h2 className="text-3xl lg:text-4xl font-black mb-3">رحلة الشحنة الذكية</h2>
+            <p className="text-blue-200 text-lg">منصة متكاملة تربط بين التاجر والسائق والعميل</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
+          {/* Main Flow */}
+          <div className="grid md:grid-cols-5 gap-6 lg:gap-8 relative mb-16">
+            {/* Connection Line */}
+            <div className="hidden md:block absolute top-14 left-[10%] right-[10%] h-1 bg-gradient-to-r from-blue-700 via-orange-500 to-blue-700 -z-10 rounded-full"></div>
+
             {[
-              { name: "Hunger Station", color: "from-yellow-400 to-yellow-600", icon: "🍔" },
-              { name: "Keeta", color: "from-purple-500 to-purple-700", icon: "📦" },
-              { name: "Amazon", color: "from-slate-700 to-slate-900", icon: "🛒" },
-              { name: "ToYou", color: "from-pink-500 to-rose-600", icon: "🚗" },
-            ].map((partner, idx) => (
-              <div key={idx} className="group relative h-32 lg:h-40 bg-white rounded-3xl shadow-lg lg:shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col items-center justify-center overflow-hidden border border-slate-100 p-4 text-center">
-                <div className={`absolute inset-0 bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                <div className="text-3xl lg:text-4xl mb-2 lg:mb-3 grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">
-                  {partner.icon}
+              {
+                icon: <Package />,
+                title: "طلب الشحن",
+                desc: "التاجر يُنشئ طلب شحن عبر المنصة",
+                actor: "التاجر",
+                color: "blue"
+              },
+              {
+                icon: <CheckCircle />,
+                title: "تأكيد الطلب",
+                desc: "نراجع ونؤكد تفاصيل الشحنة",
+                actor: "المنصة",
+                color: "orange"
+              },
+              {
+                icon: <Truck />,
+                title: "تعيين السائق",
+                desc: "إسناد الشحنة لأقرب سائق متاح",
+                actor: "النظام",
+                color: "orange"
+              },
+              {
+                icon: <MapPin />,
+                title: "التوصيل",
+                desc: "السائق يستلم ويوصل للعميل",
+                actor: "السائق",
+                color: "green"
+              },
+              {
+                icon: <Star />,
+                title: "التقييم",
+                desc: "العميل يستلم ويقيّم الخدمة",
+                actor: "العميل",
+                color: "blue"
+              }
+            ].map((step, idx) => (
+              <div key={idx} className="relative text-center reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
+                <div className={`w-24 h-24 lg:w-28 lg:h-28 mx-auto bg-gradient-to-br ${step.color === 'orange' ? 'from-orange-500 to-orange-600' :
+                  step.color === 'green' ? 'from-green-500 to-green-600' :
+                    'from-blue-700 to-blue-800'
+                  } rounded-full flex items-center justify-center border-4 border-white/20 mb-4 shadow-2xl relative z-10 group hover:scale-110 hover:rotate-6 transition-all duration-300`}>
+                  <div className="text-white group-hover:scale-110 transition-transform">
+                    {React.cloneElement(step.icon, { size: 32 })}
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-9 h-9 bg-white text-blue-900 rounded-full flex items-center justify-center font-black text-sm border-3 border-blue-900 shadow-lg">
+                    {idx + 1}
+                  </div>
                 </div>
-                <h3 className="text-sm lg:text-xl font-black text-slate-700 group-hover:text-blue-900 transition-colors z-10">{partner.name}</h3>
-                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full blur-2xl group-hover:opacity-100 opacity-50 transition-all"></div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all">
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${step.color === 'orange' ? 'bg-orange-500/20 text-orange-200' :
+                    step.color === 'green' ? 'bg-green-500/20 text-green-200' :
+                      'bg-blue-500/20 text-blue-200'
+                    }`}>
+                    {step.actor}
+                  </span>
+                  <h3 className="text-lg lg:text-xl font-bold mb-2">{step.title}</h3>
+                  <p className="text-blue-200 text-sm">{step.desc}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-16 flex justify-center opacity-30">
-            <div className="w-3/4 h-1 bg-gradient-to-r from-transparent via-blue-200 to-transparent rounded-full"></div>
+          {/* Stakeholder Roles */}
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            {[
+              {
+                icon: <Building2 />,
+                title: "التاجر / البائع",
+                points: ["إنشاء طلبات الشحن", "تتبع الشحنات", "إدارة المرتجعات"],
+                color: "from-blue-600 to-blue-700"
+              },
+              {
+                icon: <Users />,
+                title: "السائقون",
+                points: ["استلام المهام", "تحديث الحالة", "تحصيل المدفوعات"],
+                color: "from-orange-500 to-orange-600"
+              },
+              {
+                icon: <UserCheck />,
+                title: "العملاء النهائيون",
+                points: ["تتبع حي للشحنة", "استلام آمن", "تقييم الخدمة"],
+                color: "from-green-500 to-green-600"
+              }
+            ].map((role, idx) => (
+              <div key={idx} className="reveal-on-scroll" style={{ transitionDelay: `${idx * 150}ms` }}>
+                <div className={`bg-gradient-to-br ${role.color} p-6 rounded-xl shadow-xl border border-white/10 hover:scale-105 transition-transform duration-300`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      {React.cloneElement(role.icon, { size: 24 })}
+                    </div>
+                    <h3 className="text-xl font-bold">{role.title}</h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {role.points.map((point, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-white/90">
+                        <CheckCircle size={16} className="mt-0.5 flex-shrink-0" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Partners Section */}
+      {/* 6. Partners Section */}
+      <section id="partners" className="py-24 bg-white relative overflow-hidden">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-blue-50/80 blur-3xl mix-blend-multiply"></div>
+          <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-orange-50/80 blur-3xl mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.8)_1px,transparent_1px)] bg-[size:40px_40px] opacity-50"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-20 reveal-on-scroll">
+            <span className="inline-block py-1 px-3 rounded-full bg-orange-100 text-orange-600 font-bold text-xs tracking-widest uppercase mb-4 shadow-sm border border-orange-200">
+              Trusted by Leaders
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 leading-tight">
+              نحن المحرك الخفي <br />
+              <span className="relative inline-block mt-2">
+                <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-blue-900">لأكبر العلامات التجارية</span>
+                <span className="absolute bottom-2 left-0 w-full h-3 bg-blue-100 -z-0 rounded-full opacity-60"></span>
+              </span>
+            </h2>
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
+              شراكات استراتيجية مبنية على الثقة والأداء العالي. نساهم يومياً في نجاح آلاف الطلبات لشركائنا المميزين.
+            </p>
           </div>
 
-          <div className="mt-8 flex justify-center gap-4 lg:gap-8 opacity-40 grayscale text-[10px] lg:text-sm font-bold text-slate-400">
-            <span>CLIENTS</span> • <span>PARTNERS</span> • <span>GROWTH</span> • <span>TRUST</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {[
+              { name: "Hunger Station", color: "from-yellow-400 to-amber-500", shadow: "shadow-amber-300/20", icon: "🍔", stats: "2K+ طلب يومياً" },
+              { name: "Keta", color: "from-red-500 to-red-600", shadow: "shadow-red-300/20", icon: "🍱", stats: "تغطية شاملة" },
+              { name: "Amazon", color: "from-slate-700 to-slate-900", shadow: "shadow-slate-400/20", icon: "🛒", stats: "شريك لوجستي" },
+              { name: "ToYou", color: "from-purple-500 to-indigo-600", shadow: "shadow-indigo-300/20", icon: "🚗", stats: "توصيل فوري" },
+            ].map((partner, idx) => (
+              <div key={idx} className="group relative bg-white rounded-[2rem] p-6 text-center hover:-translate-y-2 transition-all duration-500 hover:shadow-xl border border-slate-100 reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
+                {/* Hover Gradient Border Effect */}
+                <div className={`absolute inset-0 rounded-[2rem] bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`}></div>
+
+                <div className="relative z-10 bg-white rounded-[1.5rem] p-6 h-full flex flex-col items-center justify-center gap-4 border border-slate-50 shadow-sm group-hover:border-transparent transition-colors">
+                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${partner.color} flex items-center justify-center text-4xl shadow-lg ${partner.shadow} transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                    <span className="filter drop-shadow-md">{partner.icon}</span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-black text-slate-800 group-hover:text-blue-900 transition-colors mb-1">{partner.name}</h3>
+                    <div className="flex items-center justify-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-orange-500 transition-colors">
+                      <CheckCircle size={12} className="text-green-500" />
+                      <span>{partner.stats}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Trust Indicators */}
+          <div className="mt-20 pt-10 border-t border-slate-100 flex flex-wrap justify-center gap-8 md:gap-16 opacity-60">
+            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-300">
+              <ShieldCheck className="w-6 h-6 text-blue-600" />
+              <span className="font-bold text-slate-600 text-sm">عقود موثقة</span>
+            </div>
+            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-300">
+              <Users className="w-6 h-6 text-blue-600" />
+              <span className="font-bold text-slate-600 text-sm">دعم مخصص 24/7</span>
+            </div>
+            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-300">
+              <BarChart3 className="w-6 h-6 text-blue-600" />
+              <span className="font-bold text-slate-600 text-sm">تقارير أداء شهرية</span>
+            </div>
           </div>
         </div>
       </section>
@@ -544,7 +577,6 @@ export default function ComprehensiveLandingPage() {
                   <select className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 focus:ring-2 focus:ring-orange-500 focus:outline-none transition-all">
                     <option>استفسار عام</option>
                     <option>طلب عرض سعر</option>
-                    <option>خدمات التخزين</option>
                     <option>خدمات النقل</option>
                   </select>
                 </div>

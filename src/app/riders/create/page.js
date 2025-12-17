@@ -192,7 +192,7 @@ export default function CreateRiderPage() {
               label={t('employees.country')}
               type="text"
               name="country"
-              value={formData.country || 'باكستان'} // Example default value
+              value={formData.country}
               onChange={handleInputChange}
               required
               placeholder={t('employees.enterCountry')}
