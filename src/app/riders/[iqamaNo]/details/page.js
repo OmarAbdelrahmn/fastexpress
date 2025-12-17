@@ -109,6 +109,19 @@ export default function RiderDetailsPage() {
     });
   };
 
+  const formatHijriDate = (dateString) => {
+    if (!dateString) return t('profile.notSpecified');
+    try {
+      return new Date(dateString).toLocaleDateString('en-US-u-ca-islamic-umalqura', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (err) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -124,8 +137,8 @@ export default function RiderDetailsPage() {
 
       {/* Status Banner */}
       <div className={`p-6 rounded-lg ${rider.status === 'enable'
-          ? 'bg-green-50 border-r-4 border-green-500'
-          : 'bg-red-50 border-r-4 border-red-500'
+        ? 'bg-green-50 border-r-4 border-green-500'
+        : 'bg-red-50 border-r-4 border-red-500'
         }`}>
         <div className="flex items-center gap-4">
           <div className={`p-3 rounded-xl ${rider.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
@@ -268,7 +281,7 @@ export default function RiderDetailsPage() {
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-blue-600 mb-1 text-sm">{t('riders.iqamaEndHijri')}</p>
-            <p className="font-bold text-gray-800">{formatDate(rider.iqamaEndH)}</p>
+            <p className="font-bold text-gray-800">{formatHijriDate(rider.iqamaEndH)}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-blue-600 mb-1 text-sm">{t('riders.passportEnd')}</p>

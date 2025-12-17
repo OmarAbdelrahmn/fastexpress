@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
+import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
@@ -55,6 +56,62 @@ export default function RiderSmartSearchPage() {
   const handleEdit = (iqamaNo) => {
     router.push(`/riders/${iqamaNo}/edit`);
   };
+
+  const columns = [
+    {
+      header: t('riders.workingId'),
+      accessor: 'workingId',
+      render: (row) => (
+        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
+      )
+    },
+    { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
+    { header: t('riders.nameArabic'), accessor: 'nameAR' },
+    { header: t('riders.nameEnglish'), accessor: 'nameEN' },
+    {
+      header: t('riders.company'),
+      accessor: 'companyName',
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <Building size={14} className="text-gray-500" />
+          <span>{row.companyName}</span>
+        </div>
+      )
+    },
+    {
+      header: t('riders.housing'),
+      accessor: 'housingAddress',
+      render: (row) => (
+        <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
+      )
+    },
+    {
+      header: t('common.status'),
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />
+    },
+    {
+      header: t('riders.actions'),
+      render: (row) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleViewDetails(row.iqamaNo)}
+            className="text-green-600 hover:text-green-800 p-1"
+            title={t('riders.viewDetails')}
+          >
+            <Eye size={18} />
+          </button>
+          <button
+            onClick={() => handleEdit(row.iqamaNo)}
+            className="text-blue-600 hover:text-blue-800 p-1"
+            title={t('riders.edit')}
+          >
+            <Edit size={18} />
+          </button>
+        </div>
+      )
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -110,100 +167,11 @@ export default function RiderSmartSearchPage() {
             {t('riders.searchResults')} ({searchResults.length})
           </h3>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="mt-4 text-gray-600">{t('riders.searching')}</p>
-            </div>
-          ) : searchResults.length === 0 ? (
-            <div className="text-center py-12">
-              <Search className="mx-auto text-gray-400 mb-4" size={48} />
-              <p className="text-gray-600">{t('riders.noResultsMatch')}</p>
-              <p className="text-sm text-gray-500 mt-2">{t('riders.tryDifferentKeywords')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {searchResults.map((rider) => (
-                <div
-                  key={rider.iqamaNo}
-                  className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 hover:shadow-lg transition"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <UserCheck className="text-blue-600" size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800">{rider.nameAR}</h4>
-                        <p className="text-xs text-gray-500">{rider.nameEN}</p>
-                      </div>
-                    </div>
-                    <StatusBadge status={rider.status} />
-                  </div>
-
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <UserCheck size={14} />
-                      <span className="text-xs">{t('riders.workingId')}: {rider.workingId || 'N/A'}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Building size={14} />
-                      <span className="text-xs">{rider.companyName}</span>
-                    </div>
-
-                    {rider.country && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <MapPin size={14} />
-                        <span className="text-xs">{rider.country}</span>
-                      </div>
-                    )}
-
-                    {rider.phone && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Phone size={14} />
-                        <span className="text-xs">{rider.phone}</span>
-                      </div>
-                    )}
-
-                    {rider.housingAddress && (
-                      <div className="bg-green-50 border border-green-200 p-2 rounded">
-                        <p className="text-xs text-green-700">
-                          <strong>{t('riders.housing')}:</strong> {rider.housingAddress}
-                        </p>
-                      </div>
-                    )}
-
-                    {rider.sponsor && (
-                      <div className="bg-purple-50 border border-purple-200 p-2 rounded">
-                        <p className="text-xs text-purple-700">
-                          <strong>{t('employees.sponsor')}:</strong> {rider.sponsor}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleViewDetails(rider.iqamaNo)}
-                      variant="secondary"
-                      className="flex-1 text-sm"
-                    >
-                      <Eye size={16} className="ml-1" />
-                      {t('common.details')}
-                    </Button>
-                    <Button
-                      onClick={() => handleEdit(rider.iqamaNo)}
-                      className="flex-1 text-sm"
-                    >
-                      <Edit size={16} className="ml-1" />
-                      {t('common.edit')}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Table
+            columns={columns}
+            data={searchResults}
+            loading={loading}
+          />
         </Card>
       )}
 

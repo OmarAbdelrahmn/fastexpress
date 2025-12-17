@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
+import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
@@ -55,6 +56,52 @@ export default function EmployeeSmartSearchPage() {
   const handleEdit = (iqamaNo) => {
     router.push(`/employees/admin/${iqamaNo}/edit`);
   };
+
+  const columns = [
+    { header: t('employees.iqamaNumber'), accessor: 'iqamaNo' },
+    { header: t('employees.nameArabic'), accessor: 'nameAR' },
+    { header: t('employees.nameEnglish'), accessor: 'nameEN' },
+    {
+      header: t('employees.jobTitle'),
+      accessor: 'jobTitle',
+      render: (row) => (
+        <span className="text-gray-600 font-medium">{row.jobTitle || t('common.notAvailable')}</span>
+      )
+    },
+    {
+      header: t('employees.sponsor'),
+      accessor: 'sponsor',
+      render: (row) => (
+        <span className="text-gray-600">{row.sponsor || t('common.notAvailable')}</span>
+      )
+    },
+    {
+      header: t('common.status'),
+      accessor: 'status',
+      render: (row) => <StatusBadge status={row.status} />
+    },
+    {
+      header: t('common.actions'),
+      render: (row) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleViewDetails(row.iqamaNo)}
+            className="text-green-600 hover:text-green-800 p-1"
+            title={t('common.details')}
+          >
+            <Eye size={18} />
+          </button>
+          <button
+            onClick={() => handleEdit(row.iqamaNo)}
+            className="text-blue-600 hover:text-blue-800 p-1"
+            title={t('common.edit')}
+          >
+            <Edit size={18} />
+          </button>
+        </div>
+      )
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -110,95 +157,11 @@ export default function EmployeeSmartSearchPage() {
             {t('employees.searchResults')} ({searchResults.length})
           </h3>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="mt-4 text-gray-600">{t('employees.searching')}</p>
-            </div>
-          ) : searchResults.length === 0 ? (
-            <div className="text-center py-12">
-              <Search className="mx-auto text-gray-400 mb-4" size={48} />
-              <p className="text-gray-600">{t('employees.noResultsMatch')}</p>
-              <p className="text-sm text-gray-500 mt-2">{t('employees.tryDifferentKeywords')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {searchResults.map((employee) => (
-                <div
-                  key={employee.iqamaNo}
-                  className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50 hover:shadow-lg transition"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <User className="text-blue-600" size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800">{employee.nameAR}</h4>
-                        <p className="text-xs text-gray-500">{employee.nameEN}</p>
-                      </div>
-                    </div>
-                    <StatusBadge status={employee.status} />
-                  </div>
-
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <User size={14} />
-                      <span className="text-xs">{t('employees.iqamaNumber')}: {employee.iqamaNo}</span>
-                    </div>
-
-                    {employee.country && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <MapPin size={14} />
-                        <span className="text-xs">{employee.country}</span>
-                      </div>
-                    )}
-
-                    {employee.phone && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Phone size={14} />
-                        <span className="text-xs">{employee.phone}</span>
-                      </div>
-                    )}
-
-                    {employee.jobTitle && (
-                      <div className="bg-green-50 border border-green-200 p-2 rounded">
-                        <p className="text-xs text-green-700">
-                          <strong>{t('employees.jobTitle')}:</strong> {employee.jobTitle}
-                        </p>
-                      </div>
-                    )}
-
-                    {employee.sponsor && (
-                      <div className="bg-purple-50 border border-purple-200 p-2 rounded">
-                        <p className="text-xs text-purple-700">
-                          <strong>{t('employees.sponsor')}:</strong> {employee.sponsor}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleViewDetails(employee.iqamaNo)}
-                      variant="secondary"
-                      className="flex-1 text-sm"
-                    >
-                      <Eye size={16} className="ml-1" />
-                      {t('common.details')}
-                    </Button>
-                    <Button
-                      onClick={() => handleEdit(employee.iqamaNo)}
-                      className="flex-1 text-sm"
-                    >
-                      <Edit size={16} className="ml-1" />
-                      {t('common.edit')}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Table
+            columns={columns}
+            data={searchResults}
+            loading={loading}
+          />
         </Card>
       )}
 

@@ -108,6 +108,19 @@ export default function EmployeeDetailsPage() {
     });
   };
 
+  const formatHijriDate = (dateString) => {
+    if (!dateString) return t('employees.notDefined');
+    try {
+      return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-SA-u-ca-islamic-umalqura' : 'en-US-u-ca-islamic-umalqura', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (err) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -245,7 +258,7 @@ export default function EmployeeDetailsPage() {
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-blue-600 mb-1 text-sm">{t('employees.iqamaExpiryHijri')}</p>
-            <p className="font-bold text-gray-800">{employee.iqamaEndH || t('employees.notDefined')}</p>
+            <p className="font-bold text-gray-800">{formatHijriDate(employee.iqamaEndH)}</p>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-blue-600 mb-1 text-sm">{t('employees.passportExpiry')}</p>
