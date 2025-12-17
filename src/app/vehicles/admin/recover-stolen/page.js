@@ -40,8 +40,10 @@ export default function RecoverStolenPage() {
     setLoadingVehicles(true);
     try {
       const data = await ApiService.get("/api/vehicles/stolen");
-      if (data && data.vehicles) {
-        setStolenVehicles(data.vehicles);
+      if (data) {
+        setStolenVehicles(Array.isArray(data) ? data : []);
+      } else {
+        setStolenVehicles([]);
       }
     } catch (err) {
       console.error("Error loading stolen vehicles:", err);
@@ -88,7 +90,7 @@ export default function RecoverStolenPage() {
     }
   };
 
-  const filteredVehicles = stolenVehicles.filter(
+  const filteredVehicles = (Array.isArray(stolenVehicles) ? stolenVehicles : []).filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||

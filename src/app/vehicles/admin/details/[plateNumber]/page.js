@@ -24,6 +24,11 @@ import {
   Activity,
 } from "lucide-react";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function VehicleDetailsPage() {
   const router = useRouter();
@@ -55,20 +60,25 @@ export default function VehicleDetailsPage() {
   };
 
   const getStatusInfo = () => {
-    if (!vehicle) return { text: "", color: "gray", icon: Car };
+    if (!vehicle) return { label: "", color: "gray", icon: Car, styles: { bg: "", border: "", text: "", badge: "" } };
 
-    if (vehicle.isStolen) return { text: t("vehicles.stolen"), color: "red", icon: Shield };
-    if (vehicle.isBreakUp)
-      return { text: t("vehicles.outOfService"), color: "gray", icon: PackageX };
-    if (vehicle.hasActiveProblem)
-      return {
-        text: `${t("vehicles.activeProblemsStatus")} (${vehicle.activeProblemsCount})`,
-        color: "orange",
-        icon: AlertTriangle,
-      };
-    if (!vehicle.isAvailable)
-      return { text: t("vehicles.inUse"), color: "blue", icon: User };
-    return { text: t("vehicles.readyForDelivery"), color: "green", icon: CheckCircle };
+    const vStatus = normalizeVehicleStatus(vehicle.statusType);
+    const effectiveStatus = vStatus || (
+      vehicle.isStolen ? VehicleStatusType.Stolen :
+        vehicle.isBreakUp ? VehicleStatusType.BreakUp :
+          vehicle.hasActiveProblem ? VehicleStatusType.Problem :
+            !vehicle.isAvailable ? VehicleStatusType.Taken :
+              VehicleStatusType.Returned
+    );
+
+    const attrs = getVehicleStatusAttributes(effectiveStatus, t);
+
+    // Override label for Taken if needed, or keeping it strictly consistent
+    // The original code used "In Use" for Taken/Unavailable. Helper uses "Taken" (or translation). 
+    // We'll trust the helper's translation key 'vehicles.statusTaken' maps to "Taken" or "In Use" as preferred.
+    // If we want to strictly match "In Use" we might need to check the translation key.
+
+    return attrs;
   };
 
   const statusInfo = getStatusInfo();
@@ -134,20 +144,20 @@ export default function VehicleDetailsPage() {
       <div className="px-6 space-y-6">
         {/* Status Banner */}
         <div
-          className={`bg-${statusInfo.color}-50 border-r-4 border-${statusInfo.color}-500 p-6 rounded-lg`}
+          className={`${statusInfo.styles.bg} border-r-4 ${statusInfo.styles.border.replace('border-', 'border-r-')} p-6 rounded-lg`}
         >
           <div className="flex items-center gap-4">
-            <div className={`bg-${statusInfo.color}-100 p-3 rounded-xl`}>
+            <div className={`bg-white p-3 rounded-xl`}>
               <StatusIcon
-                className={`text-${statusInfo.color}-600`}
+                className={`${statusInfo.styles.text}`}
                 size={32}
               />
             </div>
             <div>
-              <h2 className={`text-2xl font-bold text-${statusInfo.color}-800`}>
-                {statusInfo.text}
+              <h2 className={`text-2xl font-bold ${statusInfo.styles.text.replace('text-', 'text-opacity-80-')}`}>
+                {statusInfo.label}
               </h2>
-              <p className={`text-${statusInfo.color}-600`}>
+              <p className={`${statusInfo.styles.text} text-opacity-80`}>
                 {t("vehicles.currentVehicleStatus")}
               </p>
             </div>

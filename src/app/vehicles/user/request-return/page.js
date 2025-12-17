@@ -39,8 +39,10 @@ export default function RequestReturnVehiclePage() {
     setLoading(true);
     try {
       const data = await ApiService.get("/api/vehicles/taken");
-      if (data && data.vehicles) {
-        setTakenVehicles(data.vehicles);
+      if (Array.isArray(data)) {
+        setTakenVehicles(data);
+      } else {
+        setTakenVehicles([]);
       }
     } catch (err) {
       console.error("Error loading vehicles:", err);
@@ -141,7 +143,7 @@ export default function RequestReturnVehiclePage() {
     }
   };
 
-  const filteredVehicles = takenVehicles.filter(
+  const filteredVehicles = (Array.isArray(takenVehicles) ? takenVehicles : []).filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||

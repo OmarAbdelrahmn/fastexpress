@@ -261,7 +261,7 @@ export default function VehicleAdminDashboard() {
               <p className="text-blue-100 text-sm mb-1">{t("vehicles.total")}</p>
               <p className="text-4xl font-bold">{totalVehicles}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <Car size={32} />
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function VehicleAdminDashboard() {
               <p className="text-green-100 text-sm mb-1">{t("vehicles.available")}</p>
               <p className="text-4xl font-bold">{stats.availableCount}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <CheckCircle size={32} />
             </div>
           </div>
@@ -293,7 +293,7 @@ export default function VehicleAdminDashboard() {
               <p className="text-orange-100 text-sm mb-1">{t("vehicles.taken")}</p>
               <p className="text-4xl font-bold">{stats.takenCount}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <Users size={32} />
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function VehicleAdminDashboard() {
               <p className="text-purple-100 text-sm mb-1">{t("vehicles.utilizationRate")}</p>
               <p className="text-4xl font-bold">{utilizationRate}%</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <BarChart3 size={32} />
             </div>
           </div>

@@ -53,7 +53,6 @@ export default function VehicleHistory() {
       const response = await ApiService.get(
         `/api/vehicles/vehicle-history/${plateNumber}`
       );
-      // Response is an array, so we take all entries
       setSelectedVehicleHistory(
         Array.isArray(response) ? response : [response]
       );

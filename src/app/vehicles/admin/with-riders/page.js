@@ -11,18 +11,23 @@ import {
   Users,
   Search,
   Car,
+  Filter,
+  Eye,
+  Package,
+  MapPin,
+  User,
+  Calendar,
   CheckCircle,
   AlertTriangle,
   Shield,
-  PackageX,
-  MapPin,
-  Calendar,
-  User,
-  Package,
-  Filter,
-  Eye,
+  PackageX
 } from "lucide-react";
 import { useLanguage } from '@/lib/context/LanguageContext';
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function VehiclesWithRidersPage() {
   const { t } = useLanguage();
@@ -31,7 +36,7 @@ export default function VehiclesWithRidersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [vehicles, setVehicles] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("all"); // all, available, taken, problem, stolen, breakup
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
@@ -52,31 +57,6 @@ export default function VehiclesWithRidersPage() {
     }
   };
 
-  const getStatusColor = (vehicle) => {
-    if (vehicle.isStolen) return "red";
-    if (vehicle.isBreakUp) return "gray";
-    if (vehicle.hasActiveProblem) return "orange";
-    if (!vehicle.isAvailable) return "blue";
-    return "green";
-  };
-
-  const getStatusText = (vehicle) => {
-    if (vehicle.isStolen) return t('vehicles.statusStolen');
-    if (vehicle.isBreakUp) return t('vehicles.statusBreakup');
-    if (vehicle.hasActiveProblem)
-      return `${t('vehicles.statusProblem')} (${vehicle.activeProblemsCount})`;
-    if (!vehicle.isAvailable) return t('vehicles.statusTaken');
-    return t('vehicles.statusAvailable');
-  };
-
-  const getStatusIcon = (vehicle) => {
-    if (vehicle.isStolen) return Shield;
-    if (vehicle.isBreakUp) return PackageX;
-    if (vehicle.hasActiveProblem) return AlertTriangle;
-    if (!vehicle.isAvailable) return Users;
-    return CheckCircle;
-  };
-
   const filteredVehicles = vehicles.filter((v) => {
     const matchesSearch =
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,31 +68,44 @@ export default function VehiclesWithRidersPage() {
         .includes(searchTerm.toLowerCase()) ||
       v.location?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const effectiveStatus =
+      v.isStolen ? VehicleStatusType.Stolen :
+        v.isBreakUp ? VehicleStatusType.BreakUp :
+          v.hasActiveProblem ? VehicleStatusType.Problem :
+            normalizeVehicleStatus(v.currentStatus) ||
+            (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+
     const matchesStatus =
       statusFilter === "all" ||
-      (statusFilter === "available" && v.isAvailable) ||
-      (statusFilter === "taken" &&
-        !v.isAvailable &&
-        !v.hasActiveProblem &&
-        !v.isStolen &&
-        !v.isBreakUp) ||
-      (statusFilter === "problem" && v.hasActiveProblem) ||
-      (statusFilter === "stolen" && v.isStolen) ||
-      (statusFilter === "breakup" && v.isBreakUp);
+      (statusFilter.toLowerCase() === "returned" && effectiveStatus === VehicleStatusType.Returned) ||
+      (statusFilter.toLowerCase() === "taken" && effectiveStatus === VehicleStatusType.Taken) ||
+      (statusFilter.toLowerCase() === "problem" && effectiveStatus === VehicleStatusType.Problem) ||
+      (statusFilter.toLowerCase() === "stolen" && effectiveStatus === VehicleStatusType.Stolen) ||
+      (statusFilter.toLowerCase() === "breakup" && effectiveStatus === VehicleStatusType.BreakUp);
 
     return matchesSearch && matchesStatus;
   });
 
+  const getStatsCount = (statusType) => {
+    return vehicles.filter(v => {
+      const effectiveStatus =
+        v.isStolen ? VehicleStatusType.Stolen :
+          v.isBreakUp ? VehicleStatusType.BreakUp :
+            v.hasActiveProblem ? VehicleStatusType.Problem :
+              normalizeVehicleStatus(v.currentStatus) ||
+              (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+
+      return effectiveStatus === statusType;
+    }).length;
+  };
+
   const stats = {
     total: vehicles.length,
-    available: vehicles.filter((v) => v.isAvailable).length,
-    taken: vehicles.filter(
-      (v) =>
-        !v.isAvailable && !v.hasActiveProblem && !v.isStolen && !v.isBreakUp
-    ).length,
-    problems: vehicles.filter((v) => v.hasActiveProblem).length,
-    stolen: vehicles.filter((v) => v.isStolen).length,
-    breakup: vehicles.filter((v) => v.isBreakUp).length,
+    returned: getStatsCount(VehicleStatusType.Returned),
+    taken: getStatsCount(VehicleStatusType.Taken),
+    problems: getStatsCount(VehicleStatusType.Problem),
+    stolen: getStatsCount(VehicleStatusType.Stolen),
+    breakup: getStatsCount(VehicleStatusType.BreakUp),
   };
 
   return (
@@ -139,7 +132,6 @@ export default function VehiclesWithRidersPage() {
           />
         )}
 
-        {/* Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 pt-5">
           <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
@@ -214,7 +206,6 @@ export default function VehiclesWithRidersPage() {
           </div>
         </div>
 
-        {/* Filters */}
         <Card>
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
@@ -232,51 +223,28 @@ export default function VehiclesWithRidersPage() {
               >
                 {t('common.all')} ({stats.total})
               </button>
-              <button
-                onClick={() => setStatusFilter("available")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "available"
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('vehicles.statusAvailable')} ({stats.available})
-              </button>
-              <button
-                onClick={() => setStatusFilter("taken")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "taken"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('vehicles.statusTaken')} ({stats.taken})
-              </button>
-              <button
-                onClick={() => setStatusFilter("problem")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "problem"
-                  ? "bg-orange-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('vehicles.statusProblem')} ({stats.problems})
-              </button>
-              <button
-                onClick={() => setStatusFilter("stolen")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "stolen"
-                  ? "bg-red-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('vehicles.statusStolen')} ({stats.stolen})
-              </button>
-              <button
-                onClick={() => setStatusFilter("breakup")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "breakup"
-                  ? "bg-gray-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('vehicles.statusBreakup')} ({stats.breakup})
-              </button>
+
+              {[
+                { type: VehicleStatusType.Returned, key: "returned", count: stats.returned },
+                { type: VehicleStatusType.Taken, key: "taken", count: stats.taken },
+                { type: VehicleStatusType.Problem, key: "problem", count: stats.problems },
+                { type: VehicleStatusType.Stolen, key: "stolen", count: stats.stolen },
+                { type: VehicleStatusType.BreakUp, key: "breakup", count: stats.breakup },
+              ].map(item => {
+                const attrs = getVehicleStatusAttributes(item.type, t);
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setStatusFilter(item.key)}
+                    className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === item.key
+                      ? `${attrs.styles.badge} text-white`
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    {attrs.label} ({item.count})
+                  </button>
+                );
+              })}
             </div>
 
             <div className="relative">
@@ -295,7 +263,6 @@ export default function VehiclesWithRidersPage() {
           </div>
         </Card>
 
-        {/* Vehicles Grid */}
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">
             {t('common.results')} ({filteredVehicles.length})
@@ -314,55 +281,24 @@ export default function VehiclesWithRidersPage() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredVehicles.map((vehicle) => {
-                const StatusIcon = getStatusIcon(vehicle);
-                const statusColor = getStatusColor(vehicle);
-                const colorClasses = {
-                  green: {
-                    bg: "bg-green-50",
-                    border: "border-green-200",
-                    badge: "bg-green-600",
-                    text: "text-green-600",
-                    icon: "text-green-600",
-                  },
-                  blue: {
-                    bg: "bg-blue-50",
-                    border: "border-blue-200",
-                    badge: "bg-blue-600",
-                    text: "text-blue-600",
-                    icon: "text-blue-600",
-                  },
-                  orange: {
-                    bg: "bg-orange-50",
-                    border: "border-orange-200",
-                    badge: "bg-orange-600",
-                    text: "text-orange-600",
-                    icon: "text-orange-600",
-                  },
-                  red: {
-                    bg: "bg-red-50",
-                    border: "border-red-200",
-                    badge: "bg-red-600",
-                    text: "text-red-600",
-                    icon: "text-red-600",
-                  },
-                  gray: {
-                    bg: "bg-gray-50",
-                    border: "border-gray-200",
-                    badge: "bg-gray-600",
-                    text: "text-gray-600",
-                    icon: "text-gray-600",
-                  },
-                }[statusColor];
+                const effectiveStatus =
+                  vehicle.isStolen ? VehicleStatusType.Stolen :
+                    vehicle.isBreakUp ? VehicleStatusType.BreakUp :
+                      vehicle.hasActiveProblem ? VehicleStatusType.Problem :
+                        normalizeVehicleStatus(vehicle.currentStatus) ||
+                        (!vehicle.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+
+                const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 
                 return (
                   <div
                     key={vehicle.vehicleNumber}
-                    className={`border-2 ${colorClasses.border} rounded-lg p-4 ${colorClasses.bg} hover:shadow-lg transition`}
+                    className={`border-2 ${attrs.styles.border} rounded-lg p-4 ${attrs.styles.bg} hover:shadow-lg transition`}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className={`bg-white p-2 rounded-lg`}>
-                          <StatusIcon className={colorClasses.icon} size={20} />
+                          <attrs.icon className={attrs.styles.text} size={20} />
                         </div>
                         <div>
                           <h4 className="font-bold text-gray-800">
@@ -374,9 +310,9 @@ export default function VehiclesWithRidersPage() {
                         </div>
                       </div>
                       <span
-                        className={`px-3 py-1 ${colorClasses.badge} text-white rounded-full text-xs font-medium`}
+                        className={`px-3 py-1 ${attrs.styles.badge} text-white rounded-full text-xs font-medium`}
                       >
-                        {getStatusText(vehicle)}
+                        {attrs.label}
                       </span>
                     </div>
 

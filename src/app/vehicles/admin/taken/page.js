@@ -22,6 +22,11 @@ import {
   Shield,
   PackageX,
 } from "lucide-react";
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function TakenVehiclesPage() {
   const { t } = useLanguage();
@@ -29,7 +34,7 @@ export default function TakenVehiclesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [filterStatus, setFilterStatus] = useState("unavailable"); // unavailable, problem, stolen, breakup, all
+  const [filterStatus, setFilterStatus] = useState("unavailable"); // unavailable (taken), problem, stolen, breakup, all
   const [vehiclesData, setVehiclesData] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -65,79 +70,9 @@ export default function TakenVehiclesPage() {
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.statusType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(v.statusType)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Taken":
-        return {
-          bg: "bg-blue-50",
-          border: "border-blue-200",
-          text: "text-blue-600",
-          badge: "bg-blue-600",
-        };
-      case "Problem":
-        return {
-          bg: "bg-orange-50",
-          border: "border-orange-200",
-          text: "text-orange-600",
-          badge: "bg-orange-600",
-        };
-      case "Stolen":
-        return {
-          bg: "bg-red-50",
-          border: "border-red-200",
-          text: "text-red-600",
-          badge: "bg-red-600",
-        };
-      case "BreakUp":
-        return {
-          bg: "bg-gray-50",
-          border: "border-gray-200",
-          text: "text-gray-600",
-          badge: "bg-gray-600",
-        };
-      default:
-        return {
-          bg: "bg-blue-50",
-          border: "border-blue-200",
-          text: "text-blue-600",
-          badge: "bg-blue-600",
-        };
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "Taken":
-        return t("vehicles.inUse");
-      case "Problem":
-        return t("vehicles.problems");
-      case "Stolen":
-        return t("vehicles.stolen");
-      case "BreakUp":
-        return t("vehicles.outOfService");
-      default:
-        return status;
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "Taken":
-        return Users;
-      case "Problem":
-        return AlertTriangle;
-      case "Stolen":
-        return Shield;
-      case "BreakUp":
-        return PackageX;
-      default:
-        return Car;
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -164,53 +99,27 @@ export default function TakenVehiclesPage() {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-blue-600 mb-1">{t("vehicles.inUse")}</p>
-              <p className="text-2xl font-bold text-blue-700">
-                {vehiclesData?.takenCount || 0}
-              </p>
+        {[
+          { type: VehicleStatusType.Taken, count: vehiclesData?.takenCount || 0 }, // In Use / Taken
+          { type: VehicleStatusType.Problem, count: vehiclesData?.problemCount || 0 },
+          { type: VehicleStatusType.Stolen, count: vehiclesData?.stolenCount || 0 },
+          { type: VehicleStatusType.BreakUp, count: vehiclesData?.breakUpCount || 0 },
+        ].map(item => {
+          const attrs = getVehicleStatusAttributes(item.type, t);
+          return (
+            <div key={item.type} className={`${attrs.styles.bg} border-r-4 ${attrs.styles.border.replace('border-', 'border-r-')} p-4 rounded-lg`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-xs ${attrs.styles.text} mb-1`}>{item.type === VehicleStatusType.Taken ? t("vehicles.inUse") : attrs.label}</p>
+                  <p className={`text-2xl font-bold ${attrs.styles.text.replace('text-', 'text-opacity-80-')}`}>
+                    {item.count}
+                  </p>
+                </div>
+                <attrs.icon className={attrs.styles.text} size={32} />
+              </div>
             </div>
-            <Users className="text-blue-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-orange-600 mb-1">{t("vehicles.problems")}</p>
-              <p className="text-2xl font-bold text-orange-700">
-                {vehiclesData?.problemCount || 0}
-              </p>
-            </div>
-            <AlertTriangle className="text-orange-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-red-600 mb-1">{t("vehicles.stolen")}</p>
-              <p className="text-2xl font-bold text-red-700">
-                {vehiclesData?.stolenCount || 0}
-              </p>
-            </div>
-            <Shield className="text-red-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-gray-50 border-r-4 border-gray-500 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-gray-600 mb-1">{t("vehicles.outOfService")}</p>
-              <p className="text-2xl font-bold text-gray-700">
-                {vehiclesData?.breakUpCount || 0}
-              </p>
-            </div>
-            <PackageX className="text-gray-500" size={32} />
-          </div>
-        </div>
+          )
+        })}
 
         <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
@@ -237,33 +146,27 @@ export default function TakenVehiclesPage() {
           >
             {t("vehicles.inUse")} ({vehiclesData?.takenCount || 0})
           </button>
-          <button
-            onClick={() => setFilterStatus("problem")}
-            className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === "problem"
-              ? "bg-orange-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-          >
-            {t("vehicles.problems")} ({vehiclesData?.problemCount || 0})
-          </button>
-          <button
-            onClick={() => setFilterStatus("stolen")}
-            className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === "stolen"
-              ? "bg-red-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-          >
-            {t("vehicles.stolen")} ({vehiclesData?.stolenCount || 0})
-          </button>
-          <button
-            onClick={() => setFilterStatus("breakup")}
-            className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === "breakup"
-              ? "bg-gray-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-          >
-            {t("vehicles.outOfService")} ({vehiclesData?.breakUpCount || 0})
-          </button>
+
+          {[
+            { status: "problem", type: VehicleStatusType.Problem, count: vehiclesData?.problemCount },
+            { status: "stolen", type: VehicleStatusType.Stolen, count: vehiclesData?.stolenCount },
+            { status: "breakup", type: VehicleStatusType.BreakUp, count: vehiclesData?.breakUpCount },
+          ].map(item => {
+            const attrs = getVehicleStatusAttributes(item.type, t);
+            return (
+              <button
+                key={item.status}
+                onClick={() => setFilterStatus(item.status)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === item.status
+                  ? `${attrs.styles.badge} text-white`
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {attrs.label} ({item.count || 0})
+              </button>
+            )
+          })}
+
           <button
             onClick={() => setFilterStatus("all")}
             className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === "all"
@@ -310,18 +213,23 @@ export default function TakenVehiclesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredVehicles.map((vehicle) => {
-              const colors = getStatusColor(vehicle.statusType);
-              const StatusIcon = getStatusIcon(vehicle.statusType);
+              // Ensure we have a valid int for attributes
+              const statusInt = normalizeVehicleStatus(vehicle.statusType);
+              const attrs = getVehicleStatusAttributes(statusInt, t);
+              // Override label for "Taken" to "In Use" if it's the taken view, but consistent helper is better.
+              // We'll stick to helper unless we want specific override. 
+              // The original code used "In Use" for Taken.
+              const label = statusInt === VehicleStatusType.Taken ? t("vehicles.inUse") : attrs.label;
 
               return (
                 <div
                   key={vehicle.vehicleNumber}
-                  className={`border-2 ${colors.border} rounded-lg p-4 ${colors.bg} hover:shadow-md transition`}
+                  className={`border-2 ${attrs.styles.border} rounded-lg p-4 ${attrs.styles.bg} hover:shadow-md transition`}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className={`${colors.bg} p-2 rounded-lg`}>
-                        <StatusIcon className={colors.text} size={20} />
+                      <div className={`${attrs.styles.bg} p-2 rounded-lg`}>
+                        <attrs.icon className={attrs.styles.text} size={20} />
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-800">
@@ -333,9 +241,9 @@ export default function TakenVehiclesPage() {
                       </div>
                     </div>
                     <span
-                      className={`px-3 py-1 ${colors.badge} text-white rounded-full text-xs font-medium`}
+                      className={`px-3 py-1 ${attrs.styles.badge} text-white rounded-full text-xs font-medium`}
                     >
-                      {getStatusLabel(vehicle.statusType)}
+                      {label}
                     </span>
                   </div>
 
@@ -372,8 +280,8 @@ export default function TakenVehiclesPage() {
                     </div>
 
                     {vehicle.reason && (
-                      <div className={`${colors.bg} p-2 rounded mt-2`}>
-                        <p className={`text-xs ${colors.text}`}>
+                      <div className={`${attrs.styles.bg} p-2 rounded mt-2`}>
+                        <p className={`text-xs ${attrs.styles.text}`}>
                           <strong>{t("vehicles.reason")}</strong> {vehicle.reason}
                         </p>
                       </div>
@@ -434,28 +342,30 @@ export default function TakenVehiclesPage() {
 
               <div className="space-y-4">
                 {/* Status Info */}
-                <div
-                  className={`${getStatusColor(selectedVehicle.statusType).bg
-                    } p-4 rounded-lg border-r-4 ${getStatusColor(
-                      selectedVehicle.statusType
-                    ).border.replace("border-", "border-r-")}`}
-                >
-                  <h3
-                    className={`font-bold ${getStatusColor(selectedVehicle.statusType).text
-                      } mb-2`}
-                  >
-                    {t("vehicles.vehicleStatus")} {getStatusLabel(selectedVehicle.statusType)}
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    {t("vehicles.sinceLabel")}{" "}
-                    {new Date(selectedVehicle.since).toLocaleString("en-US")}
-                  </p>
-                  {selectedVehicle.reason && (
-                    <p className="text-sm text-gray-700 mt-2">
-                      <strong>{t("vehicles.reason")}</strong> {selectedVehicle.reason}
-                    </p>
-                  )}
-                </div>
+                {(() => {
+                  const statusInt = normalizeVehicleStatus(selectedVehicle.statusType);
+                  const attrs = getVehicleStatusAttributes(statusInt, t);
+                  const label = statusInt === VehicleStatusType.Taken ? t("vehicles.inUse") : attrs.label;
+
+                  return (
+                    <div
+                      className={`${attrs.styles.bg} p-4 rounded-lg border-r-4 ${attrs.styles.border.replace("border-", "border-r-")}`}
+                    >
+                      <h3 className={`font-bold ${attrs.styles.text} mb-2`}>
+                        {t("vehicles.vehicleStatus")} {label}
+                      </h3>
+                      <p className="text-sm text-gray-700">
+                        {t("vehicles.sinceLabel")}{" "}
+                        {new Date(selectedVehicle.since).toLocaleString("en-US")}
+                      </p>
+                      {selectedVehicle.reason && (
+                        <p className="text-sm text-gray-700 mt-2">
+                          <strong>{t("vehicles.reason")}</strong> {selectedVehicle.reason}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Vehicle Info */}
                 <div className="bg-gray-50 p-4 rounded-lg">

@@ -19,6 +19,11 @@ import {
   MapPin,
   Package,
 } from "lucide-react";
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function RequestProblemPage() {
   const { t } = useLanguage();
@@ -42,8 +47,10 @@ export default function RequestProblemPage() {
       const data = await ApiService.get(
         "/api/vehicles/taken?statusFilter=unavailable"
       );
-      if (data && data.vehicles) {
-        setTakenVehicles(data.vehicles);
+      if (data && Array.isArray(data)) {
+        setTakenVehicles(data);
+      } else {
+        setTakenVehicles([]);
       }
     } catch (err) {
       console.error("Error loading vehicles:", err);
@@ -134,7 +141,7 @@ export default function RequestProblemPage() {
     }
   };
 
-  const filteredVehicles = takenVehicles.filter(
+  const filteredVehicles = (Array.isArray(takenVehicles) ? takenVehicles : []).filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -432,95 +439,97 @@ export default function RequestProblemPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredVehicles.map((vehicle) => (
-                  <div
-                    key={vehicle.vehicleNumber}
-                    className={`border-2 rounded-lg p-4 hover:shadow-lg transition cursor-pointer ${vehicle.problemsCount > 0
-                        ? "border-orange-300 bg-orange-50"
-                        : "border-blue-200 bg-blue-50"
-                      }`}
-                    onClick={() => {
-                      setSearchTerm(vehicle.plateNumberA);
-                      searchVehicle();
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`p-2 rounded-lg ${vehicle.problemsCount > 0
-                              ? "bg-orange-100"
-                              : "bg-blue-100"
-                            }`}
-                        >
-                          {vehicle.problemsCount > 0 ? (
-                            <AlertTriangle
-                              className="text-orange-600"
-                              size={20}
-                            />
-                          ) : (
-                            <Car className="text-blue-600" size={20} />
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-800">
-                            {vehicle.plateNumberA}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {vehicle.vehicleType}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-3 py-1 text-white rounded-full text-xs font-medium ${vehicle.problemsCount > 0
-                            ? "bg-orange-600"
-                            : "bg-blue-600"
-                          }`}
-                      >
-                        {vehicle.problemsCount > 0
-                          ? `${vehicle.problemsCount} ${t("vehicles.problemCount")}`
-                          : t("vehicles.inUseStatus")}
-                      </span>
-                    </div>
+                {filteredVehicles.map((vehicle) => {
+                  // Calculate status for display for user side problem page
+                  // This page focuses on current problems (orange), else blue "In Use"
+                  // We use helper to get status but override colors based on problemsCount for specific conditional logic
+                  // that was present in original
+                  const hasProblem = vehicle.problemsCount > 0;
+                  const statusType = hasProblem ? VehicleStatusType.Problem : VehicleStatusType.Taken;
+                  // Use attributes for problem specifically
+                  const attrs = getVehicleStatusAttributes(statusType, t);
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Package size={14} />
-                        <span className="text-gray-600">{t("messages.serial")}:</span>
-                        <span className="font-medium">
-                          {vehicle.serialNumber}
-                        </span>
-                      </div>
-
-                      {vehicle.riderName && vehicle.riderName !== "N/A" && (
-                        <div className="bg-green-50 border border-green-200 p-2 rounded">
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <User size={14} className="text-green-600" />
-                            <span className="font-medium">
-                              {vehicle.riderName}
-                            </span>
+                  return (
+                    <div
+                      key={vehicle.vehicleNumber}
+                      className={`border-2 rounded-lg p-4 hover:shadow-lg transition cursor-pointer ${attrs.styles.border} ${attrs.styles.bg}`}
+                      onClick={() => {
+                        setSearchTerm(vehicle.plateNumberA);
+                        searchVehicle();
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-2 rounded-lg ${hasProblem ? "bg-orange-100" : "bg-blue-100"}`}
+                          >
+                            {hasProblem ? (
+                              <AlertTriangle
+                                className="text-orange-600"
+                                size={20}
+                              />
+                            ) : (
+                              <Car className="text-blue-600" size={20} />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-800">
+                              {vehicle.plateNumberA}
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              {vehicle.vehicleType}
+                            </p>
                           </div>
                         </div>
-                      )}
-
-                      {vehicle.location && (
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <MapPin size={14} />
-                          <span className="font-medium">
-                            {vehicle.location}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Clock size={14} />
-                        <span className="text-gray-600">{t("vehicles.sinceLabel")}</span>
-                        <span className="font-medium text-xs">
-                          {new Date(vehicle.since).toLocaleDateString("en-US")}
+                        <span
+                          className={`px-3 py-1 text-white rounded-full text-xs font-medium ${attrs.styles.badge}`}
+                        >
+                          {hasProblem
+                            ? `${vehicle.problemsCount} ${t("vehicles.problemCount")}`
+                            : t("vehicles.inUseStatus")}
                         </span>
                       </div>
+
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Package size={14} />
+                          <span className="text-gray-600">{t("messages.serial")}:</span>
+                          <span className="font-medium">
+                            {vehicle.serialNumber}
+                          </span>
+                        </div>
+
+                        {vehicle.riderName && vehicle.riderName !== "N/A" && (
+                          <div className="bg-green-50 border border-green-200 p-2 rounded">
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <User size={14} className="text-green-600" />
+                              <span className="font-medium">
+                                {vehicle.riderName}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {vehicle.location && (
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <MapPin size={14} />
+                            <span className="font-medium">
+                              {vehicle.location}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Clock size={14} />
+                          <span className="text-gray-600">{t("vehicles.sinceLabel")}</span>
+                          <span className="font-medium text-xs">
+                            {new Date(vehicle.since).toLocaleDateString("en-US")}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>

@@ -37,8 +37,10 @@ export default function FixProblemsPage() {
     setLoadingVehicles(true);
     try {
       const data = await ApiService.get("/api/vehicles/problem");
-      if (data && data.vehicles) {
-        setProblemVehicles(data.vehicles);
+      if (data && Array.isArray(data)) {
+        setProblemVehicles(data);
+      } else {
+        setProblemVehicles([]);
       }
     } catch (err) {
       console.error("Error loading problem vehicles:", err);
@@ -142,7 +144,7 @@ export default function FixProblemsPage() {
               <div>
                 <p className="text-sm text-blue-600 mb-1">{t("vehicles.activeProblems")}</p>
                 <p className="text-3xl font-bold text-blue-700">
-                  {problemVehicles.reduce(
+                  {(Array.isArray(problemVehicles) ? problemVehicles : []).reduce(
                     (sum, v) => sum + (v.problemsCount || 0),
                     0
                   )}

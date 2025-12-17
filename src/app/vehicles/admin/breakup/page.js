@@ -38,8 +38,8 @@ export default function BreakUpVehiclesPage() {
         ApiService.get('/api/vehicles/available')
       ]);
 
-      if (breakUpData && breakUpData.vehicles) {
-        setBreakUpVehicles(breakUpData.vehicles);
+      if (breakUpData && breakUpData) {
+        setBreakUpVehicles(breakUpData);
       }
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
     } catch (err) {

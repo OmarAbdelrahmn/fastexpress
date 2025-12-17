@@ -216,9 +216,9 @@ export default function EnhancedDashboard() {
       const vehiclesSummary = vehicleStatusRes.data?.summary || {};
       const totalVehicles =
         vehicleStatusRes.data?.totalVehicles || vehiclesRes.data?.length || 0;
-      const availableVehicles = vehiclesSummary.availableCount || 0;
-      const takenVehicles = vehiclesSummary.takenCount || 0;
-      const problemVehicles = vehiclesSummary.problemCount || 0;
+      const availableVehicles = vehiclesSummary.availableCount.length || 0;
+      const takenVehicles = vehiclesSummary.takenCount.length || 0;
+      const problemVehicles = vehiclesSummary.problemCount.length || 0;
 
       const allRiders = ridersRes.data || [];
       const totalRiders = allRiders.length;

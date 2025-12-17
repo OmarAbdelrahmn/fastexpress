@@ -13,9 +13,17 @@ import {
   AlertCircle,
   Search,
   RefreshCw,
-  CheckCircle
+  CheckCircle,
+  Car,
+  User,
+  Clock
 } from "lucide-react";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function StolenVehiclesPage() {
   const { t } = useLanguage();
@@ -52,8 +60,10 @@ export default function StolenVehiclesPage() {
         ApiService.get("/api/vehicles/available"),
       ]);
 
-      if (stolenData && stolenData.vehicles) {
-        setStolenVehicles(stolenData.vehicles);
+      if (stolenData) {
+        setStolenVehicles(Array.isArray(stolenData) ? stolenData : []);
+      } else {
+        setStolenVehicles([]);
       }
       setAvailableVehicles(Array.isArray(availableData) ? availableData : []);
     } catch (err) {
@@ -169,6 +179,9 @@ export default function StolenVehiclesPage() {
       v.vehicleNumber?.includes(searchTerm)
   );
 
+  // Stolen attributes
+  const stolenAttrs = getVehicleStatusAttributes(VehicleStatusType.Stolen, t);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -197,7 +210,7 @@ export default function StolenVehiclesPage() {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
+        <div className={`bg-red-50 border-r-4 border-red-500 p-5 rounded-lg`}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-red-600 mb-1">{t('vehicles.stolenVehiclesCount')}</p>
@@ -264,73 +277,78 @@ export default function StolenVehiclesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {stolenVehicles.map((vehicle) => (
-                <div
-                  key={vehicle.vehicleNumber}
-                  className="border-2 border-red-200 rounded-lg p-4 bg-red-50"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-red-100 p-2 rounded-lg">
-                        <Shield className="text-red-600" size={20} />
+              {stolenVehicles.map((vehicle) => {
+                // Even for stolen list we can use helper to consistent styles if we wanted, 
+                // but typically stolen are always RED. 
+                // We kept the manual red styles in original but let's use the helper attributes to be consistent.
+                return (
+                  <div
+                    key={vehicle.vehicleNumber}
+                    className={`border-2 ${stolenAttrs.styles.border} rounded-lg p-4 ${stolenAttrs.styles.bg}`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`${stolenAttrs.styles.bg.replace('bg-', 'bg-opacity-50 ')} p-2 rounded-lg`}>
+                          <stolenAttrs.icon className={stolenAttrs.styles.text} size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-800">
+                            {vehicle.plateNumberA}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800">
-                          {vehicle.plateNumberA}
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          {vehicle.vehicleType}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-medium">
-                      {t('vehicles.stolenStatus')}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Car size={14} />
-                      <span>{t('vehicles.serialNumber')}: {vehicle.serialNumber}</span>
-                    </div>
-
-                    {vehicle.riderName && vehicle.riderName !== "Unknown" && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <User size={14} />
-                        <span>{t('vehicles.lastRider')}: {vehicle.riderName}</span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Clock size={14} />
-                      <span>
-                        {t('vehicles.reportDate')}:{" "}
-                        {new Date(vehicle.since).toLocaleDateString("en-US")}
+                      <span className={`px-3 py-1 ${stolenAttrs.styles.badge} text-white rounded-full text-xs font-medium`}>
+                        {stolenAttrs.label}
                       </span>
                     </div>
 
-                    {vehicle.reason && (
-                      <div className="bg-red-100 p-2 rounded mt-2">
-                        <p className="text-xs text-red-800">
-                          <strong>{t('vehicles.details')}:</strong> {vehicle.reason}
-                        </p>
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Car size={14} />
+                        <span>{t('vehicles.serialNumber')}: {vehicle.serialNumber}</span>
                       </div>
-                    )}
-                  </div>
 
-                  <Button
-                    onClick={() => {
-                      setRecoverVehicle(vehicle);
-                      setRecoveryDetails("");
-                    }}
-                    variant="secondary"
-                    className="w-full"
-                  >
-                    <RefreshCw size={16} className="ml-2" />
-                    {t('vehicles.recoverVehicle')}
-                  </Button>
-                </div>
-              ))}
+                      {vehicle.riderName && vehicle.riderName !== "Unknown" && (
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <User size={14} />
+                          <span>{t('vehicles.lastRider')}: {vehicle.riderName}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Clock size={14} />
+                        <span>
+                          {t('vehicles.reportDate')}:{" "}
+                          {new Date(vehicle.since).toLocaleDateString("en-US")}
+                        </span>
+                      </div>
+
+                      {vehicle.reason && (
+                        <div className="bg-red-100 p-2 rounded mt-2">
+                          <p className="text-xs text-red-800">
+                            <strong>{t('vehicles.details')}:</strong> {vehicle.reason}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        setRecoverVehicle(vehicle);
+                        setRecoveryDetails("");
+                      }}
+                      variant="secondary"
+                      className="w-full"
+                    >
+                      <RefreshCw size={16} className="ml-2" />
+                      {t('vehicles.recoverVehicle')}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>

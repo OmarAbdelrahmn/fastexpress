@@ -28,6 +28,7 @@
     "update": "Update",
     "sessionExpired": "Session expired",
     "noData": "No data to display",
+    "noResults": "No results found",
     "tryDifferentSearch": "Try a different search term",
     "of": "of",
     "active": "Active",
@@ -61,7 +62,8 @@
     "selectLanguage": "Select Language",
     "email": "Email",
     "languageDescription": "Choose your preferred language to continue",
-    "additionalInfo": "Additional Information"
+    "additionalInfo": "Additional Information",
+    "clear": "Clear"
   },
   "navigation": {
     "home": "Home",
@@ -207,6 +209,7 @@
     "available": "Available",
     "taken": "In Use",
     "problem": "Problem",
+    "problemVehicles": "Problem Vehicles",
     "plateNumber": "Plate Number",
     "serialNumber": "Serial Number",
     "vehicleType": "Vehicle Type",

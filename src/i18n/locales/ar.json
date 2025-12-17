@@ -29,6 +29,7 @@
     "update": "تحديث",
     "sessionExpired": "انتهت صلاحية الجلسة",
     "noData": "لا توجد بيانات لعرضها",
+    "noResults": "لا توجد نتائج",
     "tryDifferentSearch": "جرب كلمة بحث أخرى",
     "of": "من",
     "active": "نشط",
@@ -62,7 +63,8 @@
     "selectLanguage": "اختر اللغة",
     "email": "البريد الإلكتروني",
     "languageDescription": "اختر لغتك المفضلة للمتابعة",
-    "additionalInfo": "معلومات إضافية"
+    "additionalInfo": "معلومات إضافية",
+    "clear": "مسح"
   },
   "navigation": {
     "home": "الرئيسية",
@@ -208,6 +210,7 @@
     "available": "جاهزة للتسليم",
     "taken": "في الخدمة",
     "problem": "مشكلة",
+    "problemVehicles": "مركبات بها مشاكل",
     "plateNumber": "رقم اللوحة",
     "serialNumber": "الرقم التسلسلي",
     "vehicleType": "نوع المركبة",

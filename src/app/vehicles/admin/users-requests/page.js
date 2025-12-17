@@ -56,20 +56,16 @@ export default function PendingVehicleRequestsPage() {
     setSuccessMessage('');
 
     try {
-      // resolution value (string)
       const resolutionValue = isApproved ? "Approved" : "Rejected";
-      // Body to match backend schema
       const requestBody = {
         riderIqamaNo: parseInt(request?.riderIqamaNo),
         Resolution: resolutionValue,
-        ResolvedBy: (request?.riderIqamaNo || "").toString(),   // Or logged-in user ID if available
+        ResolvedBy: (request?.riderIqamaNo || "").toString(),   
         Plate: request.vehiclePlateNumber
       };
 
-      // Query string (only note)
       const query = note ? `?note=${encodeURIComponent(note)}` : "";
 
-      // POST instead of GET (should use POST when body exists)
       await ApiService.put(`/api/temp/vehicle-resolve${query}`, requestBody);
 
       setSuccessMessage(`${t('common.success')}: ${isApproved ? t('vehicles.approveRequest') : t('vehicles.rejectRequest')}`);

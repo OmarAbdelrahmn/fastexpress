@@ -43,8 +43,10 @@ export default function ReturnVehiclePage() {
       const data = await ApiService.get(
         "/api/vehicles/taken?statusFilter=unavailable"
       );
-      if (data && data.vehicles) {
-        setTakenVehicles(data.vehicles);
+      if (Array.isArray(data)) {
+        setTakenVehicles(data);
+      } else {
+        setTakenVehicles([]);
       }
     } catch (err) {
       console.error("Error loading taken vehicles:", err);
@@ -130,7 +132,7 @@ export default function ReturnVehiclePage() {
     }
   };
 
-  const filteredVehicles = takenVehicles.filter(
+  const filteredVehicles = (Array.isArray(takenVehicles) ? takenVehicles : []).filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||

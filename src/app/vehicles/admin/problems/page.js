@@ -37,7 +37,9 @@ export default function ProblemsVehiclesPage() {
     try {
       const data = await ApiService.get("/api/vehicles/problem");
       if (data && data.vehicles) {
-        setProblemVehicles(data.vehicles);
+        setProblemVehicles(Array.isArray(data) ? data : []);
+      } else {
+        setProblemVehicles([]);
       }
     } catch (err) {
       console.error("Error loading problem vehicles:", err);
@@ -56,7 +58,7 @@ export default function ProblemsVehiclesPage() {
     router.push(`/vehicles/admin/fix-problems?plate=${vehicle.plateNumberA}`);
   };
 
-  const filteredVehicles = problemVehicles.filter(
+  const filteredVehicles = (Array.isArray(problemVehicles) ? problemVehicles : []).filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,7 +66,7 @@ export default function ProblemsVehiclesPage() {
       v.reason?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalProblems = problemVehicles.reduce(
+  const totalProblems = (Array.isArray(problemVehicles) ? problemVehicles : []).reduce(
     (sum, v) => sum + (v.problemsCount || 0),
     0
   );
@@ -92,7 +94,6 @@ export default function ProblemsVehiclesPage() {
         />
       )}
 
-      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">

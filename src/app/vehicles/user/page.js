@@ -39,7 +39,7 @@ export default function VehiclesUserPage() {
     try {
       const [availableData, takenData, problemData] = await Promise.all([
         ApiService.get("/api/vehicles/available"),
-        ApiService.get("/api/vehicles/taken"),
+        ApiService.get("/api/vehicles/taken?statusFilter=unavailable"),
         ApiService.get("/api/vehicles/problem"),
       ]);
 
@@ -141,7 +141,7 @@ export default function VehiclesUserPage() {
               </p>
               <p className="text-4xl font-bold">{availableVehicles.length}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <CheckCircle size={32} />
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function VehiclesUserPage() {
               <p className="text-blue-100 text-sm mb-1">{t("vehicles.usedVehicles")}</p>
               <p className="text-4xl font-bold">{takenVehicles.length}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <User size={32} />
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function VehiclesUserPage() {
               <p className="text-orange-100 text-sm mb-1">{t("vehicles.reportedProblems")}</p>
               <p className="text-4xl font-bold">{problemVehicles.length}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <AlertTriangle size={32} />
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function VehiclesUserPage() {
                   problemVehicles.length}
               </p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <Car size={32} />
             </div>
           </div>
@@ -334,7 +334,6 @@ export default function VehiclesUserPage() {
             )}
           </Card>
 
-          {/* Taken Vehicles Preview */}
           <Card>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
