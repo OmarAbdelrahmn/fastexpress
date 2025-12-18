@@ -41,14 +41,9 @@ export default function ProblemsVehiclesPage() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const data = await ApiService.get("/api/vehicles");
-      if (Array.isArray(data)) {
-        // Filter for Taken/In Use vehicles only
-        const takenVehicles = data.filter(v =>
-          v.statusTypeDisplay?.toLowerCase() === 'taken' ||
-          (v.riderName && v.riderName !== 'N/A')
-        );
-        setAllVehicles(takenVehicles);
+      const data = await ApiService.get("/api/vehicles/taken?statusFilter=unavailable");
+      if (data && Array.isArray(data.vehicles)) {
+        setAllVehicles(data.vehicles);
       } else {
         setAllVehicles([]);
       }
