@@ -561,7 +561,9 @@
     "statusBreakup": "ক্ষতিগ্রস্ত",
     "statusProblem": "সমস্যা আছে",
     "statusTaken": "ব্যবহৃত",
-    "statusAvailable": "উপলব্ধ"
+    "statusAvailable": "উপলব্ধ",
+    "details": "বিস্তারিত",
+    "status": "অবস্থা"
   },
   "employees": {
     "currentMonth": "কর্মচারী",

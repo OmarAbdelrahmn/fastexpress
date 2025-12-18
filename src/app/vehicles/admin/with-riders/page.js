@@ -280,138 +280,92 @@ export default function VehiclesWithRidersPage() {
               <p className="text-gray-600">{t('common.noResults')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredVehicles.map((vehicle) => {
-                const effectiveStatus =
-                  vehicle.isStolen ? VehicleStatusType.Stolen :
-                    vehicle.isBreakUp ? VehicleStatusType.BreakUp :
-                      vehicle.hasActiveProblem ? VehicleStatusType.Problem :
-                        normalizeVehicleStatus(vehicle.currentStatus) ||
-                        (!vehicle.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="w-full text-start border-collapse">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[30%]">{t('vehicles.vehicle')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[35%]">{t('vehicles.details')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[20%]">{t('vehicles.status')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('common.actions')}</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredVehicles.map((vehicle) => {
+                    const effectiveStatus =
+                      vehicle.isStolen ? VehicleStatusType.Stolen :
+                        vehicle.isBreakUp ? VehicleStatusType.BreakUp :
+                          vehicle.hasActiveProblem ? VehicleStatusType.Problem :
+                            normalizeVehicleStatus(vehicle.currentStatus) ||
+                            (!vehicle.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
 
-                const attrs = getVehicleStatusAttributes(effectiveStatus, t);
+                    const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 
-                return (
-                  <div
-                    key={vehicle.vehicleNumber}
-                    className={`border-2 ${attrs.styles.border} rounded-lg p-4 ${attrs.styles.bg} hover:shadow-lg transition`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`bg-white p-2 rounded-lg`}>
-                          <attrs.icon className={attrs.styles.text} size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-800">
-                            {formatPlateNumber(vehicle.plateNumberA)}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {vehicle.vehicleType}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-3 py-1 ${attrs.styles.badge} text-white rounded-full text-xs font-medium`}
-                      >
-                        {attrs.label}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Package size={14} />
-                        <span className="text-gray-600">{t('vehicles.serialNumber')}:</span>
-                        <span className="font-medium">
-                          {vehicle.serialNumber}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Car size={14} />
-                        <span className="text-gray-600">{t('vehicles.vehicleNumber')}:</span>
-                        <span className="font-medium">
-                          {vehicle.vehicleNumber}
-                        </span>
-                      </div>
-
-                      {vehicle.location && (
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <MapPin size={14} />
-                          <span className="font-medium">
-                            {vehicle.location}
-                          </span>
-                        </div>
-                      )}
-
-                      {vehicle.manufacturer && (
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <Car size={14} />
-                          <span className="font-medium">
-                            {vehicle.manufacturer}
-                          </span>
-                          {vehicle.manufactureYear && (
-                            <span className="text-gray-600">
-                              ({vehicle.manufactureYear})
-                            </span>
+                    return (
+                      <tr key={vehicle.vehicleNumber} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-4 align-top">
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
+                              <attrs.icon size={20} />
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-900">
+                                {formatPlateNumber(vehicle.plateNumberA)}
+                              </div>
+                              <div className="space-y-0.5 mt-1">
+                                <div className="text-xs text-gray-500 flex items-center gap-1">
+                                  <Package size={12} />
+                                  <span>{vehicle.serialNumber}</span>
+                                </div>
+                                <div className="text-xs text-gray-500 flex items-center gap-1">
+                                  <Car size={12} />
+                                  <span>{vehicle.vehicleNumber}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 align-top">
+                          <div className="font-medium text-gray-900">{vehicle.vehicleType}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {vehicle.manufacturer} {vehicle.manufactureYear ? `(${vehicle.manufactureYear})` : ''}
+                          </div>
+                          {vehicle.location && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                              <MapPin size={12} />
+                              {vehicle.location}
+                            </div>
                           )}
-                        </div>
-                      )}
+                        </td>
 
-                      {vehicle.currentRider && (
-                        <div className="bg-white border border-green-200 p-3 rounded-lg mt-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <User size={14} className="text-green-600" />
-                            <span className="font-bold text-green-800 text-xs">
-                              {t('vehicles.currentRider')}
+                        <td className="p-4 align-top">
+                          <div className="flex flex-col items-start gap-1">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${attrs.styles.badge} text-white`}>
+                              {attrs.label}
                             </span>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-xs text-gray-700">
-                              <strong>{vehicle.currentRider.riderName}</strong>
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {t('vehicles.iqama')}: {vehicle.currentRider.employeeIqamaNo}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {t('vehicles.since')}:{" "}
-                              {new Date(
-                                vehicle.currentRider.takenDate
-                              ).toLocaleDateString("en-US")}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {vehicle.statusSince && (
-                        <div className="flex items-center gap-2 text-gray-700 mt-2">
-                          <Calendar size={14} />
-                          <span className="text-gray-600">{t('vehicles.statusSince')}:</span>
-                          <span className="text-xs font-medium">
-                            {new Date(vehicle.statusSince).toLocaleDateString(
-                              "en-US"
+                            {vehicle.statusSince && (
+                              <div className="text-xs text-gray-400 flex items-center gap-1 px-1">
+                                <Calendar size={12} />
+                                {new Date(vehicle.statusSince).toLocaleDateString("en-US")}
+                              </div>
                             )}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t">
-                      <Button
-                        onClick={() =>
-                          router.push(
-                            `/vehicles/admin/details/${vehicle.plateNumberA}`
-                          )
-                        }
-                        variant="secondary"
-                        className="w-full"
-                      >
-                        <Eye size={16} className="ml-2" />
-                        {t('vehicles.viewDetails')}
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
+                          </div>
+                        </td>
+                        <td className="p-4 align-top text-center">
+                          <Button
+                            onClick={() => router.push(`/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                            variant="secondary"
+                            className="!py-1.5 !px-3 text-sm h-auto"
+                          >
+                            <Eye size={16} className="mr-1.5" />
+                            {t('vehicles.viewDetails')}
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </Card>

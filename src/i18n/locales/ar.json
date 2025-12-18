@@ -577,7 +577,9 @@
     "statusBreakup": "تالفة",
     "statusProblem": "بها مشكلة",
     "statusTaken": "مستخدمة",
-    "statusAvailable": "متاحة"
+    "statusAvailable": "متاحة",
+    "details": "التفاصيل",
+    "status": "الحالة"
   },
   "employees": {
     "title": "الموظفين",

@@ -576,7 +576,9 @@
     "statusBreakup": "Out of Service",
     "statusProblem": "Problem",
     "statusTaken": "Taken",
-    "statusAvailable": "Available"
+    "statusAvailable": "Available",
+    "details": "Details",
+    "status": "Status"
   },
   "employees": {
     "currentMonth": "Current Month",
