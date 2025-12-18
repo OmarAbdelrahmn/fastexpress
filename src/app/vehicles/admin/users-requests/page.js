@@ -19,6 +19,7 @@ import {
   Filter
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function PendingVehicleRequestsPage() {
   const { t } = useLanguage();
@@ -285,7 +286,7 @@ export default function PendingVehicleRequestsPage() {
                           <OperationIcon className={colors.text} size={20} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-800">{request.vehiclePlateNumber}</h4>
+                          <h4 className="font-bold text-gray-800">{formatPlateNumber(request.vehiclePlateNumber)}</h4>
                           <p className={`text-xs ${colors.text}`}>
                             {getOperationTypeLabel(request.operationType)}
                           </p>
@@ -378,7 +379,7 @@ export default function PendingVehicleRequestsPage() {
                       </div>
                       <div>
                         <p className="text-gray-600 mb-1">{t('vehicles.plateNumber')}</p>
-                        <p className="font-medium text-gray-800">{selectedRequest.vehiclePlateNumber}</p>
+                        <p className="font-medium text-gray-800">{formatPlateNumber(selectedRequest.vehiclePlateNumber)}</p>
                       </div>
                       <div>
                         <p className="text-gray-600 mb-1">{t('vehicles.employeeIqama')}</p>

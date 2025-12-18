@@ -10,6 +10,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { PackageX, Search, Car, Clock, MapPin, AlertCircle, Plus } from 'lucide-react';
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function BreakUpVehiclesPage() {
   const router = useRouter();
@@ -260,7 +261,7 @@ export default function BreakUpVehiclesPage() {
                             <PackageX className="text-gray-600" size={20} />
                           </div>
                           <div>
-                            <h4 className="font-bold text-gray-800">{vehicle.plateNumberA}</h4>
+                            <h4 className="font-bold text-gray-800">{formatPlateNumber(vehicle.plateNumberA)}</h4>
                             <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
                           </div>
                         </div>
@@ -352,7 +353,7 @@ export default function BreakUpVehiclesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-blue-600 mb-1">{t('vehicles.plateNumber')}</p>
-                        <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                        <p className="font-medium text-gray-800">{formatPlateNumber(selectedVehicle.plateNumberA)}</p>
                       </div>
                       <div>
                         <p className="text-blue-600 mb-1">{t('vehicles.serialNumber')}</p>

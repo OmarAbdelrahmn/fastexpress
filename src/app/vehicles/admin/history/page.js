@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from "@/lib/api/apiService";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function VehicleHistory() {
   const { t } = useLanguage();
@@ -135,7 +136,6 @@ export default function VehicleHistory() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
-      {/* Header with gradient */}
       <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-6 py-10 shadow-2xl">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
@@ -256,7 +256,7 @@ export default function VehicleHistory() {
 
                       return (
                         <button
-                          key={vehicle.id || vehicle.plateNumberA}
+                          key={vehicle.id || formatPlateNumber(vehicle.plateNumberA)}
                           onClick={() => handleVehicleClick(vehicle)}
                           className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${isSelected
                             ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
@@ -267,7 +267,7 @@ export default function VehicleHistory() {
                             <div className="flex items-center gap-2">
                               <Car size={18} className={colors.icon} />
                               <span className="font-bold text-gray-900 text-lg">
-                                {vehicle.plateNumberA}
+                                {formatPlateNumber(vehicle.plateNumberA)}
                               </span>
                             </div>
                             {vehicle.statusTypeDisplay && (
@@ -342,7 +342,7 @@ export default function VehicleHistory() {
                             </div>
                             <div>
                               <h2 className="text-3xl font-bold">
-                                {firstRecord.plateNumberA}
+                                {formatPlateNumber(firstRecord.plateNumberA)}
                               </h2>
                               <p className="text-blue-100 mt-1 font-medium">
                                 {t('vehicles.vehicleNumber')}: {firstRecord.vehicleNumber}
@@ -371,7 +371,7 @@ export default function VehicleHistory() {
                                   {t('vehicles.vehicleNumber')}
                                 </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">
+                              <p className="text-sm font-bold text-gray-900 ">
                                 {firstRecord.vehicleNumber}
                               </p>
                             </div>
@@ -385,7 +385,7 @@ export default function VehicleHistory() {
                                   {t('vehicles.serialNumber')}
                                 </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">
+                              <p className="text-sm font-bold text-gray-900 break-all">
                                 {firstRecord.serialNumber}
                               </p>
                             </div>
@@ -469,7 +469,7 @@ export default function VehicleHistory() {
                                   {t('vehicles.ownerId')}
                                 </span>
                               </div>
-                              <p className="text-lg font-bold text-gray-900">
+                              <p className="text-sm font-bold text-gray-900 break-all">
                                 {firstRecord.ownerId}
                               </p>
                             </div>

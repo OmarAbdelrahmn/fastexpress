@@ -18,6 +18,7 @@ import {
   Info,
   Eye,
 } from "lucide-react";
+import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
 
 export default function AvailableVehiclesPage() {
   const { t } = useLanguage();
@@ -175,7 +176,7 @@ export default function AvailableVehiclesPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800">
-                        {vehicle.plateNumberA}
+                        {formatPlateNumber(vehicle.plateNumberA)}
                       </h4>
                       <p className="text-xs text-gray-500">
                         {vehicle.vehicleType}
@@ -217,9 +218,7 @@ export default function AvailableVehiclesPage() {
                       <Calendar size={14} />
                       <span className="text-xs">
                         {t("vehicles.licenseExpiry")}{" "}
-                        {new Date(vehicle.licenseExpiryDate).toLocaleDateString(
-                          "en-US"
-                        )}
+                        {formatLicenseExpiry(vehicle.licenseExpiryDate)}
                       </span>
                     </div>
                   )}
@@ -277,7 +276,7 @@ export default function AvailableVehiclesPage() {
                     <div>
                       <p className="text-green-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.plateNumberA}
+                        {formatPlateNumber(selectedVehicle.plateNumberA)}
                       </p>
                     </div>
                     <div>
@@ -356,9 +355,7 @@ export default function AvailableVehiclesPage() {
                       <p className="text-gray-600 mb-1">{t("vehicles.licenseExpiryDate")}</p>
                       <p className="font-medium text-gray-800">
                         {selectedVehicle.licenseExpiryDate
-                          ? new Date(
-                            selectedVehicle.licenseExpiryDate
-                          ).toLocaleDateString("en-US")
+                          ? formatLicenseExpiry(selectedVehicle.licenseExpiryDate)
                           : t("vehicles.notSpecified")}
                       </p>
                     </div>

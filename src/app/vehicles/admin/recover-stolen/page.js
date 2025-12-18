@@ -19,6 +19,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function RecoverStolenPage() {
   const { t } = useLanguage();
@@ -223,7 +224,7 @@ export default function RecoverStolenPage() {
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-800">
-                          {vehicle.plateNumberA}
+                          {formatPlateNumber(vehicle.plateNumberA)}
                         </h4>
                         <p className="text-xs text-gray-500">
                           {vehicle.vehicleType}
@@ -313,7 +314,7 @@ export default function RecoverStolenPage() {
                     </h3>
                     <p className="text-sm text-green-600">
                       {t('vehicles.selectVehicle')}:{" "}
-                      <strong>{selectedVehicle.plateNumberA}</strong>
+                      <strong>{formatPlateNumber(selectedVehicle.plateNumberA)}</strong>
                     </p>
                   </div>
                 </div>
@@ -327,7 +328,7 @@ export default function RecoverStolenPage() {
                   <div>
                     <p className="text-gray-600 mb-1">{t('vehicles.plateNumber')}</p>
                     <p className="font-medium text-gray-800">
-                      {selectedVehicle.plateNumberA}
+                      {formatPlateNumber(selectedVehicle.plateNumberA)}
                     </p>
                   </div>
                   <div>

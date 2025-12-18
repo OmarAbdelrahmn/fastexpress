@@ -20,6 +20,7 @@ import {
   Package,
   FileText,
 } from "lucide-react";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function VehiclesUserPage() {
   const router = useRouter();
@@ -312,7 +313,7 @@ export default function VehiclesUserPage() {
                         </div>
                         <div>
                           <p className="font-bold text-gray-800">
-                            {vehicle.plateNumberA}
+                            {formatPlateNumber(vehicle.plateNumberA)}
                           </p>
                           <p className="text-xs text-gray-500">
                             {vehicle.vehicleType}
@@ -369,7 +370,7 @@ export default function VehiclesUserPage() {
                         </div>
                         <div>
                           <p className="font-bold text-gray-800">
-                            {vehicle.plateNumberA}
+                            {formatPlateNumber(vehicle.plateNumberA)}
                           </p>
                           <p className="text-xs text-gray-500">
                             {vehicle.vehicleType}

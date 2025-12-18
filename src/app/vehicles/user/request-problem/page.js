@@ -24,6 +24,7 @@ import {
   getVehicleStatusAttributes,
   normalizeVehicleStatus
 } from "@/lib/constants/vehicleStatus";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function RequestProblemPage() {
   const { t } = useLanguage();
@@ -271,7 +272,7 @@ export default function RequestProblemPage() {
                 <div>
                   <p className="text-blue-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedVehicle.plateNumberA}
+                    {formatPlateNumber(selectedVehicle.plateNumberA)}
                   </p>
                 </div>
                 <div>
@@ -474,7 +475,7 @@ export default function RequestProblemPage() {
                           </div>
                           <div>
                             <h4 className="font-bold text-gray-800">
-                              {vehicle.plateNumberA}
+                              {formatPlateNumber(vehicle.plateNumberA)}
                             </h4>
                             <p className="text-xs text-gray-500">
                               {vehicle.vehicleType}

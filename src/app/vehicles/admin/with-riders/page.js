@@ -28,6 +28,7 @@ import {
   getVehicleStatusAttributes,
   normalizeVehicleStatus
 } from "@/lib/constants/vehicleStatus";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function VehiclesWithRidersPage() {
   const { t } = useLanguage();
@@ -302,7 +303,7 @@ export default function VehiclesWithRidersPage() {
                         </div>
                         <div>
                           <h4 className="font-bold text-gray-800">
-                            {vehicle.plateNumberA}
+                            {formatPlateNumber(vehicle.plateNumberA)}
                           </h4>
                           <p className="text-xs text-gray-500">
                             {vehicle.vehicleType}

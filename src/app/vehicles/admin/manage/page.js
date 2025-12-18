@@ -11,6 +11,7 @@ import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import { Plus, Search, Edit, Trash2, Car, Eye, Settings } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
 
 export default function VehicleManagePage() {
   const { t } = useLanguage();
@@ -205,7 +206,7 @@ export default function VehicleManagePage() {
       render: (row) => (
         <div className="flex items-center gap-2">
           <Car className="text-blue-500" size={16} />
-          <span className="font-medium">{row.plateNumberA}</span>
+          <span className="font-medium">{formatPlateNumber(row.plateNumberA)}</span>
         </div>
       )
     },
@@ -574,7 +575,7 @@ export default function VehicleManagePage() {
                   </div>
                   <div>
                     <p className="text-gray-600 mb-1">{t('vehicles.plateNumberArabic')}</p>
-                    <p className="font-medium">{selectedVehicle.plateNumberA}</p>
+                    <p className="font-medium">{formatPlateNumber(selectedVehicle.plateNumberA)}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 mb-1">{t('vehicles.plateNumberEnglish')}</p>
@@ -608,7 +609,7 @@ export default function VehicleManagePage() {
                     <p className="text-gray-600 mb-1">{t('vehicles.licenseExpiryDate')}</p>
                     <p className="font-medium">
                       {selectedVehicle.licenseExpiryDate
-                        ? new Date(selectedVehicle.licenseExpiryDate).toLocaleDateString('en-US')
+                        ? formatLicenseExpiry(selectedVehicle.licenseExpiryDate)
                         : t('vehicles.notSpecified')}
                     </p>
                   </div>

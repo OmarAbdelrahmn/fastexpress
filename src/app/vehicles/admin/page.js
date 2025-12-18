@@ -97,12 +97,12 @@ export default function VehicleAdminDashboard() {
       count: stats.takenCount,
     },
     {
-      title: t("vehicles.problemsAndMaintenance"),
-      description: t("vehicles.vehiclesNeedRepair"),
+      title: t("vehicles.reportProblem"),
+      description: t("vehicles.reportProblemDesc"),
       icon: AlertTriangle,
-      color: "orange",
+      color: "red",
       path: "/vehicles/admin/problems",
-      count: stats.problemCount,
+      count: null,
     },
     {
       title: t("vehicles.stolenVehicles"),
@@ -132,9 +132,9 @@ export default function VehicleAdminDashboard() {
       title: t("vehicles.fixProblems"),
       description: t("vehicles.solveProblems"),
       icon: Wrench,
-      color: "indigo",
+      color: "orange",
       path: "/vehicles/admin/fix-problems",
-      count: null,
+      count: stats.problemCount,
     },
     {
       title: t("vehicles.recoverStolen"),

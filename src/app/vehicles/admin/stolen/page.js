@@ -24,6 +24,7 @@ import {
   getVehicleStatusAttributes,
   normalizeVehicleStatus
 } from "@/lib/constants/vehicleStatus";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function StolenVehiclesPage() {
   const { t } = useLanguage();
@@ -293,7 +294,7 @@ export default function StolenVehiclesPage() {
                         </div>
                         <div>
                           <h4 className="font-bold text-gray-800">
-                            {vehicle.plateNumberA}
+                            {formatPlateNumber(vehicle.plateNumberA)}
                           </h4>
                           <p className="text-xs text-gray-500">
                             {vehicle.vehicleType}
@@ -407,7 +408,7 @@ export default function StolenVehiclesPage() {
                     <div>
                       <p className="text-blue-600 mb-1">{t('vehicles.plateNumber')}</p>
                       <p className="font-medium text-gray-800">
-                        {selectedVehicle.plateNumberA}
+                        {formatPlateNumber(selectedVehicle.plateNumberA)}
                       </p>
                     </div>
                     <div>
@@ -489,7 +490,7 @@ export default function StolenVehiclesPage() {
                     {t('vehicles.recoverStolenTitle')}
                   </h3>
                   <p className="text-sm text-green-600">
-                    {t('vehicles.selectedVehicle')}: <strong>{recoverVehicle.plateNumberA}</strong>
+                    {t('vehicles.selectedVehicle')}: <strong>{formatPlateNumber(recoverVehicle.plateNumberA)}</strong>
                   </p>
                 </div>
               </div>

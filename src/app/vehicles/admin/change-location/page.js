@@ -10,6 +10,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { MapPin, Save, Search, Car, Navigation } from 'lucide-react';
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function ChangeLocationPage() {
   const router = useRouter();
@@ -180,7 +181,7 @@ export default function ChangeLocationPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-blue-600 mb-1">{t('vehicles.plateNumber')}</p>
-                  <p className="font-medium text-gray-800">{selectedVehicle.plateNumberA}</p>
+                  <p className="font-medium text-gray-800">{formatPlateNumber(selectedVehicle.plateNumberA)}</p>
                 </div>
                 <div>
                   <p className="text-blue-600 mb-1">{t('vehicles.serialNumber')}</p>
@@ -255,7 +256,7 @@ export default function ChangeLocationPage() {
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-gray-800">{vehicle.plateNumberA}</span>
+                  <span className="font-bold text-gray-800">{formatPlateNumber(vehicle.plateNumberA)}</span>
                   <Car className="text-blue-500" size={16} />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">

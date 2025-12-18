@@ -19,6 +19,7 @@ import {
   User,
   AlertTriangle,
 } from "lucide-react";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function TakeVehiclePage() {
   const router = useRouter();
@@ -261,7 +262,7 @@ export default function TakeVehiclePage() {
                 <div>
                   <p className="text-green-600 mb-1">{t("vehicles.plateNumberArabic")}</p>
                   <p className="font-medium text-gray-800">
-                    {selectedVehicle.plateNumberA}
+                    {formatPlateNumber(selectedVehicle.plateNumberA)}
                   </p>
                 </div>
                 <div>
@@ -428,7 +429,7 @@ export default function TakeVehiclePage() {
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-800">
-                          {vehicle.plateNumberA}
+                          {formatPlateNumber(vehicle.plateNumberA)}
                         </h4>
                         <p className="text-xs text-gray-500">
                           {vehicle.vehicleType}

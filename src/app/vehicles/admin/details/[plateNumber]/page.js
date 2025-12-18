@@ -29,6 +29,7 @@ import {
   getVehicleStatusAttributes,
   normalizeVehicleStatus
 } from "@/lib/constants/vehicleStatus";
+import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
 
 export default function VehicleDetailsPage() {
   const router = useRouter();
@@ -130,7 +131,7 @@ export default function VehicleDetailsPage() {
   return (
     <div className="w-full">
       <PageHeader
-        title={`${t("vehicles.vehicle")} ${vehicle.plateNumberA}`}
+        title={`${t("vehicles.vehicle")} ${formatPlateNumber(vehicle.plateNumberA)}`}
         subtitle={vehicle.vehicleType}
         icon={Car}
         actionButton={{
@@ -179,7 +180,7 @@ export default function VehicleDetailsPage() {
                     {t("vehicles.plateNumberArabic")}
                   </p>
                   <p className="font-bold text-gray-800 text-lg">
-                    {vehicle.plateNumberA}
+                    {formatPlateNumber(vehicle.plateNumberA)}
                   </p>
                 </div>
                 <div>
@@ -249,14 +250,7 @@ export default function VehicleDetailsPage() {
                     </p>
                   </div>
                   <p className="text-yellow-700 font-medium">
-                    {new Date(vehicle.licenseExpiryDate).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }
-                    )}
+                    {formatLicenseExpiry(vehicle.licenseExpiryDate)}
                   </p>
                 </div>
               )}

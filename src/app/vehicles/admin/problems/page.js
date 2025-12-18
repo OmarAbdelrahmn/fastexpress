@@ -13,76 +13,124 @@ import {
   Car,
   User,
   Clock,
-  Wrench,
   Search,
-  Eye,
+  CheckCircle,
+  FileText,
+  MapPin
 } from "lucide-react";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function ProblemsVehiclesPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [problemVehicles, setProblemVehicles] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [allVehicles, setAllVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
-    loadProblemVehicles();
+    loadVehicles();
   }, []);
 
-  const loadProblemVehicles = async () => {
+  const loadVehicles = async () => {
     setLoading(true);
+    setErrorMessage("");
     try {
-      const data = await ApiService.get("/api/vehicles/problem");
-      if (data && data.vehicles) {
-        setProblemVehicles(Array.isArray(data) ? data : []);
+      const data = await ApiService.get("/api/vehicles");
+      if (Array.isArray(data)) {
+        // Filter for Taken/In Use vehicles only
+        const takenVehicles = data.filter(v =>
+          v.statusTypeDisplay?.toLowerCase() === 'taken' ||
+          (v.riderName && v.riderName !== 'N/A')
+        );
+        setAllVehicles(takenVehicles);
       } else {
-        setProblemVehicles([]);
+        setAllVehicles([]);
       }
     } catch (err) {
-      console.error("Error loading problem vehicles:", err);
+      console.error("Error loading vehicles:", err);
       setErrorMessage(t("vehicles.loadingError"));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewDetails = (vehicle) => {
+  const handleReportClick = (vehicle) => {
     setSelectedVehicle(vehicle);
-    setShowDetailsModal(true);
+    setReason("");
+    setShowReportModal(true);
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
-  const handleFixRedirect = (vehicle) => {
-    router.push(`/vehicles/admin/fix-problems?plate=${vehicle.plateNumberA}`);
+  const handleSubmitProblem = async (e) => {
+    e.preventDefault();
+
+    if (!reason.trim()) {
+      setErrorMessage(t("vehicles.enterProblemReason"));
+      return;
+    }
+
+    if (!selectedVehicle?.plateNumberA || !selectedVehicle?.riderIqamaNo) {
+      setErrorMessage(t("vehicles.missingVehicleInfo"));
+      return;
+    }
+
+    setLoadingSubmit(true);
+    setErrorMessage("");
+
+    try {
+      const queryParams = new URLSearchParams({
+        plate: selectedVehicle.plateNumberA,
+        riderIqamaNo: selectedVehicle.riderIqamaNo,
+        reason: reason
+      }).toString();
+
+      await ApiService.post(`/api/vehicles/report-problem?${queryParams}`);
+
+      setSuccessMessage(t("vehicles.reportProblemSuccess"));
+      setTimeout(() => {
+        setShowReportModal(false);
+        setSuccessMessage("");
+        setSelectedVehicle(null);
+        setReason("");
+        loadVehicles(); // Reload to update status potentially
+      }, 2000);
+
+    } catch (err) {
+      console.error("Error reporting problem:", err);
+      setErrorMessage(err.message || t("vehicles.reportProblemError"));
+    } finally {
+      setLoadingSubmit(false);
+    }
   };
 
-  const filteredVehicles = (Array.isArray(problemVehicles) ? problemVehicles : []).filter(
+  const filteredVehicles = allVehicles.filter(
     (v) =>
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.reason?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalProblems = (Array.isArray(problemVehicles) ? problemVehicles : []).reduce(
-    (sum, v) => sum + (v.problemsCount || 0),
-    0
+      v.serialNumber?.toString().includes(searchTerm)
   );
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("vehicles.problemsTitle")}
-        subtitle={t("vehicles.vehiclesNeedMaintenance", { count: filteredVehicles.length })}
+        title={t("vehicles.reportProblemTitle")}
+        subtitle={t("vehicles.reportProblemSubtitle")}
         icon={AlertTriangle}
         actionButton={{
           text: t("vehicles.refreshData"),
           icon: <AlertTriangle size={18} />,
-          onClick: loadProblemVehicles,
+          onClick: loadVehicles,
           variant: "secondary",
         }}
+        gradient="from-red-600 to-red-800"
       />
 
       {errorMessage && (
@@ -94,41 +142,14 @@ export default function ProblemsVehiclesPage() {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-orange-600 mb-1">{t("vehicles.problemVehiclesCount")}</p>
-              <p className="text-3xl font-bold text-orange-700">
-                {problemVehicles.length}
-              </p>
-            </div>
-            <AlertTriangle className="text-orange-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-red-600 mb-1">{t("vehicles.totalProblems")}</p>
-              <p className="text-3xl font-bold text-red-700">{totalProblems}</p>
-            </div>
-            <Wrench className="text-red-500" size={40} />
-          </div>
-        </div>
-
-        <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-purple-600 mb-1">{t("vehicles.displayedResults")}</p>
-              <p className="text-3xl font-bold text-purple-700">
-                {filteredVehicles.length}
-              </p>
-            </div>
-            <Search className="text-purple-500" size={40} />
-          </div>
-        </div>
-      </div>
+      {successMessage && (
+        <Alert
+          type="success"
+          title={t("common.success")}
+          message={successMessage}
+          onClose={() => setSuccessMessage("")}
+        />
+      )}
 
       {/* Search */}
       <Card>
@@ -139,57 +160,52 @@ export default function ProblemsVehiclesPage() {
           />
           <input
             type="text"
-            placeholder={t("vehicles.searchPlaceholderProblems")}
+            placeholder={t("vehicles.searchPlaceholderReport")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           />
+        </div>
+        <div className="mt-2 text-sm text-gray-500">
+          {t("common.showing")} {filteredVehicles.length} {t("vehicles.activeVehicles")}
         </div>
       </Card>
 
       {/* Vehicles Grid */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <AlertTriangle size={20} className="text-orange-600" />
-          {t("vehicles.vehiclesNeedMaintenanceTitle")}
-        </h3>
-
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-            <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+            <p className="mt-4 text-gray-600">{t("vehicles.loadingVehicles")}</p>
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="text-center py-12">
-            <Wrench className="mx-auto text-green-500 mb-4" size={48} />
+            <Car className="mx-auto text-gray-300 mb-4" size={48} />
             <p className="text-gray-600">
-              {t("vehicles.noVehiclesNeedMaintenance")}
+              {t("vehicles.noActiveVehiclesFound")}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredVehicles.map((vehicle) => (
               <div
-                key={vehicle.vehicleNumber}
-                className="border-2 border-orange-200 rounded-lg p-4 bg-orange-50 hover:shadow-md transition"
+                key={vehicle.id || vehicle.plateNumberA}
+                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition bg-white"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-orange-100 p-2 rounded-lg">
-                      <AlertTriangle className="text-orange-600" size={20} />
+                    <div className="bg-red-50 p-2 rounded-lg">
+                      <Car className="text-red-600" size={20} />
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800">
-                        {vehicle.plateNumberA}
+                        {formatPlateNumber(vehicle.plateNumberA)}
                       </h4>
                       <p className="text-xs text-gray-500">
                         {vehicle.vehicleType}
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-orange-600 text-white rounded-full text-xs font-medium">
-                    {vehicle.problemsCount || 1} {t("vehicles.problem")}
-                  </span>
                 </div>
 
                 <div className="space-y-2 text-sm mb-4">
@@ -200,215 +216,129 @@ export default function ProblemsVehiclesPage() {
                     </span>
                   </div>
 
-                  {vehicle.riderName &&
-                    vehicle.riderName !== "N/A" &&
-                    vehicle.riderName !== "Unknown" && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <User size={14} />
-                        <span className="text-xs">
-                          {t("vehicles.lastRider")}: {vehicle.riderName}
-                        </span>
-                      </div>
-                    )}
+                  {vehicle.riderName && (
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <User size={14} />
+                      <span className="text-xs">
+                        {t("vehicles.rider")}: {vehicle.riderName}
+                      </span>
+                    </div>
+                  )}
 
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Clock size={14} />
-                    <span className="text-xs">
-                      {t("vehicles.since")}: {new Date(vehicle.since).toLocaleDateString("en-US")}
-                    </span>
-                  </div>
-
-                  {vehicle.reason && (
-                    <div className="bg-orange-100 p-2 rounded mt-2">
-                      <p className="text-xs text-orange-800">
-                        <strong>{t("vehicles.problemLabel")}</strong> {vehicle.reason}
-                      </p>
+                  {vehicle.location && (
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <MapPin size={14} />
+                      <span className="text-xs">
+                        {vehicle.location}
+                      </span>
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleViewDetails(vehicle)}
-                    variant="secondary"
-                    className="flex-1 text-sm"
-                  >
-                    <Eye size={16} className="ml-1" />
-                    {t("common.details")}
-                  </Button>
-                  <Button
-                    onClick={() => handleFixRedirect(vehicle)}
-                    className="flex-1 text-sm"
-                  >
-                    <Wrench size={16} className="ml-1" />
-                    {t("vehicles.fix")}
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => handleReportClick(vehicle)}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <AlertTriangle size={16} className="ml-2" />
+                  {t("vehicles.reportProblemButton")}
+                </Button>
               </div>
             ))}
           </div>
         )}
       </Card>
 
-      {/* Details Modal */}
-      {showDetailsModal && selectedVehicle && (
+      {/* Report Modal */}
+      {showReportModal && selectedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {t("vehicles.vehicleDetails")}
+              <div className="flex items-center justify-between mb-6 border-b pb-4">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                  <AlertTriangle className="text-red-600" size={24} />
+                  {t("vehicles.reportProblemTitle")}
                 </h2>
                 <button
-                  onClick={() => setShowDetailsModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowReportModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {/* Problem Status */}
-                <div className="bg-orange-50 p-4 rounded-lg border-r-4 border-orange-500">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="text-orange-600" size={20} />
-                    <h3 className="font-bold text-orange-800">
-                      {t("vehicles.problemStatus")} - {selectedVehicle.problemsCount || 1} {t("vehicles.problem")}
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    {t("vehicles.since")}:{" "}
-                    {new Date(selectedVehicle.since).toLocaleString("en-US")}
-                  </p>
-                  {selectedVehicle.reason && (
-                    <div className="mt-3 bg-orange-100 p-3 rounded">
-                      <p className="text-sm text-orange-900">
-                        <strong>{t("vehicles.problemDescription")}:</strong>
-                        <br />
-                        {selectedVehicle.reason}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Vehicle Info */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-bold text-gray-800 mb-3">
+              <form onSubmit={handleSubmitProblem} className="space-y-6">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <Car size={16} className="text-gray-500" />
                     {t("vehicles.vehicleInfo")}
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-600 mb-1">{t("vehicles.plateNumber")}</p>
-                      <p className="font-medium text-gray-800">
-                        {selectedVehicle.plateNumberA}
+                      <p className="text-gray-500 mb-1">{t("vehicles.plateNumber")}</p>
+                      <p className="font-bold text-gray-900">
+                        {formatPlateNumber(selectedVehicle.plateNumberA)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 mb-1">{t("vehicles.serialNumber")}</p>
-                      <p className="font-medium text-gray-800">
-                        {selectedVehicle.serialNumber}
-                      </p>
+                      <p className="text-gray-500 mb-1">{t("vehicles.serialNumber")}</p>
+                      <p className="font-medium text-gray-800">{selectedVehicle.serialNumber}</p>
                     </div>
-                    <div>
-                      <p className="text-gray-600 mb-1">{t("vehicles.vehicleType")}</p>
-                      <p className="font-medium text-gray-800">
-                        {selectedVehicle.vehicleType}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600 mb-1">{t("vehicles.vehicleNumber")}</p>
-                      <p className="font-medium text-gray-800">
-                        {selectedVehicle.vehicleNumber}
-                      </p>
-                    </div>
-                    {selectedVehicle.location && (
-                      <div className="col-span-2">
-                        <p className="text-gray-600 mb-1">{t("vehicles.location")}</p>
-                        <p className="font-medium text-gray-800">
-                          {selectedVehicle.location}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Last Rider Info */}
-                {selectedVehicle.riderName &&
-                  selectedVehicle.riderName !== "N/A" &&
-                  selectedVehicle.riderName !== "Unknown" && (
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h3 className="font-bold text-blue-800 mb-3">
-                        {t("vehicles.lastRiderInfo")}
-                      </h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-blue-600 mb-1">{t("vehicles.riderName")}</p>
-                          <p className="font-medium text-gray-800">
-                            {selectedVehicle.riderName}
-                          </p>
-                        </div>
-                        {selectedVehicle.riderIqamaNo && (
-                          <div>
-                            <p className="text-blue-600 mb-1">{t("vehicles.iqamaNumber")}</p>
-                            <p className="font-medium text-gray-800">
-                              {selectedVehicle.riderIqamaNo}
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                    <User size={16} className="text-blue-500" />
+                    {t("vehicles.riderInfo")}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4 text-sm">
+                    <div>
+                      <p className="text-blue-600 mb-1">{t("vehicles.riderName")}</p>
+                      <p className="font-bold text-gray-900">{selectedVehicle.riderName}</p>
                     </div>
-                  )}
-
-                {/* Manufacturing Info */}
-                {selectedVehicle.manufacturer && (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-gray-800 mb-3">
-                      {t("vehicles.manufacturingInfo")}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600 mb-1">{t("vehicles.manufacturer")}</p>
-                        <p className="font-medium text-gray-800">
-                          {selectedVehicle.manufacturer}
-                        </p>
-                      </div>
-                      {selectedVehicle.manufactureYear && (
-                        <div>
-                          <p className="text-gray-600 mb-1">{t("vehicles.manufactureYear")}</p>
-                          <p className="font-medium text-gray-800">
-                            {selectedVehicle.manufactureYear}
-                          </p>
-                        </div>
-                      )}
+                    <div>
+                      <p className="text-blue-600 mb-1">{t("vehicles.iqamaNumber")}</p>
+                      <p className="font-medium text-gray-800">{selectedVehicle.riderIqamaNo}</p>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="mt-6 flex gap-3 justify-end">
-                <Button
-                  onClick={() => setShowDetailsModal(false)}
-                  variant="secondary"
-                >
-                  {t("common.close")}
-                </Button>
-                <Button onClick={() => handleFixRedirect(selectedVehicle)}>
-                  <Wrench size={18} className="ml-2" />
-                  {t("vehicles.goToFix")}
-                </Button>
-              </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    {t("vehicles.problemReason")} <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    required
+                    rows={4}
+                    placeholder={t("vehicles.describeProblemPlaceholder")}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4 border-t">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setShowReportModal(false)}
+                    disabled={loadingSubmit}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    loading={loadingSubmit}
+                    disabled={loadingSubmit}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <AlertTriangle size={18} className="ml-2" />
+                    {t("vehicles.submitReport")}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
