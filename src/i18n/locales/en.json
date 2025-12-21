@@ -974,6 +974,7 @@
     "disableInstructions4": "Submit request and wait for admin approval"
   },
   "riders": {
+    "target": "Target",
     "title": "Riders",
     "addRider": "Add Rider",
     "searchRider": "Search Rider",
@@ -1215,6 +1216,9 @@
     "employeePerHousing": "Employee per housing",
     "unit": "unit",
     "duplicateError": "This housing already exists"
+  },
+  "ridersPerformance": {
+    "performanceRate": "Performance Rate"
   },
   "shifts": {
     "title": "Shifts",

@@ -93,6 +93,14 @@ export default function RidersPage() {
       )
     },
     {
+      header: t('riders.target'),
+      accessor: 'target',
+    },
+    {
+      header: t('ridersPerformance.performanceRate'),
+      accessor: 'performanceRate',
+    },
+    {
       header: t('common.status'),
       accessor: 'status',
       render: (row) => <StatusBadge status={row.status} />

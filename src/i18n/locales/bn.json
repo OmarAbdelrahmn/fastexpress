@@ -953,6 +953,7 @@
     "disableInstructions4": "অনুরোধ পাঠান এবং অ্যাডমিনের অনুমোদনের জন্য অপেক্ষা করুন"
   },
   "riders": {
+    "target": "লক্ষ্য",
     "title": "রাইডার",
     "addRider": "রাইডার যোগ করুন",
     "searchRider": "রাইডার অনুসন্ধান",
@@ -1194,6 +1195,9 @@
     "employeePerHousing": "প্রতি হাউজিং কর্মচারী",
     "unit": "হাউজিং",
     "duplicateError": "এই হাউজিং ইতিমধ্যেই বিদ্যমান"
+  },
+  "ridersPerformance": {
+    "performanceRate": "পারফরম্যান্স রেট"
   },
   "shifts": {
     "title": "শিফট",

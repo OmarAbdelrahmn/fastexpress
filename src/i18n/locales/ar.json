@@ -976,6 +976,7 @@
     "disableInstructions4": "أرسل الطلب وانتظر موافقة المسؤول"
   },
   "riders": {
+    "target": "الهدف",
     "title1": "المناديب",
     "title": "المناديب",
     "addRider": "إضافة مندوب",
@@ -1218,6 +1219,9 @@
     "employeePerHousing": "موظف لكل سكن",
     "unit": "سكن",
     "duplicateError": "هذا السكن موجود بالفعل"
+  },
+  "ridersPerformance": {
+    "performanceRate": "معدل الأداء"
   },
   "shifts": {
     "title": "الورديات",
