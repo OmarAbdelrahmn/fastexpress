@@ -56,7 +56,7 @@ export default function SubstitutionsPage() {
 
   const updateStats = (data) => {
     const active = data.filter(s => s.isActive).length;
-    const inactive = data.filter(s => !s.isActive).length;
+    const inactive = data.length - active;
     setStats({ active, inactive, total: data.length });
   };
 
