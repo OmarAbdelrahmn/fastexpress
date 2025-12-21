@@ -32,6 +32,9 @@ export default function PendingVehicleRequestsPage() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [note, setNote] = useState('');
   const [showResolveModal, setShowResolveModal] = useState(false);
+  const [permission, setPermission] = useState('');
+  const [permissionEndDate, setPermissionEndDate] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     loadPendingRequests();
@@ -55,25 +58,72 @@ export default function PendingVehicleRequestsPage() {
     setResolving(true);
     setErrorMessage('');
     setSuccessMessage('');
+    setFieldErrors({});
+
+    const errors = {};
+    if (isApproved && request.operationType?.toLowerCase() === 'taken') {
+      if (!permission) {
+        errors.permission = t('vehicles.permissionRequired');
+      }
+      if (!permissionEndDate) {
+        errors.permissionEndDate = t('vehicles.permissionEndDateRequired');
+      } else {
+        const selectedDate = new Date(permissionEndDate);
+        const now = new Date();
+        selectedDate.setHours(23, 59, 59, 999);
+
+        if (selectedDate <= now) {
+          errors.permissionEndDate = t('vehicles.permissionDateFuture');
+        }
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setResolving(false);
+      return;
+    }
 
     try {
       const resolutionValue = isApproved ? "Approved" : "Rejected";
-      const requestBody = {
-        riderIqamaNo: parseInt(request?.riderIqamaNo),
-        Resolution: resolutionValue,
-        ResolvedBy: (request?.riderIqamaNo || "").toString(),   
-        Plate: request.vehiclePlateNumber
+
+      let permissionValue = "";
+      let permissionEndDateValue = null;
+
+      if (
+        isApproved &&
+        selectedRequest?.operationType?.toLowerCase() === 'taken'
+      ) {
+        permissionValue = permission;
+        permissionEndDateValue = new Date(
+          `${permissionEndDate}T23:59:59.999`
+        ).toISOString();
+      }
+
+      const payload = {
+        riderIqamaNo: Number(selectedRequest.riderIqamaNo),
+        resolution: resolutionValue,
+        resolvedBy: "Omar",
+        plate: selectedRequest?.vehiclePlateNumber,
+        note: note || "",
+        permission: isApproved ? permissionValue : null,
+        permissionEndDate: permissionEndDateValue ?? null
       };
 
-      const query = note ? `?note=${encodeURIComponent(note)}` : "";
+      await ApiService.put(`/api/temp/vehicle-resolve`, payload);
 
-      await ApiService.put(`/api/temp/vehicle-resolve${query}`, requestBody);
+      setSuccessMessage(
+        `${t('common.success')}: ${isApproved
+          ? t('vehicles.approveRequest')
+          : t('vehicles.rejectRequest')
+        }`
+      );
 
-      setSuccessMessage(`${t('common.success')}: ${isApproved ? t('vehicles.approveRequest') : t('vehicles.rejectRequest')}`);
       setShowResolveModal(false);
       setSelectedRequest(null);
       setNote('');
-
+      setPermission('');
+      setPermissionEndDate('');
       loadPendingRequests();
 
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -89,13 +139,16 @@ export default function PendingVehicleRequestsPage() {
   const openResolveModal = (request) => {
     setSelectedRequest(request);
     setNote('');
+    setPermission('');
+    setPermissionEndDate('');
+    setFieldErrors({});
     setShowResolveModal(true);
   };
 
   const getOperationTypeLabel = (type) => {
     switch (type?.toLowerCase()) {
       case 'taken': return t('vehicles.takeRequestLabel');
-      case 'return': return t('vehicles.returnRequestLabel');
+      case 'returned': return t('vehicles.returnRequestLabel');
       case 'problem': return t('vehicles.problemReportLabel');
       default: return type;
     }
@@ -104,7 +157,7 @@ export default function PendingVehicleRequestsPage() {
   const getOperationTypeColor = (type) => {
     switch (type?.toLowerCase()) {
       case 'taken': return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600', badge: 'bg-green-600' };
-      case 'return': return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', badge: 'bg-blue-600' };
+      case 'returned': return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', badge: 'bg-blue-600' };
       case 'problem': return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-600', badge: 'bg-orange-600' };
       default: return { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-600', badge: 'bg-gray-600' };
     }
@@ -113,7 +166,7 @@ export default function PendingVehicleRequestsPage() {
   const getOperationIcon = (type) => {
     switch (type?.toLowerCase()) {
       case 'taken': return Car;
-      case 'return': return RefreshCw;
+      case 'returned': return RefreshCw;
       case 'problem': return AlertTriangle;
       default: return Package;
     }
@@ -126,7 +179,7 @@ export default function PendingVehicleRequestsPage() {
   const stats = {
     total: pendingRequests.length,
     take: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'taken').length,
-    return: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'return').length,
+    return: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'returned').length,
     problem: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'problem').length,
   };
 
@@ -233,8 +286,8 @@ export default function PendingVehicleRequestsPage() {
               {t('vehicles.statusTaken')} ({stats.take})
             </button>
             <button
-              onClick={() => setFilterType('return')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'return'
+              onClick={() => setFilterType('returned')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'returned'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
@@ -312,6 +365,7 @@ export default function PendingVehicleRequestsPage() {
                         </div>
                       )}
 
+
                       <div className="flex items-center gap-2 text-gray-700">
                         <Clock size={14} />
                         <span className="text-gray-600">{t('common.date')}:</span>
@@ -347,61 +401,122 @@ export default function PendingVehicleRequestsPage() {
         </Card>
 
         {/* Resolve Modal */}
+        {/* Resolve Modal - Visual Overhaul */}
         {showResolveModal && selectedRequest && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">{t('vehicles.reviewRequestTitle')}</h2>
-                  <button
-                    onClick={() => {
-                      setShowResolveModal(false);
-                      setSelectedRequest(null);
-                      setNote('');
-                    }}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
 
-                <div className="space-y-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-gray-800 mb-3">{t('vehicles.requestDetails')}</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600 mb-1">{t('vehicles.operationType')}</p>
-                        <p className="font-medium text-gray-800">
-                          {getOperationTypeLabel(selectedRequest.operationType)}
-                        </p>
+              {/* Header */}
+              <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">{t('vehicles.reviewRequestTitle')}</h2>
+                  <p className="text-gray-500 text-sm mt-1">Review the details below and take action</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowResolveModal(false);
+                    setSelectedRequest(null);
+                    setNote('');
+                  }}
+                  className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all shadow-sm border border-gray-100"
+                >
+                  <XCircle size={24} />
+                </button>
+              </div>
+
+              <div className="p-8">
+                {/* Vehicle & Rider Info Block */}
+                <div className="flex gap-6 mb-8 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('vehicles.requestDetails')}</p>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
+                        <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">{formatPlateNumber(selectedRequest.vehiclePlateNumber)}</span>
                       </div>
-                      <div>
-                        <p className="text-gray-600 mb-1">{t('vehicles.plateNumber')}</p>
-                        <p className="font-medium text-gray-800">{formatPlateNumber(selectedRequest.vehiclePlateNumber)}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 mb-1">{t('vehicles.employeeIqama')}</p>
-                        <p className="font-medium text-gray-800">{selectedRequest.riderIqamaNo}</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t('vehicles.employeeIqama')}</span>
+                        <span className="font-bold text-gray-800 font-mono">{selectedRequest.riderIqamaNo}</span>
                       </div>
                       {selectedRequest.requestedBy && (
-                        <div>
-                          <p className="text-gray-600 mb-1">{t('vehicles.requesterLabel')}</p>
-                          <p className="font-medium text-gray-800">{selectedRequest.requestedBy}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">{t('vehicles.requester')}</span>
+                          <span className="font-bold text-gray-800 font-mono">{selectedRequest.requestedBy}</span>
                         </div>
                       )}
-                      {selectedRequest.reason && (
-                        <div className="col-span-2">
-                          <p className="text-gray-600 mb-1">{t('common.reason')}</p>
-                          <p className="font-medium text-gray-800">{selectedRequest.reason}</p>
-                        </div>
-                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t('vehicles.operationType')}</span>
+                        <span className={`font-semibold px-3 py-1 rounded-full text-xs ${getOperationTypeColor(selectedRequest.operationType).bg} ${getOperationTypeColor(selectedRequest.operationType).text}`}>
+                          {getOperationTypeLabel(selectedRequest.operationType)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
+                  {/* Vertical Separator */}
+                  <div className="w-px bg-gray-100"></div>
+
+                  <div className="flex-1 flex flex-col justify-center items-center text-center">
+                    {selectedRequest.reason ? (
+                      <>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('common.reason')}</p>
+                        <p className="text-gray-700 italic">"{selectedRequest.reason}"</p>
+                      </>
+                    ) : (
+                      <div className="text-gray-300 flex flex-col items-center justify-center h-full">
+                        <Package size={48} className="mb-2 opacity-20" />
+                        <span className="text-sm">No additional notes provided</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+
+                {/* Action Form */}
+                <div className="space-y-6">
+                  {selectedRequest.operationType?.toLowerCase() === 'taken' && (
+                    <div className="bg-purple-50/50 border border-purple-100 p-6 rounded-2xl">
+                      <h3 className="text-purple-800 font-bold mb-4 flex items-center gap-2">
+                        <CheckCircle size={18} /> {t('vehicles.approvalRequirements')}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
+                            {t('vehicles.permission')} <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={permission}
+                            onChange={(e) => {
+                              setPermission(e.target.value);
+                              if (fieldErrors.permission) setFieldErrors({ ...fieldErrors, permission: null });
+                            }}
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permission ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
+                            placeholder="e.g. Monthly Delivery Authorization"
+                          />
+                          {fieldErrors.permission && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permission}</p>}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
+                            {t('vehicles.permissionEndDate')} <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="date"
+                            value={permissionEndDate}
+                            onChange={(e) => {
+                              setPermissionEndDate(e.target.value);
+                              if (fieldErrors.permissionEndDate) setFieldErrors({ ...fieldErrors, permissionEndDate: null });
+                            }}
+                            className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permissionEndDate ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
+                          />
+                          {fieldErrors.permissionEndDate && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permissionEndDate}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                       {t('vehicles.notesOptional')}
                     </label>
                     <textarea
@@ -409,30 +524,32 @@ export default function PendingVehicleRequestsPage() {
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
                       placeholder={t('vehicles.notesPlaceholder')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all outline-none resize-none"
                     />
                   </div>
+                </div>
 
-                  <div className="flex gap-3 justify-end pt-4 border-t">
-                    <Button
-                      onClick={() => handleResolve(selectedRequest, false)}
-                      loading={resolving}
-                      disabled={resolving}
-                      variant="secondary"
-                      className="bg-red-50 text-red-600 hover:bg-red-100"
-                    >
-                      <XCircle size={18} className="ml-2" />
-                      {t('vehicles.rejectRequest')}
-                    </Button>
-                    <Button
-                      onClick={() => handleResolve(selectedRequest, true)}
-                      loading={resolving}
-                      disabled={resolving}
-                    >
-                      <CheckCircle size={18} className="ml-2" />
-                      {t('vehicles.approveRequest')}
-                    </Button>
-                  </div>
+                {/* Footer Actions */}
+                <div className="flex gap-4 justify-end pt-8 mt-4 border-t border-gray-100">
+                  <Button
+                    onClick={() => handleResolve(selectedRequest, false)}
+                    loading={resolving}
+                    disabled={resolving}
+                    variant="secondary"
+                    className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-transparent px-8 py-3 h-auto text-base rounded-xl"
+                  >
+                    <XCircle size={20} className="mr-2" />
+                    {t('vehicles.rejectRequest')}
+                  </Button>
+                  <Button
+                    onClick={() => handleResolve(selectedRequest, true)}
+                    loading={resolving}
+                    disabled={resolving}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 h-auto text-base rounded-xl shadow-lg shadow-purple-200"
+                  >
+                    <CheckCircle size={20} className="mr-2" />
+                    {t('vehicles.approveRequest')}
+                  </Button>
                 </div>
               </div>
             </div>

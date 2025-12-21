@@ -299,6 +299,7 @@
     "howToReturn": "لإرجاع مركبة: اختر \"طلب إرجاع مركبة\" وحدد المركبة التي تريد إرجاعها",
     "howToReport": "للإبلاغ عن مشكلة: اختر \"الإبلاغ عن مشكلة\" واكتب وصفاً تفصيلياً للمشكلة",
     "requestsReviewed": "سيتم مراجعة جميع الطلبات من قبل الإدارة قبل الموافقة عليها",
+    "approvalRequirements": "متطلبات الموافقة",
     "availableForPickup": "مركبات جاهزة للتسليم للاستلام",
     "vehiclesInService": "مركبات في الخدمة",
     "noUsedVehicles": "لا توجد مركبات مستخدمة حالياً",
@@ -516,6 +517,7 @@
     "problemReportLabel": "الإبلاغ عن مشكلة",
     "pending": "معلق",
     "requester": "المقدم",
+    "resolvedBy": "تم الحل بواسطة",
     "review": "مراجعة",
     "reviewRequestTitle": "مراجعة الطلب",
     "requestDetails": "تفاصيل الطلب",
@@ -579,7 +581,14 @@
     "statusTaken": "مستخدمة",
     "statusAvailable": "متاحة",
     "details": "التفاصيل",
-    "status": "الحالة"
+    "status": "الحالة",
+    "permission": "تصريح تم",
+    "permissionPlaceholder": "أدخل تصريح تم",
+    "permissionEndDate": "تاريخ انتهاء تصريح تم",
+    "enterPermission": "أدخل تصريح تم",
+    "permissionRequired": "تصريح تم مطلوب",
+    "permissionEndDateRequired": "تاريخ انتهاء تصريح تم مطلوب",
+    "permissionDateFuture": "يجب أن يكون تاريخ انتهاء تصريح تم في المستقبل"
   },
   "employees": {
     "title": "الموظفين",

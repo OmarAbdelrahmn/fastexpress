@@ -364,6 +364,19 @@ export default function TakenVehiclesPage() {
                           <strong>{t("vehicles.reason")}</strong> {selectedVehicle.reason}
                         </p>
                       )}
+
+                      {statusInt === VehicleStatusType.Taken && selectedVehicle.permission && (
+                        <div className="mt-3 pt-3 border-t border-blue-200">
+                          <p className="text-sm text-gray-700">
+                            <strong>{t("vehicles.permission")}:</strong> {selectedVehicle.permission}
+                          </p>
+                          {selectedVehicle.permissionEndDate && (
+                            <p className="text-sm text-gray-700 mt-1">
+                              <strong>{t("vehicles.permissionEndDate")}:</strong> {new Date(selectedVehicle.permissionEndDate).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}

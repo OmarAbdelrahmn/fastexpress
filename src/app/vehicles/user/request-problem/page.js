@@ -48,8 +48,8 @@ export default function RequestProblemPage() {
       const data = await ApiService.get(
         "/api/vehicles/taken?statusFilter=unavailable"
       );
-      if (data && Array.isArray(data.Vehicles)) {
-        setTakenVehicles(data.Vehicles);
+      if (data && Array.isArray(data.vehicles)) {
+        setTakenVehicles(data.vehicles);
       } else {
         setTakenVehicles([]);
       }

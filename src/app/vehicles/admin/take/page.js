@@ -33,6 +33,8 @@ export default function TakeVehiclePage() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [riderIqama, setRiderIqama] = useState("");
   const [reason, setReason] = useState("");
+  const [permission, setPermission] = useState("");
+  const [permissionEndDate, setPermissionEndDate] = useState("");
 
   useEffect(() => {
     loadAvailableVehicles();
@@ -101,16 +103,36 @@ export default function TakeVehiclePage() {
       return;
     }
 
+    if (!permission.trim()) {
+      setErrorMessage(t("vehicles.permissionRequired"));
+      return;
+    }
+
+    if (!permissionEndDate) {
+      setErrorMessage(t("vehicles.permissionEndDateRequired"));
+      return;
+    }
+
     setLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
     try {
-      await ApiService.post(
-        `/api/vehicles/take?iqamaNo=${riderIqama}&vehicleNumber=${encodeURIComponent(
-          selectedVehicle.plateNumberA
-        )}&reason=${encodeURIComponent(reason)}`
-      );
+      let finalPermissionEndDate = permissionEndDate;
+      // Ensure time component is added if it's just a date string from input[type=date]
+      if (finalPermissionEndDate.length === 10) { // YYYY-MM-DD
+        finalPermissionEndDate = `${finalPermissionEndDate}T23:59:59`;
+      }
+
+      const queryParams = new URLSearchParams({
+        iqamaNo: riderIqama,
+        vehicleNumber: selectedVehicle.plateNumberA,
+        reason: reason,
+        permission: permission,
+        permissionEndDate: finalPermissionEndDate
+      });
+
+      await ApiService.post(`/api/vehicles/take?${queryParams.toString()}`);
 
       setSuccessMessage(t("vehicles.takingRequestSent"));
       setTimeout(() => {
@@ -118,6 +140,8 @@ export default function TakeVehiclePage() {
         setSearchTerm("");
         setRiderIqama("");
         setReason("");
+        setPermission("");
+        setPermissionEndDate("");
         loadAvailableVehicles();
       }, 2000);
     } catch (err) {
@@ -341,13 +365,37 @@ export default function TakeVehiclePage() {
               </div>
 
               <Input
-                label={t("vehicles.riderIqama")}
-                type="number"
+                type="text"
                 value={riderIqama}
                 onChange={(e) => setRiderIqama(e.target.value)}
-                required
                 placeholder={t("employees.enterIqamaNumber")}
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("vehicles.permission")} <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="text"
+                    value={permission}
+                    onChange={(e) => setPermission(e.target.value)}
+                    required
+                    placeholder={t("vehicles.permissionPlaceholder") || "Authorization"}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t("vehicles.permissionEndDate")} <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="date"
+                    value={permissionEndDate}
+                    onChange={(e) => setPermissionEndDate(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -372,6 +420,8 @@ export default function TakeVehiclePage() {
                     setSearchTerm("");
                     setRiderIqama("");
                     setReason("");
+                    setPermission("");
+                    setPermissionEndDate("");
                   }}
                   disabled={loading}
                 >
@@ -391,93 +441,95 @@ export default function TakeVehiclePage() {
         </Card>
 
         {/* Available Vehicles Grid */}
-        <Card>
+        < Card >
           <h3 className="text-lg font-bold text-gray-800 mb-4">
             {t("vehicles.availableVehiclesList")}
           </h3>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
-              <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
-            </div>
-          ) : filteredVehicles.length === 0 ? (
-            <div className="text-center py-12">
-              <AlertTriangle
-                className="mx-auto text-orange-500 mb-4"
-                size={48}
-              />
-              <p className="text-gray-600">
-                {t("vehicles.noAvailableVehiclesText")}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredVehicles.map((vehicle) => (
-                <div
-                  key={vehicle.vehicleNumber}
-                  className="border-2 border-green-200 rounded-lg p-4 bg-green-50 hover:shadow-lg transition cursor-pointer"
-                  onClick={() => {
-                    setSelectedVehicle(vehicle);
-                    setSearchTerm(vehicle.plateNumberA);
-                  }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-green-100 p-2 rounded-lg">
-                        <Car className="text-green-600" size={20} />
+          {
+            loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+                <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
+              </div>
+            ) : filteredVehicles.length === 0 ? (
+              <div className="text-center py-12">
+                <AlertTriangle
+                  className="mx-auto text-orange-500 mb-4"
+                  size={48}
+                />
+                <p className="text-gray-600">
+                  {t("vehicles.noAvailableVehiclesText")}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredVehicles.map((vehicle) => (
+                  <div
+                    key={vehicle.vehicleNumber}
+                    className="border-2 border-green-200 rounded-lg p-4 bg-green-50 hover:shadow-lg transition cursor-pointer"
+                    onClick={() => {
+                      setSelectedVehicle(vehicle);
+                      setSearchTerm(vehicle.plateNumberA);
+                    }}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-green-100 p-2 rounded-lg">
+                          <Car className="text-green-600" size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-800">
+                            {formatPlateNumber(vehicle.plateNumberA)}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {vehicle.vehicleType}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800">
-                          {formatPlateNumber(vehicle.plateNumberA)}
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          {vehicle.vehicleType}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
-                      {t("vehicles.availableStatus")}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Package size={14} />
-                      <span className="text-gray-600">{t("vehicles.serialNumberLabel")}</span>
-                      <span className="font-medium">
-                        {vehicle.serialNumber}
+                      <span className="px-3 py-1 bg-green-600 text-white rounded-full text-xs font-medium">
+                        {t("vehicles.availableStatus")}
                       </span>
                     </div>
 
-                    {vehicle.location && (
+                    <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-700">
-                        <MapPin size={14} />
-                        <span className="text-gray-600">{t("vehicles.location")}:</span>
-                        <span className="font-medium">{vehicle.location}</span>
-                      </div>
-                    )}
-
-                    {vehicle.manufacturer && (
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Car size={14} />
+                        <Package size={14} />
+                        <span className="text-gray-600">{t("vehicles.serialNumberLabel")}</span>
                         <span className="font-medium">
-                          {vehicle.manufacturer}
+                          {vehicle.serialNumber}
                         </span>
-                        {vehicle.manufactureYear && (
-                          <span className="text-gray-600">
-                            ({vehicle.manufactureYear})
-                          </span>
-                        )}
                       </div>
-                    )}
+
+                      {vehicle.location && (
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <MapPin size={14} />
+                          <span className="text-gray-600">{t("vehicles.location")}:</span>
+                          <span className="font-medium">{vehicle.location}</span>
+                        </div>
+                      )}
+
+                      {vehicle.manufacturer && (
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Car size={14} />
+                          <span className="font-medium">
+                            {vehicle.manufacturer}
+                          </span>
+                          {vehicle.manufactureYear && (
+                            <span className="text-gray-600">
+                              ({vehicle.manufactureYear})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
-    </div>
+                ))}
+              </div>
+            )
+          }
+        </Card >
+      </div >
+    </div >
   );
 }

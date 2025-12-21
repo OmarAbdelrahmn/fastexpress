@@ -594,6 +594,25 @@ export default function VehicleHistory() {
                                   </p>
                                 </div>
                               )}
+
+                              {record.permission && (
+                                <div className="bg-white p-3 rounded-lg border-l-4 border-blue-400">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Shield size={14} className="text-blue-500" />
+                                    <span className="text-xs text-blue-500 font-semibold">
+                                      {t('vehicles.permission')}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {record.permission}
+                                  </p>
+                                  {record.permissionEndDate && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {t('vehicles.permissionEndDate')}: {new Date(record.permissionEndDate).toLocaleDateString()}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         );

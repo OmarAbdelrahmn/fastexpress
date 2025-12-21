@@ -42,8 +42,8 @@ export default function RequestReturnVehiclePage() {
       const data = await ApiService.get(
         "/api/vehicles/taken?statusFilter=unavailable"
       );
-      if (Array.isArray(data.Vehicles)) {
-        setTakenVehicles(data.Vehicles);
+      if (Array.isArray(data.vehicles)) {
+        setTakenVehicles(data.vehicles);
       } else {
         setTakenVehicles([]);
       }
@@ -69,7 +69,6 @@ export default function RequestReturnVehiclePage() {
       );
       if (data && data.currentRider) {
         setSelectedVehicle(data);
-        // Store the rider's iqama number as a string
         setEmployeeIqama(data.currentRider.employeeIqamaNo?.toString() || "");
         setErrorMessage("");
       } else {

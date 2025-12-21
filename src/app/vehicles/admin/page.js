@@ -33,6 +33,7 @@ export default function VehicleAdminDashboard() {
   const [vehicles, setVehicles] = useState([]);
   const [groupedData, setGroupedData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [supervisorRequestsCount, setSupervisorRequestsCount] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -41,13 +42,15 @@ export default function VehicleAdminDashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [vehiclesRes, groupedRes] = await Promise.all([
+      const [vehiclesRes, groupedRes, tempVehiclesRes] = await Promise.all([
         ApiService.get("/api/vehicles/with-riders"),
         ApiService.get("/api/vehicles/group-by-status"),
+        ApiService.get("/api/temp/vehicles"),
       ]);
 
       setVehicles(Array.isArray(vehiclesRes) ? vehiclesRes : []);
       setGroupedData(groupedRes);
+      setSupervisorRequestsCount(Array.isArray(tempVehiclesRes) ? tempVehiclesRes.length : 0);
     } catch (err) {
       console.error("Error loading data:", err);
       setErrorMessage(t("vehicles.loadingError"));
@@ -94,7 +97,7 @@ export default function VehicleAdminDashboard() {
       icon: Users,
       color: "blue",
       path: "/vehicles/admin/users-requests",
-      count: stats.takenCount,
+      count: supervisorRequestsCount,
     },
     {
       title: t("vehicles.reportProblem"),
@@ -102,7 +105,7 @@ export default function VehicleAdminDashboard() {
       icon: AlertTriangle,
       color: "red",
       path: "/vehicles/admin/problems",
-      count: null,
+      count: stats.problemCount,
     },
     {
       title: t("vehicles.stolenVehicles"),
@@ -142,7 +145,7 @@ export default function VehicleAdminDashboard() {
       icon: RefreshCw,
       color: "emerald",
       path: "/vehicles/admin/recover-stolen",
-      count: null,
+      count: stats.stolenCount,
     },
     {
       title: t("vehicles.takeVehicle"),
@@ -150,7 +153,7 @@ export default function VehicleAdminDashboard() {
       icon: Car,
       color: "green",
       path: "/vehicles/admin/take",
-      count: null,
+      count: stats.availableCount,
     },
     {
       title: t("vehicles.returnVehicle"),
@@ -158,7 +161,7 @@ export default function VehicleAdminDashboard() {
       icon: RefreshCw,
       color: "orange",
       path: "/vehicles/admin/return",
-      count: null,
+      count: stats.takenCount,
     },
     {
       title: t("vehicles.vehicleHistory"),

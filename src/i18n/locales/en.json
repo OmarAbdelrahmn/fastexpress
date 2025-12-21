@@ -298,6 +298,7 @@
     "howToReturn": "To return a vehicle: Choose \"Request Vehicle Return\" and select the vehicle to return",
     "howToReport": "To report a problem: Choose \"Report Problem\" and write a detailed description",
     "requestsReviewed": "All requests will be reviewed by management before approval",
+    "approvalRequirements": "Approval Requirements",
     "availableForPickup": "Vehicles available for pickup",
     "vehiclesInService": "Vehicles in service",
     "noUsedVehicles": "No vehicles currently in use",
@@ -515,6 +516,7 @@
     "problemReportLabel": "Problem Report",
     "pending": "Pending",
     "requester": "Requester",
+    "resolvedBy": "Resolved By",
     "review": "Review",
     "reviewRequestTitle": "Review Request",
     "requestDetails": "Request Details",
@@ -578,7 +580,13 @@
     "statusTaken": "Taken",
     "statusAvailable": "Available",
     "details": "Details",
-    "status": "Status"
+    "status": "Status",
+    "permission": "Permission",
+    "permissionEndDate": "Permission End Date",
+    "enterPermission": "Enter Permission",
+    "permissionRequired": "Permission is required",
+    "permissionEndDateRequired": "Permission End Date is required",
+    "permissionDateFuture": "Permission End Date must be in the future"
   },
   "employees": {
     "currentMonth": "Current Month",
