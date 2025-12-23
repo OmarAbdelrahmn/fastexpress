@@ -27,7 +27,7 @@ export const navigationConfig = {
     title: "navigation.riders",
     icon: "👥",
     routes: [
-      { path: "riders", label: "navigation.allRiders" },
+      { path: "riders", label: "navigation.manageRiders" },
       { path: "riders/create", label: "navigation.createRider" },
       { path: "riders/search", label: "navigation.searchRiders" }
     ],

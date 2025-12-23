@@ -571,7 +571,7 @@ export default function EnhancedDashboard() {
             subtitle={t("dashboard.previousDayTotalOrdersSubtitle")}
             icon={Package}
             color={COLORS.black}
-            link="/orders/"
+            link="/reports/dashboard"
             background="bg-gray-300"
           />
           <StatCard

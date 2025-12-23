@@ -12,6 +12,7 @@ import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, Building, Package, Filter } from 'lucide-react';
+import MiniStatRow from '@/components/Ui/MiniStatRow';
 
 export default function RidersPage() {
   const router = useRouter();
@@ -245,74 +246,89 @@ export default function RidersPage() {
           onClose={() => setErrorMessage('')}
         />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <button
-            onClick={() => router.push('/riders/search')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Search className="text-blue-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('riders.smartSearch')}</h3>
-                <p className="text-sm text-gray-600">{t('riders.searchByAnyInfo')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Management Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('riders.management')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Plus}
+              title={t('riders.addNewRider')}
+              description={t('riders.createNewProfile')}
+              onClick={() => router.push('/riders/create')}
+              color="#16a34a" // green-600
+              bgClass="bg-green-50"
+            />
+            <MiniStatRow
+              icon={Edit}
+              title={t('riders.editRider')}
+              description={t('riders.modifyExistingProfile')}
+              onClick={() => router.push('/riders/search?action=edit')} // Placeholder route logic
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+            />
+            <MiniStatRow
+              icon={Trash2}
+              title={t('riders.deleteRider')}
+              description={t('riders.removeProfile')}
+              onClick={() => router.push('/riders/search?action=delete')} // Placeholder route logic
+              color="#dc2626" // red-600
+              bgClass="bg-red-50"
+            />
+            <MiniStatRow
+              icon={Package}
+              title={t('riders.changeWorkingId')}
+              description={t('riders.updateWorkingId')}
+              onClick={() => router.push('/riders/change-working-id')}
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
+            />
+          </div>
+        </div>
 
-        <Card>
-          <button
-            onClick={() => router.push('/riders/filter')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Filter className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('riders.advancedSearch')}</h3>
-                <p className="text-sm text-gray-600">{t('riders.multiFilter')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+        {/* Search Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('riders.searchTools')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Search}
+              title={t('riders.smartSearch')}
+              description={t('riders.searchByAnyInfo')}
+              onClick={() => router.push('/riders/search')}
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+            />
+            <MiniStatRow
+              icon={Filter}
+              title={t('riders.advancedSearch')}
+              description={t('riders.multiFilter')}
+              onClick={() => router.push('/riders/filter')}
+              color="#9333ea" // purple-600
+              bgClass="bg-purple-50"
+            />
+          </div>
+        </div>
 
-        <Card>
-          <button
-            onClick={() => router.push('/riders/change-working-id')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <Package className="text-orange-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('riders.changeWorkingId')}</h3>
-                <p className="text-sm text-gray-600">{t('riders.updateWorkingId')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/riders/add-to-employee')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Plus className="text-green-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('riders.addToEmployee')}</h3>
-                <p className="text-sm text-gray-600">{t('riders.convertEmployeeToRider')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+        {/* Others Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('common.others')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={UserCheck}
+              title={t('riders.addToEmployee')}
+              description={t('riders.convertEmployeeToRider')}
+              onClick={() => router.push('/riders/add-to-employee')}
+              color="#0d9488" // teal-600
+              bgClass="bg-teal-50"
+            />
+          </div>
+        </div>
       </div>
       <Card>
         <div className="space-y-4">
