@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
+import MiniStatRow from "@/components/Ui/MiniStatRow";
 import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import PageHeader from "@/components/layout/pageheader";
@@ -74,164 +75,7 @@ export default function VehicleAdminDashboard() {
       ? ((stats.takenCount / totalVehicles) * 100).toFixed(1)
       : 0;
 
-  const quickActions = [
-    {
-      title: t("vehicles.allVehicles"),
-      description: t("vehicles.allVehiclesDesc"),
-      icon: Users,
-      color: "purple",
-      path: "/vehicles/admin/with-riders",
-      count: totalVehicles,
-    },
-    {
-      title: t("vehicles.manageVehicles"),
-      description: t("vehicles.manageVehiclesDesc"),
-      icon: Car,
-      color: "blue",
-      path: "/vehicles/admin/manage",
-      count: totalVehicles,
-    },
-    {
-      title: t("vehicles.supervisorRequests"),
-      description: t("vehicles.supervisorRequestsDesc"),
-      icon: Users,
-      color: "blue",
-      path: "/vehicles/admin/users-requests",
-      count: supervisorRequestsCount,
-    },
-    {
-      title: t("vehicles.reportProblem"),
-      description: t("vehicles.reportProblemDesc"),
-      icon: AlertTriangle,
-      color: "red",
-      path: "/vehicles/admin/problems",
-      count: stats.problemCount,
-    },
-    {
-      title: t("vehicles.stolenVehicles"),
-      description: t("vehicles.reportedStolen"),
-      icon: Shield,
-      color: "red",
-      path: "/vehicles/admin/stolen",
-      count: stats.stolenCount,
-    },
-    {
-      title: t("vehicles.outOfService"),
-      description: t("vehicles.unusable"),
-      icon: PackageX,
-      color: "gray",
-      path: "/vehicles/admin/breakup",
-      count: stats.breakUpCount,
-    },
-    {
-      title: t("vehicles.changeLocation"),
-      description: t("vehicles.updateLocations"),
-      icon: MapPin,
-      color: "teal",
-      path: "/vehicles/admin/change-location",
-      count: null,
-    },
-    {
-      title: t("vehicles.fixProblems"),
-      description: t("vehicles.solveProblems"),
-      icon: Wrench,
-      color: "orange",
-      path: "/vehicles/admin/fix-problems",
-      count: stats.problemCount,
-    },
-    {
-      title: t("vehicles.recoverStolen"),
-      description: t("vehicles.recoverStolenVehicles"),
-      icon: RefreshCw,
-      color: "emerald",
-      path: "/vehicles/admin/recover-stolen",
-      count: stats.stolenCount,
-    },
-    {
-      title: t("vehicles.takeVehicle"),
-      description: t("vehicles.registerTakeVehicle"),
-      icon: Car,
-      color: "green",
-      path: "/vehicles/admin/take",
-      count: stats.availableCount,
-    },
-    {
-      title: t("vehicles.returnVehicle"),
-      description: t("vehicles.registerReturnVehicle"),
-      icon: RefreshCw,
-      color: "orange",
-      path: "/vehicles/admin/return",
-      count: stats.takenCount,
-    },
-    {
-      title: t("vehicles.vehicleHistory"),
-      description: t("vehicles.vehicleRecords"),
-      icon: FileText,
-      color: "indigo",
-      path: "/vehicles/admin/history",
-      count: null,
-    },
-  ];
-
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: {
-        bg: "bg-gray-500",
-        light: "bg-blue-50",
-        text: "text-blue-600",
-        border: "border-blue-200",
-      },
-      green: {
-        bg: "bg-gray-500",
-        light: "bg-green-50",
-        text: "text-green-600",
-        border: "border-green-200",
-      },
-      orange: {
-        bg: "bg-gray-500",
-        light: "bg-orange-50",
-        text: "text-orange-600",
-        border: "border-orange-200",
-      },
-      red: {
-        bg: "bg-gray-500",
-        light: "bg-red-50",
-        text: "text-red-600",
-        border: "border-red-200",
-      },
-      gray: {
-        bg: "bg-gray-500",
-        light: "bg-gray-50",
-        text: "text-gray-600",
-        border: "border-gray-200",
-      },
-      teal: {
-        bg: "bg-gray-500",
-        light: "bg-teal-50",
-        text: "text-teal-600",
-        border: "border-teal-200",
-      },
-      indigo: {
-        bg: "bg-gray-500",
-        light: "bg-indigo-50",
-        text: "text-indigo-600",
-        border: "border-indigo-200",
-      },
-      emerald: {
-        bg: "bg-gray-500",
-        light: "bg-emerald-50",
-        text: "text-emerald-600",
-        border: "border-emerald-200",
-      },
-      purple: {
-        bg: "bg-gray-500",
-        light: "bg-purple-50",
-        text: "text-purple-600",
-        border: "border-purple-200",
-      },
-    };
-    return colors[color] || colors.blue;
-  };
+  const othervehicles = totalVehicles - (stats.availableCount + stats.takenCount)
 
   return (
     <div className="space-y-6">
@@ -366,49 +210,160 @@ export default function VehicleAdminDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions Grid */}
-      <Card>
-        <h2 className="text-xl font-bold text-gray-800 mb-6">
-          {t("vehicles.quickActions")}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-            const colors = getColorClasses(action.color);
-
-            return (
-              <Link key={action.path} href={action.path}>
-                <div
-                  className={`border ${colors.border} rounded-xl p-5 hover:shadow-lg transition cursor-pointer bg-white`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`${colors.light} p-3 rounded-lg`}>
-                      <Icon className={colors.text} size={24} />
-                    </div>
-                    {action.count !== null && (
-                      <span
-                        className={`px-3 py-1 ${colors.light} ${colors.text} rounded-full text-sm font-bold`}
-                      >
-                        {action.count}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-bold text-gray-800 mb-2">
-                    {action.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {action.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-blue-600">
-                    <span>{t("vehicles.goTo")}</span>
-                    <ArrowRight size={16} />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 1. Search & Reports */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
+            {t('employees.excelColumns.searchAndReports')}
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            <MiniStatRow
+              icon={Users}
+              title={t('vehicles.allVehicles')}
+              description={t('vehicles.allVehiclesDesc')}
+              onClick={() => router.push('/vehicles/admin/with-riders')}
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={FileText}
+              title={t('vehicles.vehicleHistory')}
+              description={t('vehicles.vehicleRecords')}
+              onClick={() => router.push('/vehicles/admin/history')}
+              color="#4f46e5" // indigo-600
+              bgClass="bg-indigo-50"
+              className="!p-2"
+            />
+          </div>
         </div>
-      </Card>
+
+        {/* 2. Operations (Take/Return) */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
+            {t('employees.excelColumns.management')}
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            <MiniStatRow
+              icon={Car}
+              title={t('vehicles.takeVehicle')}
+              description={t('vehicles.registerTakeVehicle')}
+              onClick={() => router.push('/vehicles/admin/take')}
+              color="#16a34a" // green-600
+              bgClass="bg-green-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={RefreshCw}
+              title={t('vehicles.returnVehicle')}
+              description={t('vehicles.registerReturnVehicle')}
+              onClick={() => router.push('/vehicles/admin/return')}
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
+
+        {/* 3. Management (Manage, Location, Requests) */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
+            {t('vehicles.manageVehicles')}
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            <MiniStatRow
+              icon={Car}
+              title={t('vehicles.manageVehicles')}
+              description={t('vehicles.manageVehiclesDesc')}
+              onClick={() => router.push('/vehicles/admin/manage')}
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={MapPin}
+              title={t('vehicles.changeLocation')}
+              description={t('vehicles.updateLocations')}
+              onClick={() => router.push('/vehicles/admin/change-location')}
+              color="#0d9488" // teal-600
+              bgClass="bg-teal-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={Users}
+              title={t('vehicles.supervisorRequests')}
+              description={t('vehicles.supervisorRequestsDesc')}
+              onClick={() => router.push('/vehicles/admin/users-requests')}
+              color="#ca8a04" // yellow-600
+              bgClass="bg-yellow-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
+
+        {/* 4. Problems */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
+            {t('vehicles.problems')}
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            <MiniStatRow
+              icon={AlertTriangle}
+              title={t('vehicles.reportProblem')}
+              description={t('vehicles.reportProblemDesc')}
+              onClick={() => router.push('/vehicles/admin/problems')}
+              color="#dc2626" // red-600
+              bgClass="bg-red-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={Wrench}
+              title={t('vehicles.fixProblems')}
+              description={t('vehicles.solveProblems')}
+              onClick={() => router.push('/vehicles/admin/fix-problems')}
+              color="#9333ea" // purple-600
+              bgClass="bg-purple-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
+
+        {/* 5. Critical Status (Stolen, Breakup) */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
+            {t('common.others')}
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            <MiniStatRow
+              icon={Shield}
+              title={t('vehicles.stolenVehicles')}
+              description={t('vehicles.reportedStolen')}
+              onClick={() => router.push('/vehicles/admin/stolen')}
+              color="#dc2626" // red-600
+              bgClass="bg-red-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={RefreshCw}
+              title={t('vehicles.recoverStolen')}
+              description={t('vehicles.recoverStolenVehicles')}
+              onClick={() => router.push('/vehicles/admin/recover-stolen')}
+              color="#059669" // emerald-600
+              bgClass="bg-emerald-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={PackageX}
+              title={t('vehicles.outOfService')}
+              description={t('vehicles.unusable')}
+              onClick={() => router.push('/vehicles/admin/breakup')}
+              color="#4b5563" // gray-600
+              bgClass="bg-gray-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Recent Activity */}
       {loading ? (
@@ -465,14 +420,14 @@ export default function VehicleAdminDashboard() {
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600">{t("vehicles.problems")}</span>
                     <span className="font-medium">
-                      {((stats.problemCount / totalVehicles) * 100).toFixed(1)}%
+                      {((othervehicles / totalVehicles) * 100).toFixed(1)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-orange-500 h-2 rounded-full transition-all"
                       style={{
-                        width: `${(stats.problemCount / totalVehicles) * 100}%`,
+                        width: `${(othervehicles / totalVehicles) * 100}%`,
                       }}
                     ></div>
                   </div>

@@ -93,14 +93,7 @@ export default function RidersPage() {
         <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
       )
     },
-    {
-      header: t('riders.target'),
-      accessor: 'target',
-    },
-    {
-      header: t('ridersPerformance.performanceRate'),
-      accessor: 'performanceRate',
-    },
+
     {
       header: t('common.status'),
       accessor: 'status',

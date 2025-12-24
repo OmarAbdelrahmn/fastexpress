@@ -14,8 +14,9 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import {
   Plus, Search, Edit, Trash2, Eye, Users,
   FileSpreadsheet, Filter, AlertCircle, UserCheck,
-  Clock, Archive, BarChart3, Calendar, History
+  Clock, Archive, BarChart3, Calendar, History, Package
 } from 'lucide-react';
+import MiniStatRow from '@/components/Ui/MiniStatRow';
 
 export default function EmployeeAdminPage() {
   const router = useRouter();
@@ -178,160 +179,115 @@ export default function EmployeeAdminPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/create')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Plus className="text-green-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.addEmployee')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.newEmployee')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Management Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('employees.excelColumns.management')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Plus}
+              title={t('employees.addEmployee')}
+              description={t('employees.newEmployee')}
+              onClick={() => router.push('/employees/admin/create')}
+              color="#16a34a" // green-600
+              bgClass="bg-green-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={AlertCircle}
+              title={t('employees.statusRequests')}
+              description={t('employees.enableDisable')}
+              onClick={() => router.push('/employees/admin/status-requests')}
+              color="#ca8a04" // yellow-600
+              bgClass="bg-yellow-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={FileSpreadsheet}
+              title={t('employees.importExcel')}
+              description={t('employees.uploadFile')}
+              onClick={() => router.push('/employees/admin/import-excel')}
+              color="#1a3b26ff" // green-600
+              bgClass="bg-gray-100"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={Clock}
+              title={t('employees.tempData')}
+              description={t('employees.reviewUpdates')}
+              onClick={() => router.push('/employees/admin/temp-imports')}
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
 
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/search')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Search className="text-blue-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.smartSearch')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.advancedSearch')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+        {/* Search & Reports Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('employees.excelColumns.searchAndReports')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Search}
+              title={t('employees.smartSearch')}
+              description={t('employees.advancedSearch')}
+              onClick={() => router.push('/employees/admin/search')}
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+              className="!p-2"
+            />
+           <MiniStatRow
+              icon={BarChart3}
+              title={t('employees.statistics')}
+              description={t('employees.dataDashboard')}
+              onClick={() => router.push('/employees/admin/statistics')}
+              color="#2a86a1ff" // indigo-600
+              bgClass="bg-gray-100"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={Filter}
+              title={t('employees.advancedSearch')}
+              description={t('employees.multiFilter')}
+              onClick={() => router.push('/employees/admin/filter')}
+              color="#9333ea" // purple-600
+              bgClass="bg-purple-50"
+              className="!p-2"
+            />
+            <MiniStatRow
+              icon={Calendar}
+              title={t('employees.timeRecord')}
+              description={t('employees.byDate')}
+              onClick={() => router.push('/employees/admin/date-range')}
+              color="#0891b2" // cyan-600
+              bgClass="bg-cyan-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
 
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/filter')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Filter className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.advancedSearch')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.multiFilter')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/statistics')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-indigo-100 p-3 rounded-lg">
-                <BarChart3 className="text-indigo-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.statistics')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.dataDashboard')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/date-range')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-cyan-100 p-3 rounded-lg">
-                <Calendar className="text-cyan-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.timeRecord')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.byDate')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/import-excel')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <FileSpreadsheet className="text-green-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.importExcel')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.uploadFile')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/temp-imports')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <Clock className="text-orange-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.tempData')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.reviewUpdates')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/status-requests')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-yellow-100 p-3 rounded-lg">
-                <AlertCircle className="text-yellow-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.statusRequests')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.enableDisable')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
-
-        <Card>
-          <button
-            onClick={() => router.push('/employees/admin/deleted')}
-            className="w-full p-4 text-right hover:bg-gray-50 rounded-lg transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-red-100 p-3 rounded-lg">
-                <Archive className="text-red-600" size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800">{t('employees.deletedEmployees')}</h3>
-                <p className="text-sm text-gray-600">{t('employees.archive')}</p>
-              </div>
-            </div>
-          </button>
-        </Card>
+        {/* Others Card */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('common.others')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Archive}
+              title={t('employees.deletedEmployees')}
+              description={t('employees.archive')}
+              onClick={() => router.push('/employees/admin/deleted')}
+              color="#dc2626" // red-600
+              bgClass="bg-red-50"
+              className="!p-2"
+            />
+          </div>
+        </div>
       </div>
 
       {successMessage && (

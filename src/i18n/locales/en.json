@@ -603,7 +603,9 @@
       "birthDate": "Date of Birth",
       "status": "Status",
       "iban": "IBAN",
-      "outsideKingdom": "Outside Kingdom"
+      "outsideKingdom": "Outside Kingdom",
+      "management": "Management",
+      "searchAndReports": "Search & Reports"
     },
     "addEmployee": "Add Employee",
     "searchEmployee": "Search Employee",

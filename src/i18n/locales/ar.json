@@ -606,7 +606,9 @@
       "birthDate": "تاريخ الميلاد",
       "status": "الحالة",
       "iban": "IBAN",
-      "outsideKingdom": "خارج المملكه"
+      "outsideKingdom": "خارج المملكه",
+      "management": "الإدارة",
+      "searchAndReports": "البحث والتقارير"
     },
     "searchEmployee": "البحث عن موظف",
     "allEmployees": "جميع الموظفين",
