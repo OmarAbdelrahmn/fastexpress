@@ -96,7 +96,7 @@ export default function HousingDashboardPage() {
               <p className="text-blue-100 text-sm mb-1">{t("housing.totalHousing")}</p>
               <p className="text-4xl font-bold">{totalHousings}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className=" bg-opacity-20 p-3 rounded-lg">
               <Building2 size={32} />
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function HousingDashboardPage() {
               <p className="text-green-100 text-sm mb-1">{t("housing.totalCapacity")}</p>
               <p className="text-4xl font-bold">{totalCapacity}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <Users size={32} />
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function HousingDashboardPage() {
               <p className="text-orange-100 text-sm mb-1">{t("housing.totalEmployees")}</p>
               <p className="text-4xl font-bold">{totalEmployees}</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <UserCheck size={32} />
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function HousingDashboardPage() {
               <p className="text-purple-100 text-sm mb-1">{t("housing.occupancyRate")}</p>
               <p className="text-4xl font-bold">{occupancyRate}%</p>
             </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+            <div className="bg-opacity-20 p-3 rounded-lg">
               <Percent size={32} />
             </div>
           </div>
