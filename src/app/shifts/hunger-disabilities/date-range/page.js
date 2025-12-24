@@ -63,6 +63,46 @@ export default function DateRangePage() {
         XLSX.writeFile(workbook, `Hunger_Report_${startDate}_${endDate}.xlsx`);
     };
 
+    const handleKamalExport = () => {
+        if (!data || data.length === 0) return;
+
+        const columns = getHungerReportColumns(t);
+        // Map data to headers
+        const exportData = data.map(item => {
+            const row = {};
+            columns.forEach(col => {
+                // Skip substitution columns for Kamal Export
+                if (col.accessor === 'substituteWorkingId' || col.accessor === 'substituteRiderNameAR') {
+                    return;
+                }
+
+                let cellValue = item[col.accessor];
+
+                // Kamal Logic: Override main fields if substitute exists
+                if (col.accessor === 'actualRiderNameAR' && item.substituteRiderNameAR) {
+                    cellValue = item.substituteRiderNameAR;
+                }
+                if (col.accessor === 'actualWorkingId' && item.substituteWorkingId) {
+                    cellValue = item.substituteWorkingId;
+                }
+
+                if (col.accessor === 'performancePercentage' || col.accessor === 'performanceStatus') {
+                    // Skip complex components or handle text
+                    row[col.header] = cellValue;
+                } else if (col.accessor) {
+                    row[col.header] = cellValue;
+                }
+            });
+
+            return row;
+        });
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Kamal Report');
+        XLSX.writeFile(workbook, `Kamal_Report_${startDate}_${endDate}.xlsx`);
+    };
+
     const columns = getHungerReportColumns(t);
 
     return (
@@ -105,14 +145,24 @@ export default function DateRangePage() {
                             </Button>
 
                             {data.length > 0 && (
-                                <Button
-                                    onClick={handleExport}
-                                    variant="outline"
-                                    className="flex items-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
-                                >
-                                    <FileSpreadsheet size={18} />
-                                    {t('hungerDisabilities.exportToExcel')}
-                                </Button>
+                                <>
+                                    <Button
+                                        onClick={handleExport}
+                                        variant="outline"
+                                        className="flex items-center gap-2 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300"
+                                    >
+                                        <FileSpreadsheet size={18} />
+                                        {t('hungerDisabilities.exportToExcel')}
+                                    </Button>
+                                    <Button
+                                        onClick={handleKamalExport}
+                                        variant="outline"
+                                        className="flex items-center gap-2 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300"
+                                    >
+                                        <FileSpreadsheet size={18} />
+                                        Kamal Export
+                                    </Button>
+                                </>
                             )}
                         </div>
                     </div>

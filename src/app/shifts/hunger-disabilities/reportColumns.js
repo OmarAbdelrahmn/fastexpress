@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 export const getHungerReportColumns = (t) => [
     { header: t('hungerDisabilities.workingId'), accessor: 'actualWorkingId' },
     { header: t('hungerDisabilities.riderName'), accessor: 'actualRiderNameAR' },
-    { header: t('hungerDisabilities.company'), accessor: 'housingName' },
+    { header: t('hungerDisabilities.housingName'), accessor: 'housingName' },
     { header: t('hungerDisabilities.recordsCount'), accessor: 'totalDays' },
     { header: t('companies.ordersCount'), accessor: 'totalOrders' },
     { header: t('riders.target'), accessor: 'target' },
