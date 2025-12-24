@@ -11,6 +11,7 @@ export const navigationConfig = {
     routes: [
       { path: "/reports", label: "navigation.reportsCenter" },
       { path: "/reports/dashboard", label: "navigation.mainReport" },
+      { path: "/reports/dailyreports", label: "navigation.dailyReports" },
     ],
   },
 
