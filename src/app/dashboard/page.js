@@ -265,13 +265,15 @@ export default function EnhancedDashboard() {
         ? pendingRequestsRes.data.length
         : 0;
 
-      const today = new Date().toISOString().split("T")[0];
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      const yesterday = date.toISOString().split("T")[0];
 
       let todayShiftsCount = 0;
       let activeShiftsCount = 0;
       try {
         const shiftsRes = await get(
-          `${API_ENDPOINTS.SHIFT.BY_DATE}?shiftDate=${today}`
+          `${API_ENDPOINTS.SHIFT.BY_DATE}?shiftDate=${yesterday}`
         );
         const todayShifts = shiftsRes.data || [];
         todayShiftsCount = todayShifts.length;
@@ -539,7 +541,7 @@ export default function EnhancedDashboard() {
             background="bg-blue-200"
           />
           <StatCard
-            title={t("dashboard.todayShifts")}
+            title={t("dashboard.yesterdayShifts")}
             value={stats.activeShifts}
             subtitle={t("dashboard.shiftsSchedule")}
             icon={Calendar}
