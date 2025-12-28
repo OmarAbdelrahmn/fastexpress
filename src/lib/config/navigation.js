@@ -1,5 +1,5 @@
-// Member Navigation Configuration
-export const memberNavigationConfig = {
+// User Navigation Configuration (formerly Member)
+export const userNavigationConfig = {
   dashboard: {
     title: "navigation.dashboard",
     icon: "🏠",
@@ -45,62 +45,62 @@ export const memberNavigationConfig = {
     icon: "📊",
     path: "/member/reports",
   },
+  employees: {
+    title: "navigation.employees",
+    icon: "👔",
+    path: "/member/employees",
+  },
 };
 
-export const navigationConfig = {
+// Admin Navigation Configuration
+export const adminNavigationConfig = {
   dashboard: {
     title: "navigation.dashboard",
     icon: "🏠",
-    path: "/dashboard",
+    path: "/admin",
   },
 
   reports: {
     title: "navigation.reports",
     icon: "📊",
     routes: [
-      { path: "/reports", label: "navigation.reportsCenter" },
-      { path: "/reports/dashboard", label: "navigation.mainReport" },
-      { path: "/reports/dailyreports", label: "navigation.dailyReports" },
+      { path: "/admin/reports", label: "navigation.reportsCenter" },
+      { path: "/admin/reports/dashboard", label: "navigation.mainReport" },
+      { path: "/admin/reports/dailyreports", label: "navigation.dailyReports" },
     ],
   },
 
   vehicles: {
     title: "navigation.vehicles",
     icon: "🚗",
-    routes: [
-      { path: "vehicles/admin", label: "navigation.adminOperations" },
-      { path: "vehicles/user", label: "navigation.supervisorOperations" },
-    ],
+    path: "/admin/vehicles",
   },
 
   riders: {
     title: "navigation.riders",
     icon: "👥",
     routes: [
-      { path: "riders", label: "navigation.manageRiders" },
-      { path: "riders/create", label: "navigation.createRider" },
-      { path: "riders/search", label: "navigation.searchRiders" }
+      { path: "/admin/riders", label: "navigation.manageRiders" },
+      { path: "/admin/riders/create", label: "navigation.createRider" },
+      { path: "/admin/riders/search", label: "navigation.searchRiders" }
     ],
   },
 
   employees: {
     title: "navigation.employees",
     icon: "👔",
-    routes: [
-      { path: "employees/admin", label: "navigation.employeesAdmin" },
-      { path: "employees/user", label: "navigation.employeesSupervisor" },
-    ],
+    path: "/admin/employees",
   },
 
   housing: {
     title: "navigation.housing",
     icon: "🏘️",
     routes: [
-      { path: "housing", label: "navigation.allHousing" },
-      { path: "housing/create", label: "navigation.createHousing" },
-      { path: "housing/manage", label: "navigation.manageHousing" },
-      { path: "housing/add-employee", label: "navigation.addEmployeeToHousing" },
-      { path: "housing/move-employee", label: "navigation.moveEmployee" },
+      { path: "/admin/housing", label: "navigation.allHousing" },
+      { path: "/admin/housing/create", label: "navigation.createHousing" },
+      { path: "/admin/housing/manage", label: "navigation.manageHousing" },
+      { path: "/admin/housing/add-employee", label: "navigation.addEmployeeToHousing" },
+      { path: "/admin/housing/move-employee", label: "navigation.moveEmployee" },
     ],
   },
 
@@ -108,10 +108,10 @@ export const navigationConfig = {
     title: "navigation.shifts",
     icon: "📅",
     routes: [
-      { path: "shifts", label: "navigation.manageShifts" },
-      { path: "shifts/comparisons", label: "navigation.comparisons" },
-      { path: "shifts/date-range", label: "navigation.shiftsInPeriod" },
-      { path: "shifts/hunger-disabilities", label: "navigation.hungerDeficit" },
+      { path: "/admin/shifts", label: "navigation.manageShifts" },
+      { path: "/admin/shifts/comparisons", label: "navigation.comparisons" },
+      { path: "/admin/shifts/date-range", label: "navigation.shiftsInPeriod" },
+      { path: "/admin/shifts/hunger-disabilities", label: "navigation.hungerDeficit" },
 
     ],
 
@@ -121,9 +121,9 @@ export const navigationConfig = {
     title: "navigation.substitution",
     icon: "🔄",
     routes: [
-      { path: "substitution", label: "navigation.allSubstitutes" },
-      { path: "substitution/new", label: "navigation.addSubstitution" },
-      { path: "substitution/history", label: "navigation.substituteHistory" },
+      { path: "/admin/substitution", label: "navigation.allSubstitutes" },
+      { path: "/admin/substitution/new", label: "navigation.addSubstitution" },
+      { path: "/admin/substitution/history", label: "navigation.substituteHistory" },
     ],
   },
 
@@ -131,8 +131,8 @@ export const navigationConfig = {
     title: "navigation.companies",
     icon: "🏢",
     routes: [
-      { path: "companies", label: "navigation.allCompanies" },
-      { path: "companies/create", label: "navigation.createCompany" },
+      { path: "/admin/companies", label: "navigation.allCompanies" },
+      { path: "/admin/companies/create", label: "navigation.createCompany" },
     ],
   },
 
@@ -140,11 +140,11 @@ export const navigationConfig = {
     title: "navigation.admin",
     icon: "👨‍✈️",
     routes: [
-      { path: "register", label: "navigation.addNewSupervisor" },
-      { path: "register/admin", label: "navigation.addNewAdmin" },
-      { path: "register/master", label: "navigation.addNewManager" },
-      { path: "admin/users", label: "navigation.userManagement" },
-      { path: "admin/system-health", label: "navigation.systemHealth" },
+      { path: "/admin/register", label: "navigation.addNewSupervisor" },
+      { path: "/admin/register/admin", label: "navigation.addNewAdmin" },
+      { path: "/admin/register/master", label: "navigation.addNewManager" },
+      { path: "/admin/users-management", label: "navigation.userManagement" },
+      { path: "/admin/system-health", label: "navigation.systemHealth" },
     ],
   },
 
@@ -152,8 +152,8 @@ export const navigationConfig = {
     title: "navigation.account",
     icon: "👤",
     routes: [
-      { path: "profile", label: "navigation.profile" },
-      { path: "profile/change-password", label: "navigation.changePassword" },
+      { path: "/admin/profile", label: "navigation.profile" },
+      { path: "/admin/profile/change-password", label: "navigation.changePassword" },
     ],
 
   },

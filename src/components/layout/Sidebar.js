@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, ChevronLeft, X, Menu } from 'lucide-react';
-import { navigationConfig, memberNavigationConfig } from '@/lib/config/navigation';
+import { adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function Sidebar() {
@@ -16,7 +16,7 @@ export default function Sidebar() {
 
   // Determine which navigation config to use
   const isMemberPath = pathname.startsWith('/member');
-  const currentConfig = isMemberPath ? memberNavigationConfig : navigationConfig;
+  const currentConfig = isMemberPath ? userNavigationConfig : adminNavigationConfig;
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({

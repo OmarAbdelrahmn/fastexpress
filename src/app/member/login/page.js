@@ -31,7 +31,7 @@ export default function MemberLoginPage() {
             // Ideally we verify if it is a member token vs admin token, 
             // but for now redirecting to member dashboard if token exists.
             // Ensuring we don't redirect if we are on login intended to switch users
-            // router.push("/member/dashboard");
+            router.push("/member/dashboard");
         }
     }, [router]);
 

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children, loginPath = '/admin/login', dashboardPath = '/admin' }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -28,8 +28,9 @@ export function AuthProvider({ children }) {
 
     if (!isValid && typeof window !== 'undefined') {
       TokenManager.clearToken();
-      if (window.location.pathname !== '/login') {
-        router.push('/login');
+      // Only redirect if not already on the login page
+      if (window.location.pathname !== loginPath) {
+        router.push(loginPath);
       }
     }
   };
@@ -37,13 +38,13 @@ export function AuthProvider({ children }) {
   const login = (token) => {
     TokenManager.setToken(token);
     setIsAuthenticated(true);
-    router.push('/dashboard');
+    router.push(dashboardPath);
   };
 
   const logout = () => {
     TokenManager.clearToken();
     setIsAuthenticated(false);
-    router.push('/login');
+    router.push(loginPath);
   };
 
   return (

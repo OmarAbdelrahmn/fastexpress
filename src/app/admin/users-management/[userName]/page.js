@@ -3,5 +3,5 @@
 import { redirect } from 'next/navigation';
 
 export default function EmployeesPage() {
-  redirect('/admin/dashboard');
+  redirect('/admin/users-management');
 }

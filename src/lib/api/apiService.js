@@ -27,7 +27,7 @@ export class ApiService {
       // Handle 401 Unauthorized - but NOT on login endpoint
       if (response.status === 401) {
         // Check if this is a login attempt
-        const isLoginEndpoint = endpoint.includes('/login') || endpoint.includes('/auth/login');
+        const isLoginEndpoint = endpoint.includes('/admin/login') || endpoint.includes('/admin/auth/login');
         
         if (isLoginEndpoint) {
           // For login endpoint, just throw error without redirecting or clearing token
@@ -47,8 +47,8 @@ export class ApiService {
         } else {
           // For other endpoints, clear token and redirect
           TokenManager.clearToken();
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
+            window.location.href = '/admin/login';
           }
           throw new Error('انتهت صلاحية الجلسة');
         }

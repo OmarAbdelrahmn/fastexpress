@@ -8,13 +8,13 @@ import Sidebar from '@/components/layout/Sidebar';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TokenManager } from '@/lib/auth/tokenManager';
 
-function MemberLayoutContent({ children }) {
+function AdminLayoutContent({ children }) {
     const { loading } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const [roleChecking, setRoleChecking] = useState(true);
     const [hasAccess, setHasAccess] = useState(false);
-    const isLoginPage = pathname === '/member/login';
+    const isLoginPage = pathname === '/admin/login';
 
     useEffect(() => {
         // Skip role check for login page
@@ -38,9 +38,9 @@ function MemberLayoutContent({ children }) {
             const userRole = user.roles?.[0];
             const isAdmin = userRole === 'Admin' || userRole === 'Master';
 
-            if (isAdmin) {
-                // User is admin, redirect to admin dashboard
-                router.push('/admin/dashboard');
+            if (!isAdmin) {
+                // User is not admin, redirect to member dashboard
+                router.push('/member/dashboard');
                 setHasAccess(false);
             } else {
                 setHasAccess(true);
@@ -56,24 +56,24 @@ function MemberLayoutContent({ children }) {
     if (loading || roleChecking) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <Loader2 className="animate-spin text-orange-500" size={48} />
+                <Loader2 className="animate-spin text-blue-500" size={48} />
             </div>
         );
     }
 
-    // Show access denied if admin trying to access member area (shouldn't normally see this due to redirect)
+    // Show access denied if not admin (shouldn't normally see this due to redirect)
     if (!hasAccess && !isLoginPage) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
                 <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
                     <AlertCircle className="mx-auto text-red-500 mb-4" size={64} />
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-                    <p className="text-gray-600 mb-4">This area is for members only.</p>
+                    <p className="text-gray-600 mb-4">You don't have permission to access this area.</p>
                     <button
-                        onClick={() => router.push('/admin/dashboard')}
+                        onClick={() => router.push('/member/dashboard')}
                         className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                     >
-                        Go to Admin Dashboard
+                        Go to Member Dashboard
                     </button>
                 </div>
             </div>
@@ -85,13 +85,11 @@ function MemberLayoutContent({ children }) {
         return <>{children}</>;
     }
 
-    // Other member pages with Header and Sidebar
+    // Admin pages with Header and Sidebar
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-400" dir="rtl">
-            <Header />
-            <div className="flex">
-                <Sidebar />
-                <main className="flex-1 p-4 lg:p-6 overflow-auto w-full">
+        <div>
+            <div>
+                <main>
                     {children}
                 </main>
             </div>
@@ -99,10 +97,10 @@ function MemberLayoutContent({ children }) {
     );
 }
 
-export default function MemberLayout({ children }) {
+export default function AdminLayout({ children }) {
     return (
-        <AuthProvider loginPath="/member/login" dashboardPath="/member/dashboard">
-            <MemberLayoutContent>{children}</MemberLayoutContent>
+        <AuthProvider loginPath="/admin/login" dashboardPath="/admin/dashboard">
+            <AdminLayoutContent>{children}</AdminLayoutContent>
         </AuthProvider>
     );
 }
