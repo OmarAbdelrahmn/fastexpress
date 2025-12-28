@@ -45,10 +45,10 @@ export const userNavigationConfig = {
     icon: "📊",
     path: "/member/reports",
   },
-  employees: {
-    title: "navigation.employees",
-    icon: "👔",
-    path: "/member/employees",
+  actions: {
+    title: "common.others",
+    icon: "⚡",
+    path: "/member/actions",
   },
 };
 

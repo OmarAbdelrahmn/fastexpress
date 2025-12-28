@@ -136,21 +136,8 @@ export default function MemberDashboard() {
                 </div>
 
                 {/* Quick Actions Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <QuickActionCard
-                        title={t("dashboard.member.activeDisabilities")}
-                        count={stats?.activeDisabilities || 0}
-                        icon={AlertTriangle}
-                        href="/member/disabilities"
-                        color="orange"
-                    />
-                    <QuickActionCard
-                        title={t("dashboard.member.todayShifts")}
-                        count={stats?.todayShifts || 0}
-                        icon={Clock}
-                        href="/member/shifts"
-                        color="blue"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+
                     <QuickActionCard
                         title={t("dashboard.member.vehicles")}
                         count={stats?.vehiclesAvailable || 0}
@@ -199,15 +186,15 @@ const getBgStyle = (hex) => ({
 
 const QuickActionCard = ({ title, count, label, icon: Icon, href, color }) => {
     const colorClasses = {
-        blue: "group-hover:bg-blue-50 group-hover:text-blue-600",
-        orange: "group-hover:bg-orange-50 group-hover:text-orange-600"
+        blue: "bg-blue-50 text-blue-600",
+        orange: "bg-orange-50 text-orange-600"
     };
 
     return (
         <Link href={href} className="flex flex-col justify-between p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
             <div className="flex justify-between items-start">
-                <div className={`p-3 rounded-xl bg-gray-50 transition-colors ${colorClasses[color]}`}>
-                    <Icon size={24} className="text-gray-400 group-hover:text-current" />
+                <div className={`p-3 rounded-xl transition-colors ${colorClasses[color]}`}>
+                    <Icon size={24} className="text-current" />
                 </div>
                 <div className="text-right">
                     <span className="block text-2xl font-bold text-gray-900">{count}</span>

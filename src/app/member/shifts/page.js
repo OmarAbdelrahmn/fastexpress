@@ -26,11 +26,11 @@ export default function MemberShifts() {
     // Initialize dates to previous month
     useEffect(() => {
         const today = new Date();
-        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+        const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-        const start = lastMonth.toISOString().split('T')[0];
-        const end = lastMonthEnd.toISOString().split('T')[0];
+        const start = currentMonthStart.toISOString().split('T')[0];
+        const end = currentMonthEnd.toISOString().split('T')[0];
 
         setStartDate(start);
         setEndDate(end);
@@ -44,7 +44,11 @@ export default function MemberShifts() {
         try {
             const url = `${API_ENDPOINTS.MEMBER.SHIFTS}?startDate=${start}&endDate=${end}`;
             const response = await ApiService.get(url);
-            setShifts(response);
+            // Sort by date ascending (oldest to newest)
+            const sortedResponse = Array.isArray(response)
+                ? response.sort((a, b) => new Date(a.shiftDate) - new Date(b.shiftDate))
+                : [];
+            setShifts(sortedResponse);
         } catch (err) {
             setError(err.message || "حدث خطأ أثناء تحميل البيانات");
         } finally {

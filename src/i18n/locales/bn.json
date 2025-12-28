@@ -63,7 +63,8 @@
     "selectLanguage": "ভাষা নির্বাচন করুন",
     "email": "ইমেল",
     "languageDescription": "চালিয়ে যেতে আপনার পছন্দের ভাষা নির্বাচন করুন",
-    "additionalInfo": "অতিরিক্ত তথ্য"
+    "additionalInfo": "অতিরিক্ত তথ্য",
+    "disabilities": "Disabilities"
   },
   "navigation": {
     "home": "হোম",
@@ -137,7 +138,8 @@
     "languages": "ভাষা",
     "menu": "মেনু",
     "backToList": "তালিকায় ফিরে যান",
-    "backtoDashboard": "ড্যাশবোর্ডে ফিরে যান"
+    "backtoDashboard": "ড্যাশবোর্ডে ফিরে যান",
+    "disabilities": "Disabilities"
   },
   "dashboard": {
     "title": "প্রধান ড্যাশবোর্ড",

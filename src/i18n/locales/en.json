@@ -65,7 +65,8 @@
     "languageDescription": "Choose your preferred language to continue",
     "additionalInfo": "Additional Information",
     "clear": "Clear",
-    "others": "Other Actions"
+    "others": "Other Actions",
+    "disabilities": "Disabilities"
   },
   "navigation": {
     "home": "Home",
@@ -1258,7 +1259,6 @@
     "highOccupancy": "High Occupancy Housing",
     "moreThan80": "More than 80% occupancy",
     "emptyHousing": "Empty Housing",
-    "noEmployees": "No employees",
     "averageCapacity": "Average Capacity",
     "employeePerHousing": "Employee per housing",
     "unit": "unit",

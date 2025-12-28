@@ -154,9 +154,7 @@ export default function MemberProfile() {
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     المسمى الوظيفي
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    رقم العمل
-                                </th>
+
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     الحالة
                                 </th>
@@ -187,9 +185,7 @@ export default function MemberProfile() {
                                                 <span className="text-sm text-gray-700">{employee.jobTitle}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                            {employee.workingId || <span className="text-gray-400">-</span>}
-                                        </td>
+
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {employee.status === 'enable' ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -207,7 +203,7 @@ export default function MemberProfile() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
                                         لا يوجد موظفين
                                     </td>
                                 </tr>
