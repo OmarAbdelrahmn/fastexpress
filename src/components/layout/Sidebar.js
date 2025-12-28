@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, ChevronLeft, X, Menu } from 'lucide-react';
-import { navigationConfig } from '@/lib/config/navigation';
+import { navigationConfig, memberNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function Sidebar() {
@@ -13,6 +13,10 @@ export default function Sidebar() {
   const { t } = useLanguage();
   const [openSections, setOpenSections] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Determine which navigation config to use
+  const isMemberPath = pathname.startsWith('/member');
+  const currentConfig = isMemberPath ? memberNavigationConfig : navigationConfig;
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({
@@ -37,58 +41,73 @@ export default function Sidebar() {
         {/* Dashboard Home */}
         <li>
           <Link
-            href="/dashboard"
+            href={currentConfig.dashboard.path}
             onClick={closeMobileMenu}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium ${isActive('/dashboard')
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium ${isActive(currentConfig.dashboard.path)
               ? 'bg-blue-50 text-[#2563eb] border-r-4 border-[#2563eb]'
               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
           >
-            <span className="text-xl">{navigationConfig.dashboard.icon}</span>
-            <span>{t(navigationConfig.dashboard.title)}</span>
+            <span className="text-xl">{currentConfig.dashboard.icon}</span>
+            <span>{t(currentConfig.dashboard.title)}</span>
           </Link>
         </li>
 
         {/* Dynamic Sections */}
-        {Object.entries(navigationConfig)
+        {Object.entries(currentConfig)
           .filter(([key]) => key !== 'dashboard')
           .map(([key, section]) => (
             <li key={key}>
-              <button
-                onClick={() => toggleSection(key)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 font-medium ${openSections[key]
-                  ? 'bg-gray-50 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-              >
-                <div className="flex items-center gap-3">
+              {section.routes ? (
+                <>
+                  <button
+                    onClick={() => toggleSection(key)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 font-medium ${openSections[key]
+                      ? 'bg-gray-50 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{section.icon}</span>
+                      <span>{t(section.title)}</span>
+                    </div>
+                    {openSections[key] ? (
+                      <ChevronDown size={18} className="text-gray-400" />
+                    ) : (
+                      <ChevronLeft size={18} className="text-gray-400" />
+                    )}
+                  </button>
+                  {openSections[key] && section.routes && (
+                    <ul className="mr-8 mt-1 space-y-1 border-r-2 border-gray-100 pr-3">
+                      {section.routes.map((route) => (
+                        <li key={route.path}>
+                          <Link
+                            href={route.path}
+                            onClick={closeMobileMenu}
+                            className={`block w-full text-right px-3 py-2 rounded-md text-sm transition-all duration-200 ${isActive(route.path)
+                              ? 'text-[#2563eb] font-semibold bg-blue-50/50'
+                              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                              }`}
+                          >
+                            {t(route.label)}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={section.path}
+                  onClick={closeMobileMenu}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 font-medium ${isActive(section.path)
+                    ? 'bg-blue-50 text-[#2563eb] border-r-4 border-[#2563eb]'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                >
                   <span className="text-xl">{section.icon}</span>
                   <span>{t(section.title)}</span>
-                </div>
-                {openSections[key] ? (
-                  <ChevronDown size={18} className="text-gray-400" />
-                ) : (
-                  <ChevronLeft size={18} className="text-gray-400" />
-                )}
-              </button>
-
-              {openSections[key] && section.routes && (
-                <ul className="mr-8 mt-1 space-y-1 border-r-2 border-gray-100 pr-3">
-                  {section.routes.map((route) => (
-                    <li key={route.path}>
-                      <Link
-                        href={route.path}
-                        onClick={closeMobileMenu}
-                        className={`block w-full text-right px-3 py-2 rounded-md text-sm transition-all duration-200 ${isActive(route.path)
-                          ? 'text-[#2563eb] font-semibold bg-blue-50/50'
-                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                          }`}
-                      >
-                        {t(route.label)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                </Link>
               )}
             </li>
           ))}

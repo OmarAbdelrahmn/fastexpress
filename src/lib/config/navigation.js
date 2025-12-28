@@ -1,3 +1,52 @@
+// Member Navigation Configuration
+export const memberNavigationConfig = {
+  dashboard: {
+    title: "navigation.dashboard",
+    icon: "🏠",
+    path: "/member/dashboard",
+  },
+  details: {
+    title: "navigation.myDetails",
+    icon: "👤",
+    path: "/member/profile",
+  },
+  riders: {
+    title: "navigation.riders",
+    icon: "🏍️",
+    path: "/member/riders",
+  },
+  shifts: {
+    title: "navigation.shifts",
+    icon: "📅",
+    path: "/member/shifts",
+  },
+  vehicles: {
+    title: "navigation.vehicles",
+    icon: "🚗",
+    path: "/member/vehicles",
+  },
+  requests: {
+    title: "navigation.requests",
+    icon: "📝",
+    path: "/member/requests",
+  },
+  substitutions: {
+    title: "navigation.substitution",
+    icon: "🔄",
+    path: "/member/substitutions",
+  },
+  disabilities: {
+    title: "navigation.disabilities",
+    icon: "⚠️",
+    path: "/member/disabilities",
+  },
+  reports: {
+    title: "navigation.reports",
+    icon: "📊",
+    path: "/member/reports",
+  },
+};
+
 export const navigationConfig = {
   dashboard: {
     title: "navigation.dashboard",

@@ -138,6 +138,7 @@ const API_ENDPOINTS = {
       GET_PENDING: "/api/temp/vehicles",
       employees: "/api/temp/employee-pending-status-changes"
     },
+    REPORTS_SUMMARY: "/api/report/summary"
   },
 };
 
@@ -169,7 +170,15 @@ export default function EnhancedDashboard() {
     activeKeetaRiders: 0,
     companyTotal: 0,
     companyRidersCount: 0,
-    companyEmployeesCount: 0
+    companyEmployeesCount: 0,
+    monthAcceptedOrders: 0,
+    hungerYesterdayOrders: 0,
+    ketaYesterdayOrders: 0,
+    activeYesterdayHunger: 0,
+    ketaActiveRiders: 0,
+    totalOrdersYesterday: 0,
+    totalActiveRiders: 0,
+    totalMonthOrders: 0
   });
 
   const [trends, setTrends] = useState({
@@ -197,7 +206,8 @@ export default function EnhancedDashboard() {
         pendingRequestsRes,
         tempEmployeesRes,
         previousDayOrdersRes,
-        statisticsRes
+        statisticsRes,
+        summaryData1
       ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
         get(API_ENDPOINTS.VEHICLES.GROUP_BY_STATUS),
@@ -211,6 +221,7 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.TEMP.VEHICLES.employees),
         get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED),
         get(API_ENDPOINTS.RIDER.STATISTICS),
+        get(API_ENDPOINTS.TEMP.REPORTS_SUMMARY),
       ]);
 
       const vehiclesSummary = vehicleStatusRes.data?.summary || {};
@@ -264,7 +275,7 @@ export default function EnhancedDashboard() {
       const pendingRequests = Array.isArray(pendingRequestsRes.data)
         ? pendingRequestsRes.data.length
         : 0;
-
+      const summaryData = summaryData1?.data || {};
       const date = new Date();
       date.setDate(date.getDate() - 1);
       const yesterday = date.toISOString().split("T")[0];
@@ -305,7 +316,7 @@ export default function EnhancedDashboard() {
         );
         previousDayRiders = previousDayOrdersRes.data.length;
       }
-
+      const totalridersyesterday = summaryData1.data.totalDayShifts;
       // Handle Statistics Response (assuming structure, normalizing keys just in case)
       const statsData = statisticsRes?.data || {};
       // Try to find keys ignoring case if needed, or assume specific keys based on user request "Total and Riders and Employees"
@@ -342,7 +353,15 @@ export default function EnhancedDashboard() {
         activeKeetaRiders,
         companyTotal,
         companyRidersCount,
-        companyEmployeesCount
+        companyEmployeesCount,
+        monthAcceptedOrders: summaryData.totalMonthOrders || 0,
+        hungerYesterdayOrders: summaryData.hunger?.acceptedOrders || 0,
+        ketaYesterdayOrders: summaryData.keta?.acceptedOrders || 0,
+        activeYesterdayHunger: summaryData.hunger?.totalShifts || 0,
+        ketaActiveRiders: summaryData.keta?.totalShifts || 0,
+        totalOrdersYesterday: summaryData.totalDayOrders || 0,
+        totalActiveRiders: summaryData.hunger?.acceptedOrders || 0,
+        totalMonthOrders: summaryData.keta?.acceptedOrders || 0
       });
 
       setTrends({
@@ -458,23 +477,57 @@ export default function EnhancedDashboard() {
 
   const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background }) => (
     <Link href={link} className="block group">
-      <div className={`rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background}`}>
-        <div className="flex justify-between items-start mb-4 ">
-          <div className="p-3 rounded-xl transition-colors" style={getBgStyle(color)}>
-            <Icon size={24} color={color} />
+      <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
+        <div className="flex justify-between items-start mb-2">
+          <div className="p-2 rounded-lg transition-colors" style={getBgStyle(color)}>
+            <Icon size={20} color={color} />
           </div>
           {/* Subtle background decoration */}
-          <Icon className="absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={100} color={color} />
+          <Icon className="absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={80} color={color} />
         </div>
 
         <div className="relative z-10 ">
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{loading ? "..." : value}</h3>
-          <p className="font-medium text-gray-700 mb-1">{title}</p>
-          <p className="text-xs text-gray-400">{subtitle}</p>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">{loading ? "..." : value}</h3>
+          <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
+          <p className="text-[10px] text-gray-500">{subtitle}</p>
         </div>
       </div>
     </Link>
   );
+
+  const StatusButton = ({ title, value, subtitle, icon: Icon, count, link }) => {
+    const hasPending = count > 0;
+    const indicatorColor = hasPending ? "bg-red-500" : "bg-green-500";
+    const indicatorText = hasPending ? "مطلوب إجراء" : "مكتمل";
+
+    return (
+      <Link href={link} className="block group w-full">
+        <div className="relative overflow-hidden rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex items-stretch">
+          {/* Status Indicator Strip (End/Left side in RTL) */}
+          <div className={`w-2 ${indicatorColor} absolute left-0 top-0 bottom-0`}></div>
+
+          <div className="flex-1 p-4 flex items-center justify-between pl-6"> {/* Added padding-left to not overlap strip */}
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-full ${hasPending ? 'bg-red-50' : 'bg-green-50'}`}>
+                <Icon size={24} className={hasPending ? 'text-red-500' : 'text-green-500'} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+                <p className="text-sm text-gray-500">{subtitle}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-2xl font-bold text-gray-900">{value}</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${hasPending ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                {indicatorText}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  };
 
   const QuickActionBtn = ({ title, subtitle, icon: Icon, color, onClick, background }) => {
     return (
@@ -523,76 +576,102 @@ export default function EnhancedDashboard() {
         {/* Primary Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           <StatCard
-            title={t("vehicles.activeVehicles")}
-            value={stats.takenVehicles}
-            subtitle={t("vehicles.taken")}
-            icon={Car}
-            color={COLORS.black}
-            link="/vehicles/admin"
+            title={t("dashboard.monthAcceptedOrders")}
+            value={stats.monthAcceptedOrders}
+            subtitle={t("dashboard.orders")}
+            icon={CheckCircle}
+            color="#000000"
+            link="#"
             background="bg-gray-300"
           />
           <StatCard
-            title={t("riders.activeRiders")}
-            value={stats.activeRiders}
-            subtitle={t("riders.title")}
-            icon={Users}
-            color={COLORS.black}
-            link="/riders/"
+            title={t("dashboard.totalActiveRiders")}
+            value={stats.totalActiveRiders}
+            subtitle={t("dashboard.orders")}
+            icon={Activity}
+            color="#000000"
+            link="#"
             background="bg-blue-200"
           />
           <StatCard
-            title={t("dashboard.yesterdayShifts")}
-            value={stats.activeShifts}
-            subtitle={t("dashboard.shiftsSchedule")}
-            icon={Calendar}
-            color={COLORS.black}
-            link="shifts/"
+            title={t("dashboard.totalMonthOrders")}
+            value={stats.totalMonthOrders}
+            subtitle={t("dashboard.orders")}
+            icon={BarChart3}
+            color="#000000"
+            link="#"
             background="bg-gray-300"
           />
           <StatCard
+            title={t("dashboard.hungerYesterdayOrders")}
+            value={stats.hungerYesterdayOrders}
+            subtitle={t("dashboard.orders")}
+            icon={ShoppingBag}
+            color="#000000"
+            link="#"
+            background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.ketaYesterdayOrders")}
+            value={stats.ketaYesterdayOrders}
+            subtitle={t("dashboard.orders")}
+            icon={ShoppingBag}
+            color="#000000"
+            link="#"
+            background="bg-gray-300"
+          />
+          <StatCard
+            title={t("dashboard.activeYesterdayHunger")}
+            value={stats.activeYesterdayHunger}
+            subtitle={t("dashboard.riders")}
+            icon={Users}
+            color="#000000"
+            link="#"
+            background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.ketaActiveRiders")}
+            value={stats.ketaActiveRiders}
+            subtitle={t("dashboard.riders")}
+            icon={Users}
+            color="#000000"
+            link="#"
+            background="bg-blue-200"
+          />
+          <StatCard
+            title={t("dashboard.totalOrderYesterday")}
+            value={stats.totalOrdersYesterday}
+            subtitle={t("dashboard.total")}
+            icon={Package}
+            color="#000000"
+            link="#"
+            background="bg-gray-300"
+          />
+
+
+
+        </div>
+
+        {/* Separator Line */}
+        <div className="w-full h-px bg-gray-300 my-8 shadow-sm"></div>
+
+        {/* New Status Buttons Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <StatusButton
             title={t("dashboard.pendingApprovals")}
             value={stats.pendingRequests}
             subtitle={t("dashboard.hasPendingApprovals")}
+            count={stats.pendingRequests}
             icon={FileText}
-            color={COLORS.black}
             link="vehicles/admin/users-requests"
-            background="bg-blue-200"
           />
-          <StatCard
+          <StatusButton
             title={t("dashboard.pendingStatusChanges")}
             value={stats.pendempst}
             subtitle={t("dashboard.pendingStatusChangesSubtitle")}
-            icon={FileText}
-            color={COLORS.black}
-            link="/employees/admin/status-requests"
-            background="bg-blue-200"
-          />
-          <StatCard
-            title={t("dashboard.previousDayTotalOrders")}
-            value={stats.previousDayTotalOrders}
-            subtitle={t("dashboard.previousDayTotalOrdersSubtitle")}
-            icon={Package}
-            color={COLORS.black}
-            link="/reports/dashboard"
-            background="bg-gray-300"
-          />
-          <StatCard
-            title={t("dashboard.totalEmployees")}
-            value={stats.employees}
-            subtitle={t("dashboard.employeesSubtitle")}
+            count={stats.pendempst}
             icon={Users}
-            color={COLORS.black}
-            link="/employees/admin"
-            background="bg-blue-200"
-          />
-          <StatCard
-            title={t("dashboard.housingOccupancy")}
-            value={`${stats.housingOccupancy}%`}
-            subtitle={t("dashboard.housingOccupancySubtitle")}
-            icon={Home}
-            color={COLORS.black}
-            link="/housing"
-            background="bg-gray-300"
+            link="/employees/admin/status-requests"
           />
         </div>
 

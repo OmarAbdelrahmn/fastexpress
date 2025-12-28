@@ -1,0 +1,261 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ApiService } from "@/lib/api/apiService";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { formatPlateNumber } from "@/lib/utils/formatters";
+import {
+    Users,
+    Car,
+    Phone,
+    IdCard,
+    Briefcase,
+    AlertTriangle,
+    CheckCircle,
+    XCircle,
+    Building2
+} from "lucide-react";
+
+export default function MemberRiders() {
+    const [riders, setRiders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchRiders = async () => {
+            try {
+                const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDERS);
+                setRiders(response);
+            } catch (err) {
+                setError(err.message || "حدث خطأ أثناء تحميل البيانات");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRiders();
+    }, []);
+
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2">
+            <AlertTriangle size={20} />
+            <span>{error}</span>
+        </div>
+    );
+
+    // Calculate statistics
+    const stats = {
+        total: riders?.length || 0,
+        active: riders?.filter(r => r.status === 'enable')?.length || 0,
+        hunger: riders?.filter(r => r.companyName === 'Hunger')?.length || 0,
+        keta: riders?.filter(r => r.companyName === 'Keta')?.length || 0
+    };
+
+    const getStatusBadge = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'enable':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <CheckCircle size={12} />
+                        نشط
+                    </span>
+                );
+            case 'accident':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <XCircle size={12} />
+                        حادث
+                    </span>
+                );
+            case 'sick':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <AlertTriangle size={12} />
+                        مريض
+                    </span>
+                );
+            case 'vacation':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        راحة
+                    </span>
+                );
+            default:
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        {status || 'غير محدد'}
+                    </span>
+                );
+        }
+    };
+
+    return (
+        <div className="space-y-6 animate-fade-in">
+            {/* Page Header */}
+            <div>
+                <h1 className="text-2xl font-bold text-gray-900">المناديب</h1>
+                <p className="text-gray-500">قائمة جميع المناديب والمعلومات المتعلقة بهم</p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <StatCard
+                    title="إجمالي المناديب"
+                    value={stats.total}
+                    icon={Users}
+                    color="#3B82F6"
+                    background="bg-blue-200"
+                />
+                <StatCard
+                    title="المناديب النشطون"
+                    value={stats.active}
+                    icon={CheckCircle}
+                    color="#10B981"
+                    background="bg-green-200"
+                />
+                <StatCard
+                    title="Hunger"
+                    value={stats.hunger}
+                    icon={Building2}
+                    color="#F59E0B"
+                    background="bg-orange-200"
+                />
+                <StatCard
+                    title="Keta"
+                    value={stats.keta}
+                    icon={Building2}
+                    color="#6B7280"
+                    background="bg-gray-200"
+                />
+            </div>
+
+            {/* Riders Table */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <Users className="text-blue-600" size={20} />
+                        قائمة المناديب
+                        <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
+                            {riders?.length || 0}
+                        </span>
+                    </h2>
+                </div>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    رقم الإقامة
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الاسم
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    رقم العمل
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الشركة
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    المركبة
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الجوال
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الحالة
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                            {riders?.length > 0 ? (
+                                riders.map((rider) => (
+                                    <tr key={rider.riderId} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                            {rider.employeeIqamaNo}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <p className="text-sm font-medium text-gray-900">
+                                                {rider.nameAR}
+                                            </p>
+                                            <p className="text-xs text-gray-500">{rider.nameEN}</p>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <IdCard size={14} className="text-gray-400" />
+                                                <span className="text-sm text-gray-700">{rider.workingId}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <Building2 size={14} className="text-gray-400" />
+                                                <span className={`text-sm font-medium ${rider.companyName === 'Hunger' ? 'text-orange-600' : 'text-gray-600'}`}>
+                                                    {rider.companyName}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {rider.vehiclePlate ? (
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Car size={14} className="text-gray-400" />
+                                                        <span className="text-sm font-medium text-gray-900">{formatPlateNumber(rider.vehiclePlate)}</span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">{rider.vehicleNumber}</p>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">لا يوجد</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <Phone size={14} className="text-gray-400" />
+                                                <a href={`tel:${rider.phone}`} className="text-sm text-blue-600 hover:underline">
+                                                    {rider.phone}
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getStatusBadge(rider.status)}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                        لا يوجد مناديب
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Reusable StatCard component
+const StatCard = ({ title, value, subtitle, icon: Icon, color, background }) => {
+    return (
+        <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 ${background} h-full`}>
+            <div className="flex justify-between items-start mb-2">
+                <div className="p-2 rounded-lg transition-colors bg-white/50">
+                    <Icon size={20} style={{ color: color }} />
+                </div>
+            </div>
+            <div className="relative z-10">
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
+                <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
+                {subtitle && <p className="text-[10px] text-gray-500">{subtitle}</p>}
+            </div>
+        </div>
+    );
+}

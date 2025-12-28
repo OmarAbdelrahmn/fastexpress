@@ -6,8 +6,16 @@
  */
 export const formatPlateNumber = (plate) => {
     if (!plate) return "";
-    // Remove existing spaces to ensure clean input, then split and join with space
-    return plate.replace(/\s/g, '').split('').join(' ');
+    // Remove existing spaces to ensure clean input
+    const clean = plate.replace(/\s/g, '');
+    // Regex to match Arabic (Indic) digits and Western digits
+    const numberPattern = /[\d\u0660-\u0669]+/g;
+    // Reverse only the numeric parts so they display LTR when spaced in RTL context
+    const processed = clean.replace(numberPattern, (match) => {
+        return match.split('').reverse().join('');
+    });
+    // Split and join with space
+    return processed.split('').join(' ');
 };
 
 /**

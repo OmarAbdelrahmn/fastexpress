@@ -184,4 +184,26 @@ export const API_ENDPOINTS = {
     STACKED: (workingId) => `/api/Report/stacked/${workingId}`,
     STACKEDd: "/api/Report/stacked",
   },
+
+  // Member
+  MEMBER: {
+    LOGIN: "/api/Member/member/login",
+    DASHBOARD: "/api/Member/dashboard",
+    DETAILS: "/api/Member/details",
+    EMPLOYEES: "/api/Member/employees",
+    EMPLOYEE_DETAILS: (iqamaNo) => `/api/Member/employees/${iqamaNo}`,
+    RIDERS: "/api/Member/riders",
+    RIDER_PERFORMANCE: (riderId) => `/api/Member/riders/${riderId}/performance`,
+    SHIFTS: "/api/Member/shifts",
+    SHIFTS_SUMMARY: "/api/Member/shifts/summary",
+    VEHICLES: "/api/Member/vehicles",
+    VEHICLE_HISTORY: (vehicleNumber) => `/api/Member/vehicles/${vehicleNumber}/history`,
+    VEHICLE_PENDING: "/api/Member/vehicles/operations/pending",
+    DISABILITIES: "/api/Member/disabilities",
+    SUBSTITUTIONS_ACTIVE: "/api/Member/substitutions/active",
+    REQ_EMPLOYEE_UPDATES: "/api/Member/requests/employee-updates",
+    REQ_STATUS_CHANGES: "/api/Member/requests/status-changes",
+    REPORTS_MONTHLY: "/api/Member/reports/monthly",
+    REPORTS_EXPORT: "/api/Member/reports/export",
+  },
 };
