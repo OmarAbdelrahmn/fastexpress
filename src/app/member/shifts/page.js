@@ -65,6 +65,7 @@ export default function MemberShifts() {
         totalShifts: shifts?.length || 0,
         completed: shifts?.filter(s => s.shiftStatus === 'Completed')?.length || 0,
         failed: shifts?.filter(s => s.shiftStatus === 'Failed')?.length || 0,
+        incomplete: shifts?.filter(s => s.shiftStatus === 'Incomplete')?.length || 0,
         totalOrders: shifts?.reduce((sum, s) => sum + (s.acceptedDailyOrders || 0), 0) || 0,
         totalHours: shifts?.reduce((sum, s) => sum + (s.workingHours || 0), 0).toFixed(2) || 0,
         hunger: shifts?.filter(s => s.companyName === 'Hunger')?.length || 0,
@@ -85,6 +86,13 @@ export default function MemberShifts() {
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <XCircle size={12} />
                         فاشل
+                    </span>
+                );
+            case 'Incomplete':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <AlertTriangle size={12} />
+                        غير مكتمل
                     </span>
                 );
             case 'Pending':
