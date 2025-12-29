@@ -33,11 +33,6 @@ export const userNavigationConfig = {
       { path: "/member/requests/vehicles", label: "طلبات عمليات المركبات" },
     ],
   },
-  substitutions: {
-    title: "navigation.substitution",
-    icon: "🔄",
-    path: "/member/substitutions",
-  },
   disabilities: {
     title: "navigation.disabilities",
     icon: "⚠️",
