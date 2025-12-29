@@ -360,8 +360,8 @@ export default function EnhancedDashboard() {
         activeYesterdayHunger: summaryData.hunger?.totalShifts || 0,
         ketaActiveRiders: summaryData.keta?.totalShifts || 0,
         totalOrdersYesterday: summaryData.totalDayOrders || 0,
-        totalActiveRiders: summaryData.hunger?.acceptedOrders || 0,
-        totalMonthOrders: summaryData.keta?.acceptedOrders || 0
+        totalActiveRiders: summaryData?.hungerMonthToDate?.acceptedOrders || 0,
+        totalMonthOrders: summaryData?.ketaMonthToDate?.acceptedOrders || 0
       });
 
       setTrends({
