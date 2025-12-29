@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 import {
     Car,
     IdCard,
@@ -55,7 +56,7 @@ export default function VehicleReturnRequestPage() {
             const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
             // Filter for taken/used vehicles only
             const usedVehicles = Array.isArray(response)
-                ? response.filter(v => v.status?.toLowerCase() === 'taken' || v.status?.toLowerCase() === 'مستخدمة')
+                ? response.filter(v => v.currentStatus?.toLowerCase() === 'taken' || v.currentStatus?.toLowerCase() === 'مستخدمة')
                 : [];
             setVehicles(usedVehicles);
             setFilteredVehicles(usedVehicles);
@@ -71,7 +72,7 @@ export default function VehicleReturnRequestPage() {
         setFormData(prev => ({
             ...prev,
             vehiclePlate: vehicle.plateNumberA || "",
-            riderIqamaNo: vehicle.riderIqamaNo || prev.riderIqamaNo
+            riderIqamaNo: vehicle.assignedRiderIqamaNo || ""
         }));
         setMessage({ type: "", text: "" });
     };
@@ -110,7 +111,7 @@ export default function VehicleReturnRequestPage() {
         try {
             const payload = {
                 riderIqamaNo: parseInt(formData.riderIqamaNo),
-                vehiclePlate: formData.vehiclePlate,
+                vehiclePlate: formData.vehiclePlate.replace(/\s/g, ''),
                 reason: formData.reason
             };
 
@@ -151,8 +152,8 @@ export default function VehicleReturnRequestPage() {
             {message.text && (
                 <div
                     className={`p-4 rounded-lg flex items-start gap-3 ${message.type === "success"
-                            ? "bg-green-50 border border-green-200 text-green-800"
-                            : "bg-red-50 border border-red-200 text-red-800"
+                        ? "bg-green-50 border border-green-200 text-green-800"
+                        : "bg-red-50 border border-red-200 text-red-800"
                         }`}
                 >
                     {message.type === "success" ? (
@@ -202,13 +203,13 @@ export default function VehicleReturnRequestPage() {
                                     key={vehicle.plateNumberA || vehicle.vehicleNumber}
                                     onClick={() => handleVehicleSelect(vehicle)}
                                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
-                                            ? "border-green-500 bg-green-50"
-                                            : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
+                                        ? "border-green-500 bg-green-50"
+                                        : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Car className="text-green-600" size={16} />
-                                        <span className="font-bold text-gray-900">{vehicle.plateNumberA}</span>
+                                        <span className="font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
                                     </div>
                                     <div className="text-sm text-gray-600 space-y-1">
                                         <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
@@ -266,7 +267,7 @@ export default function VehicleReturnRequestPage() {
                         <input
                             type="text"
                             name="vehiclePlate"
-                            value={formData.vehiclePlate}
+                            value={formatPlateNumber(formData.vehiclePlate)}
                             onChange={handleInputChange}
                             placeholder="اختر مركبة من القائمة أعلاه"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"

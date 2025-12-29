@@ -23,42 +23,42 @@ export default function HungerDisabilitiesPage() {
             title: t('hungerDisabilities.importFile'),
             description: t('hungerDisabilities.importFileDesc'),
             icon: File,
-            href: '/shifts/hunger-disabilities/import',
+            href: '/admin/shifts/hunger-disabilities/import',
             color: 'bg-blue-500'
         },
         {
             title: t('hungerDisabilities.summary'),
             description: t('hungerDisabilities.summaryDesc'),
             icon: ChartBar,
-            href: '/shifts/hunger-disabilities/summary',
+            href: '/admin/shifts/hunger-disabilities/summary',
             color: 'bg-indigo-500'
         },
         {
             title: t('hungerDisabilities.dateRange'),
             description: t('hungerDisabilities.dateRangeDesc'),
             icon: Calendar,
-            href: '/shifts/hunger-disabilities/date-range',
+            href: '/admin/shifts/hunger-disabilities/date-range',
             color: 'bg-purple-500'
         },
         {
             title: t('hungerDisabilities.monthly'),
             description: t('hungerDisabilities.monthlyDesc'),
             icon: Calendar,
-            href: '/shifts/hunger-disabilities/month',
+            href: '/admin/shifts/hunger-disabilities/month',
             color: 'bg-pink-500'
         },
         {
             title: t('hungerDisabilities.yearly'),
             description: t('hungerDisabilities.yearlyDesc'),
             icon: Calendar,
-            href: '/shifts/hunger-disabilities/year',
+            href: '/admin/shifts/hunger-disabilities/year',
             color: 'bg-rose-500'
         },
         {
             title: t('hungerDisabilities.riderDeficit'),
             description: t('hungerDisabilities.riderDeficitDesc'),
             icon: User,
-            href: '/shifts/hunger-disabilities/rider',
+            href: '/admin/shifts/hunger-disabilities/rider',
             color: 'bg-cyan-500'
         }
     ];

@@ -54,7 +54,7 @@ export default function VehicleTakeRequestPage() {
             const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
             // Filter for available vehicles only
             const availableVehicles = Array.isArray(response)
-                ? response.filter(v => v.status?.toLowerCase() === 'available' || v.status?.toLowerCase() === 'متاح')
+                ? response.filter(v => v.currentStatus?.toLowerCase() === 'returned' || v.currentStatus?.toLowerCase() === 'متاح')
                 : [];
             setVehicles(availableVehicles);
             setFilteredVehicles(availableVehicles);

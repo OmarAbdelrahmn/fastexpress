@@ -60,10 +60,11 @@ export default function MemberVehiclesPage() {
         totalVehicles: filteredVehicles?.length || 0,
         assigned: filteredVehicles?.filter(v => v.assignedRiderIqamaNo)?.length || 0,
         available: filteredVehicles?.filter(v => !v.assignedRiderIqamaNo)?.length || 0,
+        withStatus: filteredVehicles?.length - (filteredVehicles?.filter(v => v.assignedRiderIqamaNo)?.length + filteredVehicles?.filter(v => !v.assignedRiderIqamaNo)?.length)
     };
 
-    const getStatusBadge = (status) => {
-        if (!status) {
+    const getStatusBadge = (currentStatus) => {
+        if (!currentStatus) {
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     <Clock size={12} />
@@ -72,8 +73,8 @@ export default function MemberVehiclesPage() {
             );
         }
 
-        switch (status.toLowerCase()) {
-            case 'available':
+        switch (currentStatus.toLowerCase()) {
+            case 'returned':
             case 'متاح':
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -81,8 +82,8 @@ export default function MemberVehiclesPage() {
                         متاح
                     </span>
                 );
-            case 'in use':
-            case 'قيد الاستخدام':
+            case 'taken':
+            case 'مستخدمة':
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         <User size={12} />
@@ -103,12 +104,12 @@ export default function MemberVehiclesPage() {
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <AlertTriangle size={12} />
                         مشكلة
-                    </span>
+                    </span> 
                 );
             default:
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {status}
+                        {currentStatus}
                     </span>
                 );
         }
