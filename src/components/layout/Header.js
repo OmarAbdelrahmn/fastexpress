@@ -78,7 +78,7 @@ export default function Header() {
                 {user.unique_name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="text-sm text-white">
-                <div className="font-semibold">{user.unique_name.slice(0,6)}</div>
+                <div className="font-semibold">{user.unique_name.slice(0,7)}</div>
                 {user.roles[0] && <div className="text-[8px] text-white/80 uppercase tracking-wider">{user.roles[0]}</div>}
               </div>
             </div>
