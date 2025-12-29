@@ -230,7 +230,17 @@
       "vehicles": "Vehicles",
       "recentActivity": "Recent Activity",
       "noRecentActivity": "No recent activities.",
-      "available": "Available"
+      "available": "Available",
+      "totalDayOrders": "Total Day Orders",
+      "hungerAcceptedMonth": "Hunger Accepted (Month)",
+      "ketaAcceptedMonth": "Keta Accepted (Month)",
+      "totalMonthOrders": "Total Month Orders",
+      "hungerAccepted": "Hunger Accepted",
+      "ketaAccepted": "Keta Accepted",
+      "vehiclesBreakdown": "Vehicles Breakdown",
+      "readyForDelivery": "Ready for Delivery",
+      "inService": "In Service",
+      "inMaintenance": "In Maintenance"
     }
   },
   "vehicles": {
@@ -2262,13 +2272,15 @@
     "rejected": "Rejected"
   },
   "auth": {
+  "memberLogin": "Rider App",
+    "password": "Password",
+    "enterIqama": "Enter Iqama Number",
+    "enterPassword": "Enter Password",
     "login": "Login",
+    "loggingIn": "Logging in...",
     "logout": "Logout",
     "username": "Username",
-    "password": "Password",
     "enterUsername": "Enter username",
-    "enterPassword": "Enter password",
-    "loggingIn": "Logging in...",
     "loginTitle": "Logistics Management System",
     "companyName": "Fast Express Company",
     "fullCompanyName": "Fast Express Logistics Services",
@@ -2389,4 +2401,4 @@
     "deficit": "Deficit",
     "date": "Date"
   }
-}
+} 

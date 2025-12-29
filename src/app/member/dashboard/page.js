@@ -11,7 +11,11 @@ import {
     Activity,
     AlertTriangle,
     ArrowUp,
-    Building2
+    Building2,
+    CheckCircle,
+    XCircle,
+    ShoppingBag,
+    Calendar
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
@@ -50,7 +54,7 @@ export default function MemberDashboard() {
         </div>
     );
 
-    const { housing, stats, recentActivities } = data || {};
+    const { housing, stats, recentActivities, summary } = data || {};
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -61,128 +65,226 @@ export default function MemberDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+                {/* Row 1: Employee/Rider Stats */}
                 <StatCard
                     title={t("dashboard.member.totalEmployees")}
                     value={stats?.totalEmployees || 0}
                     icon={Users}
                     color="blue"
                     link="/member/employees"
-                    background="bg-gray-300"
+                    background="bg-blue-100"
                 />
                 <StatCard
                     title={t("dashboard.member.activeRiders")}
                     value={stats?.activeRiders || 0}
-                    subValue={(stats?.inactiveRiders || 0) + " " + t("dashboard.member.inactive")}
-                    icon={Car}
+                    icon={CheckCircle}
                     color="gray"
-                    link="/member/riders"
-                    background="bg-blue-200"
+                    link="/member/riders?status=active"
+                    background="bg-gray-100"
                 />
                 <StatCard
-                    title={t("dashboard.member.vehiclesInUse")}
-                    value={stats?.vehiclesInUse || 0}
-                    subValue={(stats?.totalVehicles || 0) + " " + t("dashboard.member.totalVehicles")}
-                    icon={Activity}
+                    title={t("dashboard.member.inactiveRiders")}
+                    value={stats?.inactiveRiders || 0}
+                    icon={XCircle}
                     color="blue"
-                    link="/member/vehicles"
-                    background="bg-gray-300"
+                    link="/member/riders?status=inactive"
+                    background="bg-blue-100"
+                />
+
+                {/* Row 2: Operational Stats */}
+                <StatCard
+                    title={t("dashboard.member.hungerAccepted")}
+                    value={summary?.hunger?.acceptedOrders || 0}
+                    icon={Activity}
+                    color="gray"
+                    link="#"
+                    background="bg-gray-100"
                 />
                 <StatCard
-                    title={t("dashboard.member.pendingRequests")}
-                    value={stats?.pendingRequests || 0}
+                    title={t("dashboard.member.ketaAccepted")}
+                    value={summary?.keta?.acceptedOrders || 0}
+                    icon={Clock}
+                    color="blue"
+                    link="#"
+                    background="bg-blue-100"
+                />
+                <StatCard
+                    title={t("dashboard.member.totalDayOrders")}
+                    value={summary?.totalDayOrders || 0}
                     icon={Clock}
                     color="gray"
-                    link="/member/requests"
-                    background="bg-blue-200"
-                    alert={stats?.pendingRequests > 0}
+                    link="#"
+                    background="bg-gray-100"
+                />
+
+                {/* Row 3: Order Stats */}
+                <StatCard
+                    title={t("dashboard.member.hungerAcceptedMonth")}
+                    value={summary?.hungerMonthToDate?.acceptedOrders || 0}
+                    icon={ShoppingBag}
+                    color="blue"
+                    link="#"
+                    background="bg-blue-100"
+                />
+                <StatCard
+                    title={t("dashboard.member.ketaAcceptedMonth")}
+                    value={summary?.ketaMonthToDate?.acceptedOrders || 0}
+                    icon={ShoppingBag}
+                    color="gray"
+                    link="#"
+                    background="bg-gray-100"
+                />
+                <StatCard
+                    title={t("dashboard.member.totalMonthOrders")}
+                    value={summary?.totalMonthOrders || 0}
+                    icon={Calendar}
+                    color="blue"
+                    link="#"
+                    background="bg-blue-100"
                 />
             </div>
 
-            {/* Housing and Quick Actions Section */}
-            <div className="space-y-6">
-                {/* Housing Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Home className="text-blue-600" size={20} />
-                            {t("dashboard.member.housingStatus")}
-                        </h2>
-                        {housing && (
-                            <span className="text-sm font-medium px-3 py-1 bg-blue-50 text-blue-700 rounded-full">
-                                {housing.name}
-                            </span>
-                        )}
-                    </div>
-
-                    {housing ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            <div className="p-4 bg-gray-50 rounded-xl">
-                                <p className="text-sm text-gray-500 mb-1">{t("dashboard.member.capacity")}</p>
-                                <p className="text-2xl font-bold text-gray-900">{housing.capacity}</p>
-                            </div>
-                            <div className="p-4 bg-blue-50 rounded-xl">
-                                <p className="text-sm text-blue-600 mb-1">{t("dashboard.member.currentOccupancy")}</p>
-                                <p className="text-2xl font-bold text-blue-700">{housing.currentOccupancy}</p>
-                            </div>
-                            <div className="p-4 bg-green-50 rounded-xl">
-                                <p className="text-sm text-green-600 mb-1">{t("dashboard.member.availableSpace")}</p>
-                                <p className="text-2xl font-bold text-green-700">{housing.availableSpace}</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <p className="text-gray-500">{t("dashboard.member.noHousingInfo")}</p>
+            {/* Housing Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <Home className="text-blue-600" size={20} />
+                        {t("dashboard.member.housingStatus")}
+                    </h2>
+                    {housing && (
+                        <span className="text-sm font-medium px-3 py-1 bg-blue-50 text-blue-700 rounded-full">
+                            {housing.name}
+                        </span>
                     )}
                 </div>
 
-                {/* Quick Actions Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                {housing ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="p-4 bg-gray-50 rounded-xl">
+                            <p className="text-sm text-gray-500 mb-1">{t("dashboard.member.capacity")}</p>
+                            <p className="text-2xl font-bold text-gray-900">{housing.capacity}</p>
+                        </div>
+                        <div className="p-4 bg-blue-50 rounded-xl">
+                            <p className="text-sm text-blue-600 mb-1">{t("dashboard.member.currentOccupancy")}</p>
+                            <p className="text-2xl font-bold text-blue-700">{housing.currentOccupancy}</p>
+                        </div>
+                        <div className="p-4 bg-green-50 rounded-xl">
+                            <p className="text-sm text-green-600 mb-1">{t("dashboard.member.availableSpace")}</p>
+                            <p className="text-2xl font-bold text-green-700">{housing.availableSpace}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-gray-500">{t("dashboard.member.noHousingInfo")}</p>
+                )}
+            </div>
 
-                    <QuickActionCard
-                        title={t("dashboard.member.vehicles")}
-                        count={stats?.vehiclesAvailable || 0}
-                        label={t("dashboard.member.available")}
-                        icon={Car}
-                        href="/member/vehicles"
-                        color="blue"
-                    />
-                    <QuickActionCard
-                        title={t("dashboard.member.requests")}
-                        count={stats?.pendingRequests || 0}
-                        icon={Clock}
-                        href="/member/requests"
-                        color="orange"
-                    />
+            {/* Vehicles & Requests Section */}
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Vehicles Breakdown */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <Car size={20} color={COLORS.blue} />
+                        {t("dashboard.member.vehiclesBreakdown")}
+                    </h3>
+                    <div className="space-y-4">
+                        <MiniStatRow
+                            label={t("dashboard.member.readyForDelivery")}
+                            value={stats?.vehiclesAvailable || 0}
+                            icon={CheckCircle}
+                            color={COLORS.blue}
+                        />
+                        <MiniStatRow
+                            label={t("dashboard.member.inService")}
+                            value={stats?.vehiclesInUse || 0}
+                            icon={Users}
+                            color={COLORS.gray}
+                        />
+                        <MiniStatRow
+                            label={t("dashboard.member.inMaintenance")}
+                            value={stats?.problemVehicles || 0}
+                            icon={AlertTriangle}
+                            color={COLORS.orange}
+                        />
+                    </div>
                 </div>
+
+                {/* Pending Requests Quick Action */}
+                <QuickActionCard
+                    title={t("dashboard.member.requests")}
+                    count={stats?.pendingRequests || 0}
+                    icon={Clock}
+                    href="/member/requests"
+                    color="orange"
+                />
             </div>
         </div>
+
     );
 }
 
-// Helper Components matching main dashboard style
-const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background }) => (
-    <Link href={link} className="block group">
-        <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
-            <div className="flex justify-between items-start mb-2">
-                <div className="p-2 rounded-lg transition-colors" style={getBgStyle(color)}>
-                    <Icon size={20} color={color} />
-                </div>
-                {/* Subtle background decoration */}
-                <Icon className="absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={80} color={color} />
-            </div>
+// Color Palette Constants
+const COLORS = {
+    blue: "#2563eb",   // blue-600
+    orange: "#f97316", // orange-500
+    gray: "#64748b",   // slate-500
+    grayLight: "#94a3b8", // slate-400
+};
 
-            <div className="relative z-10 ">
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
-                <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
-                <p className="text-[10px] text-gray-500">{subtitle}</p>
-            </div>
-        </div>
-    </Link>
-);
-
+// Helper for background color with opacity (approx 10%)
 const getBgStyle = (hex) => ({
     backgroundColor: `${hex}1A` // 1A is ~10% opacity in hex
 });
+
+const MiniStatRow = ({ label, value, icon: Icon, color }) => (
+    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">
+        <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md group-hover:bg-opacity-20 transition-all" style={getBgStyle(color)}>
+                <Icon size={18} color={color} />
+            </div>
+            <span className="text-sm font-medium text-gray-600">{label}</span>
+        </div>
+        <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{value}</span>
+    </div>
+);
+
+// Helper Components matching main dashboard style
+const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background, alert }) => {
+    const iconColors = {
+        blue: "text-blue-600 bg-blue-100",
+        green: "text-green-600 bg-green-100",
+        red: "text-red-600 bg-red-100",
+        cyan: "text-cyan-600 bg-cyan-100",
+        amber: "text-amber-600 bg-amber-100",
+        teal: "text-teal-600 bg-teal-100",
+        orange: "text-orange-600 bg-orange-100",
+        purple: "text-purple-600 bg-purple-100",
+        indigo: "text-indigo-600 bg-indigo-100",
+        gray: "text-gray-600 bg-gray-100",
+    };
+
+    return (
+        <Link href={link} className="block group">
+            <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
+                <div className="flex justify-between items-start mb-2">
+                    <div className={`p-2 rounded-lg transition-colors ${iconColors[color] || iconColors.blue}`}>
+                        <Icon size={20} />
+                    </div>
+                    {/* Subtle background decoration */}
+                    <Icon className={`absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110 ${iconColors[color]?.split(' ')[0] || 'text-blue-600'}`} size={80} />
+                    {alert && <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>}
+                </div>
+
+                <div className="relative z-10 ">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
+                    <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
+                    {subtitle && <p className="text-[10px] text-gray-500">{subtitle}</p>}
+                </div>
+            </div>
+        </Link>
+    );
+};
 
 const QuickActionCard = ({ title, count, label, icon: Icon, href, color }) => {
     const colorClasses = {

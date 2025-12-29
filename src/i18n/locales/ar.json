@@ -236,7 +236,18 @@
       "vehicles": "المركبات",
       "recentActivity": "النشاط الأخير",
       "noRecentActivity": "لا توجد أنشطة حديثة.",
-      "available": "متاح"
+      "available": "متاح",
+      "totalDayOrders": "إجمالي طلبات اليوم",
+      "hungerAcceptedMonth": "طلبات هنقر المقبولة (شهري)",
+      "ketaAcceptedMonth": "طلبات كيتا المقبولة (شهري)",
+      "totalMonthOrders": "إجمالي طلبات الشهر",
+      "hungerAccepted": "طلبات هنقر المقبولة بالأمس",
+      "ketaAccepted": "طلبات كيتا المقبولة بالأمس",
+      "vehiclesBreakdown": "تفاصيل المركبات",
+      "readyForDelivery": "جاهزة للتسليم",
+      "inService": "في الخدمة",
+      "inMaintenance": "في الصيانة",
+      "inactiveRiders": "مناديب غير نشطة"
     }
   },
   "vehicles": {
@@ -2322,7 +2333,9 @@
     "adminPermission3": "عرض التقارير",
     "masterWarningTitle": "تحذير: صلاحيات عالية جداً",
     "masterWarningText": "هذا الحساب سيحصل على صلاحيات المدير الرئيسي الكاملة مع إمكانية التحكم بجميع الحسابات والبيانات",
-    "loginRequiredNote": "يتطلب تسجيل الدخول للوصول إلى هذه الصفحة"
+    "loginRequiredNote": "يتطلب تسجيل الدخول للوصول إلى هذه الصفحة",
+    "memberLogin": "تطبيق المناديب",
+    "enterIqama": "أدخل رقم الإقامة"
   },
   "errors": {
     "sessionExpired": "انتهت صلاحية الجلسة",

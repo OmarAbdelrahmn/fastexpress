@@ -104,25 +104,25 @@ export default function MemberLoginPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                     <Input
-                        label="Iqama Number"
+                        label={t("auth.enterIqama")}
                         type="number"
                         name="iqamaNo"
                         value={formData.iqamaNo}
                         onChange={handleChange}
                         required
-                        placeholder="Enter Iqama Number"
+                        placeholder={t("auth.enterIqama")}
                         disabled={loading}
                     />
 
                     <div className="relative">
                         <Input
-                            label={t("auth.password") || "Password"}
+                            label={t("auth.password")}
                             type={showPassword ? "text" : "password"}
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            placeholder="Enter Password"
+                            placeholder={t("auth.enterPassword")}
                             disabled={loading}
                         />
                         <button
@@ -141,7 +141,7 @@ export default function MemberLoginPage() {
                         disabled={loading || !formData.iqamaNo || !formData.password}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-lg"
                     >
-                        {loading ? "Logging in..." : "Login"}
+                        {loading ? t("auth.loggingIn") : t("auth.login")}
                     </Button>
                 </form>
             </div>
