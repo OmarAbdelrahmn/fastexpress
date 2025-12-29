@@ -26,9 +26,12 @@ export const userNavigationConfig = {
     path: "/member/vehicles",
   },
   requests: {
-    title: "navigation.requests",
+    title: "الطلبات",
     icon: "📝",
-    path: "/member/requests",
+    routes: [
+      { path: "/member/requests/employee-status", label: "طلبات تغيير حالة الموظفين" },
+      { path: "/member/requests/vehicles", label: "طلبات عمليات المركبات" },
+    ],
   },
   substitutions: {
     title: "navigation.substitution",

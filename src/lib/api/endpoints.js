@@ -203,6 +203,7 @@ export const API_ENDPOINTS = {
     SUBSTITUTIONS_ACTIVE: "/api/Member/substitutions/active",
     REQ_EMPLOYEE_UPDATES: "/api/Member/requests/employee-updates",
     REQ_STATUS_CHANGES: "/api/Member/requests/status-changes",
+    REQ_VEHICLE_OPERATIONS: "/api/Member/vehicles/operations/pending",
     REPORTS_MONTHLY: "/api/Member/reports/monthly",
     REPORTS_EXPORT: "/api/Member/reports/export",
   },

@@ -13,13 +13,15 @@ import {
     AlertTriangle,
     CheckCircle,
     XCircle,
-    Building2
+    Building2,
+    Search
 } from "lucide-react";
 
 export default function MemberRiders() {
     const [riders, setRiders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         const fetchRiders = async () => {
@@ -49,12 +51,30 @@ export default function MemberRiders() {
         </div>
     );
 
-    // Calculate statistics
+    // Filter riders based on search term
+    const filteredRiders = riders.filter(rider => {
+        if (!searchTerm) return true;
+
+        const search = searchTerm.toLowerCase();
+        return (
+            rider.employeeIqamaNo?.toString().includes(search) ||
+            rider.nameAR?.toLowerCase().includes(search) ||
+            rider.nameEN?.toLowerCase().includes(search) ||
+            rider.workingId?.toString().includes(search) ||
+            rider.companyName?.toLowerCase().includes(search) ||
+            rider.vehiclePlate?.toLowerCase().includes(search) ||
+            rider.vehicleNumber?.toLowerCase().includes(search) ||
+            rider.phone?.includes(search) ||
+            rider.status?.toLowerCase().includes(search)
+        );
+    });
+
+    // Calculate statistics based on filtered data
     const stats = {
-        total: riders?.length || 0,
-        active: riders?.filter(r => r.status === 'enable')?.length || 0,
-        hunger: riders?.filter(r => r.companyName === 'Hunger')?.length || 0,
-        keta: riders?.filter(r => r.companyName === 'Keta')?.length || 0
+        total: filteredRiders?.length || 0,
+        active: filteredRiders?.filter(r => r.status === 'enable')?.length || 0,
+        hunger: filteredRiders?.filter(r => r.companyName === 'Hunger')?.length || 0,
+        keta: filteredRiders?.filter(r => r.companyName === 'Keta')?.length || 0
     };
 
     const getStatusBadge = (status) => {
@@ -66,10 +86,30 @@ export default function MemberRiders() {
                         نشط
                     </span>
                 );
-            case 'accident':
+            case 'disable':
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <XCircle size={12} />
+                        غير نشط
+                    </span>
+                );
+            case 'fleeing':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                        <AlertTriangle size={12} />
+                        هارب
+                    </span>
+                );
+            case 'vacation':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        إجازة
+                    </span>
+                );
+            case 'accident':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <AlertTriangle size={12} />
                         حادث
                     </span>
                 );
@@ -78,12 +118,6 @@ export default function MemberRiders() {
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         <AlertTriangle size={12} />
                         مريض
-                    </span>
-                );
-            case 'vacation':
-                return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        راحة
                     </span>
                 );
             default:
@@ -102,6 +136,7 @@ export default function MemberRiders() {
                 <h1 className="text-2xl font-bold text-gray-900">المناديب</h1>
                 <p className="text-gray-500">قائمة جميع المناديب والمعلومات المتعلقة بهم</p>
             </div>
+
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -134,6 +169,27 @@ export default function MemberRiders() {
                     background="bg-gray-200"
                 />
             </div>
+            {/* Search Bar */}
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div className="relative">
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                        type="text"
+                        placeholder="بحث في المناديب (الإقامة، الاسم، رقم العمل، الشركة، المركبة، الجوال...)"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm("")}
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
+            </div>
 
             {/* Riders Table */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -142,7 +198,7 @@ export default function MemberRiders() {
                         <Users className="text-blue-600" size={20} />
                         قائمة المناديب
                         <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
-                            {riders?.length || 0}
+                            {filteredRiders?.length || 0}
                         </span>
                     </h2>
                 </div>
@@ -175,8 +231,8 @@ export default function MemberRiders() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
-                            {riders?.length > 0 ? (
-                                riders.map((rider) => (
+                            {filteredRiders?.length > 0 ? (
+                                filteredRiders.map((rider) => (
                                     <tr key={rider.riderId} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                                             {rider.employeeIqamaNo}
@@ -230,7 +286,7 @@ export default function MemberRiders() {
                             ) : (
                                 <tr>
                                     <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                                        لا يوجد مناديب
+                                        {searchTerm ? 'لا توجد نتائج تطا البحث' : 'لا يوجد مناديب'}
                                     </td>
                                 </tr>
                             )}

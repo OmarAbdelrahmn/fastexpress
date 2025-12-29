@@ -15,7 +15,7 @@ import {
     Clock
 } from "lucide-react";
 
-export default function MemberRequestsPage() {
+export default function EmployeeStatusRequestsPage() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -85,7 +85,7 @@ export default function MemberRequestsPage() {
         <div className="space-y-6 animate-fade-in">
             {/* Page Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">طلبات تغيير الحالة</h1>
+                <h1 className="text-2xl font-bold text-gray-900">طلبات تغيير حالة الموظفين</h1>
                 <p className="text-gray-500">قائمة طلبات تغيير حالة الموظفين المعلقة</p>
             </div>
 
