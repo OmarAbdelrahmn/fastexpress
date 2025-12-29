@@ -14,23 +14,13 @@ import {
     CheckCircle,
     XCircle,
     FileText,
-    Clock,
-    Shield,
-    Eye
+    Clock
 } from "lucide-react";
 
 export default function VehicleRequestsPage() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [resolving, setResolving] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    const [showResolveModal, setShowResolveModal] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const [note, setNote] = useState('');
-    const [permission, setPermission] = useState('');
-    const [permissionEndDate, setPermissionEndDate] = useState('');
-    const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
         loadRequests();
@@ -47,85 +37,6 @@ export default function VehicleRequestsPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleResolve = async (request, isApproved) => {
-        setResolving(true);
-        setError(null);
-        setSuccessMessage('');
-        setFieldErrors({});
-
-        const errors = {};
-        if (isApproved && request.operationType?.toLowerCase() === 'taken') {
-            if (!permission) {
-                errors.permission = 'التصريح مطلوب';
-            }
-            if (!permissionEndDate) {
-                errors.permissionEndDate = 'تاريخ انتهاء التصريح مطلوب';
-            } else {
-                const selectedDate = new Date(permissionEndDate);
-                const now = new Date();
-                selectedDate.setHours(23, 59, 59, 999);
-
-                if (selectedDate <= now) {
-                    errors.permissionEndDate = 'يجب أن يكون تاريخ انتهاء التصريح في المستقبل';
-                }
-            }
-        }
-
-        if (Object.keys(errors).length > 0) {
-            setFieldErrors(errors);
-            setResolving(false);
-            return;
-        }
-
-        try {
-            const resolutionValue = isApproved ? "Approved" : "Rejected";
-
-            let permissionValue = "";
-            let permissionEndDateValue = null;
-
-            if (isApproved && selectedRequest?.operationType?.toLowerCase() === 'taken') {
-                permissionValue = permission;
-                permissionEndDateValue = new Date(`${permissionEndDate}T23:59:59.999`).toISOString();
-            }
-
-            const payload = {
-                riderIqamaNo: Number(selectedRequest.riderIqamaNo),
-                resolution: resolutionValue,
-                resolvedBy: "Member",
-                plate: selectedRequest?.vehiclePlate,
-                note: note || "",
-                permission: isApproved ? permissionValue : null,
-                permissionEndDate: permissionEndDateValue ?? null
-            };
-
-            await ApiService.put('/api/temp/vehicle-resolve', payload);
-
-            setSuccessMessage(`تم ${isApproved ? 'الموافقة على' : 'رفض'} الطلب بنجاح`);
-            setShowResolveModal(false);
-            setSelectedRequest(null);
-            setNote('');
-            setPermission('');
-            setPermissionEndDate('');
-            loadRequests();
-
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch (err) {
-            console.error('Error resolving request:', err);
-            setError(err?.message || 'حدث خطأ أثناء معالجة الطلب');
-        } finally {
-            setResolving(false);
-        }
-    };
-
-    const openResolveModal = (request) => {
-        setSelectedRequest(request);
-        setNote('');
-        setPermission('');
-        setPermissionEndDate('');
-        setFieldErrors({});
-        setShowResolveModal(true);
     };
 
     // Calculate statistics
@@ -162,13 +73,22 @@ export default function VehicleRequestsPage() {
         }
     };
 
+    const getStatusBadge = () => {
+        return (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <Clock size={12} />
+                معلق
+            </span>
+        );
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-[400px]">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
     );
 
-    if (error && !showResolveModal) return (
+    if (error) return (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2">
             <AlertTriangle size={20} />
             <span>{error}</span>
@@ -177,34 +97,6 @@ export default function VehicleRequestsPage() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            {/* Success Message */}
-            {successMessage && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center gap-2">
-                    <CheckCircle size={20} />
-                    <span>{successMessage}</span>
-                    <button
-                        onClick={() => setSuccessMessage('')}
-                        className="mr-auto text-green-700 hover:text-green-900"
-                    >
-                        <XCircle size={18} />
-                    </button>
-                </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2">
-                    <AlertTriangle size={20} />
-                    <span>{error}</span>
-                    <button
-                        onClick={() => setError(null)}
-                        className="mr-auto text-red-600 hover:text-red-800"
-                    >
-                        <XCircle size={18} />
-                    </button>
-                </div>
-            )}
-
             {/* Page Header */}
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">طلبات عمليات المركبات</h1>
@@ -271,6 +163,9 @@ export default function VehicleRequestsPage() {
                                     نوع العملية
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الحالة
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     السبب
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -278,9 +173,6 @@ export default function VehicleRequestsPage() {
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     تاريخ الطلب
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    الإجراءات
                                 </th>
                             </tr>
                         </thead>
@@ -315,6 +207,9 @@ export default function VehicleRequestsPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {getOperationBadge(request.operationType)}
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getStatusBadge()}
+                                        </td>
                                         <td className="px-6 py-4 max-w-xs">
                                             <div className="flex items-start gap-2">
                                                 <MessageSquare size={14} className="text-gray-400 mt-0.5 flex-shrink-0" />
@@ -340,15 +235,6 @@ export default function VehicleRequestsPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <button
-                                                onClick={() => openResolveModal(request)}
-                                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
-                                            >
-                                                <Eye size={14} />
-                                                مراجعة
-                                            </button>
-                                        </td>
                                     </tr>
                                 ))
                             ) : (
@@ -363,166 +249,16 @@ export default function VehicleRequestsPage() {
                 </div>
             </div>
 
-            {/* Resolve Modal */}
-            {showResolveModal && selectedRequest && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        {/* Header */}
-                        <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-800">مراجعة الطلب</h2>
-                                <p className="text-gray-500 text-sm mt-1">راجع التفاصيل أدناه واتخذ الإجراء المناسب</p>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    setShowResolveModal(false);
-                                    setSelectedRequest(null);
-                                    setNote('');
-                                    setPermission('');
-                                    setPermissionEndDate('');
-                                }}
-                                className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all shadow-sm border border-gray-100"
-                            >
-                                <XCircle size={24} />
-                            </button>
-                        </div>
-
-                        <div className="p-8">
-                            {/* Request Details */}
-                            <div className="flex gap-6 mb-8 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-                                <div className="flex-1">
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">تفاصيل الطلب</p>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">رقم اللوحة</span>
-                                            <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">
-                                                {formatPlateNumber(selectedRequest.vehiclePlate)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">رقم إقامة المندوب</span>
-                                            <span className="font-bold text-gray-800 font-mono">{selectedRequest.riderIqamaNo}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">اسم المندوب</span>
-                                            <span className="font-bold text-gray-800">{selectedRequest.riderName}</span>
-                                        </div>
-                                        {selectedRequest.requestedBy && (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-600">مقدم الطلب</span>
-                                                <span className="font-bold text-gray-800 font-mono">{selectedRequest.requestedBy}</span>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">نوع العملية</span>
-                                            {getOperationBadge(selectedRequest.operationType)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Vertical Separator */}
-                                <div className="w-px bg-gray-100"></div>
-
-                                <div className="flex-1 flex flex-col justify-center items-center text-center">
-                                    {selectedRequest.reason ? (
-                                        <>
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">السبب</p>
-                                            <p className="text-gray-700 italic">"{selectedRequest.reason}"</p>
-                                        </>
-                                    ) : (
-                                        <div className="text-gray-300 flex flex-col items-center justify-center h-full">
-                                            <MessageSquare size={48} className="mb-2 opacity-20" />
-                                            <span className="text-sm">لا توجد ملاحظات إضافية</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Permission Fields (for Take requests) */}
-                            {selectedRequest.operationType?.toLowerCase() === 'taken' && (
-                                <div className="bg-purple-50/50 border border-purple-100 p-6 rounded-2xl mb-6">
-                                    <h3 className="text-purple-800 font-bold mb-4 flex items-center gap-2">
-                                        <Shield size={18} /> متطلبات الموافقة
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
-                                                التصريح <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={permission}
-                                                onChange={(e) => {
-                                                    setPermission(e.target.value);
-                                                    if (fieldErrors.permission) setFieldErrors({ ...fieldErrors, permission: null });
-                                                }}
-                                                className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permission ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
-                                                    }`}
-                                                placeholder="مثال: تصريح التوصيل الشهري"
-                                            />
-                                            {fieldErrors.permission && (
-                                                <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permission}</p>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
-                                                تاريخ انتهاء التصريح <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="date"
-                                                value={permissionEndDate}
-                                                onChange={(e) => {
-                                                    setPermissionEndDate(e.target.value);
-                                                    if (fieldErrors.permissionEndDate) setFieldErrors({ ...fieldErrors, permissionEndDate: null });
-                                                }}
-                                                className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permissionEndDate ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
-                                                    }`}
-                                            />
-                                            {fieldErrors.permissionEndDate && (
-                                                <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permissionEndDate}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Notes */}
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
-                                    ملاحظات (اختياري)
-                                </label>
-                                <textarea
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                    rows={3}
-                                    placeholder="أضف أي ملاحظات إضافية..."
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all outline-none resize-none"
-                                />
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-4 justify-end pt-6 mt-4 border-t border-gray-100">
-                                <button
-                                    onClick={() => handleResolve(selectedRequest, false)}
-                                    disabled={resolving}
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <XCircle size={20} />
-                                    {resolving ? 'جاري المعالجة...' : 'رفض الطلب'}
-                                </button>
-                                <button
-                                    onClick={() => handleResolve(selectedRequest, true)}
-                                    disabled={resolving}
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl shadow-lg shadow-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <CheckCircle size={20} />
-                                    {resolving ? 'جاري المعالجة...' : 'الموافقة على الطلب'}
-                                </button>
-                            </div>
-                        </div>
+            {/* Info Box */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                    <AlertTriangle size={20} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-800">
+                        <p className="font-medium mb-1">ملاحظة:</p>
+                        <p>هذه الصفحة تعرض الطلبات المعلقة فقط. سيتم مراجعة جميع الطلبات من قبل الإدارة.</p>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

@@ -51,7 +51,12 @@ export const userNavigationConfig = {
   actions: {
     title: "common.others",
     icon: "⚡",
-    path: "/member/actions",
+    routes: [
+      { path: "/member/actions/employee-status-change", label: "طلب تغيير حالة موظف" },
+      { path: "/member/actions/vehicle-take", label: "طلب استلام مركبة" },
+      { path: "/member/actions/vehicle-return", label: "طلب إرجاع مركبة" },
+      { path: "/member/actions/vehicle-report-problem", label: "الإبلاغ عن مشكلة مركبة" },
+    ],
   },
 };
 
