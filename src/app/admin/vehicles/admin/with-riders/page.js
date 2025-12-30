@@ -286,7 +286,7 @@ export default function VehiclesWithRidersPage() {
                   <tr>
                     <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[30%]">{t('vehicles.vehicle')}</th>
                     <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[35%]">{t('vehicles.details')}</th>
-                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[20%]">{t('vehicles.status')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[20%]">{t('vehicles.statuss')}</th>
                     <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('common.actions')}</th>
                   </tr>
                 </thead>
@@ -353,7 +353,7 @@ export default function VehiclesWithRidersPage() {
                         </td>
                         <td className="p-4 align-top text-center">
                           <Button
-                            onClick={() => router.push(`/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                            onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
                             variant="secondary"
                             className="!py-1.5 !px-3 text-sm h-auto"
                           >

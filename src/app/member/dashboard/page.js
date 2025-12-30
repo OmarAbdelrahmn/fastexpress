@@ -55,6 +55,8 @@ export default function MemberDashboard() {
     );
 
     const { housing, stats, recentActivities, summary } = data || {};
+    const totalVehicles = (stats?.vehiclesAvailable || 0) + (stats?.vehiclesInUse || 0) + (stats?.problemVehicles || 0);
+    const totalPeople = (stats?.totalEmployees || 0) + (stats?.activeRiders || 0) + (stats?.inactiveRiders || 0);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -64,7 +66,6 @@ export default function MemberDashboard() {
                 <p className="text-gray-500">{t("dashboard.member.subtitle")}</p>
             </div>
 
-            {/* Stats Grid */}
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                 {/* Row 1: Employee/Rider Stats */}
@@ -188,7 +189,13 @@ export default function MemberDashboard() {
                         <Car size={20} color={COLORS.blue} />
                         {t("dashboard.member.vehiclesBreakdown")}
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-2">
+                        <MiniStatRow
+                            label={t("vehicles.total")}
+                            value={totalVehicles}
+                            icon={Car}
+                            color={COLORS.blue}
+                        />
                         <MiniStatRow
                             label={t("dashboard.member.readyForDelivery")}
                             value={stats?.vehiclesAvailable || 0}
@@ -210,14 +217,33 @@ export default function MemberDashboard() {
                     </div>
                 </div>
 
-                {/* Pending Requests Quick Action */}
-                <QuickActionCard
-                    title={t("dashboard.member.requests")}
-                    count={stats?.pendingRequests || 0}
-                    icon={Clock}
-                    href="/member/requests"
-                    color="orange"
-                />
+                {/* Employees & Riders Breakdown */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <Users size={20} color={COLORS.blue} />
+                        {t("navigation.employees")} & {t("navigation.riders")}
+                    </h3>
+                    <div className="space-y-6">
+                        <MiniStatRow
+                            label={t("dashboard.member.totalEmployees")}
+                            value={stats?.totalEmployees || 0}
+                            icon={Users}
+                            color={COLORS.blue}
+                        />
+                        <MiniStatRow
+                            label={t("dashboard.member.activeRiders")}
+                            value={stats?.activeRiders || 0}
+                            icon={CheckCircle}
+                            color={COLORS.green}
+                        />
+                        <MiniStatRow
+                            label={t("dashboard.member.inactive")}
+                            value={stats?.inactiveRiders || 0}
+                            icon={XCircle}
+                            color={COLORS.red}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -230,6 +256,8 @@ const COLORS = {
     orange: "#f97316", // orange-500
     gray: "#64748b",   // slate-500
     grayLight: "#94a3b8", // slate-400
+    green: "#10b981",  // emerald-500
+    red: "#ef4444",    // red-500
 };
 
 // Helper for background color with opacity (approx 10%)
@@ -238,10 +266,10 @@ const getBgStyle = (hex) => ({
 });
 
 const MiniStatRow = ({ label, value, icon: Icon, color }) => (
-    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">
-        <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">
+        <div className="flex items-center gap-2">
             <div className="p-2 rounded-md group-hover:bg-opacity-20 transition-all" style={getBgStyle(color)}>
-                <Icon size={18} color={color} />
+                <Icon size={16} color={color} />
             </div>
             <span className="text-sm font-medium text-gray-600">{label}</span>
         </div>

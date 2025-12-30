@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import * as XLSX from 'xlsx';
 import {
     Users,
     Car,
@@ -14,7 +15,8 @@ import {
     CheckCircle,
     XCircle,
     Building2,
-    Search
+    Search,
+    Download
 } from "lucide-react";
 
 export default function MemberRiders() {
@@ -22,6 +24,7 @@ export default function MemberRiders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
 
     useEffect(() => {
         const fetchRiders = async () => {
@@ -51,12 +54,10 @@ export default function MemberRiders() {
         </div>
     );
 
-    // Filter riders based on search term
+    // Filter riders based on search term and status
     const filteredRiders = riders.filter(rider => {
-        if (!searchTerm) return true;
-
         const search = searchTerm.toLowerCase();
-        return (
+        const matchesSearch = !searchTerm || (
             rider.employeeIqamaNo?.toString().includes(search) ||
             rider.nameAR?.toLowerCase().includes(search) ||
             rider.nameEN?.toLowerCase().includes(search) ||
@@ -67,14 +68,54 @@ export default function MemberRiders() {
             rider.phone?.includes(search) ||
             rider.status?.toLowerCase().includes(search)
         );
+
+        const matchesStatus =
+            statusFilter === 'all' ||
+            (statusFilter === 'active' && rider.status?.toLowerCase() === 'enable') ||
+            (statusFilter === 'inactive' && rider.status?.toLowerCase() === 'disable') ||
+            (statusFilter === 'sick' && rider.status?.toLowerCase() === 'sick') ||
+            (statusFilter === 'accident' && rider.status?.toLowerCase() === 'accident');
+
+        return matchesSearch && matchesStatus;
     });
 
-    // Calculate statistics based on filtered data
+    // Calculate statistics based on full data
     const stats = {
-        total: filteredRiders?.length || 0,
-        active: filteredRiders?.filter(r => r.status === 'enable')?.length || 0,
-        hunger: filteredRiders?.filter(r => r.companyName === 'Hunger')?.length || 0,
-        keta: filteredRiders?.filter(r => r.companyName === 'Keta')?.length || 0
+        total: riders.length,
+        active: riders.filter(r => r.status?.toLowerCase() === 'enable').length,
+        other: riders.length - riders.filter(r => r.status?.toLowerCase() === 'enable').length,
+        inactive: riders.filter(r => r.status?.toLowerCase() === 'disable').length,
+        sick: riders.filter(r => r.status?.toLowerCase() === 'sick').length,
+        accident: riders.filter(r => r.status?.toLowerCase() === 'accident').length,
+        companies: new Set(riders.map(r => r.companyName)).size,
+        withHousing: riders.filter(r => r.housingAddress).length,
+        hunger: riders.filter(r => r.companyName === 'Hunger').length,
+        keta: riders.filter(r => r.companyName === 'Keta').length
+    };
+
+    const handleExportExcel = () => {
+        // Prepare data for Excel
+        const excelData = filteredRiders.map(rider => ({
+            'رقم الإقامة': rider.employeeIqamaNo,
+            'الاسم (عربي)': rider.nameAR,
+            'الاسم (إنجليزي)': rider.nameEN,
+            'رقم العمل': rider.workingId,
+            'الشركة': rider.companyName,
+            'المركبة': rider.vehiclePlate ? formatPlateNumber(rider.vehiclePlate) : '',
+            'رقم اللوحة': rider.vehicleNumber || '',
+            'الجوال': rider.phone,
+            'الحالة': rider.status
+        }));
+
+        // Create worksheet
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Create workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'المناديب');
+
+        // Generate Excel file and download
+        XLSX.writeFile(workbook, `riders_export_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const getStatusBadge = (status) => {
@@ -189,6 +230,54 @@ export default function MemberRiders() {
                         </button>
                     )}
                 </div>
+            </div>
+
+            {/* Filters and Export */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap gap-2">
+                    <FilterButton
+                        label="الكل"
+                        active={statusFilter === 'all'}
+                        onClick={() => setStatusFilter('all')}
+                        count={stats.total}
+                    />
+                    <FilterButton
+                        label="نشط"
+                        active={statusFilter === 'active'}
+                        onClick={() => setStatusFilter('active')}
+                        count={stats.active}
+                        color="green"
+                    />
+                    <FilterButton
+                        label="غير نشط"
+                        active={statusFilter === 'inactive'}
+                        onClick={() => setStatusFilter('inactive')}
+                        count={stats.inactive}
+                        color="red"
+                    />
+                    <FilterButton
+                        label="مريض"
+                        active={statusFilter === 'sick'}
+                        onClick={() => setStatusFilter('sick')}
+                        count={stats.sick}
+                        color="yellow"
+                    />
+                    <FilterButton
+                        label="حادث"
+                        active={statusFilter === 'accident'}
+                        onClick={() => setStatusFilter('accident')}
+                        count={stats.accident}
+                        color="orange"
+                    />
+                </div>
+
+                <button
+                    onClick={handleExportExcel}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                    <Download size={20} />
+                    <span>تصدير Excel</span>
+                </button>
             </div>
 
             {/* Riders Table */}
@@ -315,3 +404,37 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color, background }) => 
         </div>
     );
 }
+
+const FilterButton = ({ label, active, onClick, count, color = 'blue' }) => {
+    const activeClasses = {
+        blue: "bg-blue-600 text-white border-blue-600",
+        green: "bg-green-600 text-white border-green-600",
+        red: "bg-red-600 text-white border-red-600",
+        rose: "bg-rose-600 text-white border-rose-600",
+        yellow: "bg-yellow-500 text-white border-yellow-500",
+        orange: "bg-orange-500 text-white border-orange-500",
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`
+                flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm font-medium
+                ${active
+                    ? activeClasses[color] || activeClasses.blue
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                }
+            `}
+        >
+            <span>{label}</span>
+            {count !== undefined && (
+                <span className={`
+                    px-2 py-0.5 rounded-full text-xs
+                    ${active ? "bg-white/20" : "bg-gray-100 text-gray-600"}
+                `}>
+                    {count}
+                </span>
+            )}
+        </button>
+    );
+};

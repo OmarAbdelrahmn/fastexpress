@@ -247,6 +247,15 @@
     "title": "Vehicles",
     "searchPlaceholderReport": "Search for vehicle or rider...",
     "noActiveVehiclesFound": "No active vehicles found.",
+    "status": {
+      "Taken": "Taken",
+      "Returned": "Returned"
+    },
+    "reportProblemButton": "Report Problem",
+    "problemReason": "Problem Reason",
+    "describeProblemPlaceholder": "Describe the problem in detail...",
+    "submitReport": "Submit Report",
+    "noRiderAssigned": "No Rider Assigned",
     "total": "Total Vehicles",
     "available": "Available",
     "taken": "In Use",
@@ -2272,7 +2281,7 @@
     "rejected": "Rejected"
   },
   "auth": {
-  "memberLogin": "Rider App",
+    "memberLogin": "Rider App",
     "password": "Password",
     "enterIqama": "Enter Iqama Number",
     "enterPassword": "Enter Password",
@@ -2401,4 +2410,4 @@
     "deficit": "Deficit",
     "date": "Date"
   }
-} 
+}

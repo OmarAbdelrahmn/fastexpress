@@ -5,11 +5,6 @@ export const userNavigationConfig = {
     icon: "🏠",
     path: "/member/dashboard",
   },
-  details: {
-    title: "navigation.myDetails",
-    icon: "👤",
-    path: "/member/profile",
-  },
   riders: {
     title: "navigation.riders",
     icon: "🏍️",
@@ -41,7 +36,12 @@ export const userNavigationConfig = {
   reports: {
     title: "navigation.reports",
     icon: "📊",
-    path: "/member/reports",
+    routes: [
+      {
+        path: `/member/reports/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`,
+        label: "navigation.monthlyReports",
+      },
+    ],
   },
   actions: {
     title: "common.others",
@@ -49,9 +49,14 @@ export const userNavigationConfig = {
     routes: [
       { path: "/member/actions/employee-status-change", label: "طلب تغيير حالة موظف" },
       { path: "/member/actions/vehicle-take", label: "طلب استلام مركبة" },
-      { path: "/member/actions/vehicle-return", label: "طلب إرجاع مركبة" },
+      { path: "/member/actions/vehicle-return", label: "طلب ايقاف مركبة" },
       { path: "/member/actions/vehicle-report-problem", label: "الإبلاغ عن مشكلة مركبة" },
     ],
+  },
+  details: {
+    title: "navigation.myDetails",
+    icon: "👤",
+    path: "/member/profile",
   },
 };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import * as XLSX from 'xlsx';
 import Link from "next/link";
 import {
     Bike,
@@ -14,7 +15,9 @@ import {
     AlertTriangle,
     Package,
     History,
-    Search
+    Search,
+    Download,
+    Wrench
 } from "lucide-react";
 
 export default function MemberVehiclesPage() {
@@ -22,6 +25,7 @@ export default function MemberVehiclesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
 
     useEffect(() => {
         const fetchVehicles = async () => {
@@ -37,12 +41,10 @@ export default function MemberVehiclesPage() {
         fetchVehicles();
     }, []);
 
-    // Filter vehicles based on search term
+    // Filter vehicles based on search term and status
     const filteredVehicles = vehicles.filter(vehicle => {
-        if (!searchTerm) return true;
-
         const search = searchTerm.toLowerCase();
-        return (
+        const matchesSearch = !searchTerm || (
             vehicle.vehicleNumber?.toLowerCase().includes(search) ||
             vehicle.vehicleType?.toLowerCase().includes(search) ||
             vehicle.plateNumberA?.toLowerCase().includes(search) ||
@@ -51,23 +53,56 @@ export default function MemberVehiclesPage() {
             vehicle.manufactureYear?.toString().includes(search) ||
             vehicle.location?.toLowerCase().includes(search) ||
             vehicle.assignedRiderName?.toLowerCase().includes(search) ||
-            vehicle.assignedRiderIqamaNo?.toString().includes(search)
+            vehicle.assignedRiderNameE?.toLowerCase().includes(search) ||
+            vehicle.assignedRiderIqamaNo?.toString().includes(search) ||
+            vehicle.currentStatus?.toLowerCase().includes(search)
         );
+
+        const matchesStatus =
+            statusFilter === 'all' ||
+            (statusFilter === 'returned' && vehicle.currentStatus?.toLowerCase() === 'returned') ||
+            (statusFilter === 'taken' && vehicle.currentStatus?.toLowerCase() === 'taken') ||
+            (statusFilter === 'problem' && vehicle.currentStatus?.toLowerCase() === 'problem');
+
+        return matchesSearch && matchesStatus;
     });
 
-    // Calculate statistics based on filtered data
+    // Calculate statistics based on full data
     const stats = {
-        totalVehicles: filteredVehicles?.length || 0,
-        assigned: filteredVehicles?.filter(v => v.assignedRiderIqamaNo)?.length || 0,
-        available: filteredVehicles?.filter(v => !v.assignedRiderIqamaNo)?.length || 0,
-        withStatus: filteredVehicles?.length - (filteredVehicles?.filter(v => v.assignedRiderIqamaNo)?.length + filteredVehicles?.filter(v => !v.assignedRiderIqamaNo)?.length)
+        total: vehicles.length,
+        returned: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'returned').length,
+        taken: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'taken').length,
+        problem: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'problem').length
+    };
+
+    const handleExportExcel = () => {
+        // Prepare data for Excel
+        const excelData = filteredVehicles.map(vehicle => ({
+            'رقم اللوحة': formatPlateNumber(vehicle.plateNumberA),
+            'الشركة المصنعة': vehicle.manufacturer,
+            'سنة الصنع': vehicle.manufactureYear,
+            'انتهاء الرخصة': vehicle.licenseExpiryDate || 'غير محدد',
+            'المندوب (عربي)': vehicle.assignedRiderName || 'غير مخصص',
+            'المندوب (إنجليزي)': vehicle.assignedRiderNameE || 'غير مخصص',
+            'رقم الإقامة': vehicle.assignedRiderIqamaNo || '',
+            'الحالة': vehicle.currentStatus || 'غير محدد'
+        }));
+
+        // Create worksheet
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+        // Create workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'المركبات');
+
+        // Generate Excel file and download
+        XLSX.writeFile(workbook, `vehicles_export_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     const getStatusBadge = (currentStatus) => {
         if (!currentStatus) {
             return (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    <Clock size={12} />
                     غير محدد
                 </span>
             );
@@ -90,21 +125,13 @@ export default function MemberVehiclesPage() {
                         قيد الاستخدام
                     </span>
                 );
-            case 'maintenance':
-            case 'صيانة':
-                return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                        <Wrench size={12} />
-                        صيانة
-                    </span>
-                );
             case 'problem':
             case 'مشكلة':
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <AlertTriangle size={12} />
                         مشكلة
-                    </span> 
+                    </span>
                 );
             default:
                 return (
@@ -136,39 +163,41 @@ export default function MemberVehiclesPage() {
                     <h1 className="text-2xl font-bold text-gray-900">المركبات</h1>
                     <p className="text-gray-500">عرض وإدارة المركبات المخصصة</p>
                 </div>
-            </div>            
+            </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard
                     title="إجمالي المركبات"
-                    value={stats.totalVehicles}
+                    value={stats.total}
                     icon={Bike}
                     color="#3B82F6"
                     background="bg-blue-200"
                 />
                 <StatCard
-                    title="مخصصة"
-                    value={stats.assigned}
-                    icon={User}
+                    title="متاحة"
+                    value={stats.returned}
+                    icon={CheckCircle}
                     color="#10B981"
                     background="bg-green-200"
                 />
                 <StatCard
-                    title="متاحة"
-                    value={stats.available}
-                    icon={CheckCircle}
+                    title="قيد الاستخدام"
+                    value={stats.taken}
+                    icon={User}
                     color="#525252ff"
                     background="bg-gray-200"
                 />
                 <StatCard
-                    title="بحالة خاصة"
-                    value={stats.withStatus}
-                    icon={Package}
+                    title="صيانة"
+                    value={stats.problem}
+                    icon={Wrench}
                     color="#F59E0B"
                     background="bg-orange-200"
                 />
             </div>
+
+            {/* Search Bar */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div className="relative">
                     <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -189,6 +218,48 @@ export default function MemberVehiclesPage() {
                     )}
                 </div>
             </div>
+
+            {/* Filters and Export */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap gap-2">
+                    <FilterButton
+                        label="الكل"
+                        active={statusFilter === 'all'}
+                        onClick={() => setStatusFilter('all')}
+                        count={stats.total}
+                    />
+                    <FilterButton
+                        label="متاح"
+                        active={statusFilter === 'returned'}
+                        onClick={() => setStatusFilter('returned')}
+                        count={stats.returned}
+                        color="green"
+                    />
+                    <FilterButton
+                        label="قيد الاستخدام"
+                        active={statusFilter === 'taken'}
+                        onClick={() => setStatusFilter('taken')}
+                        count={stats.taken}
+                        color="blue"
+                    />
+                    <FilterButton
+                        label="مشكلة"
+                        active={statusFilter === 'problem'}
+                        onClick={() => setStatusFilter('problem')}
+                        count={stats.problem}
+                        color="red"
+                    />
+                </div>
+
+                <button
+                    onClick={handleExportExcel}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                    <Download size={20} />
+                    <span>تصدير Excel</span>
+                </button>
+            </div>
+
             {/* Vehicles Table */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
@@ -196,7 +267,7 @@ export default function MemberVehiclesPage() {
                         <Bike className="text-blue-600" size={20} />
                         قائمة المركبات
                         <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
-                            {vehicles?.length || 0}
+                            {filteredVehicles?.length || 0}
                         </span>
                     </h2>
                 </div>
@@ -205,12 +276,6 @@ export default function MemberVehiclesPage() {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    رقم المركبة
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    النوع
-                                </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     رقم اللوحة
                                 </th>
@@ -224,10 +289,10 @@ export default function MemberVehiclesPage() {
                                     انتهاء الرخصة
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    الموقع
+                                    المندوب
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    المندوب
+                                    الحالة
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     الإجراءات
@@ -238,15 +303,6 @@ export default function MemberVehiclesPage() {
                             {filteredVehicles?.length > 0 ? (
                                 filteredVehicles.map((vehicle, index) => (
                                     <tr key={`${vehicle.vehicleNumber}-${index}`} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                                            {vehicle.vehicleNumber}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <Bike size={14} className="text-gray-400" />
-                                                <span className="text-sm text-gray-700">{vehicle.vehicleType}</span>
-                                            </div>
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm">
                                                 <p className="font-medium text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</p>
@@ -266,20 +322,18 @@ export default function MemberVehiclesPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-1">
-                                                <MapPin size={14} className="text-gray-400" />
-                                                <span className="text-sm text-gray-700">{vehicle.location || 'غير محدد'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {vehicle.assignedRiderName ? (
                                                 <div className="text-sm">
                                                     <p className="font-medium text-gray-900">{vehicle.assignedRiderName}</p>
+                                                    <p className="text-gray-500 text-xs">{vehicle.assignedRiderNameE}</p>
                                                     <p className="text-gray-500 text-xs">{vehicle.assignedRiderIqamaNo}</p>
                                                 </div>
                                             ) : (
                                                 <span className="text-sm text-gray-400">غير مخصص</span>
                                             )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getStatusBadge(vehicle.currentStatus)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <Link
@@ -294,7 +348,7 @@ export default function MemberVehiclesPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                         {searchTerm ? 'لا توجد نتائج تطابق البحث' : 'لا توجد مركبات متاحة'}
                                     </td>
                                 </tr>
@@ -323,3 +377,36 @@ const StatCard = ({ title, value, icon: Icon, color, background }) => {
         </div>
     );
 }
+
+const FilterButton = ({ label, active, onClick, count, color = 'blue' }) => {
+    const activeClasses = {
+        blue: "bg-blue-600 text-white border-blue-600",
+        green: "bg-green-600 text-white border-green-600",
+        red: "bg-red-600 text-white border-red-600",
+        orange: "bg-orange-500 text-white border-orange-500",
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`
+                flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm font-medium
+                ${active
+                    ? activeClasses[color] || activeClasses.blue
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                }
+            `}
+        >
+            <span>{label}</span>
+            {count !== undefined && (
+                <span className={`
+                    px-2 py-0.5 rounded-full text-xs
+                    ${active ? "bg-white/20" : "bg-gray-100 text-gray-600"}
+                `}>
+                    {count}
+                </span>
+            )}
+        </button>
+    );
+};
+

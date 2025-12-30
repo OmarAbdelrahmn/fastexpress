@@ -45,17 +45,17 @@ export default function ReportsPage() {
       reports: [
         {
           name: t('reports.monthlyReports'),
-          path: "/reports/monthly",
+          path: "/admin/reports/monthly",
           desc: t('reports.monthlyReportsDesc'),
         },
         {
           name: t('reports.yearlyReports'),
-          path: "/reports/yearly",
+          path: "/admin/reports/yearly",
           desc: t('reports.yearlyReportsDesc'),
         },
         {
           name: t('reports.customReports'),
-          path: "/reports/custom-range",
+          path: "/admin/reports/custom-range",
           desc: t('reports.customReportsDesc'),
         },
       ],
@@ -67,12 +67,12 @@ export default function ReportsPage() {
       reports: [
         {
           name: t('reports.companyPerformance'),
-          path: "/reports/company-performance",
+          path: "/admin/reports/company-performance",
           desc: t('reports.companyPerformanceDesc'),
         },
         {
           name: t('reports.compareCompanies'),
-          path: "/reports/compare-company",
+          path: "/admin/reports/compare-company",
           desc: t('reports.compareCompaniesDesc'),
         },
       ],
@@ -84,32 +84,32 @@ export default function ReportsPage() {
       reports: [
         {
           name: t('reports.ridersReports'),
-          path: "/reports/riders",
+          path: "/admin/reports/riders",
           desc: t('reports.ridersReportsDesc'),
         },
         {
           name: t('reports.compareRider'),
-          path: "/reports/top-riders",
+          path: "/admin/reports/top-riders",
           desc: t('reports.compareRiderDesc'),
         },
         {
           name: t('reports.compareRiders'),
-          path: "/reports/compare-riders",
+          path: "/admin/reports/compare-riders",
           desc: t('reports.compareRidersDesc'),
         },
         {
           name: t('reports.topRidersByCompany'),
-          path: "/reports/top-riders-company",
+          path: "/admin/reports/top-riders-company",
           desc: t('reports.topRidersByCompanyDesc'),
         },
         {
           name: t('reports.topRidersYearly.pageTitle'),
-          path: "/reports/top-riders-yearly",
+          path: "/admin/reports/top-riders-yearly",
           desc: t('reports.topRidersYearlyDesc'),
         },
         {
           name: t('reports.topRidersMonthly'),
-          path: "/reports/top-riders-monthly",
+          path: "/admin/reports/top-riders-monthly",
           desc: t('reports.topRidersMonthlyDesc'),
         },
       ],
@@ -121,17 +121,17 @@ export default function ReportsPage() {
       reports: [
         {
           name: t('reports.housingReport'),
-          path: "/reports/housing",
+          path: "/admin/reports/housing",
           desc: t('reports.housingReportDesc'),
         },
         {
           name: t('reports.housingCompare'),
-          path: "/reports/housing-compare",
+          path: "/admin/reports/housing-compare",
           desc: t('reports.housingCompareDesc'),
         },
         {
           name: t('reports.housingRiderCompare'),
-          path: "/reports/housing-rider-compare",
+          path: "/admin/reports/housing-rider-compare",
           desc: t('reports.housingRiderCompareDesc'),
         },
       ],
@@ -143,12 +143,12 @@ export default function ReportsPage() {
       reports: [
         {
           name: t('reports.problemsReports'),
-          path: "/reports/problems",
+          path: "/admin/reports/problems",
           desc: t('reports.problemsReportsDesc'),
         },
         {
           name: t('reports.stackedDeliveries'),
-          path: "/reports/stacked",
+          path: "/admin/reports/stacked",
           desc: t('reports.stackedDeliveriesDesc'),
         },
       ],

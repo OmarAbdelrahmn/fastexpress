@@ -62,14 +62,13 @@ export default function MemberShifts() {
 
     // Calculate statistics
     const stats = {
-        totalShifts: shifts?.length || 0,
+        totalOrders: shifts?.reduce((sum, s) => sum + (s.acceptedDailyOrders || 0), 0) || 0,
+        hungerOrders: shifts?.filter(s => s.companyName === 'Hunger')?.reduce((sum, s) => sum + (s.acceptedDailyOrders || 0), 0) || 0,
+        ketaOrders: shifts?.filter(s => s.companyName === 'Keta')?.reduce((sum, s) => sum + (s.acceptedDailyOrders || 0), 0) || 0,
+        activeRiders: new Set(shifts?.map(s => s.riderId)).size || 0,
         completed: shifts?.filter(s => s.shiftStatus === 'Completed')?.length || 0,
         failed: shifts?.filter(s => s.shiftStatus === 'Failed')?.length || 0,
-        incomplete: shifts?.filter(s => s.shiftStatus === 'Incomplete')?.length || 0,
-        totalOrders: shifts?.reduce((sum, s) => sum + (s.acceptedDailyOrders || 0), 0) || 0,
-        totalHours: shifts?.reduce((sum, s) => sum + (s.workingHours || 0), 0).toFixed(2) || 0,
-        hunger: shifts?.filter(s => s.companyName === 'Hunger')?.length || 0,
-        keta: shifts?.filter(s => s.companyName === 'Keta')?.length || 0,
+        incomplete: shifts?.filter(s => s.shiftStatus === 'Incomplete')?.length || 0
     };
 
     const getStatusBadge = (status) => {
@@ -170,15 +169,36 @@ export default function MemberShifts() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    title="إجمالي المناوبات"
-                    value={stats.totalShifts}
-                    icon={Calendar}
+                    title="إجمالي الطلبات"
+                    value={stats.totalOrders}
+                    icon={TrendingUp}
+                    color="#10B981"
+                    background="bg-green-200"
+                />
+                <StatCard
+                    title="طلبات Hunger"
+                    value={stats.hungerOrders}
+                    icon={Building2}
+                    color="#F59E0B"
+                    background="bg-orange-200"
+                />
+                <StatCard
+                    title="طلبات Keta"
+                    value={stats.ketaOrders}
+                    icon={Building2}
+                    color="#6B7280"
+                    background="bg-gray-200"
+                />
+                <StatCard
+                    title="المناديب النشطون"
+                    value={stats.activeRiders}
+                    icon={Users}
                     color="#3B82F6"
                     background="bg-blue-200"
                 />
-                <StatCard
+                {/* <StatCard
                     title="مكتملة"
                     value={stats.completed}
                     icon={CheckCircle}
@@ -189,37 +209,16 @@ export default function MemberShifts() {
                     title="فاشلة"
                     value={stats.failed}
                     icon={XCircle}
-                    color="#3552d3ff"
-                    background="bg-blue-200"
+                    color="#EF4444"
+                    background="bg-red-200"
                 />
                 <StatCard
-                    title="إجمالي الطلبات"
-                    value={stats.totalOrders}
-                    icon={TrendingUp}
-                    color="#4e4b45ff"
-                    background="bg-gray-200"
-                />
-                <StatCard
-                    title="ساعات العمل"
-                    value={stats.totalHours}
-                    icon={Clock}
-                    color="#355dccff"
-                    background="bg-blue-200"
-                />
-                <StatCard
-                    title="Hunger"
-                    value={stats.hunger}
-                    icon={Building2}
-                    color="#4e4b45ff"
-                    background="bg-gray-200"
-                />
-                <StatCard
-                    title="Keta"
-                    value={stats.keta}
-                    icon={Building2}
-                    color="#385eaaff"
-                    background="bg-blue-200"
-                />
+                    title="غير مكتملة"
+                    value={stats.incomplete}
+                    icon={AlertTriangle}
+                    color="#F59E0B"
+                    background="bg-orange-200"
+                /> */}
             </div>
 
             {/* Shifts Table */}

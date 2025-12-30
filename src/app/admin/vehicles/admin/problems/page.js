@@ -41,9 +41,10 @@ export default function ProblemsVehiclesPage() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const data = await ApiService.get("/api/vehicles/taken?statusFilter=unavailable");
-      if (data && Array.isArray(data.vehicles)) {
-        setAllVehicles(data.vehicles);
+      // Fetch all vehicles (both taken and returned with unavailable status)
+      const data = await ApiService.get("/api/vehicles/special");
+      if (data && Array.isArray(data)) {
+        setAllVehicles(data);
       } else {
         setAllVehicles([]);
       }
@@ -71,7 +72,7 @@ export default function ProblemsVehiclesPage() {
       return;
     }
 
-    if (!selectedVehicle?.plateNumberA || !selectedVehicle?.riderIqamaNo) {
+    if (!selectedVehicle?.plateNumberA) {
       setErrorMessage(t("vehicles.missingVehicleInfo"));
       return;
     }
@@ -80,11 +81,18 @@ export default function ProblemsVehiclesPage() {
     setErrorMessage("");
 
     try {
-      const queryParams = new URLSearchParams({
+      // Build query params - riderIqamaNo is now optional (nullable for returned vehicles)
+      const params = {
         plate: selectedVehicle.plateNumberA,
-        riderIqamaNo: selectedVehicle.riderIqamaNo,
         reason: reason
-      }).toString();
+      };
+
+      // Only add riderIqamaNo if it exists (for vehicles that are still taken)
+      if (selectedVehicle.currentRider.employeeIqamaNo) {
+        params.riderIqamaNo = selectedVehicle.currentRider.employeeIqamaNo;
+      }
+
+      const queryParams = new URLSearchParams(params).toString();
 
       await ApiService.post(`/api/vehicles/report-problem?${queryParams}`);
 
@@ -211,6 +219,20 @@ export default function ProblemsVehiclesPage() {
                     </span>
                   </div>
 
+                  {/* Display vehicle status */}
+                  {vehicle.currentStatus && (
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${vehicle.currentStatus === 'Taken'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : vehicle.currentStatus === 'Returned'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                        }`}>
+                        {t(`vehicles.status.${vehicle.currentStatus}`)}
+                      </span>
+                    </div>
+                  )}
+
                   {vehicle.riderName && (
                     <div className="flex items-center gap-2 text-gray-700">
                       <User size={14} />
@@ -238,7 +260,7 @@ export default function ProblemsVehiclesPage() {
                   {t("vehicles.reportProblemButton")}
                 </Button>
               </div>
-            ))}
+            ))};
           </div>
         )}
       </Card>
@@ -283,22 +305,35 @@ export default function ProblemsVehiclesPage() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
-                    <User size={16} className="text-blue-500" />
-                    {t("vehicles.riderInfo")}
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4 text-sm">
-                    <div>
-                      <p className="text-blue-600 mb-1">{t("vehicles.riderName")}</p>
-                      <p className="font-bold text-gray-900">{selectedVehicle.riderName}</p>
-                    </div>
-                    <div>
-                      <p className="text-blue-600 mb-1">{t("vehicles.iqamaNumber")}</p>
-                      <p className="font-medium text-gray-800">{selectedVehicle.riderIqamaNo}</p>
+                {/* Only show rider info if vehicle has a rider (taken vehicles) */}
+                {selectedVehicle.riderName && selectedVehicle.riderIqamaNo ? (
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                      <User size={16} className="text-blue-500" />
+                      {t("vehicles.riderInfo")}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 text-sm">
+                      <div>
+                        <p className="text-blue-600 mb-1">{t("vehicles.riderName")}</p>
+                        <p className="font-bold text-gray-900">{selectedVehicle.riderName}</p>
+                      </div>
+                      <div>
+                        <p className="text-blue-600 mb-1">{t("vehicles.iqamaNumber")}</p>
+                        <p className="font-medium text-gray-800">{selectedVehicle.riderIqamaNo}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                      <User size={16} className="text-gray-500" />
+                      {t("vehicles.riderInfo")}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {t("vehicles.noRiderAssigned")}
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
