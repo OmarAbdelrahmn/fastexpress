@@ -87,7 +87,7 @@ export default function RidersReportPage() {
 
     // If workingId is provided, use it directly
     if (quickWorkingId) {
-      router.push(`/reports/riders/${quickWorkingId}?startDate=${startDate}&endDate=${endDate}`);
+      router.push(`/admin/reports/riders/${quickWorkingId}?startDate=${startDate}&endDate=${endDate}`);
     }
     // If only iqamaNo is provided, we need to search for the workingId first
     else if (quickIqamaNo) {
