@@ -101,7 +101,7 @@ export default function RidersReportPage() {
           );
 
           if (matchingRider) {
-            router.push(`/reports/riders/${matchingRider.workingId}?startDate=${startDate}&endDate=${endDate}`);
+            router.push(`/admin/reports/riders/${matchingRider.workingId}?startDate=${startDate}&endDate=${endDate}`);
           } else {
             setMessage({ type: 'error', text: t('reports.riderNotFound') });
           }
@@ -116,7 +116,7 @@ export default function RidersReportPage() {
   };
 
   const viewDetails = (report) => {
-    router.push(`/reports/riders/${report.workingId}?startDate=${startDate}&endDate=${endDate}`);
+    router.push(`/admin/reports/riders/${report.workingId}?startDate=${startDate}&endDate=${endDate}`);
   };
 
   const handleExport = () => {
