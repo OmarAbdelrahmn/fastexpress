@@ -361,7 +361,7 @@ export default function HousingDashboardPage() {
       {/* Action Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pb-[35px] p-[10px]">
         {/* Manage Housing */}
-        <Link href="/housing/manage" className="block">
+        <Link href="/admin/housing/manage" className="block">
           <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -383,7 +383,7 @@ export default function HousingDashboardPage() {
         </Link>
 
         {/* Create Housing */}
-        <Link href="/housing/create" className="block">
+        <Link href="/admin/housing/create" className="block">
           <Card className="hover:shadow-md transition cursor-pointer p-3 pb-[30px] border rounded-xl bg-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

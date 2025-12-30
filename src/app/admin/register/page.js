@@ -143,7 +143,7 @@ export default function RegisterPage() {
         {/* Back to Dashboard Link */}
         <div className="mt-6 text-center">
           <Link
-            href="/dashboard"
+            href="/admin/dashboard"
             className="text-[#1b428e] hover:text-[#e08911] font-medium inline-flex items-center gap-2 transition-colors"
           >
             <ArrowRight size={18} />
