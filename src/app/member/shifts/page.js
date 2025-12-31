@@ -128,8 +128,8 @@ export default function MemberShifts() {
             {/* Page Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">المناوبات</h1>
-                    <p className="text-gray-500">عرض وإدارة المناوبات اليومية للمناديب</p>
+                    <h1 className="text-2xl font-bold text-gray-900">الاداء</h1>
+                    <p className="text-gray-500">عرض وإدارة الاداء اليومية للمناديب</p>
                 </div>
             </div>
 
@@ -226,7 +226,7 @@ export default function MemberShifts() {
                 <div className="p-6 border-b border-gray-100">
                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <Users className="text-blue-600" size={20} />
-                        قائمة المناوبات
+                        قائمة الاداء
                         <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
                             {shifts?.length || 0}
                         </span>

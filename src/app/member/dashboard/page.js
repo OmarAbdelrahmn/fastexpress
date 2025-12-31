@@ -59,11 +59,17 @@ export default function MemberDashboard() {
     const totalPeople = (stats?.totalEmployees || 0) + (stats?.activeRiders || 0) + (stats?.inactiveRiders || 0);
 
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="min-h-screen bg-gradient-to-br p-6 md:p-14 space-y-8 animate-fade-in" dir="rtl">
             {/* Header Info */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.member.title")}</h1>
-                <p className="text-gray-500">{t("dashboard.member.subtitle")}</p>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.member.title")}</h1>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-sm border border-blue-100">
+                        <Clock size={16} color={COLORS.blue} />
+                        <span>{new Date().toLocaleDateString('ar-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                </div>
+                <p className="text-gray-500 mt-1">{t("dashboard.member.subtitle")}</p>
             </div>
 
             {/* Stats Grid */}

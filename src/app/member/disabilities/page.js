@@ -85,7 +85,7 @@ export default function MemberDisabilitiesPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-blue-600 mb-1">
-                                    {t('common.disabilities') || 'عجز هنقر'}
+                                    {t('common.disabilities') || 'تقرير العجوزات هنقر'}
                                 </p>
                                 <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
                             </div>
@@ -139,7 +139,7 @@ export default function MemberDisabilitiesPage() {
                 <div className="bg-white rounded-xl shadow-md overflow-hidden">
                     <div className="bg-blue-600 px-6 py-4 flex justify-between items-center">
                         <h3 className="text-lg font-bold text-white">
-                            {t('common.disabilities') || 'عجز هنقر'} ({records.length})
+                            {t('common.disabilities') || 'تقرير العجوزات هنقر'} ({records.length})
                         </h3>
                     </div>
 

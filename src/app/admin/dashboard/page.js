@@ -470,7 +470,7 @@ export default function EnhancedDashboard() {
 
       <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100">
         <Clock size={16} color={COLORS.blue} />
-        <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        <span>{new Date().toLocaleDateString('ar-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
       </div>
     </div>
   );
