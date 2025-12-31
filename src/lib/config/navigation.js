@@ -38,9 +38,37 @@ export const userNavigationConfig = {
     icon: "📊",
     routes: [
       {
-        path: `/member/reports/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`,
-        label: "navigation.monthlyReports",
+        path: "/member/reports",
+        label: "navigation.reportsCenter",
       },
+      // {
+      //   path: `/member/reports/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`,
+      //   label: "navigation.monthlyReports",
+      // },
+      {
+        path: "/member/reports/daily",
+        label: "التقرير اليومي",
+      },
+      {
+        path: "/member/reports/compare-periods",
+        label: "مقارنة الفترات",
+      },
+      {
+        path: "/member/reports/rejection",
+        label: "تقرير الطلبات المرفوضة",
+      },
+      {
+        path: "/member/reports/riders-summary",
+        label: "ملخص المناديب",
+      },
+      {
+        path: "/member/reports/rider-daily",
+        label: "تفاصيل المندوب اليومية",
+      },
+      {
+        path: "/member/reports/rider-history",
+        label: "سجل المندوب",
+      }
     ],
   },
   actions: {

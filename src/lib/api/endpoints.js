@@ -210,5 +210,11 @@ export const API_ENDPOINTS = {
     VEHICLE_REQUEST_REPORT_PROBLEM: "/api/member/vehicles/request-report-problem",
     REPORTS_MONTHLY: "/api/Member/reports/monthly",
     REPORTS_EXPORT: "/api/Member/reports/export",
+    REPORTS_DAILY_DETAILED: "/api/member/reports/daily-detailed",
+    REPORTS_DAILY_SUMMARY: "/api/member/reports/daily-summary",
+    REPORTS_COMPARE_PERIODS: "/api/member/reports/compare-periods",
+    REPORTS_REJECTION: "/api/Member/reports/rejection",
+    REPORTS_RIDERS_SUMMARY: "/api/Member/reports/riders-summary",
+    REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
   },
 };

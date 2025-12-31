@@ -1,0 +1,264 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ApiService } from "@/lib/api/apiService";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import Link from "next/link";
+import {
+    ArrowRight,
+    Search,
+    Users,
+    Calendar,
+    FileText,
+    Clock,
+    Target,
+    Activity,
+    AlertCircle,
+    Download
+} from "lucide-react";
+
+export default function RidersSummaryReportPage() {
+    const router = useRouter();
+
+    // State
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [reportData, setReportData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Initial Date Setup (First of current month to today)
+    useEffect(() => {
+        const end = new Date();
+        const start = new Date(end.getFullYear(), end.getMonth(), 1);
+
+        const toLocalISO = (date) => {
+            const offset = date.getTimezoneOffset() * 60000;
+            return new Date(date - offset).toISOString().split('T')[0];
+        };
+
+        setStartDate(toLocalISO(start));
+        setEndDate(toLocalISO(end));
+    }, []);
+
+    const fetchReport = async () => {
+        if (!startDate || !endDate) return;
+
+        setLoading(true);
+        setError(null);
+        try {
+            const url = `${API_ENDPOINTS.MEMBER.REPORTS_RIDERS_SUMMARY}?startDate=${startDate}&endDate=${endDate}`;
+            const response = await ApiService.get(url);
+            setReportData(response);
+        } catch (err) {
+            setError(err.message || "حدث خطأ أثناء تحميل التقرير");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Auto-fetch on mount
+    useEffect(() => {
+        if (startDate && endDate && !reportData) {
+            fetchReport();
+        }
+    }, [startDate, endDate]);
+
+
+    const StatCard = ({ title, value, icon: Icon, color, suffix = "", subValue = null }) => (
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${color.bg}`}>
+                <Icon className={color.text} size={24} />
+            </div>
+            <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
+            <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-gray-900">{value}</span>
+                {suffix && <span className="text-gray-400 text-sm">{suffix}</span>}
+            </div>
+            {subValue && (
+                <div className="text-sm font-medium text-gray-500 mt-2 border-t border-gray-50 pt-2">
+                    {subValue}
+                </div>
+            )}
+        </div>
+    );
+
+    return (
+        <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4">
+                    <Link
+                        href="/member/reports"
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
+                    >
+                        <ArrowRight size={24} className="rotate-180" />
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <Activity className="text-blue-600" />
+                            ملخص أداء المناديب (Riders Summary)
+                        </h1>
+                        <p className="text-gray-500 mt-1 text-sm">
+                            متابعة شاملة لساعات العمل، الطلبات، والأيام
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700">من:</label>
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-700">إلى:</label>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm"
+                        />
+                    </div>
+                    <button
+                        onClick={fetchReport}
+                        disabled={loading}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? 'جاري التحميل...' : (
+                            <>
+                                <span>عرض</span>
+                                <Search size={18} />
+                            </>
+                        )}
+                    </button>
+                    <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
+                        <Download size={20} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3">
+                    <AlertCircle size={20} />
+                    <p className="font-medium">{error}</p>
+                </div>
+            )}
+
+            {/* Statistics Cards */}
+            {reportData?.totals && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                        title="إجمالي المناديب"
+                        value={reportData.totals.totalRiders}
+                        icon={Users}
+                        color={{ bg: "bg-blue-50", text: "text-blue-600" }}
+                    />
+                    <StatCard
+                        title="إجمالي الاداء"
+                        value={reportData.totals.totalWorkingDays}
+                        icon={Calendar}
+                        color={{ bg: "bg-indigo-50", text: "text-indigo-600" }}
+                    />
+                    <StatCard
+                        title="إجمالي الطلبات"
+                        value={reportData.totals.totalOrders}
+                        subValue={`المستهدف: ${reportData.totals.totalTargetOrders} (الفرق: ${reportData.totals.ordersDifference})`}
+                        icon={FileText}
+                        color={{ bg: "bg-green-50", text: "text-green-600" }}
+                    />
+                    <StatCard
+                        title="إجمالي الساعات"
+                        value={reportData.totals.totalWorkingHours?.toFixed(2)}
+                        subValue={`المستهدف: ${reportData.totals.totalTargetHours} (الفرق: ${reportData.totals.hoursDifference?.toFixed(2)})`}
+                        icon={Clock}
+                        color={{ bg: "bg-orange-50", text: "text-orange-600" }}
+                        suffix="ساعة"
+                    />
+                </div>
+            )}
+
+            {/* Details Table */}
+            {reportData?.riderSummaries && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                        <h2 className="text-lg font-bold text-gray-900">تفاصيل أداء المناديب</h2>
+                        <span className="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
+                            {reportData.riderSummaries.length} سجل
+                        </span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-right">
+                            <thead className="bg-gray-50 text-gray-500 text-sm">
+                                <tr>
+                                    <th className="px-6 py-3 font-semibold">المندوب</th>
+                                    <th className="px-6 py-3 font-semibold">رقم العمل</th>
+                                    <th className="px-6 py-3 font-semibold">أيام العمل</th>
+                                    <th className="px-6 py-3 font-semibold text-red-600">أيام الغياب</th>
+                                    <th className="px-6 py-3 font-semibold">الساعات</th>
+                                    <th className="px-6 py-3 font-semibold text-gray-400">هدف الساعات</th>
+                                    <th className="px-6 py-3 font-semibold">فرق الساعات</th>
+                                    <th className="px-6 py-3 font-semibold">الطلبات</th>
+                                    <th className="px-6 py-3 font-semibold text-gray-400">هدف الطلبات</th>
+                                    <th className="px-6 py-3 font-semibold">فرق الطلبات</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 text-sm">
+                                {reportData.riderSummaries.map((rider) => {
+                                    // Handle potential casing mismatches for missingDays
+                                    const missingDays = rider.missingDays ?? rider.MissingDays ?? 0;
+
+                                    return (
+                                        <tr key={rider.riderId} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-gray-900">{rider.riderNameAR}</div>
+                                                <div className="text-xs text-gray-500 font-mono">{rider.riderNameEN}</div>
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-gray-600">{rider.workingId}</td>
+
+                                            <td className="px-6 py-4 font-medium">{rider.actualWorkingDays}</td>
+                                            <td className="px-6 py-4 font-medium text-red-600">{missingDays !== 0 ? Math.abs(missingDays) : '-'}</td>
+
+                                            <td className="px-6 py-4 font-bold text-gray-800">{rider.totalWorkingHours?.toFixed(2)}</td>
+                                            <td className="px-6 py-4 text-gray-500">{rider.targetWorkingHours}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${rider.hoursDifference >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {rider.hoursDifference?.toFixed(2)}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-6 py-4 font-bold text-gray-800">{rider.totalOrders}</td>
+                                            <td className="px-6 py-4 text-gray-500">{rider.targetOrders}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${rider.ordersDifference >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {rider.ordersDifference}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {loading && !reportData && (
+                <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-3xl shadow-sm border border-gray-100">
+                    <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4" />
+                    <p className="text-gray-500 animate-pulse font-medium">جاري تحميل البيانات...</p>
+                </div>
+            )}
+        </div>
+    );
+}
