@@ -3,7 +3,7 @@ import './globals.css';
 import localFont from 'next/font/local';
 
 const customFont = localFont({
-  src: './fonts/7.ttf',
+  src: '../../public/fonts/7.ttf',
   variable: '--font-custom',
   display: 'swap',
 });

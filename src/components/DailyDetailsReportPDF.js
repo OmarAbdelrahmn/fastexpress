@@ -8,11 +8,16 @@ import {
     Font,
 } from '@react-pdf/renderer';
 
+Font.register({
+    family: 'CustomFont',
+    src: '../../public/fonts/7.ttf',
+});
+
 // Styles for the daily details report
 const styles = StyleSheet.create({
     page: {
         padding: 30,
-        fontFamily: 'Helvetica',
+        fontFamily: 'CustomFont',
         fontSize: 10,
     },
     // Header Section

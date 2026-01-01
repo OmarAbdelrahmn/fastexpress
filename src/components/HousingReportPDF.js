@@ -10,15 +10,15 @@ import {
 
 // Register Arabic font (you'll need to provide the font file)
 Font.register({
-  family: 'Cairo',
-  src: '/path/to/Cairo-Regular.ttf',
+    family: 'CustomFont',
+    src: '../../public/fonts/7.ttf',
 });
 
 // Create styles with RTL support
 const styles = StyleSheet.create({
     page: {
         padding: 40,
-        fontFamily: 'Helvetica', // Change to 'Cairo' if Arabic font is registered
+        fontFamily: 'CustomFont', // Change to 'Cairo' if Arabic font is registered
         backgroundColor: '#ffffff',
     },
     container: {
