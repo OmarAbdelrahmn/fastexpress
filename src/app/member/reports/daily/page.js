@@ -21,19 +21,19 @@ import {
 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import dynamic from "next/dynamic";
-//import HousingReportPDF from "@/components/HousingReportPDF";
-//import DailyDetailsReportPDF from "@/components/DailyDetailsReportPDF";
+import HousingReportPDF from "@/components/HousingReportPDF";
+import DailyDetailsReportPDF from "@/components/DailyDetailsReportPDF";
 
-// const PDFDownloadLink = dynamic(
-//     () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
-//     {
-//         ssr: false,
-//         loading: () => <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-medium text-sm shadow-sm cursor-wait">
-//             <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-//             <span className="hidden sm:inline">تحميل PDF...</span>
-//         </button>,
-//     }
-// );
+const PDFDownloadLink = dynamic(
+    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+    {
+        ssr: false,
+        loading: () => <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-medium text-sm shadow-sm cursor-wait">
+            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+            <span className="hidden sm:inline">تحميل PDF...</span>
+        </button>,
+    }
+);
 
 export default function DailyReportPage() {
     const searchParams = useSearchParams();
@@ -317,7 +317,7 @@ export default function DailyReportPage() {
                         </div>
 
                         <div className="flex gap-2 w-full sm:w-auto">
-                            {/* {activeTab === 'summary' && (
+                            {activeTab === 'summary' && (
                                 <PDFDownloadLink
                                     document={<HousingReportPDF data={{ ...reportData, date: selectedDate }} />}
                                     fileName={`Daily_Report_Summary_${selectedDate}.pdf`}
@@ -349,7 +349,7 @@ export default function DailyReportPage() {
                                                 </span>
                                             </>
                                         )}
-                                    </PDFDownloadLink> */}
+                                    </PDFDownloadLink> 
                                     <button
                                         onClick={handleExportExcel}
                                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl hover:bg-green-100 transition-all font-medium text-sm shadow-sm"
@@ -358,8 +358,8 @@ export default function DailyReportPage() {
                                         <Download size={18} />
                                         <span className="hidden sm:inline">إكسل</span>
                                     </button>
-                                {/* </> */}
-                            {/* )} */}
+                                 </> 
+                             )} 
                         </div>
                     </div>
                 </div>
