@@ -316,7 +316,6 @@ export default function EnhancedDashboard() {
         );
         previousDayRiders = previousDayOrdersRes.data.length;
       }
-      const totalridersyesterday = summaryData1.data.totalDayShifts;
       // Handle Statistics Response (assuming structure, normalizing keys just in case)
       const statsData = statisticsRes?.data || {};
       // Try to find keys ignoring case if needed, or assume specific keys based on user request "Total and Riders and Employees"
