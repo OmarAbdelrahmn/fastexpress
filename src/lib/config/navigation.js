@@ -81,10 +81,14 @@ export const userNavigationConfig = {
       { path: "/member/actions/vehicle-report-problem", label: "الإبلاغ عن مشكلة مركبة" },
     ],
   },
-  details: {
-    title: "navigation.myDetails",
+  account: {
+    title: "navigation.account",
     icon: "👤",
-    path: "/member/profile",
+    routes: [
+      { path: "/member/profile", label: "navigation.myDetails" },
+      { path: "/member/account/info", label: "navigation.personalInfo" },
+      { path: "/member/account/change-password", label: "navigation.changePassword" },
+    ],
   },
 };
 

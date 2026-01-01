@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
+import * as XLSX from "xlsx";
 import {
     ArrowRight,
     Search,
@@ -84,6 +85,42 @@ export default function RejectionReportPage() {
         </div>
     );
 
+    const handleExport = () => {
+        if (!reportData?.riderDetails) return;
+
+        const data = reportData.riderDetails.map(rider => ({
+            "المندوب": rider.riderNameAR || rider.riderNameEN,
+            "المعرف": rider.workingId,
+            "الأيام": rider.totalShifts,
+            "عدد الطلبات": rider.totalOrders,
+            "التارجيت": rider.targetOrders,
+            "الرفض": rider.totalRejections,
+            "نسبة الرفض": `${rider.rejectionRate}%`,
+            "رفض حقيقي": rider.totalRealRejections,
+            "نسبة (ح)": `${rider.realRejectionRate}%`
+        }));
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Adjust column widths
+        const wscols = [
+            { wch: 25 }, // Name
+            { wch: 15 }, // ID
+            { wch: 10 }, // Days
+            { wch: 15 }, // Orders
+            { wch: 10 }, // Target
+            { wch: 10 }, // Rejection
+            { wch: 15 }, // Rejection Rate
+            { wch: 15 }, // Real Rejection
+            { wch: 15 }  // Real Rate
+        ];
+        ws['!cols'] = wscols;
+
+        XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
+        XLSX.writeFile(wb, `Rejection_Report_${startDate}_to_${endDate}.xlsx`);
+    };
+
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">
             {/* Header */}
@@ -140,8 +177,13 @@ export default function RejectionReportPage() {
                             </>
                         )}
                     </button>
-                    {/* Placeholder for Download/Export if needed */}
-                    <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
+                    {/* Export Button */}
+                    <button
+                        onClick={handleExport}
+                        disabled={loading || !reportData}
+                        className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="تصدير Excel"
+                    >
                         <Download size={20} />
                     </button>
                 </div>

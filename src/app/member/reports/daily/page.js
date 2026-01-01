@@ -16,8 +16,24 @@ import {
     Building2,
     User,
     FileText,
-    LayoutDashboard
+    Download,
+    Printer
 } from "lucide-react";
+import * as XLSX from 'xlsx';
+import dynamic from "next/dynamic";
+//import HousingReportPDF from "@/components/HousingReportPDF";
+//import DailyDetailsReportPDF from "@/components/DailyDetailsReportPDF";
+
+// const PDFDownloadLink = dynamic(
+//     () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+//     {
+//         ssr: false,
+//         loading: () => <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 text-gray-400 rounded-xl font-medium text-sm shadow-sm cursor-wait">
+//             <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+//             <span className="hidden sm:inline">تحميل PDF...</span>
+//         </button>,
+//     }
+// );
 
 export default function DailyReportPage() {
     const searchParams = useSearchParams();
@@ -89,6 +105,32 @@ export default function DailyReportPage() {
     const handleTabChange = (tab) => {
         setActiveTab(tab);
         router.push(`/member/reports/daily?date=${selectedDate}&view=${tab}`);
+    };
+
+    const handleExportExcel = () => {
+        if (!reportData || !reportData.housingDetails) return;
+
+        const data = [];
+        reportData.housingDetails.forEach(housing => {
+            if (housing.riders) {
+                housing.riders.forEach(rider => {
+                    data.push({
+                        'السكن': housing.housingName,
+                        'اسم المندوب': rider.riderName,
+                        'رقم الجوال': rider.phoneNumber || '-',
+                        'المعرف': rider.workingId,
+                        'تاريخ المناوبة': rider.shiftDate,
+                        'الطلبات المقبولة': rider.acceptedOrders,
+                        'الحالة': rider.acceptedOrders < 14 ? 'غير مكتمل' : 'مكتمل' // Example logic, accept actual if available
+                    });
+                });
+            }
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Detailed Report");
+        XLSX.writeFile(wb, `Daily_Report_${selectedDate}.xlsx`);
     };
 
     // --- Components ---
@@ -185,37 +227,37 @@ export default function DailyReportPage() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {housing.riders?.map((rider, index) => (
-                                            <tr key={`${rider.riderId}-${index}`} className="group hover:bg-blue-50/50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
-                                                    {(index + 1).toString().padStart(2, '0')}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                                                            <User size={14} />
-                                                        </div>
-                                                        <span className="text-sm font-semibold text-gray-900">{rider.riderName}</span>
+                                        <tr key={`${rider.riderId}-${index}`} className="group hover:bg-blue-50/50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">
+                                                {(index + 1).toString().padStart(2, '0')}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                                                        <User size={14} />
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium font-mono">
-                                                    {rider.workingId}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium font-mono">
-                                                    {rider.phoneNumber || '-'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    {rider.shiftDate}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${rider.acceptedOrders < 14
-                                                        ? 'bg-red-100 text-red-800 border-red-200'
-                                                        : 'bg-green-100 text-green-800 border-green-200'
-                                                        }`}>
-                                                        {rider.acceptedOrders} طلب
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    <span className="text-sm font-semibold text-gray-900">{rider.riderName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium font-mono">
+                                                {rider.workingId}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium font-mono">
+                                                {rider.phoneNumber || '-'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {rider.shiftDate}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${rider.acceptedOrders < 14
+                                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                                    : 'bg-green-100 text-green-800 border-green-200'
+                                                    }`}>
+                                                    {rider.acceptedOrders} طلب
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
                                     {(!housing.riders || housing.riders.length === 0) && (
                                         <tr>
                                             <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
@@ -231,9 +273,9 @@ export default function DailyReportPage() {
             ) : (
                 <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm">
                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <LayoutDashboard className="text-gray-400" size={32} />
+                        {/*<LayoutDashboard className="text-gray-400" size={32} />*/}
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">لا توجد بيانات</h3>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">لا توجد بيانات وظيفية</h3>
                     <p className="text-gray-500">لا توجد تفاصيل لهذا التاريخ المحدد</p>
                 </div>
             )}
@@ -241,77 +283,126 @@ export default function DailyReportPage() {
     );
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex items-center gap-4">
-                    <Link
-                        href="/member/reports"
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
-                    >
-                        <ArrowRight size={24} />
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                            {activeTab === 'summary' ? <BarChart3 className="text-purple-600" /> : <FileText className="text-blue-600" />}
-                            التقرير اليومي {activeTab === 'summary' ? 'الملخص' : 'المفصل'}
-                        </h1>
-                        <p className="text-gray-500 mt-1 flex items-center gap-2 text-sm">
-                            <Calendar size={14} />
-                            {selectedDate && new Date(selectedDate).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </p>
+        <>
+            <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in no-print">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4">
+                        <Link
+                            href="/member/reports"
+                            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700"
+                        >
+                            <ArrowRight size={24} />
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                                {activeTab === 'summary' ? <BarChart3 className="text-purple-600" /> : <FileText className="text-blue-600" />}
+                                التقرير اليومي {activeTab === 'summary' ? 'الملخص' : 'المفصل'}
+                            </h1>
+                            <p className="text-gray-500 mt-1 flex items-center gap-2 text-sm">
+                                <Calendar size={14} />
+                                {selectedDate && new Date(selectedDate).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <div className="flex items-center gap-2 w-full sm:w-auto bg-gray-50 p-1 rounded-xl border border-gray-200">
+                            <input
+                                id="date-picker"
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => handleDateChange(e.target.value)}
+                                className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm px-2 w-full sm:w-auto"
+                            />
+                        </div>
+
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            {/* {activeTab === 'summary' && (
+                                <PDFDownloadLink
+                                    document={<HousingReportPDF data={{ ...reportData, date: selectedDate }} />}
+                                    fileName={`Daily_Report_Summary_${selectedDate}.pdf`}
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm shadow-sm"
+                                >
+                                    {({ blob, url, loading, error }) => (
+                                        <>
+                                            <Printer size={18} />
+                                            <span className="hidden sm:inline">
+                                                {loading ? 'جاري التحضير...' : 'طباعة PDF'}
+                                            </span>
+                                        </>
+                                    )}
+                                </PDFDownloadLink>
+                            )}
+
+                            {activeTab === 'detailed' && (
+                                <>
+                                    <PDFDownloadLink
+                                        document={<DailyDetailsReportPDF data={{ ...reportData, reportDate: selectedDate, grandTotalOrders: reportData?.grandTotalOrders || 0, grandTotalRiders: reportData?.grandTotalRiders || 0 }} />}
+                                        fileName={`Daily_Details_Report_${selectedDate}.pdf`}
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm shadow-sm"
+                                    >
+                                        {({ blob, url, loading, error }) => (
+                                            <>
+                                                <Printer size={18} />
+                                                <span className="hidden sm:inline">
+                                                    {loading ? 'جاري التحضير...' : 'طباعة PDF'}
+                                                </span>
+                                            </>
+                                        )}
+                                    </PDFDownloadLink> */}
+                                    <button
+                                        onClick={handleExportExcel}
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl hover:bg-green-100 transition-all font-medium text-sm shadow-sm"
+                                        title="تصدير للإكسل"
+                                    >
+                                        <Download size={18} />
+                                        <span className="hidden sm:inline">إكسل</span>
+                                    </button>
+                                {/* </> */}
+                            {/* )} */}
+                        </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <label htmlFor="date-picker" className="text-sm font-medium text-gray-700">التاريخ:</label>
-                    <input
-                        id="date-picker"
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => handleDateChange(e.target.value)}
-                        className={`px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 transition-all text-gray-700 font-medium shadow-sm ${activeTab === 'summary' ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-blue-500 focus:border-blue-500'}`}
-                    />
+
+                {/* Navigation Tabs */}
+                <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100 flex">
+                    <button
+                        onClick={() => handleTabChange('summary')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${activeTab === 'summary' ? 'bg-purple-100 text-purple-700 shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
+                    >
+                        <BarChart3 size={18} />
+                        ملخص
+                    </button>
+                    <button
+                        onClick={() => handleTabChange('detailed')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${activeTab === 'detailed' ? 'bg-blue-100 text-blue-700 shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
+                    >
+                        <Users size={18} />
+                        مفصل
+                    </button>
                 </div>
-            </div>
 
-            {/* Navigation Tabs */}
-            <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100 flex">
-                <button
-                    onClick={() => handleTabChange('summary')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${activeTab === 'summary' ? 'bg-purple-100 text-purple-700 shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                    <BarChart3 size={18} />
-                    ملخص
-                </button>
-                <button
-                    onClick={() => handleTabChange('detailed')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${activeTab === 'detailed' ? 'bg-blue-100 text-blue-700 shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                    <Users size={18} />
-                    مفصل
-                </button>
-            </div>
+                {/* Error State */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3" role="alert">
+                        <div className="w-2 h-2 bg-red-600 rounded-full" />
+                        <p className="font-medium">{error}</p>
+                    </div>
+                )}
 
-            {/* Error State */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3" role="alert">
-                    <div className="w-2 h-2 bg-red-600 rounded-full" />
-                    <p className="font-medium">{error}</p>
-                </div>
-            )}
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-3xl shadow-sm border border-gray-100">
+                        <div className={`w-16 h-16 border-4 border-gray-100 rounded-full animate-spin mb-4 ${activeTab === 'summary' ? 'border-t-purple-600' : 'border-t-blue-600'}`} />
+                        <p className="text-gray-500 animate-pulse font-medium">جاري تحميل التقرير...</p>
+                    </div>
+                )}
 
-            {/* Loading State */}
-            {loading && (
-                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-3xl shadow-sm border border-gray-100">
-                    <div className={`w-16 h-16 border-4 border-gray-100 rounded-full animate-spin mb-4 ${activeTab === 'summary' ? 'border-t-purple-600' : 'border-t-blue-600'}`} />
-                    <p className="text-gray-500 animate-pulse font-medium">جاري تحميل التقرير...</p>
-                </div>
-            )}
-
-            {/* Content */}
-            {!loading && !error && reportData && (
-                activeTab === 'summary' ? renderSummaryView() : renderDetailedView()
-            )}
-        </div>
+                {/* Content */}
+                {!loading && !error && reportData && (
+                    activeTab === 'summary' ? renderSummaryView() : renderDetailedView()
+                )}
+            </div >
+        </>
     );
 }

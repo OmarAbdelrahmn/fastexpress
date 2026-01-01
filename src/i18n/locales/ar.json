@@ -146,7 +146,8 @@
     "backtoDashboard": "العودة للوحة التحكم",
     "myDetails": "بياناتي",
     "requests": "الطلبات",
-    "disabilities": "عجز هنقر"
+    "disabilities": "عجز هنقر",
+    "personalInfo":"معلوماتي شخصية"
   },
   "dashboard": {
     "riders": "مناديب",

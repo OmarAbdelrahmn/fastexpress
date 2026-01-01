@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
+import * as XLSX from "xlsx";
 import {
     ArrowRight,
     Search,
@@ -85,6 +86,47 @@ export default function RidersSummaryReportPage() {
         </div>
     );
 
+    const handleExport = () => {
+        if (!reportData?.riderSummaries) return;
+
+        const data = reportData.riderSummaries.map(rider => {
+            const missingDays = rider.missingDays ?? rider.MissingDays ?? 0;
+            return {
+                "المندوب": rider.riderNameAR || rider.riderNameEN,
+                "رقم العمل": rider.workingId,
+                "أيام العمل": rider.actualWorkingDays,
+                "أيام الغياب": missingDays !== 0 ? Math.abs(missingDays) : '-',
+                "الساعات": rider.totalWorkingHours?.toFixed(2),
+                "هدف الساعات": rider.targetWorkingHours,
+                "فرق الساعات": rider.hoursDifference?.toFixed(2),
+                "الطلبات": rider.totalOrders,
+                "هدف الطلبات": rider.targetOrders,
+                "فرق الطلبات": rider.ordersDifference
+            };
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Adjust column widths
+        const wscols = [
+            { wch: 25 }, // Name
+            { wch: 15 }, // ID
+            { wch: 10 }, // Work Days
+            { wch: 10 }, // Missing Days
+            { wch: 10 }, // Hours
+            { wch: 10 }, // Target Hours
+            { wch: 10 }, // Diff Hours
+            { wch: 10 }, // Orders
+            { wch: 10 }, // Target Orders
+            { wch: 10 }  // Diff Orders
+        ];
+        ws['!cols'] = wscols;
+
+        XLSX.utils.book_append_sheet(wb, ws, "Riders Summary");
+        XLSX.writeFile(wb, `Riders_Summary_${startDate}_to_${endDate}.xlsx`);
+    };
+
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">
             {/* Header */}
@@ -138,7 +180,12 @@ export default function RidersSummaryReportPage() {
                             </>
                         )}
                     </button>
-                    <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
+                    <button
+                        onClick={handleExport}
+                        disabled={loading || !reportData}
+                        className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="تصدير Excel"
+                    >
                         <Download size={20} />
                     </button>
                 </div>

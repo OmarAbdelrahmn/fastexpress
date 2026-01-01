@@ -20,7 +20,7 @@ export const metadata = {
     siteName: 'Express Service',
     images: [
       {
-        url: '/2.png',
+        url: '2.png',
         width: 1200,
         height: 630,
         alt: 'Express Service Dashboard',

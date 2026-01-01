@@ -1,6 +1,8 @@
 "use client";
 
+
 import { useEffect, useState, useRef } from "react";
+import * as XLSX from "xlsx";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
@@ -20,7 +22,6 @@ import {
     XCircle,
     ChevronDown
 } from "lucide-react";
-
 export default function RiderDailyDetailReportPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -171,6 +172,8 @@ export default function RiderDailyDetailReportPage() {
         </div>
     );
 
+
+
     const getShiftStatusConfig = (hasShift, status) => {
         if (!hasShift) return { text: 'لا يوجد  ', className: 'bg-gray-100 text-gray-600' };
 
@@ -180,6 +183,43 @@ export default function RiderDailyDetailReportPage() {
         if (s === 'completed' || s === 'active') return { text: 'مكتمل', className: 'bg-green-100 text-green-700' };
 
         return { text: status || 'مجَدول', className: 'bg-blue-100 text-blue-700' };
+    };
+
+    const handleExportExcel = () => {
+        if (!reportData?.dailyDetails) return;
+
+        const data = reportData.dailyDetails.map(day => {
+            const statusConfig = getShiftStatusConfig(day.hasShift, day.shiftStatus);
+            return {
+                "التاريخ": day.date,
+                "الحالة": statusConfig.text,
+                "الطلبات المقبولة": day.acceptedOrders,
+                "الطلبات المرفوضة": day.rejectedOrders,
+                "رفض حقيقي": day.realRejectedOrders || 0,
+                "ساعات العمل": day.workingHours ? Number(day.workingHours.toFixed(2)) : 0,
+                "هدف الساعات": day.targetHours,
+                "الفرق": day.hoursDifference ? Number(day.hoursDifference.toFixed(2)) : 0
+            };
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Adjust column widths
+        const wscols = [
+            { wch: 15 }, // Date
+            { wch: 15 }, // Status
+            { wch: 15 }, // Accepted
+            { wch: 15 }, // Rejected
+            { wch: 15 }, // Real Rejected
+            { wch: 15 }, // Working Hours
+            { wch: 15 }, // Target Hours
+            { wch: 15 }  // Difference
+        ];
+        ws['!cols'] = wscols;
+
+        XLSX.utils.book_append_sheet(wb, ws, "Rider Daily Details");
+        XLSX.writeFile(wb, `Rider_Daily_${reportData.riderNameAR || 'Report'}_${startDate}_${endDate}.xlsx`);
     };
 
     return (
@@ -285,7 +325,8 @@ export default function RiderDailyDetailReportPage() {
                     </button>
                     {/* Placeholder for Download/Export if needed */}
                     <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
-                        <Download size={20} />
+                        <Download size={20}
+                        onClick={handleExportExcel}/>
                     </button>
                 </div>
             </div>
@@ -435,4 +476,5 @@ export default function RiderDailyDetailReportPage() {
             )}
         </div>
     );
+
 }
