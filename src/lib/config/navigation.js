@@ -79,6 +79,7 @@ export const userNavigationConfig = {
       { path: "/member/actions/vehicle-take", label: "طلب استلام مركبة" },
       { path: "/member/actions/vehicle-return", label: "طلب ايقاف مركبة" },
       { path: "/member/actions/vehicle-report-problem", label: "الإبلاغ عن مشكلة مركبة" },
+      { path: "/member/actions/vehicle-fix-problem", label: "إصلاح مشكلة مركبة" },
     ],
   },
   account: {

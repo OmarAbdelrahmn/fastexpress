@@ -10,17 +10,17 @@ const customFont = localFont({
 export const metadata = {
   title: 'Express Service - Smart Logistics Solution',
   description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
+  metadataBase: new URL('https://forsenex.com'), // ✅ add this
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
     title: 'Express Service - Smart Logistics Solution',
     description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
-    url: 'https://forsenex.com',
     siteName: 'Express Service',
     images: [
       {
-        url: '2.png',
+        url: '/2.png', // ✅ make it relative to metadataBase
         width: 1200,
         height: 630,
         alt: 'Express Service Dashboard',
@@ -29,6 +29,7 @@ export const metadata = {
     type: 'website',
   },
 };
+
 
 export default function RootLayout({ children }) {
   return (
