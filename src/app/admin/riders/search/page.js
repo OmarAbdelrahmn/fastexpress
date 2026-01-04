@@ -50,11 +50,11 @@ export default function RiderSmartSearchPage() {
   };
 
   const handleViewDetails = (iqamaNo) => {
-    router.push(`/riders/${iqamaNo}/details`);
+    router.push(`/admin/riders/${iqamaNo}/details`);
   };
 
   const handleEdit = (iqamaNo) => {
-    router.push(`/riders/${iqamaNo}/edit`);
+    router.push(`/admin/riders/${iqamaNo}/edit`);
   };
 
   const columns = [

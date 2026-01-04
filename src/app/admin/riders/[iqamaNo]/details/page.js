@@ -131,7 +131,7 @@ export default function RiderDetailsPage() {
         actionButton={{
           text: t('common.edit'),
           icon: <Edit size={18} />,
-          onClick: () => router.push(`admin/riders/${iqamaNo}/edit`)
+          onClick: () => router.push(`/admin/riders/${iqamaNo}/edit`)
         }}
       />
 
@@ -347,28 +347,28 @@ export default function RiderDetailsPage() {
         <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.quickActions')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Button
-            onClick={() => router.push(`/riders/${iqamaNo}/edit`)}
+            onClick={() => router.push(`/admin/riders/${iqamaNo}/edit`)}
             variant="secondary"
           >
             <Edit size={18} className="ml-2" />
             {t('riders.editData')}
           </Button>
           <Button
-            onClick={() => router.push('/riders')}
+            onClick={() => router.push('/admin/riders')}
             variant="secondary"
           >
             <ArrowRight size={18} className="ml-2" />
             {t('navigation.backToList')}
           </Button>
           <Button
-            onClick={() => router.push(`/shifts/rider/${rider.workingId}`)}
+            onClick={() => router.push(`/admin/shifts/rider/${rider.workingId}`)}
             variant="secondary"
           >
             <Calendar size={18} className="ml-2" />
             {t('riders.viewShifts')}
           </Button>
           <Button
-            onClick={() => router.push(`/reports/riders/${rider.workingId}/renge`)}
+            onClick={() => router.push(`/admin/reports/riders/${rider.workingId}/renge`)}
             variant="secondary"
           >
             <FileText size={18} className="ml-2" />

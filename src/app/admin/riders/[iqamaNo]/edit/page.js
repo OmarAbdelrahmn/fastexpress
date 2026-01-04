@@ -177,7 +177,7 @@ export default function EditRiderPage() {
 
       setSuccessMessage(t('riders.updateSuccess'));
       setTimeout(() => {
-        router.push('/riders');
+        router.push('/admin/riders');
       }, 2000);
     } catch (err) {
       console.error('Error updating rider:', err);
@@ -214,7 +214,7 @@ export default function EditRiderPage() {
         actionButton={{
           text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
-          onClick: () => router.push('/riders'),
+          onClick: () => router.push('/admin/riders'),
           variant: 'secondary'
         }}
       />
@@ -467,7 +467,7 @@ export default function EditRiderPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => router.push('/riders')}
+              onClick={() => router.push('/admin/riders')}
               disabled={loading}
             >
               {t('common.cancel')}

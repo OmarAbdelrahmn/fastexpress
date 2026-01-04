@@ -41,7 +41,7 @@ const AddSubstitutionPage = () => {
       setMessage({ type: 'success', text: t('substitution.addSuccess') });
 
       setTimeout(() => {
-        router.push('/substitution');
+        router.push('/admin/substitution');
       }, 1500);
     } catch (error) {
       setMessage({ type: 'error', text: error.message || t('errors.serverError') });
