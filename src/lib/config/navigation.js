@@ -59,15 +59,15 @@ export const userNavigationConfig = {
       },
       {
         path: "/member/reports/riders-summary",
-        label: "ملخص المناديب",
+        label: "تقرير الغياب و عجز الساعات",
       },
       {
         path: "/member/reports/rider-daily",
-        label: "تفاصيل المندوب اليومية",
+        label: "تقرير طلبات المندوب",
       },
       {
         path: "/member/reports/rider-history",
-        label: "سجل المندوب",
+        label: " تقرير الاداء السنوي للمندوب",
       }
     ],
   },
@@ -78,8 +78,8 @@ export const userNavigationConfig = {
       { path: "/member/actions/employee-status-change", label: "طلب تغيير حالة موظف" },
       { path: "/member/actions/vehicle-take", label: "طلب استلام مركبة" },
       { path: "/member/actions/vehicle-return", label: "طلب ايقاف مركبة" },
-      { path: "/member/actions/vehicle-report-problem", label: "الإبلاغ عن مشكلة مركبة" },
-      { path: "/member/actions/vehicle-fix-problem", label: "إصلاح مشكلة مركبة" },
+      { path: "/member/actions/vehicle-report-problem", label: "تغيير حالة مركبة (تعطيل)" },
+      { path: "/member/actions/vehicle-fix-problem", label: "تغيير حالة مركبة (تشغيل)" },
     ],
   },
   account: {

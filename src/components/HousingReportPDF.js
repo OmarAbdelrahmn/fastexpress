@@ -8,17 +8,17 @@ import {
     Font,
 } from '@react-pdf/renderer';
 
-// Register Arabic font (you'll need to provide the font file)
+// Register Arabic font
 Font.register({
-    family: 'CustomFont',
-    src: '../../public/fonts/7.ttf',
+    family: 'Cairo',
+    src: 'https://fonts.gstatic.com/s/cairo/v20/SLXGc1nY6HkvangtZmpcMw.ttf',
 });
 
 // Create styles with RTL support
 const styles = StyleSheet.create({
     page: {
         padding: 40,
-        fontFamily: 'CustomFont', // Change to 'Cairo' if Arabic font is registered
+        fontFamily: 'Cairo',
         backgroundColor: '#ffffff',
     },
     container: {

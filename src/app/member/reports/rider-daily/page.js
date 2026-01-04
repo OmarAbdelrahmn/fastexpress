@@ -326,7 +326,7 @@ export default function RiderDailyDetailReportPage() {
                     {/* Placeholder for Download/Export if needed */}
                     <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
                         <Download size={20}
-                        onClick={handleExportExcel}/>
+                            onClick={handleExportExcel} />
                     </button>
                 </div>
             </div>
@@ -366,7 +366,7 @@ export default function RiderDailyDetailReportPage() {
                             ) : (
                                 <div className="bg-red-100 text-red-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2">
                                     <XCircle size={20} />
-                                    <span>تحت المستهدف</span>
+                                    <span>لم يحقق التارجت</span>
                                 </div>
                             )}
                         </div>
@@ -378,20 +378,23 @@ export default function RiderDailyDetailReportPage() {
                             title="أيام العمل"
                             value={reportData.totalWorkingDays}
                             subValue={`أيام الغياب: ${reportData.missingDays}`}
+                            subValueClass={`text-base font-bold ${reportData.missingDays > 3 ? 'text-red-600' : 'text-green-600'}`}
                             icon={Calendar}
                             color={{ bg: "bg-indigo-50", text: "text-indigo-600" }}
                         />
                         <StatCard
                             title="إجمالي الطلبات"
                             value={reportData.totalOrders}
+                            subValue={`التارجت: ${reportData.totalWorkingDays * 14} (الفرق: ${reportData.totalOrders - (reportData.totalWorkingDays * 14)})`}
+                            subValueClass={`text-base font-bold ${reportData.totalOrders - (reportData.totalWorkingDays * 14) > 1 ? 'text-green-600' : 'text-red-600'}`}
                             icon={FileText}
                             color={{ bg: "bg-green-50", text: "text-green-600" }}
                         />
                         <StatCard
                             title="إجمالي الساعات"
                             value={reportData.totalWorkingHours?.toFixed(2)}
-                            subValue={`المستهدف: ${reportData.targetWorkingHours} (الفرق: ${reportData.hoursDifference?.toFixed(2)})`}
-                            subValueClass="text-base font-bold text-gray-700"
+                            subValue={`التارجت: ${reportData.targetWorkingHours} (الفرق: ${reportData.hoursDifference?.toFixed(2)})`}
+                            subValueClass={`text-base font-bold ${reportData.hoursDifference?.toFixed(2) > 1 ? 'text-green-600' : 'text-red-600'}`}
                             icon={Clock}
                             color={{ bg: "bg-orange-50", text: "text-orange-600" }}
                             suffix="ساعة"
@@ -400,7 +403,7 @@ export default function RiderDailyDetailReportPage() {
                             title="طلبات مرفوضة"
                             value={reportData.totalRejections}
                             subValue={`رفض حقيقي: ${reportData.totalRealRejections}`}
-                            subValueClass="text-base font-bold text-red-600"
+                            subValueClass={`text-base font-bold ${reportData.totalRealRejections > 0 ? 'text-red-600' : 'text-green-600'}`}
                             icon={AlertCircle}
                             color={{ bg: "bg-red-50", text: "text-red-600" }}
                         />

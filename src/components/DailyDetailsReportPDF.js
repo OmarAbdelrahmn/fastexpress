@@ -9,15 +9,15 @@ import {
 } from '@react-pdf/renderer';
 
 Font.register({
-    family: 'CustomFont',
-    src: '../../public/fonts/7.ttf',
+    family: 'Cairo',
+    src: 'https://fonts.gstatic.com/s/cairo/v20/SLXGc1nY6HkvangtZmpcMw.ttf',
 });
 
 // Styles for the daily details report
 const styles = StyleSheet.create({
     page: {
         padding: 30,
-        fontFamily: 'CustomFont',
+        fontFamily: 'Cairo',
         fontSize: 10,
     },
     // Header Section

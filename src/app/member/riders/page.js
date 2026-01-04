@@ -104,7 +104,8 @@ export default function MemberRiders() {
             'المركبة': rider.vehiclePlate ? formatPlateNumber(rider.vehiclePlate) : '',
             'رقم اللوحة': rider.vehicleNumber || '',
             'الجوال': rider.phone,
-            'الحالة': rider.status
+            'الحالة': rider.status,
+            'سبب تغيير الحالة': rider.statusChangeReason || ''
         }));
 
         // Create worksheet
@@ -369,6 +370,11 @@ export default function MemberRiders() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {getStatusBadge(rider.status)}
+                                            {rider.status?.toLowerCase() !== 'enable' && rider.statusChangeReason && (
+                                                <p className="text-xs text-gray-500 mt-1 max-w-[150px] truncate" title={rider.statusChangeReason}>
+                                                    {rider.statusChangeReason}
+                                                </p>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
