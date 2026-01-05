@@ -317,7 +317,7 @@ export default function DailyReportPage() {
                         </div>
 
                         <div className="flex gap-2 w-full sm:w-auto">
-                            {activeTab === 'summary' && (
+                            {activeTab === 'summary' && reportData && (
                                 <PDFDownloadLink
                                     document={<HousingReportPDF data={{ ...reportData, date: selectedDate }} />}
                                     fileName={`Daily_Report_Summary_${selectedDate}.pdf`}
@@ -334,7 +334,7 @@ export default function DailyReportPage() {
                                 </PDFDownloadLink>
                             )}
 
-                            {activeTab === 'detailed' && (
+                            {activeTab === 'detailed' && reportData?.housingDetails && (
                                 <>
                                     <PDFDownloadLink
                                         document={<DailyDetailsReportPDF data={{ ...reportData, reportDate: selectedDate, grandTotalOrders: reportData?.grandTotalOrders || 0, grandTotalRiders: reportData?.grandTotalRiders || 0 }} />}
@@ -349,7 +349,7 @@ export default function DailyReportPage() {
                                                 </span>
                                             </>
                                         )}
-                                    </PDFDownloadLink> 
+                                    </PDFDownloadLink>
                                     <button
                                         onClick={handleExportExcel}
                                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl hover:bg-green-100 transition-all font-medium text-sm shadow-sm"
@@ -358,8 +358,8 @@ export default function DailyReportPage() {
                                         <Download size={18} />
                                         <span className="hidden sm:inline">إكسل</span>
                                     </button>
-                                 </> 
-                             )} 
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

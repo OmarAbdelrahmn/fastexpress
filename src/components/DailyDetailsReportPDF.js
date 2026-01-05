@@ -10,7 +10,7 @@ import {
 
 Font.register({
     family: 'Cairo',
-    src: 'https://fonts.gstatic.com/s/cairo/v20/SLXGc1nY6HkvangtZmpcMw.ttf',
+    src: '/fonts/7.ttf',
 });
 
 // Styles for the daily details report
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     page: {
         padding: 30,
         fontFamily: 'Cairo',
-        fontSize: 10,
+        fontSize: 14,
     },
     // Header Section
     header: {
@@ -28,26 +28,26 @@ const styles = StyleSheet.create({
         borderRadius: 6,
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
         marginBottom: 5,
     },
     headerSubtitle: {
-        fontSize: 14,
+        fontSize: 15,
         color: '#e0e7ff',
         textAlign: 'center',
     },
     reportDate: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#dbeafe',
         textAlign: 'center',
         marginTop: 5,
     },
     // Summary Cards
     summaryContainer: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         marginBottom: 20,
         gap: 10,
@@ -57,17 +57,19 @@ const styles = StyleSheet.create({
         padding: 12,
         backgroundColor: '#f1f5f9',
         borderRadius: 6,
-        borderLeft: '4px solid #2563eb',
+        borderRight: '4px solid #2563eb', // Changed to right border for RTL usually, but visually let's keep consistency or mirrored? keeping Right makes sense if content flows right to left.
     },
     summaryLabel: {
-        fontSize: 9,
+        fontSize: 14,
         color: '#64748b',
         marginBottom: 4,
+        textAlign: 'right', // Align Right
     },
     summaryValue: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#0f172a',
+        textAlign: 'right', // Align Right
     },
     // Housing Section
     housingSection: {
@@ -80,35 +82,36 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     housingTitle: {
-        fontSize: 14,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#1e40af',
         marginBottom: 5,
+        textAlign: 'right',
     },
     housingStats: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         marginTop: 5,
     },
     housingStatItem: {
-        fontSize: 9,
+        fontSize: 18,
         color: '#475569',
+        textAlign: 'right',
     },
     // Table Styles
     table: {
-        display: 'table',
-        width: 'auto',
+        width: '100%',
         marginBottom: 15,
     },
     tableHeader: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         backgroundColor: '#334155',
         padding: 8,
         borderTopLeftRadius: 4,
         borderTopRightRadius: 4,
     },
     tableRow: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         borderBottom: '1px solid #e2e8f0',
         padding: 8,
         backgroundColor: '#ffffff',
@@ -122,45 +125,53 @@ const styles = StyleSheet.create({
     // Table Columns
     colNo: {
         width: '5%',
+        textAlign: 'center',
     },
-    colRiderId: {
-        width: '8%',
-    },
+    // Rider ID removed column definition
     colRiderName: {
-        width: '30%',
+        width: '25%', // Reduced to make space
+        textAlign: 'center',
+    },
+    colRiderNameEn: {
+        width: '25%', // New English Name Column
+        textAlign: 'center',
     },
     colPhone: {
         width: '15%',
+        textAlign: 'center',
     },
     colWorkingId: {
-        width: '12%',
+        width: '10%',
+        textAlign: 'center',
     },
     colOrders: {
         width: '10%',
         textAlign: 'center',
     },
     colDate: {
-        width: '15%',
+        width: '10%',
+        textAlign: 'center',
     },
     // Header Text
     headerText: {
         color: '#ffffff',
-        fontSize: 9,
+        fontSize: 14,
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     // Cell Text
     cellText: {
-        fontSize: 8,
+        fontSize: 12,
         color: '#1e293b',
     },
     cellTextBold: {
-        fontSize: 9,
+        fontSize: 12,
         fontWeight: 'bold',
         color: '#0f172a',
     },
     cellTextCenter: {
         textAlign: 'center',
-        fontSize: 9,
+        fontSize: 12,
         fontWeight: 'bold',
         color: '#2563eb',
     },
@@ -170,32 +181,12 @@ const styles = StyleSheet.create({
         bottom: 20,
         left: 30,
         right: 30,
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
-        fontSize: 8,
+        fontSize: 10,
         color: '#94a3b8',
         borderTop: '1px solid #e2e8f0',
         paddingTop: 10,
-    },
-    // Performance Indicators
-    performanceTag: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 3,
-        fontSize: 7,
-        fontWeight: 'bold',
-    },
-    performanceHigh: {
-        backgroundColor: '#dcfce7',
-        color: '#166534',
-    },
-    performanceMedium: {
-        backgroundColor: '#fef3c7',
-        color: '#854d0e',
-    },
-    performanceLow: {
-        backgroundColor: '#fee2e2',
-        color: '#991b1b',
     },
 });
 
@@ -213,17 +204,24 @@ const formatPhone = (phone) => {
 };
 
 const DailyDetailsReport = ({ data }) => {
-    const { reportDate, housingDetails, grandTotalOrders, grandTotalRiders } = data;
+    const { reportDate, housingDetails = [], grandTotalOrders, grandTotalRiders } = data || {};
 
     return (
         <Document>
             {housingDetails?.map((housing, housingIndex) => {
                 // Split riders into chunks for pagination (20 riders per page)
-                const ridersPerPage = 20;
+                // Variable pagination: 6 for first page, 12 for others
+                const firstPageLimit = 4;
+                const otherPageLimit = 7;
                 const riderChunks = [];
-                if (housing.riders) {
-                    for (let i = 0; i < housing.riders.length; i += ridersPerPage) {
-                        riderChunks.push(housing.riders.slice(i, i + ridersPerPage));
+
+                if (housing.riders && housing.riders.length > 0) {
+                    // First chunk
+                    riderChunks.push(housing.riders.slice(0, firstPageLimit));
+
+                    // Subsequent chunks
+                    for (let i = firstPageLimit; i < housing.riders.length; i += otherPageLimit) {
+                        riderChunks.push(housing.riders.slice(i, i + otherPageLimit));
                     }
                 }
 
@@ -237,15 +235,15 @@ const DailyDetailsReport = ({ data }) => {
                             orientation="landscape"
                         >
                             <View style={styles.header}>
-                                <Text style={styles.headerTitle}>تقرير يومي تفصيلي - Daily Details Report</Text>
+                                <Text style={styles.headerTitle}>تقرير يومي تفصيلي</Text>
                                 <Text style={styles.headerSubtitle}>{housing.housingName}</Text>
-                                <Text style={styles.reportDate}>Report Date: {reportDate}</Text>
+                                <Text style={styles.reportDate}>التاريخ: {reportDate}</Text>
                             </View>
                             <View style={styles.housingHeader}>
                                 <Text style={styles.housingTitle}>
-                                    Housing #{housing.housingId}: {housing.housingName}
+                                    سكن {housing.housingId}: {housing.housingName}
                                 </Text>
-                                <Text>No riders found for this housing.</Text>
+                                <Text style={{ textAlign: 'right', fontSize: 10 }}>لا يوجد مناديب في هذا السكن.</Text>
                             </View>
                         </Page>
                     );
@@ -260,9 +258,9 @@ const DailyDetailsReport = ({ data }) => {
                     >
                         {/* Header - Show on every page */}
                         <View style={styles.header}>
-                            <Text style={styles.headerTitle}>تقرير يومي تفصيلي - Daily Details Report</Text>
+                            <Text style={styles.headerTitle}>تقرير يومي تفصيلي</Text>
                             <Text style={styles.headerSubtitle}>{housing.housingName}</Text>
-                            <Text style={styles.reportDate}>Report Date: {reportDate}</Text>
+                            <Text style={styles.reportDate}>التاريخ: {reportDate}</Text>
                         </View>
 
                         {/* Summary - Show on first page only */}
@@ -270,15 +268,15 @@ const DailyDetailsReport = ({ data }) => {
                             <>
                                 <View style={styles.summaryContainer}>
                                     <View style={styles.summaryCard}>
-                                        <Text style={styles.summaryLabel}>Total Orders</Text>
+                                        <Text style={styles.summaryLabel}>إجمالي الطلبات</Text>
                                         <Text style={styles.summaryValue}>{grandTotalOrders}</Text>
                                     </View>
                                     <View style={styles.summaryCard}>
-                                        <Text style={styles.summaryLabel}>Total Riders</Text>
+                                        <Text style={styles.summaryLabel}>إجمالي المناديب</Text>
                                         <Text style={styles.summaryValue}>{grandTotalRiders}</Text>
                                     </View>
                                     <View style={styles.summaryCard}>
-                                        <Text style={styles.summaryLabel}>Avg Orders/Rider</Text>
+                                        <Text style={styles.summaryLabel}>متوسط الطلبات/مندوب</Text>
                                         <Text style={styles.summaryValue}>
                                             {grandTotalRiders ? (grandTotalOrders / grandTotalRiders).toFixed(2) : '0'}
                                         </Text>
@@ -287,17 +285,14 @@ const DailyDetailsReport = ({ data }) => {
 
                                 <View style={styles.housingHeader}>
                                     <Text style={styles.housingTitle}>
-                                        Housing #{housing.housingId}: {housing.housingName}
+                                        سكن {housing.housingId}: {housing.housingName}
                                     </Text>
                                     <View style={styles.housingStats}>
                                         <Text style={styles.housingStatItem}>
-                                            Total Orders: {housing.housingTotalOrders}
+                                            الطلبات: {housing.housingTotalOrders}
                                         </Text>
                                         <Text style={styles.housingStatItem}>
-                                            Riders: {housing.housingRiderCount}
-                                        </Text>
-                                        <Text style={styles.housingStatItem}>
-                                            Percentage: {housing.percentageOfCompanyTotal}%
+                                            المناديب: {housing.housingRiderCount}
                                         </Text>
                                     </View>
                                 </View>
@@ -308,10 +303,10 @@ const DailyDetailsReport = ({ data }) => {
                         {chunkIndex > 0 && (
                             <View style={styles.housingHeader}>
                                 <Text style={styles.housingTitle}>
-                                    {housing.housingName} (Continued)
+                                    {housing.housingName} (تابع)
                                 </Text>
                                 <Text style={styles.housingStatItem}>
-                                    Page {chunkIndex + 1} of {riderChunks.length}
+                                    صفحة {chunkIndex + 1} من {riderChunks.length}
                                 </Text>
                             </View>
                         )}
@@ -322,30 +317,36 @@ const DailyDetailsReport = ({ data }) => {
                                 <View style={styles.colNo}>
                                     <Text style={styles.headerText}>#</Text>
                                 </View>
-                                <View style={styles.colRiderId}>
-                                    <Text style={styles.headerText}>Rider ID</Text>
-                                </View>
+                                {/* Removed Rider ID Header */}
                                 <View style={styles.colRiderName}>
-                                    <Text style={styles.headerText}>Rider Name</Text>
-                                </View>
-                                <View style={styles.colPhone}>
-                                    <Text style={styles.headerText}>Phone</Text>
+                                    <Text style={styles.headerText}>اسم المندوب</Text>
                                 </View>
                                 <View style={styles.colWorkingId}>
-                                    <Text style={styles.headerText}>Working ID</Text>
+                                    <Text style={styles.headerText}>المعرف</Text>
                                 </View>
                                 <View style={styles.colOrders}>
-                                    <Text style={styles.headerText}>Orders</Text>
+                                    <Text style={styles.headerText}>الطلبات</Text>
                                 </View>
                                 <View style={styles.colDate}>
-                                    <Text style={styles.headerText}>Shift Date</Text>
+                                    <Text style={styles.headerText}>التاريخ</Text>
+                                </View>
+                                <View style={styles.colRiderNameEn}>
+                                    <Text style={styles.headerText}>الاسم (En)</Text>
+                                </View>
+                                <View style={styles.colPhone}>
+                                    <Text style={styles.headerText}>رقم الجوال</Text>
                                 </View>
                             </View>
 
                             {/* Table Rows */}
                             {riderChunk.map((rider, index) => {
-                                const globalIndex = chunkIndex * ridersPerPage + index + 1;
-                                const performance = getPerformanceLevel(rider.acceptedOrders);
+                                // Calculate global index based on variable pagination
+                                let globalIndex;
+                                if (chunkIndex === 0) {
+                                    globalIndex = index + 1;
+                                } else {
+                                    globalIndex = 6 + (chunkIndex - 1) * 12 + index + 1;
+                                }
                                 const isHighPerformer = rider.acceptedOrders >= 15;
 
                                 return (
@@ -360,23 +361,24 @@ const DailyDetailsReport = ({ data }) => {
                                         <View style={styles.colNo}>
                                             <Text style={styles.cellText}>{globalIndex}</Text>
                                         </View>
-                                        <View style={styles.colRiderId}>
-                                            <Text style={styles.cellTextBold}>{rider.riderId}</Text>
-                                        </View>
+                                        {/* Removed Rider ID Cell */}
                                         <View style={styles.colRiderName}>
-                                            <Text style={styles.cellText}>{rider.riderName}</Text>
-                                        </View>
-                                        <View style={styles.colPhone}>
-                                            <Text style={styles.cellText}>{formatPhone(rider.phoneNumber)}</Text>
+                                            <Text style={[styles.cellText, { textAlign: 'center' }]}>{rider.riderName}</Text>
                                         </View>
                                         <View style={styles.colWorkingId}>
-                                            <Text style={styles.cellText}>{rider.workingId}</Text>
+                                            <Text style={[styles.cellText, { textAlign: 'center' }]}>{rider.workingId}</Text>
                                         </View>
                                         <View style={styles.colOrders}>
                                             <Text style={styles.cellTextCenter}>{rider.acceptedOrders}</Text>
                                         </View>
                                         <View style={styles.colDate}>
-                                            <Text style={styles.cellText}>{rider.shiftDate}</Text>
+                                            <Text style={[styles.cellText, { textAlign: 'center' }]}>{rider.shiftDate}</Text>
+                                        </View>
+                                        <View style={styles.colRiderNameEn}>
+                                            <Text style={[styles.cellText, { textAlign: 'center' }]}>{rider.riderNameE || '-'}</Text>
+                                        </View>
+                                        <View style={styles.colPhone}>
+                                            <Text style={[styles.cellText, { textAlign: 'center' }]}>{formatPhone(rider.phoneNumber)}</Text>
                                         </View>
                                     </View>
                                 );
@@ -385,10 +387,10 @@ const DailyDetailsReport = ({ data }) => {
 
                         {/* Footer */}
                         <View style={styles.pageFooter} fixed>
-                            <Text>Generated: {new Date().toLocaleString('en-US')}</Text>
+                            <Text>تم الإنشاء: {new Date().toLocaleString('en-US')}</Text>
                             <Text>
-                                Page {chunkIndex + 1} of {riderChunks.length} |
-                                Housing {housingIndex + 1} of {housingDetails.length}
+                                صفحة {chunkIndex + 1} من {riderChunks.length} |
+                                سكن {housingIndex + 1} من {housingDetails.length}
                             </Text>
                         </View>
                     </Page>

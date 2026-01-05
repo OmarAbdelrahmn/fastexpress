@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
+import { ArrowRight, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, Minus, Printer } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ComparePeriodsReportPDF from "@/components/ComparePeriodsReportPDF";
 
 export default function ComparePeriodsReportPage() {
     const searchParams = useSearchParams();
@@ -106,6 +108,21 @@ export default function ComparePeriodsReportPage() {
                     >
                         {loading ? 'جاري التحليل...' : 'مقارنة'}
                     </button>
+
+                    {reportData && (
+                        <PDFDownloadLink
+                            document={<ComparePeriodsReportPDF data={reportData} />}
+                            fileName={`Comparison_Report_${startDate}_${endDate}.pdf`}
+                            className="w-full sm:w-auto px-6 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2"
+                        >
+                            {({ blob, url, loading, error }) => (
+                                <>
+                                    <Printer size={18} />
+                                    <span>{loading ? '...' : 'طباعة PDF'}</span>
+                                </>
+                            )}
+                        </PDFDownloadLink>
+                    )}
                 </div>
             </div>
 

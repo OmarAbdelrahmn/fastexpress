@@ -16,8 +16,11 @@ import {
     TrendingDown,
     Target,
     Percent,
-    Download
+    Download,
+    Printer
 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import RejectionReportPDF from "@/components/RejectionReportPDF";
 
 export default function RejectionReportPage() {
     const router = useRouter();
@@ -138,7 +141,7 @@ export default function RejectionReportPage() {
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                             <AlertCircle className="text-red-600" />
-                            تقرير الطلبات المرفوضة (DECLINED ORDERS)
+                            تقرير الطلبات المرفوضة 
                         </h1>
                         <p className="text-gray-500 mt-1 text-sm">
                             متابعة حالات الرفض ونسب الأداء
@@ -181,11 +184,28 @@ export default function RejectionReportPage() {
                     <button
                         onClick={handleExport}
                         disabled={loading || !reportData}
-                        className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 p-2 px-4 border border-gray-200 rounded-xl hover:bg-green-50 text-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold"
                         title="تصدير Excel"
                     >
+                        <span>Excel</span>
                         <Download size={20} />
                     </button>
+
+                    {/* PDF Button */}
+                    {reportData && (
+                        <PDFDownloadLink
+                            document={<RejectionReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
+                            fileName={`Rejection_Report_${startDate}_${endDate}.pdf`}
+                            className="flex items-center gap-2 p-2 px-4 border border-gray-200 rounded-xl hover:bg-red-50 text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                        >
+                            {({ blob, url, loading, error }) => (
+                                <>
+                                    <span>PDF</span>
+                                    <Printer size={20} />
+                                </>
+                            )}
+                        </PDFDownloadLink>
+                    )}
                 </div>
             </div>
 
@@ -213,7 +233,7 @@ export default function RejectionReportPage() {
                         color={{ bg: "bg-green-50", text: "text-green-600" }}
                     />
                     <StatCard
-                        title="المستهدف"
+                        title="التاجت"
                         value={reportData.totals.totalTargetOrders}
                         icon={Target}
                         color={{ bg: "bg-purple-50", text: "text-purple-600" }}

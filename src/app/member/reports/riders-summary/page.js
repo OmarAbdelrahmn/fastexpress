@@ -6,6 +6,8 @@ import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import * as XLSX from "xlsx";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import RidersSummaryReportPDF from "@/components/RidersSummaryReportPDF";
 import {
     ArrowRight,
     Search,
@@ -16,7 +18,8 @@ import {
     Target,
     Activity,
     AlertCircle,
-    Download
+    Download,
+    Printer
 } from "lucide-react";
 
 export default function RidersSummaryReportPage() {
@@ -141,7 +144,7 @@ export default function RidersSummaryReportPage() {
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                             <Activity className="text-blue-600" />
-                            ملخص أداء المناديب (Riders Summary)
+                            ملخص أداء المناديب
                         </h1>
                         <p className="text-gray-500 mt-1 text-sm">
                             متابعة شاملة لساعات العمل، الطلبات، والأيام
@@ -180,14 +183,31 @@ export default function RidersSummaryReportPage() {
                             </>
                         )}
                     </button>
+
                     <button
                         onClick={handleExport}
                         disabled={loading || !reportData}
-                        className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="تصدير Excel"
                     >
                         <Download size={20} />
+                        <span className="font-medium">Excel</span>
                     </button>
+
+                    {reportData && (
+                        <PDFDownloadLink
+                            document={<RidersSummaryReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
+                            fileName={`Riders_Summary_${startDate}_to_${endDate}.pdf`}
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {({ loading: pdfLoading }) => (
+                                <>
+                                    <Printer size={20} />
+                                    <span className="font-medium">{pdfLoading ? '...PDF' : 'PDF'}</span>
+                                </>
+                            )}
+                        </PDFDownloadLink>
+                    )}
                 </div>
             </div>
 

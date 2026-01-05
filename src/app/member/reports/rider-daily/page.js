@@ -20,8 +20,11 @@ import {
     Download,
     CheckCircle,
     XCircle,
-    ChevronDown
+    ChevronDown,
+    Printer // Added Printer icon
 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import RiderDailyReportPDF from "@/components/RiderDailyReportPDF";
 export default function RiderDailyDetailReportPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -323,11 +326,6 @@ export default function RiderDailyDetailReportPage() {
                             </>
                         )}
                     </button>
-                    {/* Placeholder for Download/Export if needed */}
-                    <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors" title="تصدير">
-                        <Download size={20}
-                            onClick={handleExportExcel} />
-                    </button>
                 </div>
             </div>
 
@@ -369,6 +367,31 @@ export default function RiderDailyDetailReportPage() {
                                     <span>لم يحقق التارجت</span>
                                 </div>
                             )}
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors "
+                                    title="تصدير Excel"
+                                    onClick={handleExportExcel}
+                                >
+                                    <Download size={20} />
+                                    <span className="font-medium">Excel</span>
+                                </button>
+
+                                <PDFDownloadLink
+                                    key={reportData.workingId + startDate + endDate}
+                                    document={<RiderDailyReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
+                                    fileName={`Rider_Daily_${reportData.riderNameAR || 'Report'}_${startDate}_${endDate}.pdf`}
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {({ loading: pdfLoading }) => (
+                                        <>
+                                            <Printer size={20} />
+                                            <span className="font-medium">{pdfLoading ? '...PDF' : 'PDF'}</span>
+                                        </>
+                                    )}
+                                </PDFDownloadLink>
+                            </div>
                         </div>
                     </div>
 

@@ -11,7 +11,7 @@ import {
 // Register Arabic font
 Font.register({
     family: 'Cairo',
-    src: 'https://fonts.gstatic.com/s/cairo/v20/SLXGc1nY6HkvangtZmpcMw.ttf',
+    src: '/fonts/7.ttf',
 });
 
 // Create styles with RTL support
@@ -128,7 +128,7 @@ const HousingReportPDF = ({ data }) => (
 
                 {/* Footer */}
                 <View style={styles.footer}>
-                    <Text>Generated on {new Date().toLocaleDateString('ar-EG')}</Text>
+                    <Text>Generated on {new Date().toLocaleDateString('en-US')}</Text>
                 </View>
             </View>
         </Page>

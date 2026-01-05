@@ -15,8 +15,11 @@ import {
     Activity,
     AlertCircle,
     ChevronDown,
-    History
+    History,
+    Printer
 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import RiderHistoryReportPDF from "@/components/RiderHistoryReportPDF";
 
 export default function RiderHistoryPage() {
     const router = useRouter();
@@ -220,6 +223,22 @@ export default function RiderHistoryPage() {
                             </>
                         )}
                     </button>
+
+                    {reportData && (
+                        <PDFDownloadLink
+                            key={reportData.workingId + (reportData.firstShiftDate || '')}
+                            document={<RiderHistoryReportPDF data={reportData} />}
+                            fileName={`Rider_History_${reportData.riderName || 'Report'}.pdf`}
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {({ loading: pdfLoading }) => (
+                                <>
+                                    <span>{pdfLoading ? '...PDF' : 'PDF'}</span>
+                                    <Printer size={18} />
+                                </>
+                            )}
+                        </PDFDownloadLink>
+                    )}
                 </div>
             </div>
 
