@@ -29,7 +29,7 @@ export default function MasterRegisterPage() {
   useEffect(() => {
     const token = TokenManager.getToken();
     if (!token || !TokenManager.isTokenValid()) {
-      router.push('/login');
+      router.push('/admin/login');
     }
   }, [router]);
 
@@ -53,7 +53,7 @@ export default function MasterRegisterPage() {
         setSuccess(true);
         setFormData({ username: '', password: '' });
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/admin/dashboard');
         }, 2000);
       }
     } catch (err) {
