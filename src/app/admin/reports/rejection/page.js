@@ -42,8 +42,7 @@ export default function HousingRejectionReport() {
                         'الفرق': rider.totalOrders - rider.targetOrders,
                         'الرفض': rider.totalRejections,
                         'معدل الرفض': `${rider.rejectionRate.toFixed(2)}%`,
-                        'رفض حقيقي': rider.totalRealRejections,
-                        'معدل رفض حقيقي': `${rider.realRejectionRate.toFixed(2)}%`
+                        'رفض حقيقي': rider.totalRealRejections
                     });
                 });
             }
@@ -157,7 +156,7 @@ export default function HousingRejectionReport() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl">
             <PageHeader
-                title="تقرير رفض السكن"
+                title="تقرير الطلبات المرفوضة حسب المجموعة"
                 subtitle="عرض تفاصيل الرفض لجميع مجموعات السكن"
                 icon={Building}
             />
@@ -258,7 +257,7 @@ export default function HousingRejectionReport() {
                             />
                             <StatCard
                                 icon={Users}
-                                title="إجمالي السائقين"
+                                title="إجمالي المناديب"
                                 value={totals.totalRiders}
                                 color="#10b981"
                             />
@@ -266,13 +265,13 @@ export default function HousingRejectionReport() {
                                 icon={XCircle}
                                 title="إجمالي الرفض"
                                 value={totals.totalRejections}
-                                color="#ef4444"
+                                color="#f97316"
                             />
                             <StatCard
                                 icon={TrendingUp}
-                                title="معدل الرفض الحقيقي"
-                                value={`${totals.avgRealRejectionRate.toFixed(2)}%`}
-                                color="#f59e0b"
+                                title="إجمالي الرفض الحقيقي"
+                                value={totals.totalRealRejections}
+                                color="#ef4444"
                             />
                         </div>
 
@@ -280,7 +279,7 @@ export default function HousingRejectionReport() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                تفاصيل مجموعات السكن ({reportData.length})
+                                تقرير الطلبات المرفوضة حسب المجموعة ({reportData.length})
                             </h2>
 
                             {reportData.map((housing, index) => (
@@ -310,7 +309,7 @@ export default function HousingRejectionReport() {
                                         <div className="p-6">
                                             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                 <Users className="text-purple-600" size={20} />
-                                                تفاصيل السائقين ({housing.rejectionReport.riderDetails.length})
+                                                تفاصيل المناديب ({housing.rejectionReport.riderDetails.length})
                                             </h4>
 
                                             <div className="overflow-x-auto">
@@ -326,14 +325,13 @@ export default function HousingRejectionReport() {
                                                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الرفض</th>
                                                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">رفض حقيقي</th>
                                                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الرفض</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الرفض الحقيقي</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="bg-white divide-y divide-gray-200">
                                                         {housing.rejectionReport.riderDetails.map((rider, idx) => (
                                                             <tr key={idx} className="hover:bg-gray-50">
                                                                 <td className="px-4 py-3 whitespace-nowrap">
-                                                                    <span className="font-mono font-bold text-gray-700">#{rider.workingId}</span>
+                                                                    <span className="font-mono font-bold text-gray-700">{rider.workingId}</span>
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap">
                                                                     <div>
@@ -364,10 +362,10 @@ export default function HousingRejectionReport() {
                                                                         );
                                                                     })()}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-red-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-orange-600">
                                                                     {rider.totalRejections}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-orange-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-red-600">
                                                                     {rider.totalRealRejections}
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap">
@@ -378,14 +376,7 @@ export default function HousingRejectionReport() {
                                                                         {rider.rejectionRate.toFixed(2)}%
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap">
-                                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.realRejectionRate < 5 ? 'bg-green-100 text-green-800' :
-                                                                        rider.realRejectionRate < 10 ? 'bg-yellow-100 text-yellow-800' :
-                                                                            'bg-red-100 text-red-800'
-                                                                        }`}>
-                                                                        {rider.realRejectionRate.toFixed(2)}%
-                                                                    </span>
-                                                                </td>
+
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -399,6 +390,6 @@ export default function HousingRejectionReport() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
