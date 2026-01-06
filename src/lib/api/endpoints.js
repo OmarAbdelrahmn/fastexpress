@@ -183,6 +183,10 @@ export const API_ENDPOINTS = {
     TOP_RIDERS_COMPANY: "/api/Report/top-riders/company",
     STACKED: (workingId) => `/api/Report/stacked/${workingId}`,
     STACKEDd: "/api/Report/stacked",
+    ALL_HOUSINGS_REJECTION: "/api/Report/all-housings/rejection",
+    ALL_HOUSINGS_SUMMARY: "/api/Report/all-housings/summary",
+    RIDER_HISTORY: (iqamaNo) => `/api/Report/rider-history?riderIqamaNo=${iqamaNo}`,
+    RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
   },
 
   // Member
@@ -218,5 +222,6 @@ export const API_ENDPOINTS = {
     REPORTS_REJECTION: "/api/Member/reports/rejection",
     REPORTS_RIDERS_SUMMARY: "/api/Member/reports/riders-summary",
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
+    RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
   },
 };

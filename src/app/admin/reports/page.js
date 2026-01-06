@@ -8,7 +8,10 @@ import {
   Package,
   Home,
   Calendar,
-  Award
+  Award,
+  Building,
+  Clock,
+  History
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
@@ -111,6 +114,11 @@ export default function ReportsPage() {
           name: t('reports.topRidersMonthly'),
           path: "/admin/reports/top-riders-monthly",
           desc: t('reports.topRidersMonthlyDesc'),
+        },
+        {
+          name: "تقرير أداء المندوب التفصيلي",
+          path: "/admin/reports/rider-performance",
+          desc: "تقرير تفصيلي يومي لأداء المندوب (سابقاً Rider Daily)",
         },
       ],
     },
@@ -221,36 +229,111 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* Report Categories */}
-      <div className="m-6 space-y-6">
-        {reportCategories.map((category, idx) => (
-          <div
-            key={idx}
-            className="bg-white rounded-xl shadow-md overflow-hidden"
-          >
-            <div
-              className={`bg-gradient-to-r ${category.color} px-6 py-4 flex items-center gap-3`}
-            >
-              <category.icon className="text-white" size={28} />
-              <h2 className="text-xl font-bold text-white">{category.title}</h2>
-            </div>
-
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {category.reports.map((report, reportIdx) => (
-                <Link
-                  key={reportIdx}
-                  href={report.path}
-                  className="group block p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 mb-2">
-                    {report.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">{report.desc}</p>
-                </Link>
-              ))}
+      {/* Important Reports Section */}
+      <div className="m-6">
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden border-2 border-indigo-200">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 flex items-center gap-4">
+            <Award className="text-white" size={36} />
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                التقارير المهمة
+              </h2>
+              <p className="text-indigo-100 text-sm mt-1">
+                التقارير الأساسية والأكثر استخداماً
+              </p>
             </div>
           </div>
-        ))}
+
+          <div className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link
+                href="/admin/reports/rejection"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Building className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    تقرير رفض الطلبات
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  عرض تفاصيل الرفض لجميع مجموعات السكن مع إحصائيات شاملة للسائقين
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/performance"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Clock className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    تقرير أداء المناديب
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  متابعة ساعات العمل، أيام الغياب، والطلبات لجميع المناديب في السكنات
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/rider-performance"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    أداء المندوب
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  استعراض أداء المندوب
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/history"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    سجل المندوب
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  استعراض السجل التاريخي للمندوب والنشاط الشهري عبر السنوات
+                </p>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Other Reports Link */}
+      <div className="m-6 flex justify-start">
+        <Link href="/admin/reports/other">
+          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group">
+            <BarChart3 size={20} />
+            <span className="font-semibold">تقارير أخرى</span>
+            <svg
+              className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </Link>
       </div>
     </div>
   );
