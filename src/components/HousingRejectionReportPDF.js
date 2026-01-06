@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -27,6 +28,25 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#4f46e5', // Indigo color for housing report header
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
         fontSize: 22,
@@ -183,8 +203,14 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate }) => {
                 <Page key={globalPageIndex} size="A4" style={styles.page} orientation="landscape">
                     {/* Global Document Header - Repeated on every page */}
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>تقرير رفض الطلبات - مجموعات السكن</Text>
-                        <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.headerTitle}>تقرير رفض الطلبات - مجموعات السكن</Text>
+                            <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        </View>
+                        <View style={styles.logoContainer}>
+                            <Image src="/2.png" style={styles.headerLogo} />
+                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                        </View>
                     </View>
 
                     {/* Housing Header - Only on the first page of the housing group */}

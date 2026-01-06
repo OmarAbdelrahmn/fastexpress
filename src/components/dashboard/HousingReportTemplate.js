@@ -40,7 +40,7 @@ const HousingReportTemplate = ({ data }) => {
                     </div>
                     {/* Logo Placeholder */}
                     <div className="w-16 h-16 rounded flex items-center justify-center text-[#1e3a8a]">
-                        <img src="2.png" className="w-full h-full" alt="logo" />
+                        <img src="/2.png" className="w-full h-full" alt="logo" />
                     </div>
                 </div>
             </div>

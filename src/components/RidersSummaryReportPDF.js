@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     page: {
         padding: 30,
         fontFamily: 'Cairo',
-        fontSize: 11,
+        fontSize: 10,
     },
     // Header
     header: {
@@ -26,16 +27,35 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#2563eb', // Blue to match page
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 10,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
-        fontSize: 17,
+        fontSize: 15,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
         marginBottom: 4,
     },
     headerSubtitle: {
-        fontSize: 15,
+        fontSize: 14,
         color: '#dbeafe',
         textAlign: 'center',
     },
@@ -57,19 +77,19 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     summaryLabel: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#64748b',
         textAlign: 'right',
         marginBottom: 4,
     },
     summaryValue: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 'bold',
         color: '#0f172a',
         textAlign: 'right',
     },
     summarySubValue: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#64748b',
         textAlign: 'right',
         marginTop: 2,
@@ -111,19 +131,19 @@ const styles = StyleSheet.create({
 
     headerText: {
         color: '#ffffff',
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 'bold',
     },
     cellText: {
-        fontSize: 11,
+        fontSize: 9,
         color: '#334155',
     },
     cellTextSmall: {
-        fontSize: 12,
+        fontSize: 8,
         color: '#64748b',
     },
     cellTextBold: {
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
         color: '#0f172a',
     },
@@ -136,7 +156,7 @@ const styles = StyleSheet.create({
         right: 30,
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
-        fontSize: 12,
+        fontSize: 10,
         color: '#94a3b8',
         borderTopWidth: 1,
         borderColor: '#e2e8f0',
@@ -181,8 +201,14 @@ const RidersSummaryReportPDF = ({ data, startDate, endDate }) => {
                 <Page key={pageIndex} size="A4" style={styles.page} orientation="landscape">
                     {/* Header */}
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>ملخص أداء المناديب (Riders Summary)</Text>
-                        <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.headerTitle}>ملخص أداء المناديب (Riders Summary)</Text>
+                            <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        </View>
+                        <View style={styles.logoContainer}>
+                            <Image src="/2.png" style={styles.headerLogo} />
+                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                        </View>
                     </View>
 
                     {/* Summary (First Page Only) */}

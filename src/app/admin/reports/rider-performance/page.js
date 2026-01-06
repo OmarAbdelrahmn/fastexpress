@@ -43,6 +43,7 @@ export default function RiderPerformancePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
+    const [selectedCompany, setSelectedCompany] = useState('hunger'); // 'hunger' or 'keta'
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -133,8 +134,12 @@ export default function RiderPerformancePage() {
         setLoading(true);
         setError(null);
         try {
-            // Use the NEW endpoint
-            const url = `${API_ENDPOINTS.REPORTS.RIDER_PERFORMANCE_DETAIL}?workingId=${workingId}&startDate=${startDate}&endDate=${endDate}`;
+            // Append "2" to the endpoint if Keta is selected
+            const endpoint = selectedCompany === 'keta'
+                ? API_ENDPOINTS.REPORTS.RIDER_PERFORMANCE_DETAIL + '2'
+                : API_ENDPOINTS.REPORTS.RIDER_PERFORMANCE_DETAIL;
+
+            const url = `${endpoint}?workingId=${workingId}&startDate=${startDate}&endDate=${endDate}`;
             const response = await ApiService.get(url);
             setReportData(response);
 
@@ -242,83 +247,111 @@ export default function RiderPerformancePage() {
 
             <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
                 {/* Search & Filter Section */}
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="w-full md:w-auto relative" ref={dropdownRef}>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="ابحث عن مندوب (الاسم أو الرقم)"
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    setSearchQuery(val);
-                                    setShowDropdown(true);
-                                    if (val && !isNaN(val) && val.trim() !== '') {
-                                        setWorkingId(val);
-                                    } else {
-                                        setWorkingId("");
-                                    }
-                                }}
-                                onFocus={() => setShowDropdown(true)}
-                                className="w-full md:w-80 px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm"
-                            />
-                            <ChevronDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    {/* Company Toggle Switch */}
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                        <h3 className="text-lg font-bold text-gray-800">اختر الشركة</h3>
+                        <div className="flex items-center gap-3 bg-gray-100 p-1 rounded-xl">
+                            <button
+                                onClick={() => setSelectedCompany('hunger')}
+                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'hunger'
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:text-gray-800'
+                                    }`}
+                            >
+                                Hunger
+                            </button>
+                            <button
+                                onClick={() => setSelectedCompany('keta')}
+                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'keta'
+                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:text-gray-800'
+                                    }`}
+                            >
+                                Keta
+                            </button>
                         </div>
-
-                        {showDropdown && filteredRiders.length > 0 && (
-                            <div className="absolute top-full right-0 mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-                                {filteredRiders.map((rider) => (
-                                    <button
-                                        key={rider.id || rider.workingId}
-                                        onClick={() => handleRiderSelect(rider)}
-                                        className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between group"
-                                    >
-                                        <div>
-                                            <p className="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">{rider.nameAR}</p>
-                                            <p className="text-xs text-gray-500">{rider.nameEN}</p>
-                                        </div>
-                                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono group-hover:bg-blue-50 group-hover:text-blue-600">
-                                            {rider.workingId}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                            <label className="text-sm font-medium text-gray-700 px-2">من:</label>
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
-                            />
-                        </div>
+                    {/* Search and Filter Controls */}
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="w-full md:w-auto relative" ref={dropdownRef}>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="ابحث عن مندوب (الاسم أو الرقم)"
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setSearchQuery(val);
+                                        setShowDropdown(true);
+                                        if (val && !isNaN(val) && val.trim() !== '') {
+                                            setWorkingId(val);
+                                        } else {
+                                            setWorkingId("");
+                                        }
+                                    }}
+                                    onFocus={() => setShowDropdown(true)}
+                                    className="w-full md:w-80 px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm"
+                                />
+                                <ChevronDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                            </div>
 
-                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                            <label className="text-sm font-medium text-gray-700 px-2">إلى:</label>
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
-                            />
-                        </div>
-
-                        <button
-                            onClick={fetchReport}
-                            disabled={loading}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                        >
-                            {loading ? '...' : (
-                                <>
-                                    <span>بحث</span>
-                                    <Search size={18} />
-                                </>
+                            {showDropdown && filteredRiders.length > 0 && (
+                                <div className="absolute top-full right-0 mt-1 w-full bg-white border border-gray-100 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                                    {filteredRiders.map((rider) => (
+                                        <button
+                                            key={rider.id || rider.workingId}
+                                            onClick={() => handleRiderSelect(rider)}
+                                            className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between group"
+                                        >
+                                            <div>
+                                                <p className="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">{rider.nameAR}</p>
+                                                <p className="text-xs text-gray-500">{rider.nameEN}</p>
+                                            </div>
+                                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono group-hover:bg-blue-50 group-hover:text-blue-600">
+                                                {rider.workingId}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             )}
-                        </button>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+                                <label className="text-sm font-medium text-gray-700 px-2">من:</label>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+                                <label className="text-sm font-medium text-gray-700 px-2">إلى:</label>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
+                                />
+                            </div>
+
+                            <button
+                                onClick={fetchReport}
+                                disabled={loading}
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                            >
+                                {loading ? '...' : (
+                                    <>
+                                        <span>بحث</span>
+                                        <Search size={18} />
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
 

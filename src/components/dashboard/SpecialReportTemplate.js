@@ -22,7 +22,7 @@ const SpecialReportTemplate = ({ data }) => {
 
                     <div className="w-14 h-14 rounded-lg overflow-hidden bg-white flex items-center justify-center">
                         <img
-                            src="2.png"
+                            src="/2.png"
                             alt="logo"
                             className="w-full h-full object-contain"
                         />

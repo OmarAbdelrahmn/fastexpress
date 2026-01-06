@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     page: {
         padding: 30,
         fontFamily: 'Cairo',
-        fontSize: 14,
+        fontSize: 13,
     },
     // Header Section
     header: {
@@ -26,21 +27,40 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#1e40af',
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 47,
+        height: 47,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
         marginBottom: 5,
     },
     headerSubtitle: {
-        fontSize: 15,
+        fontSize: 13,
         color: '#e0e7ff',
         textAlign: 'center',
     },
     reportDate: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#dbeafe',
         textAlign: 'center',
         marginTop: 5,
@@ -60,13 +80,13 @@ const styles = StyleSheet.create({
         borderRight: '4px solid #2563eb', // Changed to right border for RTL usually, but visually let's keep consistency or mirrored? keeping Right makes sense if content flows right to left.
     },
     summaryLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#64748b',
         marginBottom: 4,
         textAlign: 'right', // Align Right
     },
     summaryValue: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'bold',
         color: '#0f172a',
         textAlign: 'right', // Align Right
@@ -82,7 +102,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     housingTitle: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'bold',
         color: '#1e40af',
         marginBottom: 5,
@@ -94,7 +114,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     housingStatItem: {
-        fontSize: 18,
+        fontSize: 13,
         color: '#475569',
         textAlign: 'right',
     },
@@ -155,23 +175,23 @@ const styles = StyleSheet.create({
     // Header Text
     headerText: {
         color: '#ffffff',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
         textAlign: 'center',
     },
     // Cell Text
     cellText: {
-        fontSize: 12,
+        fontSize: 10,
         color: '#1e293b',
     },
     cellTextBold: {
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: 'bold',
         color: '#0f172a',
     },
     cellTextCenter: {
         textAlign: 'center',
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: 'bold',
         color: '#2563eb',
     },
@@ -183,7 +203,7 @@ const styles = StyleSheet.create({
         right: 30,
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
-        fontSize: 10,
+        fontSize: 8,
         color: '#94a3b8',
         borderTop: '1px solid #e2e8f0',
         paddingTop: 10,
@@ -243,7 +263,7 @@ const DailyDetailsReport = ({ data }) => {
                                 <Text style={styles.housingTitle}>
                                     سكن {housing.housingId}: {housing.housingName}
                                 </Text>
-                                <Text style={{ textAlign: 'right', fontSize: 10 }}>لا يوجد مناديب في هذا السكن.</Text>
+                                <Text style={{ textAlign: 'right', fontSize: 8 }}>لا يوجد مناديب في هذا السكن.</Text>
                             </View>
                         </Page>
                     );
@@ -258,9 +278,15 @@ const DailyDetailsReport = ({ data }) => {
                     >
                         {/* Header - Show on every page */}
                         <View style={styles.header}>
-                            <Text style={styles.headerTitle}>تقرير يومي تفصيلي</Text>
-                            <Text style={styles.headerSubtitle}>{housing.housingName}</Text>
-                            <Text style={styles.reportDate}>التاريخ: {reportDate}</Text>
+                            <View style={styles.headerContent}>
+                                <Text style={styles.headerTitle}>تقرير يومي تفصيلي</Text>
+                                <Text style={styles.headerSubtitle}>{housing.housingName}</Text>
+                                <Text style={styles.reportDate}>التاريخ: {reportDate}</Text>
+                            </View>
+                            <View style={styles.logoContainer}>
+                                <Image src="/2.png" style={styles.headerLogo} />
+                                <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                            </View>
                         </View>
 
                         {/* Summary - Show on first page only */}

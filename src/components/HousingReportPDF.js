@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 // Register Arabic font
@@ -31,7 +32,26 @@ const styles = StyleSheet.create({
         padding: 15,
         marginBottom: 20,
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
         textAlign: 'center',
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerText: {
         color: '#ffffff',
@@ -89,8 +109,14 @@ const HousingReportPDF = ({ data }) => (
             <View style={styles.container}>
                 {/* Header Section */}
                 <View style={styles.header}>
-                    <Text style={styles.headerText}>{data?.housingName || 'تقرير'}</Text>
-                    <Text style={styles.housingId}>Date: {data?.date}</Text>
+                    <View style={styles.headerContent}>
+                        <Text style={styles.headerText}>{data?.housingName || 'تقرير'}</Text>
+                        <Text style={styles.housingId}>Date: {data?.date}</Text>
+                    </View>
+                    <View style={styles.logoContainer}>
+                        <Image src="/2.png" style={styles.headerLogo} />
+                        <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                    </View>
                 </View>
 
                 {/* Statistics Section */}

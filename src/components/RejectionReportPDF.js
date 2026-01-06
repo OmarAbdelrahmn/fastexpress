@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
         padding: 25, // Standard margin
         paddingBottom: 30,
         fontFamily: 'Cairo',
-        fontSize: 14, // Back to 10 for better fit, user said bigger but 11 might be pushing it with padding
+        fontSize: 13, // Back to 10 for better fit, user said bigger but 11 might be pushing it with padding
     },
     // Header
     header: {
@@ -27,16 +28,35 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#dc2626',
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
-        fontSize: 22,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
         marginBottom: 4,
     },
     headerSubtitle: {
-        fontSize: 16,
+        fontSize: 15,
         color: '#fee2e2',
         textAlign: 'center',
     },
@@ -58,13 +78,13 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     summaryLabel: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#64748b',
         textAlign: 'right',
         marginBottom: 4,
     },
     summaryValue: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
         color: '#0f172a',
         textAlign: 'right',
@@ -105,15 +125,15 @@ const styles = StyleSheet.create({
 
     headerText: {
         color: '#ffffff',
-        fontSize: 13, // Slightly smaller header text to prevent wrap
+        fontSize: 12, // Slightly smaller header text to prevent wrap
         fontWeight: 'bold',
     },
     cellText: {
-        fontSize: 12,
+        fontSize: 9,
         color: '#334155',
     },
     cellTextSmall: {
-        fontSize: 11,
+        fontSize: 8,
         color: '#64748b',
     },
 
@@ -159,8 +179,8 @@ const RejectionReportPDF = ({ data, startDate, endDate }) => {
                         <Text style={styles.headerTitle}>تقرير الطلبات المرفوضة</Text>
                         <Text style={styles.headerSubtitle}>
                             من: {startDate} إلى: {endDate}
-                            
-                            </Text>
+
+                        </Text>
                     </View>
                     <Text style={{ textAlign: 'center', marginTop: 20 }}>لا توجد بيانات للعرض</Text>
                 </Page>
@@ -174,8 +194,14 @@ const RejectionReportPDF = ({ data, startDate, endDate }) => {
                 <Page key={pageIndex} size="A4" style={styles.page} orientation="landscape">
                     {/* Header */}
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>تقرير الطلبات المرفوضة (DECLINED ORDERS)</Text>
-                        <Text style={styles.headerSubtitle}> من: {startDate} إلى: {endDate}</Text>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.headerTitle}>تقرير الطلبات المرفوضة (DECLINED ORDERS)</Text>
+                            <Text style={styles.headerSubtitle}> من: {startDate} إلى: {endDate}</Text>
+                        </View>
+                        {/* <View style={styles.logoContainer}>
+                            <Image src="/2.png" style={styles.headerLogo} />
+                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                        </View> */}
                     </View>
 
                     {/* Summary (First Page Only) */}

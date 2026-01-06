@@ -17,6 +17,7 @@ export default function HousingPerformanceReport() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [expandedHousing, setExpandedHousing] = useState(null);
+    const [selectedCompany, setSelectedCompany] = useState('hunger'); // 'hunger' or 'keta'
 
     const [form, setForm] = useState({
         startDate: '',
@@ -32,7 +33,11 @@ export default function HousingPerformanceReport() {
             if (housing.summaryReport?.riderSummaries) {
                 housing.summaryReport.riderSummaries.forEach(rider => {
                     const hoursDiff = rider.hoursDifference;
-                    const ordersDiff = rider.ordersDifference;
+
+                    // Recalculate target orders and difference based on company
+                    const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
+                    const recalculatedTargetOrders = rider.actualWorkingDays * dailyOrderTarget;
+                    const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
 
                     excelData.push({
                         'المجموعة': housing.housingName,
@@ -45,8 +50,8 @@ export default function HousingPerformanceReport() {
                         'تارجيت الساعات': rider.targetWorkingHours,
                         'فرق الساعات': hoursDiff?.toFixed(1),
                         'اجمالي الطلبات': rider.totalOrders,
-                        'تارجيت الطلبات': rider.targetOrders,
-                        'فرق الطلبات': ordersDiff
+                        'تارجيت الطلبات': recalculatedTargetOrders,
+                        'فرق الطلبات': recalculatedOrdersDiff
                     });
                 });
             }
@@ -70,7 +75,12 @@ export default function HousingPerformanceReport() {
         setReportData(null);
 
         try {
-            const data = await ApiService.get(API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY, {
+            // Append "2" to the endpoint if Keta is selected
+            const endpoint = selectedCompany === 'keta'
+                ? API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY + '2'
+                : API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY;
+
+            const data = await ApiService.get(endpoint, {
                 startDate: form.startDate,
                 endDate: form.endDate
             });
@@ -165,9 +175,33 @@ export default function HousingPerformanceReport() {
 
                 {/* Filter Form */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <Calendar className="text-blue-600" size={24} />
-                        <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <Calendar className="text-blue-600" size={24} />
+                            <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
+                        </div>
+
+                        {/* Company Toggle Switch */}
+                        <div className="flex items-center gap-3 bg-gray-100 p-1 rounded-xl">
+                            <button
+                                onClick={() => setSelectedCompany('hunger')}
+                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'hunger'
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:text-gray-800'
+                                    }`}
+                            >
+                                Hunger
+                            </button>
+                            <button
+                                onClick={() => setSelectedCompany('keta')}
+                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'keta'
+                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                                    : 'text-gray-600 hover:text-gray-800'
+                                    }`}
+                            >
+                                Keta
+                            </button>
+                        </div>
                     </div>
 
                     <div className="space-y-4">
@@ -329,14 +363,19 @@ export default function HousingPerformanceReport() {
                                                         {housing.summaryReport.riderSummaries.map((rider, idx) => {
                                                             const hoursDiff = rider.hoursDifference;
                                                             const hoursPositive = hoursDiff >= 0;
-                                                            const ordersDiff = rider.ordersDifference;
-                                                            const ordersPositive = ordersDiff >= 0;
+
+                                                            // Recalculate target orders and difference based on company
+                                                            const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
+                                                            const recalculatedTargetOrders = rider.actualWorkingDays * dailyOrderTarget;
+                                                            const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
+                                                            const ordersPositive = recalculatedOrdersDiff >= 0;
+
                                                             const missingDays = Math.abs(rider.missingDays || 0);
 
                                                             return (
                                                                 <tr key={idx} className="hover:bg-gray-50">
                                                                     <td className="px-4 py-3 whitespace-nowrap font-mono font-bold text-gray-700">
-                                                                        #{rider.workingId}
+                                                                        {rider.workingId}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap">
                                                                         <div>
@@ -368,12 +407,12 @@ export default function HousingPerformanceReport() {
                                                                         {rider.totalOrders}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                                                                        {rider.targetOrders}
+                                                                        {recalculatedTargetOrders}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap">
                                                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${ordersPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                                                             }`}>
-                                                                            {ordersPositive ? '+' : ''}{ordersDiff}
+                                                                            {ordersPositive ? '+' : ''}{recalculatedOrdersDiff}
                                                                         </span>
                                                                     </td>
                                                                 </tr>

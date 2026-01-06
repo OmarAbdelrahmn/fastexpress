@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -26,6 +27,25 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#1e40af',
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
         fontSize: 20,
@@ -183,8 +203,14 @@ const ComparePeriodsReportPDF = ({ data }) => {
             <Page size="A4" style={styles.page}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>تقرير مقارنة الفترات</Text>
-                    <Text style={styles.headerSubtitle}>تحليل الأداء</Text>
+                    <View style={styles.headerContent}>
+                        <Text style={styles.headerTitle}>تقرير مقارنة الفترات</Text>
+                        <Text style={styles.headerSubtitle}>تحليل الأداء</Text>
+                    </View>
+                    <View style={styles.logoContainer}>
+                        <Image src="/2.png" style={styles.headerLogo} />
+                        <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                    </View>
                 </View>
 
                 {/* Net Change Section */}

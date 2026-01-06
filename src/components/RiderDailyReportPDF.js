@@ -6,6 +6,7 @@ import {
     View,
     StyleSheet,
     Font,
+    Image,
 } from '@react-pdf/renderer';
 
 Font.register({
@@ -26,6 +27,25 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#2563eb', // Blue
         borderRadius: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerContent: {
+        flex: 1,
+    },
+    headerLogo: {
+        width: 50,
+        height: 50,
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    companyName: {
+        fontSize: 11,
+        color: '#ffffff',
+        textAlign: 'center',
+        marginTop: 4,
     },
     headerTitle: {
         fontSize: 17,
@@ -214,8 +234,14 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
                 <Page key={pageIndex} size="A4" style={styles.page} orientation="landscape">
                     {/* Header */}
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>تفاصيل المندوب اليومية</Text>
-                        <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        <View style={styles.headerContent}>
+                            <Text style={styles.headerTitle}>تفاصيل المندوب اليومية</Text>
+                            <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                        </View>
+                        <View style={styles.logoContainer}>
+                            <Image src="/2.png" style={styles.headerLogo} />
+                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                        </View>
                     </View>
 
                     {/* First Page Summary Info */}
