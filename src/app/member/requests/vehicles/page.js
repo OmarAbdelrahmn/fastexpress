@@ -14,7 +14,8 @@ import {
     CheckCircle,
     XCircle,
     FileText,
-    Clock
+    Clock,
+    Trash2
 } from "lucide-react";
 
 export default function VehicleRequestsPage() {
@@ -36,6 +37,20 @@ export default function VehicleRequestsPage() {
             setError(err.message || "حدث خطأ أثناء تحميل البيانات");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCancelRequest = async (requestId) => {
+        if (!confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) {
+            return;
+        }
+
+        try {
+            await ApiService.delete(`/api/member/requests/vehicle-operation/${requestId}`);
+            // Reload requests after successful cancellation
+            await loadRequests();
+        } catch (err) {
+            alert(err.message || "حدث خطأ أثناء إلغاء الطلب");
         }
     };
 
@@ -174,6 +189,9 @@ export default function VehicleRequestsPage() {
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     تاريخ الطلب
                                 </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    إلغاء
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
@@ -227,19 +245,29 @@ export default function VehicleRequestsPage() {
                                                 <Calendar size={14} className="text-gray-400" />
                                                 <div className="text-sm">
                                                     <p className="font-medium text-gray-900">
-                                                        {request.requestedAt ? new Date(request.requestedAt).toLocaleDateString('ar-SA') : 'غير محدد'}
+                                                        {request.requestedAt ? new Date(request.requestedAt).toLocaleDateString('en-US') : 'غير محدد'}
                                                     </p>
                                                     <p className="text-gray-500 text-xs">
-                                                        {request.requestedAt ? new Date(request.requestedAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                        {request.requestedAt ? new Date(request.requestedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
                                                     </p>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <button
+                                                onClick={() => handleCancelRequest(request.id)}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                                title="إلغاء الطلب"
+                                            >
+                                                <Trash2 size={14} />
+                                                إلغاء
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="10" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="11" className="px-6 py-8 text-center text-gray-500">
                                         لا توجد طلبات معلقة
                                     </td>
                                 </tr>

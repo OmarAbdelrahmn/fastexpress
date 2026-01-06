@@ -64,9 +64,11 @@ export default function VehiclesWithRidersPage() {
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.serialNumber?.toString().includes(searchTerm) ||
       v.vehicleType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.currentRider?.riderName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      v.currentRider?.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.currentRider?.riderNameE?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.currentRider?.employeeIqamaNo?.toString().includes(searchTerm) ||
+      v.currentRider?.workingId?.toString().includes(searchTerm) ||
+      v.currentRider?.phoneNumber?.toString().includes(searchTerm) ||
       v.location?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const effectiveStatus =
