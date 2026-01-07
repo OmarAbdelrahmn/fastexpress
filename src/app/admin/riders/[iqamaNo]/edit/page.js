@@ -43,7 +43,9 @@ export default function EditRiderPage() {
     workingId: '',
     tshirtSize: '',
     licenseNumber: '',
-    companyName: ''
+    licenseNumber: '',
+    companyName: '',
+    isEmployee: false
   });
 
   useEffect(() => {
@@ -90,7 +92,9 @@ export default function EditRiderPage() {
           workingId: rider.workingId?.toString() || '',
           tshirtSize: rider.tshirtSize || '',
           licenseNumber: rider.licenseNumber || '',
-          companyName: rider.companyName || ''
+          licenseNumber: rider.licenseNumber || '',
+          companyName: rider.companyName || '',
+          isEmployee: rider.isEmployee || false
         });
       }
     } catch (err) {
@@ -208,8 +212,11 @@ export default function EditRiderPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('riders.editRider')}
-        subtitle={`${t('riders.iqamaNumber')}: ${iqamaNo}`}
+        title={`${formData.nameAR}`}
+        subtitle={formData.isEmployee
+          ? `${t('riders.iqamaNumber')}: ${formData.iqamaNo}`
+          : `${t('riders.workingId')}: ${formData.workingId || 'N/A'} | ${t('riders.iqamaNumber')}: ${formData.iqamaNo}`
+        }
         icon={Edit}
         actionButton={{
           text: t('navigation.backToList'),
@@ -399,67 +406,75 @@ export default function EditRiderPage() {
         </Card>
 
         {/* Rider Specific Information */}
-        <Card>
+        {!formData.isEmployee &&( <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Input
-              label={t('riders.workingId')}
-              type="number"
-              name="workingId"
-              value={formData.workingId}
-              onChange={handleInputChange}
-              placeholder={t('riders.enterWorkingId')}
-            />
-
-            <Input
-              label={t('riders.licenseNumber')}
-              type="text"
-              name="licenseNumber"
-              value={formData.licenseNumber}
-              onChange={handleInputChange}
-              placeholder={t('riders.enterLicenseNumber')}
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.tshirtSize')}
-              </label>
-              <select
-                name="tshirtSize"
-                value={formData.tshirtSize}
+            {!formData.isEmployee && (
+              <Input
+                label={t('riders.workingId')}
+                type="number"
+                name="workingId"
+                value={formData.workingId}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">{t('riders.selectSize')}</option>
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-                <option value="XXXL">XXXL</option>
-              </select>
-            </div>
+                placeholder={t('riders.enterWorkingId')}
+              />
+            )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.company')}
-              </label>
-              <select
-                name="companyName"
-                value={formData.companyName}
+            {!formData.isEmployee && (
+              <Input
+                label={t('riders.licenseNumber')}
+                type="text"
+                name="licenseNumber"
+                value={formData.licenseNumber}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">{t('riders.selectCompany')}</option>
-                {companies.map((company) => (
-                  <option key={company.name} value={company.name}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                placeholder={t('riders.enterLicenseNumber')}
+              />
+            )}
+
+            {!formData.isEmployee && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('riders.tshirtSize')}
+                </label>
+                <select
+                  name="tshirtSize"
+                  value={formData.tshirtSize}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value="">{t('riders.selectSize')}</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                  <option value="XXXL">XXXL</option>
+                </select>
+              </div>
+            )}
+
+            {!formData.isEmployee && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('riders.company')}
+                </label>
+                <select
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value="">{t('riders.selectCompany')}</option>
+                  {companies.map((company) => (
+                    <option key={company.name} value={company.name}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
-        </Card>
+        </Card> )}
 
         {/* Submit Buttons */}
         <Card>

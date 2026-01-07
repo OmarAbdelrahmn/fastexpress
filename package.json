@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "export": "next export --webpack",
-    "start": "next start --webpack",
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {

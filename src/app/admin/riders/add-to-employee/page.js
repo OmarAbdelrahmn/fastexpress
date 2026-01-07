@@ -59,13 +59,18 @@ export default function AddRiderToEmployeePage() {
 
       if (data) {
         // Check if already a rider
-        const riderCheck = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(searchIqama));
-        if (riderCheck && riderCheck.length > 0) {
-          setErrorMessage(t('riders.alreadyRider'));
+        // const riderCheck = await ApiService.get(API_ENDPOINTS.RIDER.BY_IQAMA(searchIqama));
+        // if (riderCheck && riderCheck.length > 0) {
+        //   setErrorMessage(t('riders.alreadyRider'));
+        //   return;
+        // }
+
+        const employee = Array.isArray(data) ? data[0] : data;
+        if (!employee) {
+          setErrorMessage(t('riders.employeeNotFound'));
           return;
         }
-
-        setEmployeeData(data);
+        setEmployeeData(employee);
         setErrorMessage('');
       } else {
         setErrorMessage(t('riders.employeeNotFound'));

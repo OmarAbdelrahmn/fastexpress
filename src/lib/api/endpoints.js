@@ -48,6 +48,7 @@ export const API_ENDPOINTS = {
     SEARCH: "/api/employee/search",
     MULTI_SEARCH: "/api/employee/multi-search",
     SMART_SEARCH: "/api/employee/smart-search",
+    CHANGE_EMPLOYEE_RIDER: (iqama) => `/api/employee/change-employee-rider?iqama=${iqama}`,
   },
 
   // Housing

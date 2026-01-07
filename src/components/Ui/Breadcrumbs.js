@@ -101,6 +101,7 @@ const pathTranslationKeys = {
   "admin/vehicles/admin/stolen": "vehicles.stolenVehicles",
   "admin/vehicles/admin/recover-stolen": "vehicles.recoverStolen",
   "admin/vehicles/admin/breakup": "vehicles.breakUpVehiclesTitle",
+  "admin/riders": "riders.manageEmployees",
 };
 
 export default function Breadcrumb() {

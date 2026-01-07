@@ -11,8 +11,9 @@ import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, Building, Package, Filter } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users,UserCog , Building, Package, Filter, Download, FileSpreadsheet, Clock, Archive, BarChart3, AlertCircle, History } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
+import * as XLSX from 'xlsx';
 
 export default function RidersPage() {
   const router = useRouter();
@@ -65,27 +66,30 @@ export default function RidersPage() {
     router.push(`/admin/riders/${iqamaNo}/edit`);
   };
 
+  const handleExportExcel = () => {
+    const data = filteredRiders.map(rider => ({
+      [t('riders.iqamaNumber')]: rider.iqamaNo || '',
+      [t('riders.nameArabic')]: rider.nameAR || '',
+      [t('riders.nameEnglish')]: rider.nameEN || '',
+      [t('riders.workingId')]: rider.workingId || '',
+      [t('riders.company')]: rider.companyName || '',
+      [t('riders.housing')]: rider.housingAddress || '',
+      [t('riders.phoneNumber')]: rider.phoneNumber || '',
+      [t('riders.nationality')]: rider.country || '',
+      [t('common.status')]: rider.status || '',
+      [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Riders");
+    XLSX.writeFile(wb, `Riders_List_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const columns = [
-    {
-      header: t('riders.workingId'),
-      accessor: 'workingId',
-      render: (row) => (
-        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
-      )
-    },
     { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
     { header: t('riders.nameArabic'), accessor: 'nameAR' },
     { header: t('riders.nameEnglish'), accessor: 'nameEN' },
-    {
-      header: t('riders.company'),
-      accessor: 'companyName',
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <Building size={14} className="text-gray-500" />
-          <span>{row.companyName}</span>
-        </div>
-      )
-    },
     {
       header: t('riders.housing'),
       accessor: 'housingAddress',
@@ -93,7 +97,13 @@ export default function RidersPage() {
         <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
       )
     },
-
+    {
+      header: t('riders.workingId'),
+      accessor: 'workingId',
+      render: (row) => (
+        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
+      )
+    },
     {
       header: t('common.status'),
       accessor: 'status',
@@ -139,14 +149,20 @@ export default function RidersPage() {
       rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const isEmployee = rider.isEmployee;
+    const status = rider.status?.toLowerCase();
+
     const matchesStatus =
       statusFilter === 'all' ||
-      (statusFilter === 'active' && rider.status.toLowerCase() === 'enable') ||
-      (statusFilter === 'inactive' && rider.status.toLowerCase() === 'disable') ||
-      (statusFilter === 'fleeing' && rider.status.toLowerCase() === 'fleeing') ||
-      (statusFilter === 'vacation' && rider.status.toLowerCase() === 'vacation') ||
-      (statusFilter === 'sick' && rider.status.toLowerCase() === 'sick') ||
-      (statusFilter === 'accident' && rider.status.toLowerCase() === 'accident');
+      (statusFilter === 'active' && status === 'enable' && !isEmployee) ||
+      (statusFilter === 'inactive' && status === 'disable' && !isEmployee) ||
+      (statusFilter === 'fleeing' && status === 'fleeing' && !isEmployee) ||
+      (statusFilter === 'vacation' && status === 'vacation') ||
+      (statusFilter === 'sick' && status === 'sick' && !isEmployee) ||
+      (statusFilter === 'accident' && status === 'accident' && !isEmployee) ||
+      (statusFilter === 'other' && status !== 'enable' && status !== 'vacation') ||
+      (statusFilter === 'employees' && isEmployee) ||
+      (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable');
 
     return matchesSearch && matchesStatus;
   });
@@ -154,13 +170,15 @@ export default function RidersPage() {
   // Statistics
   const stats = {
     total: riders.length,
-    active: riders.filter(r => r.status.toLowerCase() === 'enable').length,
-    other: riders.length - riders.filter(r => r.status.toLowerCase() === 'enable').length,
-    inactive: riders.filter(r => r.status.toLowerCase() === 'disable').length,
-    fleeing: riders.filter(r => r.status.toLowerCase() === 'fleeing').length,
-    vacation: riders.filter(r => r.status.toLowerCase() === 'vacation').length,
-    sick: riders.filter(r => r.status.toLowerCase() === 'sick').length,
-    accident: riders.filter(r => r.status.toLowerCase() === 'accident').length,
+    active: riders.filter(r => r.status?.toLowerCase() === 'enable' && !r.isEmployee).length,
+    inactive: riders.filter(r => r.status?.toLowerCase() === 'disable' && !r.isEmployee).length,
+    fleeing: riders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee).length,
+    vacation: riders.filter(r => r.status?.toLowerCase() === 'vacation').length,
+    sick: riders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
+    accident: riders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
+    other: riders.filter(r => r.status?.toLowerCase() !== 'enable' && r.status?.toLowerCase() !== 'vacation').length,
+    employees: riders.filter(r => r.isEmployee).length,
+    inactiveEmployees: riders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
     companies: new Set(riders.map(r => r.companyName)).size,
     withHousing: riders.filter(r => r.housingAddress).length
   };
@@ -168,7 +186,7 @@ export default function RidersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('riders.manageRiders')}
+        title={t('employees.title')}
         subtitle={`${t('riders.totalRiders')}: ${riders.length}`}
         icon={UserCheck}
         actionButton={{
@@ -205,7 +223,7 @@ export default function RidersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-red-600 mb-1">{t('common.inactive')}</p>
-              <p className="text-3xl font-bold text-red-700">{stats.other}</p>
+              <p className="text-3xl font-bold text-red-700">{stats.inactive}</p>
             </div>
             <Users className="text-red-500" size={40} />
           </div>
@@ -239,7 +257,7 @@ export default function RidersPage() {
           onClose={() => setErrorMessage('')}
         />
       )}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
         {/* Management Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
           <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
@@ -262,14 +280,14 @@ export default function RidersPage() {
               color="#2563eb" // blue-600
               bgClass="bg-blue-50"
             />
-            <MiniStatRow
+            {/* <MiniStatRow
               icon={Trash2}
               title={t('riders.deleteRider')}
               description={t('riders.removeProfile')}
               onClick={() => router.push('/admin/riders/search?action=delete')} // Placeholder route logic
               color="#dc2626" // red-600
               bgClass="bg-red-50"
-            />
+            /> */}
             <MiniStatRow
               icon={Package}
               title={t('riders.changeWorkingId')}
@@ -314,14 +332,24 @@ export default function RidersPage() {
           <div className="flex flex-col gap-3">
             <MiniStatRow
               icon={UserCheck}
-              title={t('riders.addToEmployee')}
+              title={t('riders.convertEmployeeToRider')}
               description={t('riders.convertEmployeeToRider')}
               onClick={() => router.push('/admin/riders/add-to-employee')}
               color="#0d9488" // teal-600
               bgClass="bg-teal-50"
             />
+            <MiniStatRow
+              icon={UserCog}
+              title={t('navigation.changeRole')}
+              description={t('navigation.changeRole')}
+              onClick={() => router.push('/admin/riders/change-role')}
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
+            />
           </div>
         </div>
+
+
       </div>
       <Card>
         <div className="space-y-4">
@@ -394,17 +422,53 @@ export default function RidersPage() {
             >
               {t('status.accident')} ({stats.accident})
             </button>
+            <button
+              onClick={() => setStatusFilter("other")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "other"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              جميع الغير نشيط ({stats.other})
+            </button>
+            <button
+              onClick={() => setStatusFilter("employees")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "employees"
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('employees.title')} ({stats.employees})
+            </button>
+            <button
+              onClick={() => setStatusFilter("inactiveEmployees")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactiveEmployees"
+                ? "bg-slate-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('employees.title')} {t('employees.inactiveEmployees')}  ({stats.inactiveEmployees})
+            </button>
           </div>
 
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder={t('riders.searchPlaceholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder={t('riders.searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <Button
+              onClick={handleExportExcel}
+              className="!bg-green-600 hover:!bg-green-700 text-white !py-2 text-sm h-auto shadow-sm whitespace-nowrap"
+            >
+              <Download size={16} className="ml-2" />
+              {t('common.exportExcel')}
+            </Button>
           </div>
         </div>
 

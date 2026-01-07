@@ -118,19 +118,13 @@ export const adminNavigationConfig = {
   },
 
   riders: {
-    title: "navigation.riders",
+    title: "navigation.employees",
     icon: "👥",
     routes: [
-      { path: "/admin/riders", label: "navigation.manageRiders" },
-      { path: "/admin/riders/create", label: "navigation.createRider" },
-      { path: "/admin/riders/search", label: "navigation.searchRiders" }
+      { path: "/admin/riders", label: "riders.manageEmployees" },
+      { path: "/admin/riders/search", label: "riders.searchEmployees" },
+      { path: "/admin/riders/manage", label: "riders.manageEmployee" },
     ],
-  },
-
-  employees: {
-    title: "navigation.employees",
-    icon: "👔",
-    path: "/admin/employees",
   },
 
   housing: {

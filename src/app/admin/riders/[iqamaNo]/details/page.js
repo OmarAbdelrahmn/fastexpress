@@ -126,7 +126,10 @@ export default function RiderDetailsPage() {
     <div className="space-y-6">
       <PageHeader
         title={`${rider.nameAR}`}
-        subtitle={`${t('riders.workingId')}: ${rider.workingId || 'N/A'} | ${t('riders.iqamaNumber')}: ${rider.iqamaNo}`}
+        subtitle={rider.isEmployee
+          ? `${t('riders.iqamaNumber')}: ${rider.iqamaNo}`
+          : `${t('riders.workingId')}: ${rider.workingId || 'N/A'} | ${t('riders.iqamaNumber')}: ${rider.iqamaNo}`
+        }
         icon={User}
         actionButton={{
           text: t('common.edit'),
@@ -148,10 +151,13 @@ export default function RiderDetailsPage() {
           <div>
             <h2 className={`text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
               }`}>
-              {rider.status === 'enable' ? t('riders.activeRider') : t('riders.inactiveStatus')}
+              {rider.status === 'enable'
+                ? (rider.isEmployee ? t('riders.activeEmployee') : t('riders.activeRider'))
+                : (rider.isEmployee ? t('riders.inactiveEmployee') : t('riders.inactiveStatus'))
+              }
             </h2>
             <p className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'}>
-              {t('riders.currentStatus')}
+              {rider.isEmployee ? t('riders.employeeCurrentStatus') : t('riders.currentStatus')}
             </p>
           </div>
         </div>
@@ -222,10 +228,12 @@ export default function RiderDetailsPage() {
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.workingId')}</p>
-                <p className="font-bold text-blue-700 text-xl">{rider.workingId || 'N/A'}</p>
-              </div>
+              {!rider.isEmployee && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{t('riders.workingId')}</p>
+                  <p className="font-bold text-blue-700 text-xl">{rider.workingId || 'N/A'}</p>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.jobTitle')}</p>
                 <p className="font-medium text-gray-800">{rider.jobTitle}</p>
@@ -233,30 +241,36 @@ export default function RiderDetailsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.company')}</p>
-                <p className="font-medium text-gray-800 flex items-center gap-2">
-                  <Building size={14} />
-                  {rider.companyName}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.licenseNumber')}</p>
-                <p className="font-medium text-gray-800 flex items-center gap-2">
-                  <FileText size={14} />
-                  {rider.licenseNumber}
-                </p>
-              </div>
+              {!rider.isEmployee && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{t('riders.company')}</p>
+                  <p className="font-medium text-gray-800 flex items-center gap-2">
+                    <Building size={14} />
+                    {rider.companyName}
+                  </p>
+                </div>
+              )}
+              {!rider.isEmployee && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{t('riders.licenseNumber')}</p>
+                  <p className="font-medium text-gray-800 flex items-center gap-2">
+                    <FileText size={14} />
+                    {rider.licenseNumber}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.tshirtSize')}</p>
-                <p className="font-medium text-gray-800 flex items-center gap-2">
-                  <Package size={14} />
-                  {rider.tshirtSize}
-                </p>
-              </div>
+              {!rider.isEmployee && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{t('riders.tshirtSize')}</p>
+                  <p className="font-medium text-gray-800 flex items-center gap-2">
+                    <Package size={14} />
+                    {rider.tshirtSize}
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.housing')}</p>
                 <p className="font-medium text-gray-800">

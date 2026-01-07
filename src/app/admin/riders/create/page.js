@@ -41,7 +41,8 @@ export default function CreateRiderPage() {
     workingId: '',
     tshirtSize: '',
     licenseNumber: '',
-    companyName: ''
+    companyName: '',
+    isEmployee: false
   });
 
   useEffect(() => {
@@ -94,7 +95,8 @@ export default function CreateRiderPage() {
         workingId: formData.workingId,
         tshirtSize: formData.tshirtSize,
         licenseNumber: formData.licenseNumber,
-        companyName: formData.companyName
+        companyName: formData.companyName,
+        isEmployee: formData.isEmployee
       };
 
       console.log('Submitting rider data:', requestData);
@@ -147,7 +149,22 @@ export default function CreateRiderPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.personalInfo')}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-800">{t('employees.personalInfo')}</h3>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isEmployee"
+                id="isEmployee"
+                checked={formData.isEmployee}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
+              />
+              <label htmlFor="isEmployee" className="text-sm font-medium text-gray-700 cursor-pointer">
+                {t('common.isEmployee')}
+              </label>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label={t('employees.iqamaNumber')}
@@ -292,7 +309,7 @@ export default function CreateRiderPage() {
               label={t('employees.sponsor')}
               type="text"
               name="sponsor"
-              value={formData.sponsor || 'الخدمة السريعة'} 
+              value={formData.sponsor || 'الخدمة السريعة'}
               onChange={handleInputChange}
               required
               placeholder={t('employees.enterSponsorName')}
@@ -348,7 +365,7 @@ export default function CreateRiderPage() {
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
-              required
+              required={!formData.isEmployee}
               placeholder={t('riders.enterWorkingId')}
             />
 
@@ -358,19 +375,19 @@ export default function CreateRiderPage() {
               name="licenseNumber"
               value={formData.licenseNumber}
               onChange={handleInputChange}
-              required
+              required={!formData.isEmployee}
               placeholder={t('riders.enterLicenseNumber')}
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.tshirtSize')} <span className="text-red-500">*</span>
+                {t('riders.tshirtSize')} {!formData.isEmployee && <span className="text-red-500">*</span>}
               </label>
               <select
                 name="tshirtSize"
                 value={formData.tshirtSize}
                 onChange={handleInputChange}
-                required
+                required={!formData.isEmployee}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="">{t('riders.selectSize')}</option>
@@ -385,13 +402,13 @@ export default function CreateRiderPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.company')} <span className="text-red-500">*</span>
+                {t('riders.company')} {!formData.isEmployee && <span className="text-red-500">*</span>}
               </label>
               <select
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                required
+                required={!formData.isEmployee}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="">{t('riders.selectCompany')}</option>
