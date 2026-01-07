@@ -23,10 +23,21 @@ export default function ChangeLocationPage() {
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [newLocation, setNewLocation] = useState('');
+  const [housingList, setHousingList] = useState([]);
 
   useEffect(() => {
     loadVehicles();
+    loadHousing();
   }, []);
+
+  const loadHousing = async () => {
+    try {
+      const data = await ApiService.get('/api/housing');
+      setHousingList(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error loading housing:', err);
+    }
+  };
 
   const loadVehicles = async () => {
     try {
@@ -210,14 +221,22 @@ export default function ChangeLocationPage() {
                 </div>
               </div>
 
-              <Input
-                label={t('vehicles.newLocation')}
-                type="text"
-                value={newLocation}
-                onChange={(e) => setNewLocation(e.target.value)}
-                required
-                placeholder={t('vehicles.enterNewLocationPlaceholder')}
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">{t('vehicles.newLocation')}</label>
+                <select
+                  value={newLocation}
+                  onChange={(e) => setNewLocation(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500"
+                >
+                  <option value="الشركة">الشركة</option>
+                  {housingList.map((housing) => (
+                    <option key={housing.id} value={housing.name}>
+                      {housing.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="flex gap-3 justify-end pt-4 border-t">
                 <Button

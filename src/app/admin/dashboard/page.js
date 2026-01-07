@@ -21,13 +21,17 @@ import {
   AlertCircle,
   FileText,
   Printer,
-  ChevronRight // Added new icon
+  ArrowRight,
+  X,
+  ChevronRight,
+  Bike // Replacement for Motorcycle which does not exist in Lucide
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import SpecialReportTemplate from "@/components/dashboard/SpecialReportTemplate";
 import HousingReportTemplate from "@/components/dashboard/HousingReportTemplate";
 import HousingDetailedReportTemplate from "@/components/dashboard/HousingDetailedReportTemplate";
+import { useRouter } from "next/navigation";
 
 const TokenManager = {
   getToken: () =>
@@ -482,7 +486,7 @@ export default function EnhancedDashboard() {
             <Icon size={20} color={color} />
           </div>
           {/* Subtle background decoration */}
-          <Icon className="absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={80} color={color} />
+          <Icon className="absolute -left-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={80} color={color} />
         </div>
 
         <div className="relative z-10 ">
@@ -525,6 +529,80 @@ export default function EnhancedDashboard() {
           </div>
         </div>
       </Link>
+    );
+  };
+
+  const NotificationFab = ({ title, count, icon: Icon, link }) => {
+    const [showPopup, setShowPopup] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const router = useRouter();
+
+    if (!isVisible) return null;
+
+    return (
+      <div className="relative group w-fit">
+        {/* Popup Rectangle */}
+        {showPopup && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(link);
+            }}
+            className="absolute left-full ml-4 top-1/2 -translate-y-1/2 w-max bg-white text-gray-800 px-4 py-3 rounded-lg shadow-xl border border-gray-100 cursor-pointer animate-fade-in flex items-center gap-3 z-50 print:hidden"
+          >
+            {/* Close Button for Popup */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPopup(false);
+              }}
+              className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-gray-100 hover:bg-gray-50 text-gray-400 hover:text-red-500 transition-colors z-50"
+            >
+              <X size={12} />
+            </button>
+
+            <div className="flex flex-col">
+              <span className="font-bold text-sm">{title}</span>
+              <span className="text-xs text-gray-500">{count} طلب </span>
+            </div>
+            <div className="bg-blue-50 p-1.5 rounded-full">
+              <ArrowRight size={14} className="text-blue-600 rtl:rotate-180" />
+            </div>
+            {/* Arrow pointing to icon */}
+            <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white transform rotate-45 border-l border-b border-gray-100"></div>
+          </div>
+        )}
+
+        {/* Icon Button */}
+        <button
+          onClick={() => setShowPopup(!showPopup)}
+          className={`p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 flex items-center justify-center relative group/btn
+            ${count > 0
+              ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse-slow'
+              : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
+        >
+          <Icon size={24} />
+
+          {/* Badge at top-left */}
+          {count > 0 && (
+            <span className="absolute -top-1 -left-1 bg-white text-red-500 text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-red-500 shadow-sm z-10">
+              {count > 9 ? '+9' : count}
+            </span>
+          )}
+
+          {/* Close Circle Button (Appears on Hover at top-right) */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsVisible(false);
+            }}
+            className="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 rounded-full p-0.5 shadow-md border border-gray-100 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 z-20 cursor-pointer"
+          >
+            <X size={14} />
+          </div>
+        </button>
+      </div>
     );
   };
 
@@ -651,23 +729,16 @@ export default function EnhancedDashboard() {
 
         </div>
 
-        {/* Separator Line */}
-        <div className="w-full h-px bg-gray-300 my-8 shadow-sm"></div>
-
-        {/* New Status Buttons Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <StatusButton
+        {/* Notification Icons */}
+        <div className="fixed bottom-6 left-6 flex flex-col gap-4 z-50">
+          <NotificationFab
             title={t("dashboard.pendingApprovals")}
-            value={stats.pendingRequests}
-            subtitle={t("dashboard.hasPendingApprovals")}
             count={stats.pendingRequests}
-            icon={FileText}
+            icon={Car}
             link="/admin/vehicles/admin/users-requests"
           />
-          <StatusButton
+          <NotificationFab
             title={t("dashboard.pendingStatusChanges")}
-            value={stats.pendempst}
-            subtitle={t("dashboard.pendingStatusChangesSubtitle")}
             count={stats.pendempst}
             icon={Users}
             link="/admin/employees/admin/status-requests"
@@ -810,6 +881,29 @@ export default function EnhancedDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Active Riders by Company */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Users size={20} color={COLORS.blue} />
+                {t("dashboard.activeRidersByCompany")}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <MiniStatRow
+                  label={t("dashboard.hunger")}
+                  value={stats.activeHungerRiders}
+                  icon={CheckCircle}
+                  color={COLORS.orange}
+                />
+                <MiniStatRow
+                  label={t("dashboard.keeta")}
+                  value={stats.activeKeetaRiders}
+                  icon={CheckCircle}
+                  color={COLORS.blue}
+                />
+              </div>
+            </div>
+
             {/* System Overview */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -837,29 +931,6 @@ export default function EnhancedDashboard() {
                 />
               </div>
             </div>
-
-            {/* Active Riders by Company */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Users size={20} color={COLORS.blue} />
-                {t("dashboard.activeRidersByCompany")}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <MiniStatRow
-                  label={t("dashboard.hunger")}
-                  value={stats.activeHungerRiders}
-                  icon={CheckCircle}
-                  color={COLORS.orange}
-                />
-                <MiniStatRow
-                  label={t("dashboard.keeta")}
-                  value={stats.activeKeetaRiders}
-                  icon={CheckCircle}
-                  color={COLORS.blue}
-                />
-              </div>
-            </div>
-
           </div>
         </div>
       </div>

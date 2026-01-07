@@ -137,7 +137,7 @@ export default function EmployeeAdminPage() {
       />
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
         <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -180,7 +180,7 @@ export default function EmployeeAdminPage() {
       </div>
 
       {/* Action Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
         {/* Management Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
           <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">

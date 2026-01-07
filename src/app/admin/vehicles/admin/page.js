@@ -100,7 +100,7 @@ export default function VehicleAdminDashboard() {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -167,7 +167,7 @@ export default function VehicleAdminDashboard() {
       </div>
 
       {/* Alert Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
         <div
           className={`border-r-4 border-orange-500 bg-orange-50 p-5 rounded-lg`}
         >
@@ -210,7 +210,7 @@ export default function VehicleAdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
         {/* 1. Search & Reports */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
           <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
@@ -231,8 +231,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.vehicleHistory')}
               description={t('vehicles.vehicleRecords')}
               onClick={() => router.push('/admin/vehicles/admin/history')}
-              color="#4f46e5" // indigo-600
-              bgClass="bg-indigo-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
           </div>
@@ -249,8 +249,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.takeVehicle')}
               description={t('vehicles.registerTakeVehicle')}
               onClick={() => router.push('/admin/vehicles/admin/take')}
-              color="#16a34a" // green-600
-              bgClass="bg-green-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -285,8 +285,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.changeLocation')}
               description={t('vehicles.updateLocations')}
               onClick={() => router.push('/admin/vehicles/admin/change-location')}
-              color="#0d9488" // teal-600
-              bgClass="bg-teal-50"
+              color="#4b5563" // gray-600
+              bgClass="bg-gray-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -294,8 +294,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.supervisorRequests')}
               description={t('vehicles.supervisorRequestsDesc')}
               onClick={() => router.push('/admin/vehicles/admin/users-requests')}
-              color="#ca8a04" // yellow-600
-              bgClass="bg-yellow-50"
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
               className="!p-2"
             />
           </div>
@@ -312,8 +312,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.reportProblem')}
               description={t('vehicles.reportProblemDesc')}
               onClick={() => router.push('/admin/vehicles/admin/problems')}
-              color="#dc2626" // red-600
-              bgClass="bg-red-50"
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -321,8 +321,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.fixProblems')}
               description={t('vehicles.solveProblems')}
               onClick={() => router.push('/admin/vehicles/admin/fix-problems')}
-              color="#9333ea" // purple-600
-              bgClass="bg-purple-50"
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
               className="!p-2"
             />
           </div>
@@ -339,8 +339,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.stolenVehicles')}
               description={t('vehicles.reportedStolen')}
               onClick={() => router.push('/admin/vehicles/admin/stolen')}
-              color="#dc2626" // red-600
-              bgClass="bg-red-50"
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -348,8 +348,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.recoverStolen')}
               description={t('vehicles.recoverStolenVehicles')}
               onClick={() => router.push('/admin/vehicles/admin/recover-stolen')}
-              color="#059669" // emerald-600
-              bgClass="bg-emerald-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -376,7 +376,7 @@ export default function VehicleAdminDashboard() {
       ) : (
         <Card>
           <h2 className="text-xl font-bold text-gray-800 mb-6">{t("vehicles.statusSummary")}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
             <div>
               <h3 className="font-bold text-gray-700 mb-3">{t("vehicles.usageRates")}</h3>
               <div className="space-y-3">

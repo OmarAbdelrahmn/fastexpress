@@ -20,8 +20,10 @@ import {
   CheckCircle,
   AlertTriangle,
   Shield,
-  PackageX
+  PackageX,
+  Download
 } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import {
   VehicleStatusType,
@@ -109,6 +111,40 @@ export default function VehiclesWithRidersPage() {
     problems: getStatsCount(VehicleStatusType.Problem),
     stolen: getStatsCount(VehicleStatusType.Stolen),
     breakup: getStatsCount(VehicleStatusType.BreakUp),
+  };
+
+
+  const handleExportExcel = () => {
+    const data = filteredVehicles.map(v => {
+      const effectiveStatus =
+        v.isStolen ? VehicleStatusType.Stolen :
+          v.isBreakUp ? VehicleStatusType.BreakUp :
+            v.hasActiveProblem ? VehicleStatusType.Problem :
+              normalizeVehicleStatus(v.currentStatus) ||
+              (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+
+      const statusAttrs = getVehicleStatusAttributes(effectiveStatus, t);
+
+      return {
+        [t('vehicles.plateNumber')]: formatPlateNumber(v.plateNumberA),
+        [t('vehicles.serialNumber')]: v.serialNumber,
+        [t('vehicles.vehicleNumber')]: v.vehicleNumber,
+        [t('vehicles.type')]: v.vehicleType,
+        [t('vehicles.manufacturer')]: v.manufacturer,
+        [t('vehicles.manufactureYear')]: v.manufactureYear,
+        [t('vehicles.currentLocation')]: v.location || '-',
+        [t('employees.riderName')]: v.currentRider?.riderName || '-',
+        [t('employees.riderNameEn')]: v.currentRider?.riderNameE || '-',
+        [t('employees.iqamaNumber')]: v.currentRider?.employeeIqamaNo || '-',
+        [t('employees.phoneNumber')]: v.currentRider?.phoneNumber || '-',
+        [t('vehicles.statuss')]: statusAttrs.label
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Vehicles");
+    XLSX.writeFile(wb, `Vehicles_List_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -211,43 +247,55 @@ export default function VehiclesWithRidersPage() {
 
         <Card>
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter size={20} className="text-gray-600" />
-              <h3 className="text-lg font-bold text-gray-800">{t('vehicles.filterResults')}</h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Filter size={20} className="text-gray-600" />
+                <h3 className="text-lg font-bold text-gray-800">{t('vehicles.filterResults')}</h3>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setStatusFilter("all")}
-                className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {t('common.all')} ({stats.total})
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                >
+                  {t('common.all')} ({stats.total})
+                </button>
 
-              {[
-                { type: VehicleStatusType.Returned, key: "returned", count: stats.returned },
-                { type: VehicleStatusType.Taken, key: "taken", count: stats.taken },
-                { type: VehicleStatusType.Problem, key: "problem", count: stats.problems },
-                { type: VehicleStatusType.Stolen, key: "stolen", count: stats.stolen },
-                { type: VehicleStatusType.BreakUp, key: "breakup", count: stats.breakup },
-              ].map(item => {
-                const attrs = getVehicleStatusAttributes(item.type, t);
-                return (
-                  <button
-                    key={item.key}
-                    onClick={() => setStatusFilter(item.key)}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === item.key
-                      ? `${attrs.styles.badge} text-white`
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                  >
-                    {attrs.label} ({item.count})
-                  </button>
-                );
-              })}
+                {[
+                  { type: VehicleStatusType.Returned, key: "returned", count: stats.returned },
+                  { type: VehicleStatusType.Taken, key: "taken", count: stats.taken },
+                  { type: VehicleStatusType.Problem, key: "problem", count: stats.problems },
+                  { type: VehicleStatusType.Stolen, key: "stolen", count: stats.stolen },
+                  { type: VehicleStatusType.BreakUp, key: "breakup", count: stats.breakup },
+                ].map(item => {
+                  const attrs = getVehicleStatusAttributes(item.type, t);
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => setStatusFilter(item.key)}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === item.key
+                        ? `${attrs.styles.badge} text-white`
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                    >
+                      {attrs.label} ({item.count})
+                    </button>
+                  );
+                })}
+              </div>
+
+              <Button
+                onClick={handleExportExcel}
+                className="!bg-green-600 hover:!bg-green-700 text-white !py-1.5 text-sm h-auto shadow-sm p-2"
+              >
+                <Download size={16} className="ml-2" />
+                {t('common.exportExcel')}
+              </Button>
             </div>
 
             <div className="relative">
@@ -286,10 +334,11 @@ export default function VehiclesWithRidersPage() {
               <table className="w-full text-start border-collapse">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[30%]">{t('vehicles.vehicle')}</th>
-                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[35%]">{t('vehicles.details')}</th>
-                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[20%]">{t('vehicles.statuss')}</th>
-                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('common.actions')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.vehicle')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.details')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('employees.rider')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('vehicles.statuss')}</th>
+                    <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[10%]">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -337,6 +386,28 @@ export default function VehiclesWithRidersPage() {
                               <MapPin size={12} />
                               {vehicle.location}
                             </div>
+                          )}
+                        </td>
+
+                        <td className="p-4 align-top">
+                          {vehicle.currentRider ? (
+                            <div className="space-y-1">
+                              <div className="font-bold text-gray-900 text-base">
+                                {vehicle.currentRider.riderName || '-'}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {vehicle.currentRider.riderNameE || '-'}
+                              </div>
+                              <div className="text-sm text-gray-500 flex flex-col gap-0.5 mt-1">
+                                {vehicle.currentRider.employeeIqamaNo && (
+                                  <span className="font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded w-fit text-xs font-medium">
+                                    {t('employees.iqamaNumber')}: {vehicle.currentRider.employeeIqamaNo}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 text-sm italic">-</span>
                           )}
                         </td>
 

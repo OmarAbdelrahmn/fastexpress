@@ -15,10 +15,17 @@ import {
   Clock,
   Activity,
   FileText,
+  Download
 } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from "@/lib/api/apiService";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import {
+  VehicleStatusType,
+  getVehicleStatusAttributes,
+  normalizeVehicleStatus
+} from "@/lib/constants/vehicleStatus";
 
 export default function VehicleHistory() {
   const { t } = useLanguage();
@@ -79,49 +86,7 @@ export default function VehicleHistory() {
       v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusColor = (statusTypeDisplay) => {
-    const status = statusTypeDisplay?.toLowerCase();
-    if (status === "taken") {
-      return {
-        bg: "bg-blue-50",
-        border: "border-blue-300",
-        badge: "bg-gradient-to-r from-blue-500 to-blue-600",
-        text: "text-blue-700",
-        icon: "text-blue-500",
-      };
-    } else if (status === "available") {
-      return {
-        bg: "bg-green-50",
-        border: "border-green-300",
-        badge: "bg-gradient-to-r from-green-500 to-green-600",
-        text: "text-green-700",
-        icon: "text-green-500",
-      };
-    } else if (status === "stolen") {
-      return {
-        bg: "bg-red-50",
-        border: "border-red-300",
-        badge: "bg-gradient-to-r from-red-500 to-red-600",
-        text: "text-red-700",
-        icon: "text-red-500",
-      };
-    } else if (status === "problem") {
-      return {
-        bg: "bg-orange-50",
-        border: "border-orange-300",
-        badge: "bg-gradient-to-r from-orange-500 to-orange-600",
-        text: "text-orange-700",
-        icon: "text-orange-500",
-      };
-    }
-    return {
-      bg: "bg-gray-50",
-      border: "border-gray-300",
-      badge: "bg-gradient-to-r from-gray-500 to-gray-600",
-      text: "text-gray-700",
-      icon: "text-gray-500",
-    };
-  };
+  // Removed getStatusColor as we use shared helpers now
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -132,6 +97,39 @@ export default function VehicleHistory() {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
+  };
+
+  const handleExportHistory = () => {
+    if (!selectedVehicleHistory || selectedVehicleHistory.length === 0) return;
+
+    const data = selectedVehicleHistory.map(record => {
+      // Map 'Available' to 'Returned' for consistency if needed, or rely on normalize
+      let status = normalizeVehicleStatus(record.statusTypeDisplay);
+      if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+
+      const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+
+      return {
+        [t('vehicles.plateNumber')]: formatPlateNumber(record.plateNumberA),
+        [t('vehicles.vehicleNumber')]: record.vehicleNumber,
+        [t('vehicles.status')]: attrs.label,
+        [t('common.date')]: formatDate(record.timestamp),
+        [t('vehicles.riderName')]: record.riderName || '-',
+        [t('vehicles.riderNameE')]: record.riderNameE || '-',
+        [t('employees.iqamaNumber')]: record.employeeIqamaNo || '-',
+        [t('common.reason')]: record.reason || '-',
+        [t('vehicles.location')]: record.location || '-',
+        [t('common.active')]: record.isActive ? t('common.yes') : t('common.no'),
+        [t('vehicles.permission')]: record.permission || '-',
+        [t('vehicles.permissionEndDate')]: record.permissionEndDate ? new Date(record.permissionEndDate).toLocaleDateString() : '-'
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Vehicle History");
+    const plate = selectedVehicleHistory[0]?.plateNumberA || 'Vehicle';
+    XLSX.writeFile(wb, `History_${plate}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   return (
@@ -249,7 +247,10 @@ export default function VehicleHistory() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {filteredVehicles.map((vehicle) => {
-                      const colors = getStatusColor(vehicle.statusTypeDisplay);
+                      let status = normalizeVehicleStatus(vehicle.statusTypeDisplay);
+                      if (vehicle.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+                      const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+
                       const isSelected =
                         selectedVehicleHistory?.[0]?.plateNumberA ===
                         vehicle.plateNumberA;
@@ -265,26 +266,16 @@ export default function VehicleHistory() {
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <Car size={18} className={colors.icon} />
+                              <Car size={18} className={attrs.styles.text} />
                               <span className="font-bold text-gray-900 text-lg">
                                 {formatPlateNumber(vehicle.plateNumberA)}
                               </span>
                             </div>
                             {vehicle.statusTypeDisplay && (
                               <span
-                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${vehicle.statusTypeDisplay.toLowerCase() ===
-                                  "taken"
-                                  ? "bg-blue-100 text-blue-700 border border-blue-200"
-                                  : vehicle.statusTypeDisplay.toLowerCase() ===
-                                    "available"
-                                    ? "bg-green-100 text-green-700 border border-green-200"
-                                    : vehicle.statusTypeDisplay.toLowerCase() ===
-                                      "stolen"
-                                      ? "bg-red-100 text-red-700 border border-red-200"
-                                      : "bg-orange-100 text-orange-700 border border-orange-200"
-                                  }`}
+                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${attrs.styles.badge} text-white`}
                               >
-                                {t(`vehicles.status${vehicle.statusTypeDisplay}`) || vehicle.statusTypeDisplay}
+                                {attrs.label}
                               </span>
                             )}
                           </div>
@@ -329,7 +320,11 @@ export default function VehicleHistory() {
                 {/* Vehicle Information - Shown Once */}
                 {(() => {
                   const firstRecord = selectedVehicleHistory[0];
-                  const colors = getStatusColor(firstRecord.statusTypeDisplay);
+                  // Use same logic for details header
+                  let status = normalizeVehicleStatus(firstRecord.statusTypeDisplay);
+                  if (firstRecord.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+                  // We don't really use colors here in the title block except usually generic blue, 
+                  // but if we want to bubble up status, we can. The original code didn't use status color for the big header.
 
                   return (
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
@@ -482,7 +477,7 @@ export default function VehicleHistory() {
 
                 {/* History Records Timeline */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
-                  <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-8 py-5">
+                  <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-8 py-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
                         <Clock size={24} />
@@ -491,28 +486,37 @@ export default function VehicleHistory() {
                         {t('vehicles.movementHistory')}
                       </h3>
                     </div>
+                    <button
+                      onClick={handleExportHistory}
+                      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                    >
+                      <Download size={16} />
+                      {t('common.exportExcel')}
+                    </button>
                   </div>
 
                   <div className="p-8">
                     <div className="space-y-4">
                       {selectedVehicleHistory.map((record, index) => {
-                        const colors = getStatusColor(record.statusTypeDisplay);
+                        let status = normalizeVehicleStatus(record.statusTypeDisplay);
+                        if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+                        const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
 
                         return (
                           <div
                             key={record.id || index}
-                            className={`${colors.bg} border-2 ${colors.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}
+                            className={`${attrs.styles.bg} border-2 ${attrs.styles.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}
                           >
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-white rounded-lg shadow-sm">
-                                  <Activity className={colors.icon} size={20} />
+                                  <Activity className={attrs.styles.text} size={20} />
                                 </div>
                                 <div>
                                   <span
-                                    className={`px-4 py-1.5 ${colors.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}
+                                    className={`px-4 py-1.5 ${attrs.styles.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}
                                   >
-                                    {record.statusTypeDisplay}
+                                    {attrs.label}
                                   </span>
                                   <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                                     <Clock size={12} />

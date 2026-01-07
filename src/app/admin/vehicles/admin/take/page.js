@@ -194,7 +194,7 @@ export default function TakeVehiclePage() {
         )}
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
           <div className="bg-green-50 border-r-4 border-green-500 p-5 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
