@@ -18,7 +18,10 @@ function DashboardLayoutContent({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-400" dir="rtl">
+    <div className="min-h-screen "  style={{
+    background: "linear-gradient(0deg,rgba(255, 255, 255, 1) 5%, rgba(130, 130, 130, 1) 50%,rgba(255, 255, 255, 1) 100%)"
+    }}
+ dir="rtl">
       <Header />
       <div className="flex">
         <Sidebar />

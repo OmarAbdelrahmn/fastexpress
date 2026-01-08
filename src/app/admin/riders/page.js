@@ -147,7 +147,8 @@ export default function RidersPage() {
       rider.iqamaNo?.toString().includes(searchTerm) ||
       rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase());
+      rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.housingAddress?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const isEmployee = rider.isEmployee;
     const status = rider.status?.toLowerCase();

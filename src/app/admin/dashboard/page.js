@@ -490,13 +490,13 @@ export default function EnhancedDashboard() {
             <Icon size={20} color={color} />
           </div>
           {/* Subtle background decoration */}
-          <Icon className="absolute -left-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110" size={80} color={color} />
+          <Icon className="absolute -left-4 -bottom-4 opacity-30 transform rotate-12 transition-transform group-hover:scale-110" size={80} color="white" />
         </div>
 
         <div className="relative z-10 ">
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">{loading ? "..." : value}</h3>
-          <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
-          <p className="text-[10px] text-gray-500">{subtitle}</p>
+          <h3 className="text-2xl font-bold text-white mb-1">{loading ? "..." : value}</h3>
+          <p className="font-medium text-white text-sm mb-1">{title}</p>
+          <p className="text-[10px] text-white">{subtitle}</p>
         </div>
       </div>
     </Link>
@@ -617,16 +617,16 @@ export default function EnhancedDashboard() {
         className={`w-full flex items-center justify-between p-4 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.03] transition-all duration-300 group text-right hover:border-blue-100`}
       >
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-lg transition-colors" style={getBgStyle(color)}>
-            <Icon size={24} color={color} />
+          <div className="p-3 rounded-lg transition-colors">
+            <Icon size={24} color={"white"} />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900">{title}</h3>
-            <p className="text-xs text-gray-700">{subtitle}</p>
+            <h3 className="font-bold text-white">{title}</h3>
+            <p className="text-xs text-white">{subtitle}</p>
           </div>
         </div>
         <div className="w-8 h-8 rounded-full  flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-          <ChevronRight size={16} color={COLORS.black} className="rtl:rotate-180" />
+          <ChevronRight size={16} color={COLORS.white} className="rtl:rotate-180" />
         </div>
       </button>
     );
@@ -645,7 +645,7 @@ export default function EnhancedDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100/500 p-4 md:p-8" dir="rtl">
+    <div  dir="rtl">
       {/* Printable Components */}
       {specialReportData && <SpecialReportTemplate data={specialReportData} />}
       {housingReportData && <HousingReportTemplate data={housingReportData} />}
@@ -661,72 +661,72 @@ export default function EnhancedDashboard() {
             value={stats.monthAcceptedOrders}
             subtitle={t("dashboard.orders")}
             icon={CheckCircle}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-gray-300"
+            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
           />
           <StatCard
             title={t("dashboard.totalActiveRiders")}
             value={stats.totalActiveRiders}
             subtitle={t("dashboard.orders")}
             icon={Activity}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-blue-200"
+            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
           />
           <StatCard
             title={t("dashboard.totalMonthOrders")}
             value={stats.totalMonthOrders}
             subtitle={t("dashboard.orders")}
             icon={BarChart3}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-gray-300"
+            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
           />
           <StatCard
             title={t("dashboard.hungerYesterdayOrders")}
             value={stats.hungerYesterdayOrders}
             subtitle={t("dashboard.orders")}
             icon={ShoppingBag}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-blue-200"
+            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
           />
           <StatCard
             title={t("dashboard.ketaYesterdayOrders")}
             value={stats.ketaYesterdayOrders}
             subtitle={t("dashboard.orders")}
             icon={ShoppingBag}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-gray-300"
+            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
           />
           <StatCard
             title={t("dashboard.activeYesterdayHunger")}
             value={stats.activeYesterdayHunger}
             subtitle={t("dashboard.riders")}
             icon={Users}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-blue-200"
+            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
           />
           <StatCard
             title={t("dashboard.ketaActiveRiders")}
             value={stats.ketaActiveRiders}
             subtitle={t("dashboard.riders")}
             icon={Users}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-blue-200"
+            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
           />
           <StatCard
             title={t("dashboard.totalOrderYesterday")}
             value={stats.totalOrdersYesterday}
             subtitle={t("dashboard.total")}
             icon={Package}
-            color="#000000"
+            color="#ffffffff"
             link="#"
-            background="bg-gray-300"
+            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
           />
 
 
@@ -786,8 +786,8 @@ export default function EnhancedDashboard() {
               title={t("dashboard.monthlyPerformanceDiff")}
               subtitle={t("dashboard.printMonthlyPerformanceDiff")}
               icon={BarChart3}
-              color={COLORS.black}
-              background="bg-gray-300"
+              color={COLORS.white}
+            background="bg-gradient-to-r from-[#E8BF87] to-[#DB8400]"
               onClick={() => {
                 setHousingDetailedReportData(null);
                 setHousingReportData(null);
@@ -800,7 +800,7 @@ export default function EnhancedDashboard() {
               subtitle={t("dashboard.dailyTotalOrders")}
               icon={TrendingUp}
               color={COLORS.black}
-              background="bg-gray-300"
+            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingDetailedReportData(null);
@@ -813,7 +813,7 @@ export default function EnhancedDashboard() {
               subtitle={t("dashboard.dailyDetailedOrders")}
               icon={Users}
               color={COLORS.black}
-              background="bg-gray-300"
+            background="bg-gradient-to-r from-[#E8BF87] to-[#DB8400]"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingReportData(null);
@@ -874,11 +874,11 @@ export default function EnhancedDashboard() {
                 <div className="pt-4 border-t border-gray-100 mt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold uppercase text-gray-400">{t("dashboard.performanceRate")}</span>
-                    <span className="text-xl font-bold text-blue-600">{stats.riderEfficiency.toFixed(0)}%</span>
+                    <span className="text-xl font-bold text-orange-500">{stats.riderEfficiency.toFixed(0)}%</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                      className="bg-orange-300 h-2 rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(stats.riderEfficiency, 100)}%` }}
                     ></div>
                   </div>

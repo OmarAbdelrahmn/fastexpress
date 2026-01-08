@@ -68,7 +68,9 @@
     "additionalInfo": "معلومات إضافية",
     "clear": "مسح",
     "others": "إجراءات سريعة",
-    "disabilities": "عجز هنقر"
+    "disabilities": "عجز هنقر",
+    "lastLogin": "آخر تسجيل دخول",
+    "never": "أبداً"
   },
   "navigation": {
     "manageRiders": "إدارة المناديب",

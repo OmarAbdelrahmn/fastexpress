@@ -146,6 +146,14 @@ export default function AdminUsersPage() {
       )
     },
     {
+      header: t('common.lastLogin'),
+      render: (row) => (
+        <span className="text-sm text-gray-600">
+          {row.lastLogin ? new Date(row.lastLogin).toLocaleString('en-US') : t('common.never')}
+        </span>
+      )
+    },
+    {
       header: t('common.actions'),
       render: (row) => (
         <div className="flex gap-2">

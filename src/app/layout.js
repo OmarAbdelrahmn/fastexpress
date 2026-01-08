@@ -35,6 +35,19 @@ export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning>
       <body className={customFont.className}>
+        {/* <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: -1,
+            backgroundImage: 'url("/5.png")',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'contain',
+            opacity: 0.2,
+            pointerEvents: 'none'
+          }}
+        /> */}
         <LanguageProvider>
           {children}
         </LanguageProvider>

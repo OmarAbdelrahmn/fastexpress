@@ -61,7 +61,7 @@ export default function Header() {
 
   return (
     <header
-      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-[#2563eb] via-[#2858b8] to-[#2563eb] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+      className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-[#04043D] via-[#04043D] to-[#04043D] transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
     >
       <div className="flex items-center justify-between">
