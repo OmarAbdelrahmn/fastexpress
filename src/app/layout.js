@@ -12,7 +12,7 @@ export const metadata = {
   description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
   metadataBase: new URL('https://forsenex.com'), // ✅ add this
   icons: {
-    icon: '/favicon.ico',
+    icon: '/5.png',
   },
   openGraph: {
     title: 'Express Service - Smart Logistics Solution',
@@ -20,7 +20,7 @@ export const metadata = {
     siteName: 'Express Service',
     images: [
       {
-        url: '/2.png', // ✅ make it relative to metadataBase
+        url: '/5.png', // ✅ make it relative to metadataBase
         width: 1200,
         height: 630,
         alt: 'Express Service Dashboard',

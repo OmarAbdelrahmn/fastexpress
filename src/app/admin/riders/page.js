@@ -11,7 +11,7 @@ import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users,UserCog , Building, Package, Filter, Download, FileSpreadsheet, Clock, Archive, BarChart3, AlertCircle, History } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, UserCog, Building, Package, Filter, Download, FileSpreadsheet, Clock, Archive, BarChart3, AlertCircle, History } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 import * as XLSX from 'xlsx';
 
@@ -299,30 +299,7 @@ export default function RidersPage() {
           </div>
         </div>
 
-        {/* Search Card */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
-            {t('riders.searchTools')}
-          </h3>
-          <div className="flex flex-col gap-3">
-            <MiniStatRow
-              icon={Search}
-              title={t('riders.smartSearch')}
-              description={t('riders.searchByAnyInfo')}
-              onClick={() => router.push('/admin/riders/search')}
-              color="#2563eb" // blue-600
-              bgClass="bg-blue-50"
-            />
-            <MiniStatRow
-              icon={Filter}
-              title={t('riders.advancedSearch')}
-              description={t('riders.multiFilter')}
-              onClick={() => router.push('/admin/riders/filter')}
-              color="#9333ea" // purple-600
-              bgClass="bg-purple-50"
-            />
-          </div>
-        </div>
+
 
         {/* Others Card */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -330,14 +307,14 @@ export default function RidersPage() {
             {t('common.others')}
           </h3>
           <div className="flex flex-col gap-3">
-            <MiniStatRow
+            {/* <MiniStatRow
               icon={UserCheck}
               title={t('riders.convertEmployeeToRider')}
               description={t('riders.convertEmployeeToRider')}
               onClick={() => router.push('/admin/riders/add-to-employee')}
               color="#0d9488" // teal-600
               bgClass="bg-teal-50"
-            />
+            /> */}
             <MiniStatRow
               icon={UserCog}
               title={t('navigation.changeRole')}

@@ -17,7 +17,6 @@ export default function EditRiderPage() {
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
   const { t } = useLanguage();
-
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
@@ -406,10 +405,10 @@ export default function EditRiderPage() {
         </Card>
 
         {/* Rider Specific Information */}
-        {!formData.isEmployee &&( <Card>
+        <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {!formData.isEmployee && (
+
               <Input
                 label={t('riders.workingId')}
                 type="number"
@@ -418,9 +417,6 @@ export default function EditRiderPage() {
                 onChange={handleInputChange}
                 placeholder={t('riders.enterWorkingId')}
               />
-            )}
-
-            {!formData.isEmployee && (
               <Input
                 label={t('riders.licenseNumber')}
                 type="text"
@@ -429,9 +425,6 @@ export default function EditRiderPage() {
                 onChange={handleInputChange}
                 placeholder={t('riders.enterLicenseNumber')}
               />
-            )}
-
-            {!formData.isEmployee && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('riders.tshirtSize')}
@@ -451,9 +444,8 @@ export default function EditRiderPage() {
                   <option value="XXXL">XXXL</option>
                 </select>
               </div>
-            )}
 
-            {!formData.isEmployee && (
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('riders.company')}
@@ -472,9 +464,8 @@ export default function EditRiderPage() {
                   ))}
                 </select>
               </div>
-            )}
           </div>
-        </Card> )}
+        </Card> 
 
         {/* Submit Buttons */}
         <Card>

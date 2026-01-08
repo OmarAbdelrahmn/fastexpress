@@ -462,15 +462,19 @@ export default function EnhancedDashboard() {
 
   const PageHeader = () => (
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-1">
-          {t("dashboard.title")}
-        </h1>
-        <p className="text-gray-500 text-sm">
-          {t("dashboard.subtitle")}
-        </p>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center justify-center p-2 rounded-xl border border-blue-50">
+          <img src="/5.png" alt="Logo" className="w-14 h-14 object-contain" />
+        </div>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-1">
+            {t("dashboard.title")}
+          </h1>
+          <p className="text-gray-500 text-sm">
+            {t("dashboard.subtitle")}
+          </p>
+        </div>
       </div>
-
       <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100">
         <Clock size={16} color={COLORS.blue} />
         <span>{new Date().toLocaleDateString('ar-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>

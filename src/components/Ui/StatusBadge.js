@@ -49,6 +49,11 @@ export default function StatusBadge({ status }) {
             bgColor: 'bg-yellow-100',
             textColor: 'text-yellow-800',
         },
+        stopped: {
+            labelKey: 'status.stopped',
+            bgColor: 'bg-red-100',
+            textColor: 'text-red-800',
+        },
     };
 
     const normalizedStatus = status?.toString().toLowerCase().trim();

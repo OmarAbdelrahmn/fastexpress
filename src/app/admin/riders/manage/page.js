@@ -36,7 +36,7 @@ export default function RiderManagePage() {
                             icon={FileSpreadsheet}
                             title={t('employees.importExcel')}
                             description={t('employees.uploadFile')}
-                            onClick={() => router.push('/admin/employees/admin/import-excel')}
+                            onClick={() => router.push('/admin/riders/manage/import-excel')}
                             color="#1a3b26ff"
                             bgClass="bg-gray-100"
                         />
@@ -44,7 +44,7 @@ export default function RiderManagePage() {
                             icon={Clock}
                             title={t('employees.tempData')}
                             description={t('employees.reviewUpdates')}
-                            onClick={() => router.push('/admin/employees/admin/temp-imports')}
+                            onClick={() => router.push('/admin/riders/manage/temp-imports')}
                             color="#ea580c" // orange-600
                             bgClass="bg-orange-50"
                         />
@@ -52,7 +52,7 @@ export default function RiderManagePage() {
                             icon={AlertCircle}
                             title={t('employees.statusRequests')}
                             description={t('employees.enableDisable')}
-                            onClick={() => router.push('/admin/employees/admin/status-requests')}
+                            onClick={() => router.push('/admin/riders/manage/status-requests')}
                             color="#ca8a04" // yellow-600
                             bgClass="bg-yellow-50"
                         />
@@ -69,7 +69,7 @@ export default function RiderManagePage() {
                             icon={Archive}
                             title={t('employees.deletedEmployees')}
                             description={t('employees.archive')}
-                            onClick={() => router.push('/admin/employees/admin/deleted')}
+                            onClick={() => router.push('/admin/riders/manage/deleted')}
                             color="#dc2626" // red-600
                             bgClass="bg-red-50"
                         />
@@ -77,7 +77,7 @@ export default function RiderManagePage() {
                             icon={BarChart3}
                             title={t('employees.statistics')}
                             description={t('employees.dataDashboard')}
-                            onClick={() => router.push('/admin/employees/admin/statistics')}
+                            onClick={() => router.push('/admin/riders/manage/statistics')}
                             color="#2a86a1ff"
                             bgClass="bg-gray-100"
                         />
@@ -85,7 +85,7 @@ export default function RiderManagePage() {
                             icon={History}
                             title={t('employees.history')}
                             description={t('employees.viewHistory')}
-                            onClick={() => router.push('/admin/employees/admin/history')}
+                            onClick={() => router.push('/admin/riders/manage/history')}
                             color="#6366f1" // indigo-600
                             bgClass="bg-indigo-50"
                         />

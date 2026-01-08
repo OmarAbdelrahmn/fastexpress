@@ -65,9 +65,14 @@ export default function Header() {
         }`}
     >
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white">
-          {t("auth.fullCompanyName")}
-        </h1>
+        <div className="flex items-center gap-3">
+          <div className="w-13 h-13 bg-white/100 rounded-full flex items-center justify-center p-1 backdrop-blur-sm shadow-inner">
+            <img src="/5.png" alt="Logo" className="w-full h-full object-contain" />
+          </div>
+          <h1 className="text-xl font-bold text-white tracking-wide drop-shadow-sm">
+            {t("auth.fullCompanyName")}
+          </h1>
+        </div>
 
         <div className="flex items-center gap-4">
 
@@ -78,7 +83,7 @@ export default function Header() {
                 {user.unique_name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="text-sm text-white">
-                <div className="font-semibold">{user.unique_name.slice(0,7)}</div>
+                <div className="font-semibold">{user.unique_name.slice(0, 7)}</div>
                 {user.roles[0] && <div className="text-[8px] text-white/80 uppercase tracking-wider">{user.roles[0]}</div>}
               </div>
             </div>

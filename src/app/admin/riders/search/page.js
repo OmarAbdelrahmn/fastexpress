@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -10,42 +10,51 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
-import { Search, UserCheck, Eye, Edit, Building, MapPin, Phone } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { Plus, Search, Edit, Trash2, Eye, Filter, Download, Building } from 'lucide-react';
+import MiniStatRow from '@/components/Ui/MiniStatRow';
+import * as XLSX from 'xlsx';
 
-export default function RiderSmartSearchPage() {
-  const { t } = useLanguage();
+export default function RiderSearchPage() {
   const router = useRouter();
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
+  const [riders, setRiders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (e) => {
-    e?.preventDefault();
+  useEffect(() => {
+    loadRiders();
+  }, []);
 
-    if (!searchKeyword.trim()) {
-      setErrorMessage(t('riders.enterSearchKeyword'));
-      return;
-    }
-
+  const loadRiders = async () => {
     setLoading(true);
     setErrorMessage('');
-    setHasSearched(true);
-
     try {
-      const data = await ApiService.get(API_ENDPOINTS.RIDER.SMART_SEARCH, {
-        keyword: searchKeyword
-      });
-
-      setSearchResults(Array.isArray(data) ? data : []);
+      const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+      setRiders(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Error searching riders:', err);
-      setErrorMessage(err?.message || t('riders.searchError'));
-      setSearchResults([]);
+      console.error('Error loading riders:', err);
+      setErrorMessage(err?.message || t('riders.loadError'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (iqamaNo) => {
+    if (!confirm(t('riders.confirmDelete'))) return;
+
+    try {
+      await ApiService.delete(API_ENDPOINTS.RIDER.DELETE(iqamaNo));
+      setSuccessMessage(t('riders.deleteSuccess'));
+      loadRiders();
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error deleting rider:', err);
+      setErrorMessage(err?.message || t('riders.deleteError'));
+      setTimeout(() => setErrorMessage(''), 5000);
     }
   };
 
@@ -57,32 +66,70 @@ export default function RiderSmartSearchPage() {
     router.push(`/admin/riders/${iqamaNo}/edit`);
   };
 
+  const filteredRiders = riders.filter(rider => {
+    const matchesSearch =
+      rider.nameAR?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.workingId?.toString().includes(searchTerm) ||
+      rider.iqamaNo?.toString().includes(searchTerm) ||
+      rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const isEmployee = rider.isEmployee;
+    const status = rider.status?.toLowerCase();
+
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && status === 'enable' && !isEmployee) ||
+      (statusFilter === 'inactive' && status === 'disable' && !isEmployee) ||
+      (statusFilter === 'fleeing' && status === 'fleeing' && !isEmployee) ||
+      (statusFilter === 'vacation' && status === 'vacation') ||
+      (statusFilter === 'sick' && status === 'sick' && !isEmployee) ||
+      (statusFilter === 'accident' && status === 'accident' && !isEmployee) ||
+      (statusFilter === 'other' && status !== 'enable' && status !== 'vacation') ||
+      (statusFilter === 'employees' && isEmployee) ||
+      (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable');
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleExportExcel = () => {
+    const data = filteredRiders.map(rider => ({
+      [t('riders.iqamaNumber')]: rider.iqamaNo || '',
+      [t('riders.nameArabic')]: rider.nameAR || '',
+      [t('riders.nameEnglish')]: rider.nameEN || '',
+      [t('riders.workingId')]: rider.workingId || '',
+      [t('riders.company')]: rider.companyName || '',
+      [t('riders.housing')]: rider.housingAddress || '',
+      [t('riders.phoneNumber')]: rider.phoneNumber || '',
+      [t('riders.nationality')]: rider.country || '',
+      [t('common.status')]: rider.status || '',
+      [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Riders");
+    XLSX.writeFile(wb, `Riders_List_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const columns = [
-    {
-      header: t('riders.workingId'),
-      accessor: 'workingId',
-      render: (row) => (
-        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
-      )
-    },
     { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
     { header: t('riders.nameArabic'), accessor: 'nameAR' },
     { header: t('riders.nameEnglish'), accessor: 'nameEN' },
-    {
-      header: t('riders.company'),
-      accessor: 'companyName',
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <Building size={14} className="text-gray-500" />
-          <span>{row.companyName}</span>
-        </div>
-      )
-    },
     {
       header: t('riders.housing'),
       accessor: 'housingAddress',
       render: (row) => (
         <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
+      )
+    },
+    {
+      header: t('riders.workingId'),
+      accessor: 'workingId',
+      render: (row) => (
+        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
       )
     },
     {
@@ -108,10 +155,31 @@ export default function RiderSmartSearchPage() {
           >
             <Edit size={18} />
           </button>
+          <button
+            onClick={() => handleDelete(row.iqamaNo)}
+            className="text-red-600 hover:text-red-800 p-1"
+            title={t('riders.delete')}
+          >
+            <Trash2 size={18} />
+          </button>
         </div>
       )
     },
   ];
+
+  // Stats for the filter buttons
+  const stats = {
+    total: riders.length,
+    active: riders.filter(r => r.status?.toLowerCase() === 'enable' && !r.isEmployee).length,
+    inactive: riders.filter(r => r.status?.toLowerCase() === 'disable' && !r.isEmployee).length,
+    fleeing: riders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee).length,
+    vacation: riders.filter(r => r.status?.toLowerCase() === 'vacation').length,
+    sick: riders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
+    accident: riders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
+    other: riders.filter(r => r.status?.toLowerCase() !== 'enable' && r.status?.toLowerCase() !== 'vacation').length,
+    employees: riders.filter(r => r.isEmployee).length,
+    inactiveEmployees: riders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
+  };
 
   return (
     <div className="space-y-6">
@@ -121,35 +189,31 @@ export default function RiderSmartSearchPage() {
         icon={Search}
       />
 
-      {/* Search Input */}
-      <Card>
-        <form onSubmit={handleSearch} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('riders.searchKeyword')}
-            </label>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder={t('riders.searchPlaceholderFull')}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Button type="submit" loading={loading} disabled={loading}>
-                <Search size={18} className="ml-2" />
-                {t('common.search')}
-              </Button>
-            </div>
-          </div>
+      {/* Search Tools Card */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+          {t('riders.searchTools')}
+        </h3>
+        <div className="flex flex-col gap-3">
+          <MiniStatRow
+            icon={Filter}
+            title={t('riders.advancedSearch')}
+            description={t('riders.multiFilter')}
+            onClick={() => router.push('/admin/riders/filter')}
+            color="#9333ea" // purple-600
+            bgClass="bg-purple-50"
+          />
+        </div>
+      </div>
 
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-sm text-blue-700">
-              <strong>{t('riders.tip')}:</strong> {t('riders.searchTipText')}
-            </p>
-          </div>
-        </form>
-      </Card>
+      {successMessage && (
+        <Alert
+          type="success"
+          title={t('common.success')}
+          message={successMessage}
+          onClose={() => setSuccessMessage('')}
+        />
+      )}
 
       {errorMessage && (
         <Alert
@@ -160,53 +224,134 @@ export default function RiderSmartSearchPage() {
         />
       )}
 
-      {/* Search Results */}
-      {hasSearched && (
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">
-            {t('riders.searchResults')} ({searchResults.length})
-          </h3>
-
-          <Table
-            columns={columns}
-            data={searchResults}
-            loading={loading}
-          />
-        </Card>
-      )}
-
-      {/* Search Tips */}
-      {!hasSearched && (
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.searchTips')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByName')}</h4>
-              <p className="text-sm text-gray-600">
-                {t('riders.searchByNameDesc')}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByCountry')}</h4>
-              <p className="text-sm text-gray-600">
-                {t('riders.searchByCountryDesc')}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchBySponsor')}</h4>
-              <p className="text-sm text-gray-600">
-                {t('riders.searchBySponsorDesc')}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-bold text-gray-800 mb-2">{t('riders.searchByJob')}</h4>
-              <p className="text-sm text-gray-600">
-                {t('riders.searchByJobDesc')}
-              </p>
-            </div>
+      <Card>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter size={20} className="text-gray-600" />
+            <h3 className="text-lg font-bold text-gray-800">{t('common.filter')}</h3>
           </div>
-        </Card>
-      )}
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.all')} ({stats.total})
+            </button>
+            <button
+              onClick={() => setStatusFilter("active")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "active"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.active')} ({stats.active})
+            </button>
+            <button
+              onClick={() => setStatusFilter("inactive")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactive"
+                ? "bg-red-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('common.inactive')} ({stats.inactive})
+            </button>
+            <button
+              onClick={() => setStatusFilter("fleeing")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "fleeing"
+                ? "bg-rose-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.fleeing')} ({stats.fleeing})
+            </button>
+            <button
+              onClick={() => setStatusFilter("vacation")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "vacation"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.vacation')} ({stats.vacation})
+            </button>
+            <button
+              onClick={() => setStatusFilter("sick")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "sick"
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.sick')} ({stats.sick})
+            </button>
+            <button
+              onClick={() => setStatusFilter("accident")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "accident"
+                ? "bg-orange-500 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('status.accident')} ({stats.accident})
+            </button>
+            <button
+              onClick={() => setStatusFilter("other")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "other"
+                ? "bg-gray-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              جميع الغير نشيط ({stats.other})
+            </button>
+            <button
+              onClick={() => setStatusFilter("employees")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "employees"
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('employees.title')} ({stats.employees})
+            </button>
+            <button
+              onClick={() => setStatusFilter("inactiveEmployees")}
+              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactiveEmployees"
+                ? "bg-slate-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+            >
+              {t('employees.title')} {t('employees.inactiveEmployees')}  ({stats.inactiveEmployees})
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder={t('riders.searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <Button
+              onClick={handleExportExcel}
+              className="!bg-green-600 hover:!bg-green-700 text-white !py-2 text-sm h-auto shadow-sm whitespace-nowrap"
+            >
+              <Download size={16} className="ml-2" />
+              {t('common.exportExcel')}
+            </Button>
+          </div>
+        </div>
+
+
+        <Table
+          columns={columns}
+          data={filteredRiders}
+          loading={loading}
+        />
+      </Card>
     </div>
   );
 }
