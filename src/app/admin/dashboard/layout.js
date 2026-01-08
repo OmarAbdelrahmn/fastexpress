@@ -19,7 +19,7 @@ function DashboardLayoutContent({ children }) {
 
   return (
     <div className="min-h-screen "  style={{
-    background: "linear-gradient(0deg,rgba(255, 255, 255, 1) 5%, rgba(130, 130, 130, 1) 50%,rgba(255, 255, 255, 1) 100%)"
+    background: "linear-gradient(0deg,rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 1) 50%,rgba(255, 255, 255, 1) 100%)"
     }}
  dir="rtl">
       <Header />
