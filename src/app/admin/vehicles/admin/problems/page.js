@@ -87,10 +87,6 @@ export default function ProblemsVehiclesPage() {
         reason: reason
       };
 
-      // Only add riderIqamaNo if it exists (for vehicles that are still taken)
-      if (selectedVehicle.currentRider.employeeIqamaNo) {
-        params.riderIqamaNo = selectedVehicle.currentRider.employeeIqamaNo;
-      }
 
       const queryParams = new URLSearchParams(params).toString();
 

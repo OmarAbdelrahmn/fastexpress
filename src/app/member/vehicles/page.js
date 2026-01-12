@@ -31,6 +31,9 @@ export default function MemberVehiclesPage() {
         const fetchVehicles = async () => {
             try {
                 const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+
+               // console.log(response);
+
                 setVehicles(Array.isArray(response) ? response : []);
             } catch (err) {
                 setError(err.message || "حدث خطأ أثناء تحميل البيانات");

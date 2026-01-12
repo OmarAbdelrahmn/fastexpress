@@ -8,8 +8,12 @@ export const formatPlateNumber = (plate) => {
     if (!plate) return "";
     // Remove existing spaces to ensure clean input
     const clean = plate.replace(/\s/g, '');
+    const numberPattern = /[\d\u0660-\u0669]+/g;
+    const processed = clean.replace(numberPattern, (match) => {
+        return match.split('').reverse().join('');
+    });
     // Split and join with space
-    return clean.split('').join(' ');
+    return processed.split('').join(' ');
 };
 
 /**
