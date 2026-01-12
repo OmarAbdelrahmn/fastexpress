@@ -68,6 +68,7 @@ export const API_ENDPOINTS = {
   // Rider
   RIDER: {
     LIST: "/api/rider",
+    LIST2: "/api/rider/2",
     CREATE: "/api/rider",
     BY_ID: (id) => `/api/rider/id/${id}`,
     BY_IQAMA: (iqamaNo) => `/api/rider/iqama/${iqamaNo}`,

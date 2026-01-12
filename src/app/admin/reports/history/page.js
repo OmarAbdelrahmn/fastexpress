@@ -59,7 +59,7 @@ export default function AdminRiderHistoryPage() {
 
     const fetchRiders = async () => {
         try {
-            const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+            const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST2);
             setRiders(data || []);
             setFilteredRiders(data || []);
 

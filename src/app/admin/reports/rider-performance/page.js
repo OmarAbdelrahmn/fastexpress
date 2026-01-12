@@ -86,7 +86,7 @@ export default function RiderPerformancePage() {
             // Checking endpoints.js... ADMIN.BY_ID etc exist. RIDER.LIST exists (api/rider).
             // Let's use RIDER.LIST or RIDER.SEARCH if available. 
             // RIDER.LIST is "/api/rider".
-            const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+            const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST2);
             setRiders(data || []);
             setFilteredRiders(data || []);
 
