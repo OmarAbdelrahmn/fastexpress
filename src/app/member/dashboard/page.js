@@ -80,7 +80,7 @@ export default function MemberDashboard() {
                     value={stats?.totalEmployees || 0}
                     icon={Users}
                     color="blue"
-                    link="/member/employees"
+                    link="#"
                     background="bg-blue-100"
                 />
                 <StatCard
@@ -88,7 +88,7 @@ export default function MemberDashboard() {
                     value={stats?.activeRiders || 0}
                     icon={CheckCircle}
                     color="gray"
-                    link="/member/riders?status=active"
+                    link="#"
                     background="bg-gray-100"
                 />
                 <StatCard
@@ -96,7 +96,7 @@ export default function MemberDashboard() {
                     value={stats?.inactiveRiders || 0}
                     icon={XCircle}
                     color="blue"
-                    link="/member/riders?status=inactive"
+                    link="#"
                     background="bg-blue-100"
                 />
 
