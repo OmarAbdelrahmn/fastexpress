@@ -5,6 +5,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "save": "Save",
+    "notSpecified": "Not Specified",
     "cancel": "Cancel",
     "loading": "Loading...",
     "success": "Success",
@@ -634,7 +635,15 @@
     "enterPermission": "Enter Permission",
     "permissionRequired": "Permission is required",
     "permissionEndDateRequired": "Permission End Date is required",
-    "permissionDateFuture": "Permission End Date must be in the future"
+    "permissionDateFuture": "Permission End Date must be in the future",
+    "searchNewVehicle": "Search New Vehicle",
+    "switchVehicle": "Switch Vehicle",
+    "switchVehicleSubtitle": "Register Vehicle Switch for Rider",
+    "switchDetails": "Switch Details",
+    "switchReason": "Switch Reason",
+    "switchVehicleDesc": "Switch vehicle for a rider",
+    "switchRequestSent": "Vehicle switch request sent successfully",
+    "submitSwitchRequest": "Submit Switch"
   },
   "employees": {
     "currentMonth": "Current Month",

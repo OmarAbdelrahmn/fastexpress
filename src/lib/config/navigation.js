@@ -136,6 +136,7 @@ export const adminNavigationConfig = {
       { path: "/admin/housing/manage", label: "navigation.manageHousing" },
       { path: "/admin/housing/add-employee", label: "navigation.addEmployeeToHousing" },
       { path: "/admin/housing/move-employee", label: "navigation.moveEmployee" },
+      { path: "/admin/housing/remove-employee", label: "navigation.removeEmployeeFromHousing" },
     ],
   },
 

@@ -262,6 +262,15 @@ export default function VehicleAdminDashboard() {
               bgClass="bg-orange-50"
               className="!p-2"
             />
+            <MiniStatRow
+              icon={RefreshCw}
+              title={t('vehicles.switchVehicle') || 'تبديل مركبة'}
+              description={t('vehicles.switchVehicleDesc') || 'تبديل مركبة لمندوب'}
+              onClick={() => router.push('/admin/vehicles/admin/switch')}
+              color="#9333ea" // purple-600
+              bgClass="bg-purple-50"
+              className="!p-2"
+            />
           </div>
         </div>
 

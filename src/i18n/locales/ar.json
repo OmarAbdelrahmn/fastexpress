@@ -6,6 +6,7 @@
     "edit": "تعديل",
     "delete": "حذف",
     "save": "حفظ",
+    "notSpecified": "غير محدد",
     "cancel": "إلغاء",
     "loading": "جاري التحميل...",
     "success": "نجح",
@@ -113,6 +114,7 @@
     "manageHousing": "إدارة السكن",
     "addEmployeeToHousing": "إضافة موظف إلى السكنات",
     "moveEmployee": "نقل موظف بين السكنات",
+    "removeEmployeeFromHousing": "إزالة موظف من السكن",
     "shifts": "الاداء",
     "manageShifts": "ادارة الاداء",
     "createShift": "إضافة وردية",
@@ -660,7 +662,15 @@
     "permissionEndDateRequired": "تاريخ انتهاء تصريح تم مطلوب",
     "permissionDateFuture": "يجب أن يكون تاريخ انتهاء تصريح تم في المستقبل",
     "newLocation": "الموقع الجديد",
-    "selectLocation": "اختر الموقع"
+    "selectLocation": "اختر الموقع",
+    "searchNewVehicle": "البحث عن المركبة الجديدة",
+    "switchVehicle": "تبديل مركبة",
+    "switchVehicleSubtitle": "تسجيل تبديل مركبة لمندوب",
+    "switchDetails": "تفاصيل التبديل",
+    "switchReason": "سبب التبديل",
+    "switchVehicleDesc": "تبديل مركبة لمندوب",
+    "switchRequestSent": "تم إرسال طلب التبديل بنجاح",
+    "submitSwitchRequest": "اعتماد التبديل"
   },
   "employees": {
     "title": "الموظفين",
@@ -1321,7 +1331,18 @@
     "averageCapacity": "متوسط السعة",
     "employeePerHousing": "موظف لكل سكن",
     "unit": "سكن",
-    "duplicateError": "هذا السكن موجود بالفعل"
+    "duplicateError": "هذا السكن موجود بالفعل",
+    "removeEmployee": "إزالة موظف",
+    "removeEmployeeFromHousing": "إزالة موظف من السكن",
+    "removeEmployeeDescription": "قم بالبحث عن الموظف لإزالته من السكن المسجل به",
+    "confirmRemovalTitle": "تأكيد الإزالة",
+    "confirmRemovalMessage": "هل أنت متأكد من رغبتك في إزالة هذا الموظف من السكن؟",
+    "currentHousing": "السكن الحالي",
+    "confirmRemoval": "تأكيد الإزالة",
+    "removeFromHousingSuccess": "تم إزالة الموظف من السكن بنجاح",
+    "employeeNotFoundInHousing": "الموظف غير موجود في أي سكن",
+    "totalOccupancy": "إجمالي الإشغال",
+    "employeeNotFound": "الموظف غير موجود"
   },
   "ridersPerformance": {
     "performanceRate": "معدل الأداء"
