@@ -147,6 +147,7 @@ export const adminNavigationConfig = {
       { path: "/admin/shifts", label: "navigation.manageShifts" },
       { path: "/admin/shifts/comparisons", label: "navigation.comparisons" },
       { path: "/admin/shifts/date-range", label: "navigation.shiftsInPeriod" },
+      { path: "/admin/shifts/update", label: "navigation.updateShifts" },
       { path: "/admin/shifts/hunger-disabilities", label: "navigation.hungerDeficit" },
 
     ],

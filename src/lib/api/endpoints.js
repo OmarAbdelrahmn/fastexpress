@@ -92,6 +92,7 @@ export const API_ENDPOINTS = {
     LIST: "/api/shift/range",
     CREATE: "/api/shift",
     UPDATE: "/api/shift",
+    UPDATE_EXCEL: "/api/shift/update",
     BY_WORKING_ID: (workingId) => `/api/shift/${workingId}`,
     DELETE: (workingId) => `/api/shift/${workingId}`,
     BY_RIDER: (workingId) => `/api/shift/rider/${workingId}`,

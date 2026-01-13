@@ -164,7 +164,8 @@
     "myDetails": "بياناتي",
     "requests": "الطلبات",
     "disabilities": "عجز هنقر",
-    "personalInfo": "معلوماتي شخصية"
+    "personalInfo": "معلوماتي شخصية",
+    "updateShifts": "تحديث الأداء"
   },
   "dashboard": {
     "riders": "مناديب",
@@ -1464,7 +1465,17 @@
     "deletedSuccessfully": "تم الحذف بنجاح",
     "errorDuringDelete": "حدث خطأ أثناء الحذف",
     "to": "إلى",
-    "search": "بحث"
+    "search": "بحث",
+    "updateShifts": "تحديث الورديات",
+    "updateShiftsSubtitle": "تحديث ورديات المندوبين عبر ملف Excel",
+    "successfulUpdate": "تحديثات ناجحة",
+    "successfulUpdatesList": "قائمة التحديثات الناجحة",
+    "notFound": "غير موجود",
+    "notFoundShiftsList": "قائمة غير الموجود",
+    "oldOrders": "الطلبات القديمة",
+    "newOrders": "الطلبات الجديدة",
+    "updateSuccess": "تم التحديث بنجاح",
+    "updateError": "فشل التحديث"
   },
   "companies": {
     "totalCompanies": "إجمالي الشركات",
