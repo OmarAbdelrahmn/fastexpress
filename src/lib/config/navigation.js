@@ -80,6 +80,7 @@ export const userNavigationConfig = {
       { path: "/member/actions/vehicle-return", label: "طلب ايقاف مركبة" },
       { path: "/member/actions/vehicle-report-problem", label: "تغيير حالة مركبة (تعطيل)" },
       { path: "/member/actions/vehicle-fix-problem", label: "تغيير حالة مركبة (تشغيل)" },
+      { path: "/member/actions/switch-vehicle", label: "طلب استبدال مركبة" },
     ],
   },
   account: {

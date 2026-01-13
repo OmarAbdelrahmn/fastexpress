@@ -143,6 +143,7 @@ export const API_ENDPOINTS = {
     BREAK_UP: "/api/vehicles/break-up",
     RECOVER_STOLEN: "/api/vehicles/recover-stolen",
     GROUP_BY_STATUS: "/api/vehicles/group-by-status",
+    RESOLVE_SWITCH: "/api/vehicles/resolve-switch",
   },
 
   TEMP: {
@@ -217,6 +218,7 @@ export const API_ENDPOINTS = {
     VEHICLE_REQUEST_RETURN: "/api/member/vehicles/request-return",
     VEHICLE_REQUEST_REPORT_PROBLEM: "/api/member/vehicles/request-report-problem",
     VEHICLE_REQUEST_FIX_PROBLEM: "/api/member/request-fix-problem",
+    VEHICLE_REQUEST_SWITCH: "/api/member/vehicles/request-switch-vehicel",
     VEHICLE_PROBLEMS: "/api/member/vehicles/problems",
     REPORTS_MONTHLY: "/api/Member/reports/monthly",
     REPORTS_EXPORT: "/api/Member/reports/export",

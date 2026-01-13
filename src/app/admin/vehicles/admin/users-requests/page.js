@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
@@ -16,7 +17,8 @@ import {
   AlertTriangle,
   RefreshCw,
   Package,
-  Filter
+  Filter,
+  ArrowRight
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber } from "@/lib/utils/formatters";
@@ -28,7 +30,7 @@ export default function PendingVehicleRequestsPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [filterType, setFilterType] = useState('all'); // all, take, return, problem
+  const [filterType, setFilterType] = useState('all'); // all, take, return, problem, switched
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [note, setNote] = useState('');
   const [showResolveModal, setShowResolveModal] = useState(false);
@@ -45,7 +47,33 @@ export default function PendingVehicleRequestsPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get('/api/temp/vehicles');
-      setPendingRequests(Array.isArray(data) ? data : []);
+
+      let requests = Array.isArray(data) ? data : [];
+
+      // Enhance switched requests with new vehicle info
+      const enhancedRequests = await Promise.all(requests.map(async (req) => {
+        if (req.operationType?.toLowerCase() === 'switched' && req.vehicleNumber) {
+          try {
+            // New vehicle info is stored in vehicleNumber for switched requests
+            // We need to fetch the plate number for the NEW vehicle
+            const newVehicleData = await ApiService.get(API_ENDPOINTS.VEHICLES.BY_CHASE(req.vehicleNumber));
+            console.log(newVehicleData);
+            return {
+              ...req,
+              newVehiclePlate: newVehicleData[0]?.plateNumberA || 'Unknown'
+            };
+          } catch (error) {
+            console.error(`Error fetching new vehicle info for ${req.vehicleNumber}:`, error);
+            return {
+              ...req,
+              newVehiclePlate: 'Unknown'
+            };
+          }
+        }
+        return req;
+      }));
+
+      setPendingRequests(enhancedRequests);
     } catch (err) {
       console.error('Error loading pending requests:', err);
       setErrorMessage(t('common.loadError'));
@@ -61,7 +89,7 @@ export default function PendingVehicleRequestsPage() {
     setFieldErrors({});
 
     const errors = {};
-    if (isApproved && request.operationType?.toLowerCase() === 'taken') {
+    if (isApproved && (request.operationType?.toLowerCase() === 'taken' || request.operationType?.toLowerCase() === 'switched')) {
       if (!permission) {
         errors.permission = t('vehicles.permissionRequired');
       }
@@ -86,38 +114,53 @@ export default function PendingVehicleRequestsPage() {
 
     try {
       const resolutionValue = isApproved ? "Approved" : "Rejected";
+      let successMsg = "";
 
-      let permissionValue = "";
-      let permissionEndDateValue = null;
+      if (request.operationType?.toLowerCase() === 'switched') {
+        // Special handling for switch requests
+        const payload = {
+          operationId: request.id,
+          resolution: resolutionValue,
+          resolvedBy: "Omar", // Identifying user context if available
+          note: note || "",
+          permission: isApproved ? permission : null,
+          permissionEndDate: isApproved ? new Date(`${permissionEndDate}T23:59:59.999`).toISOString() : null
+        };
 
-      if (
-        isApproved &&
-        selectedRequest?.operationType?.toLowerCase() === 'taken'
-      ) {
-        permissionValue = permission;
-        permissionEndDateValue = new Date(
-          `${permissionEndDate}T23:59:59.999`
-        ).toISOString();
+        await ApiService.post(API_ENDPOINTS.VEHICLES.RESOLVE_SWITCH, payload);
+        successMsg = t('vehicles.switchRequestSent');
+
+      } else {
+        // Standard handling for other requests
+        let permissionValue = "";
+        let permissionEndDateValue = null;
+
+        if (
+          isApproved &&
+          request?.operationType?.toLowerCase() === 'taken'
+        ) {
+          permissionValue = permission;
+          permissionEndDateValue = new Date(
+            `${permissionEndDate}T23:59:59.999`
+          ).toISOString();
+        }
+
+        const payload = {
+          riderIqamaNo: Number(request.riderIqamaNo),
+          resolution: resolutionValue,
+          resolvedBy: "Omar",
+          plate: request?.vehiclePlateNumber,
+          note: note || "",
+          permission: isApproved ? permissionValue : null,
+          permissionEndDate: permissionEndDateValue ?? null
+        };
+
+        await ApiService.put(`/api/temp/vehicle-resolve`, payload);
+
+        successMsg = isApproved ? t('vehicles.approveRequest') : t('vehicles.rejectRequest');
       }
 
-      const payload = {
-        riderIqamaNo: Number(selectedRequest.riderIqamaNo),
-        resolution: resolutionValue,
-        resolvedBy: "Omar",
-        plate: selectedRequest?.vehiclePlateNumber,
-        note: note || "",
-        permission: isApproved ? permissionValue : null,
-        permissionEndDate: permissionEndDateValue ?? null
-      };
-
-      await ApiService.put(`/api/temp/vehicle-resolve`, payload);
-
-      setSuccessMessage(
-        `${t('common.success')}: ${isApproved
-          ? t('vehicles.approveRequest')
-          : t('vehicles.rejectRequest')
-        }`
-      );
+      setSuccessMessage(`${t('common.success')}: ${successMsg}`);
 
       setShowResolveModal(false);
       setSelectedRequest(null);
@@ -139,7 +182,7 @@ export default function PendingVehicleRequestsPage() {
   const openResolveModal = (request) => {
     setSelectedRequest(request);
     setNote('');
-    setPermission('');
+    setPermission(''); // Reset fields
     setPermissionEndDate('');
     setFieldErrors({});
     setShowResolveModal(true);
@@ -150,6 +193,7 @@ export default function PendingVehicleRequestsPage() {
       case 'taken': return t('vehicles.takeRequestLabel');
       case 'returned': return t('vehicles.returnRequestLabel');
       case 'problem': return t('vehicles.problemReportLabel');
+      case 'switched': return t('vehicles.switchVehicle');
       default: return type;
     }
   };
@@ -159,6 +203,7 @@ export default function PendingVehicleRequestsPage() {
       case 'taken': return { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-600', badge: 'bg-green-600' };
       case 'returned': return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600', badge: 'bg-blue-600' };
       case 'problem': return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-600', badge: 'bg-orange-600' };
+      case 'switched': return { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-600', badge: 'bg-purple-600' };
       default: return { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-600', badge: 'bg-gray-600' };
     }
   };
@@ -168,6 +213,7 @@ export default function PendingVehicleRequestsPage() {
       case 'taken': return Car;
       case 'returned': return RefreshCw;
       case 'problem': return AlertTriangle;
+      case 'switched': return ArrowRight;
       default: return Package;
     }
   };
@@ -181,6 +227,7 @@ export default function PendingVehicleRequestsPage() {
     take: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'taken').length,
     return: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'returned').length,
     problem: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'problem').length,
+    switched: pendingRequests.filter(r => r.operationType?.toLowerCase() === 'switched').length,
   };
 
   return (
@@ -217,7 +264,7 @@ export default function PendingVehicleRequestsPage() {
         )}
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 p-4">
           <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
@@ -255,6 +302,16 @@ export default function PendingVehicleRequestsPage() {
                 <p className="text-2xl font-bold text-orange-700">{stats.problem}</p>
               </div>
               <AlertTriangle className="text-orange-500" size={32} />
+            </div>
+          </div>
+
+          <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-purple-600 mb-1">{t('vehicles.switchVehicle')}</p>
+                <p className="text-2xl font-bold text-purple-700">{stats.switched}</p>
+              </div>
+              <RefreshCw className="text-purple-500" size={32} />
             </div>
           </div>
         </div>
@@ -303,6 +360,15 @@ export default function PendingVehicleRequestsPage() {
             >
               {t('vehicles.statusProblem')} ({stats.problem})
             </button>
+            <button
+              onClick={() => setFilterType('switched')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${filterType === 'switched'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              {t('vehicles.switchVehicle')} ({stats.switched})
+            </button>
           </div>
         </Card>
 
@@ -327,6 +393,7 @@ export default function PendingVehicleRequestsPage() {
               {filteredRequests.map((request, index) => {
                 const colors = getOperationTypeColor(request.operationType);
                 const OperationIcon = getOperationIcon(request.operationType);
+                const isSwitched = request.operationType?.toLowerCase() === 'switched';
 
                 return (
                   <div
@@ -339,8 +406,21 @@ export default function PendingVehicleRequestsPage() {
                           <OperationIcon className={colors.text} size={20} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-800">{formatPlateNumber(request.vehiclePlateNumber)}</h4>
-                          <p className={`text-xs ${colors.text}`}>
+                          {isSwitched ? (
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-gray-800 line-through text-sm opacity-60">
+                                {formatPlateNumber(request.vehiclePlateNumber)}
+                              </h4>
+                              <ArrowRight size={14} className="text-gray-400" />
+                              <h4 className="font-bold text-gray-800 border-b-2 border-purple-500 pb-0.5">
+                                {formatPlateNumber(request.newVehiclePlate)}
+                              </h4>
+                            </div>
+                          ) : (
+                            <h4 className="font-bold text-gray-800">{formatPlateNumber(request.vehiclePlateNumber)}</h4>
+                          )}
+
+                          <p className={`text-xs ${colors.text} mt-1`}>
                             {getOperationTypeLabel(request.operationType)}
                           </p>
                         </div>
@@ -430,10 +510,32 @@ export default function PendingVehicleRequestsPage() {
                   <div className="flex-1">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('vehicles.requestDetails')}</p>
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
-                        <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">{formatPlateNumber(selectedRequest.vehiclePlateNumber)}</span>
-                      </div>
+
+                      {selectedRequest.operationType?.toLowerCase() === 'switched' ? (
+                        <>
+                          <div className="flex justify-between items-center bg-red-50 p-2 rounded">
+                            <span className="text-gray-600 text-xs">{t('vehicles.returnRequestLabel')}</span>
+                            <span className="font-bold text-gray-800 font-mono text-base line-through opacity-70">
+                              {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center bg-green-50 p-2 rounded">
+                            <span className="text-gray-600 text-xs">{t('vehicles.takeRequestLabel')}</span>
+                            <span className="font-bold text-gray-800 font-mono text-lg">
+                              {formatPlateNumber(selectedRequest.newVehiclePlate)}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
+                          <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">
+                            {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
+                          </span>
+                        </div>
+                      )}
+
+
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">{t('vehicles.employeeIqama')}</span>
                         <span className="font-bold text-gray-800 font-mono">{selectedRequest.riderIqamaNo}</span>
@@ -474,7 +576,7 @@ export default function PendingVehicleRequestsPage() {
 
                 {/* Action Form */}
                 <div className="space-y-6">
-                  {selectedRequest.operationType?.toLowerCase() === 'taken' && (
+                  {(selectedRequest.operationType?.toLowerCase() === 'taken' || selectedRequest.operationType?.toLowerCase() === 'switched') && (
                     <div className="bg-purple-50/50 border border-purple-100 p-6 rounded-2xl">
                       <h3 className="text-purple-800 font-bold mb-4 flex items-center gap-2">
                         <CheckCircle size={18} /> {t('vehicles.approvalRequirements')}
