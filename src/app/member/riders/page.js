@@ -74,7 +74,8 @@ export default function MemberRiders() {
             (statusFilter === 'active' && rider.status?.toLowerCase() === 'enable') ||
             (statusFilter === 'inactive' && rider.status?.toLowerCase() === 'disable') ||
             (statusFilter === 'sick' && rider.status?.toLowerCase() === 'sick') ||
-            (statusFilter === 'accident' && rider.status?.toLowerCase() === 'accident');
+            (statusFilter === 'accident' && rider.status?.toLowerCase() === 'accident') ||
+            (statusFilter === 'vacation' && rider.status?.toLowerCase() === 'vacation');
 
         return matchesSearch && matchesStatus;
     });
@@ -87,6 +88,7 @@ export default function MemberRiders() {
         inactive: riders.filter(r => r.status?.toLowerCase() === 'disable').length,
         sick: riders.filter(r => r.status?.toLowerCase() === 'sick').length,
         accident: riders.filter(r => r.status?.toLowerCase() === 'accident').length,
+        vacation: riders.filter(r => r.status?.toLowerCase() === 'vacation').length,
         companies: new Set(riders.map(r => r.companyName)).size,
         withHousing: riders.filter(r => r.housingAddress).length,
         hunger: riders.filter(r => r.companyName === 'Hunger').length,
@@ -269,6 +271,13 @@ export default function MemberRiders() {
                         onClick={() => setStatusFilter('accident')}
                         count={stats.accident}
                         color="orange"
+                    />
+                    <FilterButton
+                        label="إجازة"
+                        active={statusFilter === 'vacation'}
+                        onClick={() => setStatusFilter('vacation')}
+                        count={stats.vacation}
+                        color="blue"
                     />
                 </div>
 
