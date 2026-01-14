@@ -77,6 +77,37 @@ export default function EmployeeStatusRequestsPage() {
                         تعطيل
                     </span>
                 );
+            case 'fleeing':
+            case 'هارب':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                        <AlertTriangle size={12} />
+                        هارب
+                    </span>
+                );
+            case 'vacation':
+            case 'إجازة':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        إجازة
+                    </span>
+                );
+            case 'accident':
+            case 'حادث':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <AlertTriangle size={12} />
+                        حادث
+                    </span>
+                );
+            case 'sick':
+            case 'مريض':
+                return (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <AlertTriangle size={12} />
+                        مريض
+                    </span>
+                );
             default:
                 return (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
