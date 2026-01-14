@@ -79,25 +79,25 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.totalEmployees")}
                     value={stats?.totalEmployees || 0}
                     icon={Users}
-                    color="blue"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-blue-100"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
                 <StatCard
                     title={t("dashboard.member.activeRiders")}
                     value={stats?.activeRiders || 0}
                     icon={CheckCircle}
-                    color="gray"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-gray-100"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
                 <StatCard
                     title={t("dashboard.member.inactiveRiders")}
                     value={stats?.inactiveRiders || 0}
                     icon={XCircle}
-                    color="blue"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-blue-100"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
 
                 {/* Row 2: Operational Stats */}
@@ -105,25 +105,25 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.hungerAccepted")}
                     value={summary?.hunger?.acceptedOrders || 0}
                     icon={Activity}
-                    color="gray"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-gray-100"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
                 <StatCard
                     title={t("dashboard.member.ketaAccepted")}
                     value={summary?.keta?.acceptedOrders || 0}
                     icon={Clock}
-                    color="blue"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-blue-100"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
                 <StatCard
                     title={t("dashboard.member.totalDayOrders")}
                     value={summary?.totalDayOrders || 0}
                     icon={Clock}
-                    color="gray"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-gray-100"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
 
                 {/* Row 3: Order Stats */}
@@ -131,25 +131,25 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.hungerAcceptedMonth")}
                     value={summary?.hungerMonthToDate?.acceptedOrders || 0}
                     icon={ShoppingBag}
-                    color="blue"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-blue-100"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
                 <StatCard
                     title={t("dashboard.member.ketaAcceptedMonth")}
                     value={summary?.ketaMonthToDate?.acceptedOrders || 0}
                     icon={ShoppingBag}
-                    color="gray"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-gray-100"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
                 <StatCard
                     title={t("dashboard.member.totalMonthOrders")}
                     value={summary?.totalMonthOrders || 0}
                     icon={Calendar}
-                    color="blue"
+                    color="#ffffffff"
                     link="#"
-                    background="bg-blue-100"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
             </div>
 
@@ -296,24 +296,25 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background,
         purple: "text-purple-600 bg-purple-100",
         indigo: "text-indigo-600 bg-indigo-100",
         gray: "text-gray-600 bg-gray-100",
+        white: "text-white bg-gray-100",
     };
 
     return (
         <Link href={link} className="block group">
             <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
                 <div className="flex justify-between items-start mb-2">
-                    <div className={`p-2 rounded-lg transition-colors ${iconColors[color] || iconColors.blue}`}>
+                    <div className={`p-2 rounded-lg transition-colors ${iconColors[color] || iconColors.gray}`}>
                         <Icon size={20} />
                     </div>
                     {/* Subtle background decoration */}
-                    <Icon className={`absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110 ${iconColors[color]?.split(' ')[0] || 'text-blue-600'}`} size={80} />
+                    <Icon className={`absolute -right-4 -bottom-4 opacity-5 transform rotate-12 transition-transform group-hover:scale-110`} size={80} />
                     {alert && <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>}
                 </div>
 
                 <div className="relative z-10 ">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
-                    <p className="font-medium text-gray-700 text-sm mb-1">{title}</p>
-                    {subtitle && <p className="text-[10px] text-gray-500">{subtitle}</p>}
+                    <h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
+                    <p className="font-medium text-white text-sm mb-1">{title}</p>
+                    {subtitle && <p className="text-[10px] text-white">{subtitle}</p>}
                 </div>
             </div>
         </Link>

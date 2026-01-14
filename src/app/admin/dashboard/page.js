@@ -645,7 +645,7 @@ export default function EnhancedDashboard() {
   );
 
   return (
-    <div  dir="rtl">
+    <div dir="rtl">
       {/* Printable Components */}
       {specialReportData && <SpecialReportTemplate data={specialReportData} />}
       {housingReportData && <HousingReportTemplate data={housingReportData} />}
@@ -663,7 +663,7 @@ export default function EnhancedDashboard() {
             icon={CheckCircle}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
+            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
           />
           <StatCard
             title={t("dashboard.totalActiveRiders")}
@@ -672,7 +672,7 @@ export default function EnhancedDashboard() {
             icon={Activity}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
+            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
           />
           <StatCard
             title={t("dashboard.totalMonthOrders")}
@@ -681,7 +681,7 @@ export default function EnhancedDashboard() {
             icon={BarChart3}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
+            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
           />
           <StatCard
             title={t("dashboard.hungerYesterdayOrders")}
@@ -690,7 +690,7 @@ export default function EnhancedDashboard() {
             icon={ShoppingBag}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
+            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
           />
           <StatCard
             title={t("dashboard.ketaYesterdayOrders")}
@@ -699,7 +699,7 @@ export default function EnhancedDashboard() {
             icon={ShoppingBag}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
+            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
           />
           <StatCard
             title={t("dashboard.activeYesterdayHunger")}
@@ -708,7 +708,7 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
+            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
           />
           <StatCard
             title={t("dashboard.ketaActiveRiders")}
@@ -717,7 +717,7 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
+            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
           />
           <StatCard
             title={t("dashboard.totalOrderYesterday")}
@@ -726,7 +726,7 @@ export default function EnhancedDashboard() {
             icon={Package}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#E8BF87] to-[#ED9511]"
+            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
           />
 
 
@@ -787,7 +787,7 @@ export default function EnhancedDashboard() {
               subtitle={t("dashboard.printMonthlyPerformanceDiff")}
               icon={BarChart3}
               color={COLORS.white}
-            background="bg-gradient-to-r from-[#E8BF87] to-[#DB8400]"
+              background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
               onClick={() => {
                 setHousingDetailedReportData(null);
                 setHousingReportData(null);
@@ -800,7 +800,7 @@ export default function EnhancedDashboard() {
               subtitle={t("dashboard.dailyTotalOrders")}
               icon={TrendingUp}
               color={COLORS.black}
-            background="bg-gradient-to-r from-[#736B6B] to-[#04043D]"
+              background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingDetailedReportData(null);
@@ -813,7 +813,7 @@ export default function EnhancedDashboard() {
               subtitle={t("dashboard.dailyDetailedOrders")}
               icon={Users}
               color={COLORS.black}
-            background="bg-gradient-to-r from-[#E8BF87] to-[#DB8400]"
+              background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
               onClick={() => {
                 setSpecialReportData(null);
                 setHousingReportData(null);
