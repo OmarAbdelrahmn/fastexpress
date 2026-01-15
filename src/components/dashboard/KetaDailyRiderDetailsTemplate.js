@@ -58,7 +58,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
                 <tbody>
                     {data.filteredRiders?.map((rider, index) => (
                         <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="border border-gray-300 px-4 py-2">{rider.rank}</td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
                             <td className="border border-gray-300 px-4 py-2">
                                 <div className="font-bold">{rider.riderNameAR}</div>
                                 <div className="text-xs text-gray-500">{rider.workingId} | {rider.iqamaNo}</div>
