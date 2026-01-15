@@ -26,7 +26,8 @@ import {
   ChevronRight,
   Bike, // Replacement for Motorcycle which does not exist in Lucide
   Eye,
-  EyeOff
+  EyeOff,
+  LayoutList
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
@@ -149,6 +150,7 @@ const API_ENDPOINTS = {
 };
 
 export default function EnhancedDashboard() {
+  const router = useRouter();
   const { t } = useLanguage();
 
   const { get, loading } = useApi();
@@ -642,19 +644,19 @@ export default function EnhancedDashboard() {
     return (
       <button
         onClick={onClick}
-        className={`w-full flex items-center justify-between p-4 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.03] transition-all duration-300 group text-right hover:border-blue-100`}
+        className={`w-full flex items-center justify-between p-3 ${background} border border-gray-100 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 group text-right hover:border-blue-100`}
       >
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-lg transition-colors">
-            <Icon size={24} color={"white"} />
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg transition-colors">
+            <Icon size={20} color={"white"} />
           </div>
           <div>
             <h3 className="font-bold text-white">{title}</h3>
             <p className="text-xs text-white">{subtitle}</p>
           </div>
         </div>
-        <div className="w-8 h-8 rounded-full  flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-          <ChevronRight size={16} color={COLORS.white} className="rtl:rotate-180" />
+        <div className="w-7 h-7 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+          <ChevronRight size={14} color={COLORS.white} className="rtl:rotate-180" />
         </div>
       </button>
     );
@@ -849,6 +851,14 @@ export default function EnhancedDashboard() {
               }}
             />
 
+            <QuickActionBtn
+              title="تقارير كيتا"
+              subtitle="لوحة التحكم بتقارير عمليات كيتا"
+              icon={LayoutList}
+              color={COLORS.white}
+              background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+              onClick={() => router.push('/admin/reports/keta')}
+            />
             {/* Company Statistics Card moved up */}
           </div>
 
