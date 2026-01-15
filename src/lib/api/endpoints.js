@@ -217,7 +217,7 @@ export const API_ENDPOINTS = {
     VEHICLE_REQUEST_TAKE: "/api/member/vehicles/request-take",
     VEHICLE_REQUEST_RETURN: "/api/member/vehicles/request-return",
     VEHICLE_REQUEST_REPORT_PROBLEM: "/api/member/vehicles/request-report-problem",
-    VEHICLE_REQUEST_FIX_PROBLEM: "/api/member/request-fix-problem",
+    VEHICLE_REQUEST_FIX_PROBLEM: "/api/member/vehicles/request-fix-problem",
     VEHICLE_REQUEST_SWITCH: "/api/member/vehicles/request-switch-vehicel",
     VEHICLE_PROBLEMS: "/api/member/vehicles/problems",
     REPORTS_MONTHLY: "/api/Member/reports/monthly",
