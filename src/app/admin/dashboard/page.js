@@ -24,7 +24,9 @@ import {
   ArrowRight,
   X,
   ChevronRight,
-  Bike // Replacement for Motorcycle which does not exist in Lucide
+  Bike, // Replacement for Motorcycle which does not exist in Lucide
+  Eye,
+  EyeOff
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
@@ -192,8 +194,31 @@ export default function EnhancedDashboard() {
     housing: 8.3,
   });
 
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
+
   useEffect(() => {
+    // Check for privacy mode setting
+    const storedPrivacy = localStorage.getItem("dashboard_privacy_mode");
+    if (storedPrivacy) {
+      setIsPrivacyMode(JSON.parse(storedPrivacy));
+    }
+
+    // Add event listener for storage changes (in case changed in another tab/window)
+    const handleStorageChange = () => {
+      const updatedPrivacy = localStorage.getItem("dashboard_privacy_mode");
+      if (updatedPrivacy) {
+        setIsPrivacyMode(JSON.parse(updatedPrivacy));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for custom event for same-tab updates if needed, 
+    // though simplest way is just to rely on mount/focus or standard flow. 
+    // Since settings is a different page, navigating back will re-mount dashboard or we can rely on focus.
+
     loadDashboardData();
+
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const loadDashboardData = async () => {
@@ -494,7 +519,10 @@ export default function EnhancedDashboard() {
         </div>
 
         <div className="relative z-10 ">
-          <h3 className="text-2xl font-bold text-white mb-1">{loading ? "..." : value}</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-2xl font-bold text-white">{loading ? "..." : value}</h3>
+            {value === "-*" && <EyeOff size={16} className="text-white/70" />}
+          </div>
           <p className="font-medium text-white text-sm mb-1">{title}</p>
           <p className="text-[10px] text-white">{subtitle}</p>
         </div>
@@ -658,7 +686,7 @@ export default function EnhancedDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           <StatCard
             title={t("dashboard.monthAcceptedOrders")}
-            value={stats.monthAcceptedOrders}
+            value={isPrivacyMode ? "-" : stats.monthAcceptedOrders}
             subtitle={t("dashboard.orders")}
             icon={CheckCircle}
             color="#ffffffff"
@@ -667,7 +695,7 @@ export default function EnhancedDashboard() {
           />
           <StatCard
             title={t("dashboard.totalActiveRiders")}
-            value={stats.totalActiveRiders}
+            value={isPrivacyMode ? "-" : stats.totalActiveRiders}
             subtitle={t("dashboard.orders")}
             icon={Activity}
             color="#ffffffff"
@@ -676,7 +704,7 @@ export default function EnhancedDashboard() {
           />
           <StatCard
             title={t("dashboard.totalMonthOrders")}
-            value={stats.totalMonthOrders}
+            value={isPrivacyMode ? "-" : stats.totalMonthOrders}
             subtitle={t("dashboard.orders")}
             icon={BarChart3}
             color="#ffffffff"

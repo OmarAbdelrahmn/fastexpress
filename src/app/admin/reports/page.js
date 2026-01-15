@@ -78,6 +78,11 @@ export default function ReportsPage() {
           path: "/admin/reports/compare-company",
           desc: t('reports.compareCompaniesDesc'),
         },
+        {
+          name: "تحقق كيتا",
+          path: "/admin/reports/keta-validation",
+          desc: "تقرير التحقق من أداء مناديب كيتا",
+        },
       ],
     },
     {
@@ -323,13 +328,31 @@ export default function ReportsPage() {
                     <Calendar className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    التقرير التفصيلي 
+                    التقرير التفصيلي
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
                   عرض الأداء التفصيلي لجميع المناديب في كل مجموعات السكن
                 </p>
               </Link>
+
+              <Link
+                href="/admin/reports/keta-validation"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Calendar className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    تقرير كيتا
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  عرض تقرير التحقق من كيتا
+                </p>
+              </Link>
+
             </div>
           </div>
         </div>

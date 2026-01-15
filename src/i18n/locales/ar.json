@@ -165,7 +165,8 @@
     "requests": "الطلبات",
     "disabilities": "عجز هنقر",
     "personalInfo": "معلوماتي شخصية",
-    "updateShifts": "تحديث الأداء"
+    "updateShifts": "تحديث الأداء",
+    "generalSettings": "الإعدادات العامة"
   },
   "dashboard": {
     "riders": "مناديب",

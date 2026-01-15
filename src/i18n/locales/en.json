@@ -145,7 +145,8 @@
     "backtoDashboard": "Back to Dashboard",
     "myDetails": "My Details",
     "requests": "Requests",
-    "disabilities": "Disabilities"
+    "disabilities": "Disabilities",
+    "generalSettings": "General Settings"
   },
   "dashboard": {
     "title": "Main Dashboard",
