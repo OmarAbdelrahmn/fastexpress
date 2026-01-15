@@ -51,10 +51,11 @@ export default function VehicleFixProblemPage() {
     const loadVehicles = async () => {
         setLoadingVehicles(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLE_PROBLEMS);
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
             const allVehicles = Array.isArray(response) ? response : [];
-            setVehicles(allVehicles);
-            setFilteredVehicles(allVehicles);
+            const problemVehicles = allVehicles.filter(v => v.currentStatus === 'Problem');
+            setVehicles(problemVehicles);
+            setFilteredVehicles(problemVehicles);
         } catch (error) {
             console.error("Error loading vehicles:", error);
             setMessage({ type: "error", text: "فشل تحميل قائمة المركبات" });
