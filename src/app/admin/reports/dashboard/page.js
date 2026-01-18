@@ -61,7 +61,7 @@ export default function ComprehensiveDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" >
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <PageHeader
         title={t('reports.dashboardPage.title')}
         subtitle={t('reports.dashboardPage.subtitle')}
@@ -117,7 +117,7 @@ export default function ComprehensiveDashboardPage() {
         </div>
         {dashboard && (
           <div className="mt-3 text-sm text-gray-600 text-center">
-            📅 {t('reports.dashboardPage.period1')}  {dashboard.periodEnd} :  {dashboard.periodStart} 
+            📅 {t('reports.dashboardPage.period1')}  {dashboard.periodEnd} :  {dashboard.periodStart}
           </div>
         )}
       </div>

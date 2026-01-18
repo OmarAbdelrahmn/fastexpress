@@ -64,7 +64,17 @@ export default function KetaValidationPage() {
 
     // Filter Logic
     const filteredRiderValidations = data?.riderValidations?.filter(rider => {
-        const query = searchQuery.toLowerCase();
+        const query = searchQuery.toLowerCase().trim();
+
+        // Check for Status Match explicitly (Partial Match on Keywords)
+        if (query.length > 0) {
+            const matchesValid = 'صالح'.startsWith(query) || 'valid'.startsWith(query);
+            const matchesInvalid = 'غير صالح'.startsWith(query) || 'invalid'.startsWith(query);
+
+            if (matchesValid && rider.isValidForMonth) return true;
+            if (matchesInvalid && !rider.isValidForMonth) return true;
+        }
+
         return (
             rider.riderNameAR?.toLowerCase().includes(query) ||
             rider.riderNameEN?.toLowerCase().includes(query) ||
@@ -347,8 +357,8 @@ export default function KetaValidationPage() {
                                                 {rider.isValidForMonth ? "✓" : "✕"}
                                             </div>
                                             <div>
-                                                <h3 className="text-gray-900 font-bold text-lg">{ rider.riderNameAR}</h3>
-                                                <p className="text-gray-500 text-sm font-mono">{ rider.riderNameEN }</p>
+                                                <h3 className="text-gray-900 font-bold text-lg">{rider.riderNameAR}</h3>
+                                                <p className="text-gray-500 text-sm font-mono">{rider.riderNameEN}</p>
                                                 <div className="flex gap-2 mt-1">
                                                     <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-mono">
                                                         {t('employees.rider')}: {rider.workingId}
