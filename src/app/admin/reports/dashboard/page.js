@@ -61,7 +61,7 @@ export default function ComprehensiveDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
         title={t('reports.dashboardPage.title')}
         subtitle={t('reports.dashboardPage.subtitle')}
