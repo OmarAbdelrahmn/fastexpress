@@ -86,7 +86,7 @@ export default function MemberLoginPage() {
                         <Users className="text-white" size={48} />
                     </div>
                     <h1 className="text-3xl font-bold text-blue-900 mb-2">
-                        Member Login
+                        {t("member.loginTitle")}
                     </h1>
                     <p className="text-gray-600 font-medium">Fast Express</p>
                 </div>

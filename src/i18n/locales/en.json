@@ -318,6 +318,7 @@
     "total": "Total",
     "orders": "So Far",
     "member": {
+      "loginTitle": "Member Login",
       "title": "Supervisors Dashboard",
       "subtitle": "Welcome back, here's what's happening today.",
       "totalEmployees": "Total Employees",
@@ -2225,8 +2226,8 @@
     "detailedDailyPerformance": "Detailed Daily Performance",
     "detailedDailyPerformanceDesc": "Comprehensive daily performance metrics",
     "otherReportsButton": "View Other Reports",
-    "dashboardPage":{
-            "failedToLoadData": "Failed to load data",
+    "dashboardPage": {
+      "failedToLoadData": "Failed to load data",
       "pleaseSelectDates": "Please select start and end dates",
       "title": "Reports Dashboard",
       "subtitle": "Comprehensive Reports & Analytics Dashboard",
@@ -2748,5 +2749,4 @@
   "workingId": "Working ID",
   "generalStats": "General Statistics",
   "selectedPeriod": "Selected Period"
-
 }
