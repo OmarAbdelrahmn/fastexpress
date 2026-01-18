@@ -9,13 +9,16 @@ import {
     ArrowRight,
     FileCheck
 } from "lucide-react";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function KetaReportsPage() {
+    const { t, language } = useLanguage();
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" >
             <PageHeader
-                title="تقارير كيتا"
-                subtitle="لوحة التحكم بتقارير عمليات كيتا"
+                title={t('keta.reportsTitle')}
+                subtitle={t('keta.reportsSubtitle')}
                 icon={LayoutList}
             />
 
@@ -31,11 +34,11 @@ export default function KetaReportsPage() {
                                 <FileCheck className="text-indigo-600" size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                                تقرير الصالح (كيتا)
+                                {t('keta.validationReport')}
                             </h3>
                         </div>
                         <p className="text-sm text-gray-600">
-                            تقرير التحقق من أداء مناديب كيتا والمستهدفات
+                            {t('keta.validationReportDesc')}
                         </p>
                     </Link>
 
@@ -48,11 +51,11 @@ export default function KetaReportsPage() {
                                 <LayoutList className="text-indigo-600" size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                                ملخص كيتا اليومي
+                                {t('keta.dailySummary')}
                             </h3>
                         </div>
                         <p className="text-sm text-gray-600">
-                            ملخص يومي لأداء عمليات كيتا، عدد الطلبات، الساعات، والشفتات
+                            {t('keta.dailySummaryDesc')}
                         </p>
                     </Link>
 
@@ -65,11 +68,11 @@ export default function KetaReportsPage() {
                                 <Users className="text-indigo-600" size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                                تفاصيل مناديب كيتا اليومي
+                                {t('keta.riderDetails')}
                             </h3>
                         </div>
                         <p className="text-sm text-gray-600">
-                            قائمة تفصيلية بأداء المناديب اليومي مع إمكانية التصدير
+                            {t('keta.riderDetailsDesc')}
                         </p>
                     </Link>
 
@@ -82,11 +85,11 @@ export default function KetaReportsPage() {
                                 <BarChart3 className="text-indigo-600" size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                                إحصائيات كيتا التراكمية
+                                {t('keta.cumulativeStats')}
                             </h3>
                         </div>
                         <p className="text-sm text-gray-600">
-                            تقرير الأداء التراكمي للمناديب والعجز/الفائض
+                            {t('keta.cumulativeStatsDesc')}
                         </p>
                     </Link>
                 </div>

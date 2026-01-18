@@ -14,8 +14,10 @@ import {
     Printer
 } from "lucide-react";
 import KetaDailySummaryTemplate from "@/components/dashboard/KetaDailySummaryTemplate";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function KetaDailySummaryPage() {
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
 
@@ -68,12 +70,12 @@ export default function KetaDailySummaryPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12" >
             <KetaDailySummaryTemplate data={data} />
             <div className="print:hidden">
                 <PageHeader
-                    title="ملخص كيتا اليومي"
-                    subtitle="ملخص يومي لأداء عمليات كيتا"
+                    title={t('keta.daily.title')}
+                    subtitle={t('keta.daily.subtitle')}
                     icon={LayoutList}
                 />
 
@@ -94,7 +96,7 @@ export default function KetaDailySummaryPage() {
                             <button
                                 onClick={fetchReport}
                                 className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
-                                title="تحديث البيانات"
+                                title={t('common.refresh')}
                             >
                                 <Filter className="w-5 h-5" />
                             </button>
@@ -106,7 +108,7 @@ export default function KetaDailySummaryPage() {
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-xl hover:bg-purple-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Printer className="w-4 h-4" />
-                                <span className="hidden sm:inline">طباعة PDF</span>
+                                <span className="hidden sm:inline">{t('keta.daily.printPDF')}</span>
                             </button>
                         </div>
                     </div>
@@ -114,7 +116,7 @@ export default function KetaDailySummaryPage() {
                     {loading && (
                         <div className="py-12 flex flex-col items-center justify-center text-gray-500">
                             <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4" />
-                            <p>جاري تحميل التقرير...</p>
+                            <p>{t('keta.validation.loading')}</p>
                         </div>
                     )}
 
@@ -123,38 +125,40 @@ export default function KetaDailySummaryPage() {
                             {/* Period Info */}
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-6 text-sm text-gray-600">
                                 <div>
-                                    <span className="font-bold">بداية الفترة:</span> {data.periodStart}
+                                    <span className="font-bold">{t('keta.daily.periodStart')}:</span> {data.periodStart}
                                 </div>
                                 <div>
-                                    <span className="font-bold">نهاية الفترة:</span> {data.periodEnd}
+                                    <span className="font-bold">{t('keta.daily.periodEnd')}:</span> {data.periodEnd}
                                 </div>
                                 <div>
-                                    <span className="font-bold">تاريخ التقرير:</span> {data.reportDate}
+                                    <span className="font-bold">{t('keta.daily.reportDate')}:</span> {data.reportDate}
                                 </div>
                             </div>
 
                             {/* Stats Overview */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <StatCard
-                                    title="إجمالي الطلبات المسلمة"
+                                    title={t('keta.daily.totalDelivered')}
                                     value={data.totalOrdersDelivered?.toLocaleString()}
                                     icon={Package}
                                     colorClass="bg-blue-50 text-blue-600"
                                 />
                                 <StatCard
-                                    title="متوسط ساعات العمل"
+                                    title={t('keta.daily.avgWorkingHours')}
                                     value={data.averageWorkingHours?.toFixed(2)}
                                     icon={Clock}
                                     colorClass="bg-purple-50 text-purple-600"
                                 />
                                 <StatCard
-                                    title="إجمالي الطلبات المرفوضة"
-                                    value={data.totalShifts?.toLocaleString()}
+                                    title={t('keta.daily.totalRejected')}
+                                    value={data.totalShifts?.toLocaleString()} // Assuming Total Shifts is mapped to rejected or just mismatched logic in original code? Original code said "إجمالي الطلبات المرفوضة" but value was totalShifts. I will keep it as is but use the translation key for "Total Rejected Orders" if that's what the UI said.
+                                    // RE-READING ARABIC: "إجمالي الطلبات المرفوضة" -> Total Rejected Orders. Key: keta.daily.totalRejected.
+                                    // Value: data.totalShifts? That seems odd. But I must mimic valid code.
                                     icon={TrendingUp}
                                     colorClass="bg-green-50 text-green-600"
                                 />
                                 <StatCard
-                                    title="إجمالي المناديب"
+                                    title={t('keta.daily.totalRiders')}
                                     value={data.totalRiders?.toLocaleString()}
                                     icon={Users}
                                     colorClass="bg-orange-50 text-orange-600"
@@ -165,7 +169,7 @@ export default function KetaDailySummaryPage() {
 
                     {!loading && !data && (
                         <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-                            <p className="text-gray-500">لا توجد بيانات للعرض</p>
+                            <p className="text-gray-500">{t('keta.daily.noData')}</p>
                         </div>
                     )}
                 </div>

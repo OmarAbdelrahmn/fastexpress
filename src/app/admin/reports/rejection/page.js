@@ -11,7 +11,7 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import HousingRejectionReportPDF from '@/components/HousingRejectionReportPDF';
 
 export default function HousingRejectionReport() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState('');
@@ -32,17 +32,17 @@ export default function HousingRejectionReport() {
             if (housing.rejectionReport?.riderDetails) {
                 housing.rejectionReport.riderDetails.forEach(rider => {
                     excelData.push({
-                        'المجموعة': housing.housingName,
-                        'رقم العمل': rider.workingId,
-                        'الاسم (عربي)': rider.riderNameAR,
-                        'الاسم (إنجليزي)': rider.riderNameEN,
-                        'الايام': rider.totalShifts,
-                        'الطلبات': rider.totalOrders,
-                        'التارجت': rider.targetOrders,
-                        'الفرق': rider.totalOrders - rider.targetOrders,
-                        'الرفض': rider.totalRejections,
-                        'معدل الرفض': `${rider.rejectionRate.toFixed(2)}%`,
-                        'رفض حقيقي': rider.totalRealRejections
+                        [t('housingName')]: housing.housingName,
+                        [t('workingNumber')]: rider.workingId,
+                        [t('employees.name') + ' (AR)']: rider.riderNameAR,
+                        [t('employees.name') + ' (EN)']: rider.riderNameEN,
+                        [t('days')]: rider.totalShifts,
+                        [t('reports.totalOrders')]: rider.totalOrders,
+                        [t('target')]: rider.targetOrders,
+                        [t('difference')]: rider.totalOrders - rider.targetOrders,
+                        [t('totalRejection')]: rider.totalRejections,
+                        [t('rejectionRate')]: `${rider.rejectionRate.toFixed(2)}%`,
+                        [t('actualRejection')]: rider.totalRealRejections
                     });
                 });
             }
@@ -56,7 +56,7 @@ export default function HousingRejectionReport() {
 
     const handleSubmit = async () => {
         if (!form.startDate || !form.endDate) {
-            setError('يرجى تحديد تاريخ البداية والنهاية');
+            setError(t('common.periodError')); // Assuming this key exists or fallback
             return;
         }
 
@@ -73,14 +73,14 @@ export default function HousingRejectionReport() {
 
             if (data && data.length > 0) {
                 setReportData(data);
-                setSuccessMessage('تم تحميل التقرير بنجاح');
+                setSuccessMessage(t('common.successLoad'));
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {
-                setError('لا توجد بيانات للفترة المحددة');
+                setError(t('common.noData'));
             }
         } catch (err) {
             console.error('Error:', err);
-            setError(err.message || 'خطأ في تحميل التقرير');
+            setError(err.message || t('common.errorLoad'));
         } finally {
             setLoading(false);
         }
@@ -154,10 +154,10 @@ export default function HousingRejectionReport() {
     const totals = calculateTotals();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
             <PageHeader
-                title="تقرير الطلبات المرفوضة حسب المجموعة"
-                subtitle="عرض تفاصيل الرفض لجميع مجموعات السكن"
+                title={t('detailedRejectionReport')}
+                subtitle={t('detailedRejectionReportDesc')}
                 icon={Building}
             />
 
@@ -170,13 +170,13 @@ export default function HousingRejectionReport() {
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                     <div className="flex items-center gap-3 mb-6">
                         <Calendar className="text-blue-600" size={24} />
-                        <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
+                        <h2 className="text-xl font-bold text-gray-800">{t('chooseTimePeriod')}</h2>
                     </div>
 
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ البداية</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('common.startDate')}</label>
                                 <input
                                     type="date"
                                     value={form.startDate}
@@ -185,7 +185,7 @@ export default function HousingRejectionReport() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ النهاية</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('common.endDate')}</label>
                                 <input
                                     type="date"
                                     value={form.endDate}
@@ -204,12 +204,12 @@ export default function HousingRejectionReport() {
                                 {loading ? (
                                     <>
                                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                                        جاري التحميل...
+                                        {t('common.loading')}
                                     </>
                                 ) : (
                                     <>
                                         <BarChart3 size={20} />
-                                        عرض التقرير
+                                        {t('showReport')}
                                     </>
                                 )}
                             </button>
@@ -221,19 +221,19 @@ export default function HousingRejectionReport() {
                                         className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         <FileSpreadsheet size={20} />
-                                        تصدير Excel
+                                        {t('common.exportExcel')}
                                     </button>
 
                                     <PDFDownloadLink
-                                        document={<HousingRejectionReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} />}
+                                        document={<HousingRejectionReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('detailedRejectionReport')} language={language} t={t} />}
                                         fileName={`housing_rejection_report_${form.startDate}_${form.endDate}.pdf`}
                                         className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         {({ blob, url, loading, error }) =>
-                                            loading ? 'جاري التحضير...' : (
+                                            loading ? t('common.loading') : (
                                                 <>
                                                     <Printer size={20} />
-                                                    طباعة PDF
+                                                    {t('keta.daily.printPDF')}
                                                 </>
                                             )
                                         }
@@ -251,25 +251,25 @@ export default function HousingRejectionReport() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={Building}
-                                title="عدد مجموعات السكن"
+                                title={t('totalHousingGroups')}
                                 value={reportData.length}
                                 color="#3b82f6"
                             />
                             <StatCard
                                 icon={Users}
-                                title="إجمالي المناديب"
+                                title={t('reports.totalRiders')}
                                 value={totals.totalRiders}
                                 color="#10b981"
                             />
                             <StatCard
                                 icon={XCircle}
-                                title="إجمالي الرفض"
+                                title={t('totalRejection')}
                                 value={totals.totalRejections}
                                 color="#f97316"
                             />
                             <StatCard
                                 icon={TrendingUp}
-                                title="إجمالي الرفض الحقيقي"
+                                title={t('totalRealRejections')}
                                 value={totals.totalRealRejections}
                                 color="#ef4444"
                             />
@@ -279,7 +279,7 @@ export default function HousingRejectionReport() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                تقرير الطلبات المرفوضة حسب المجموعة ({reportData.length})
+                                {t('detailedRejectionReport')} ({reportData.length})
                             </h2>
 
                             {reportData.map((housing, index) => (
@@ -296,11 +296,11 @@ export default function HousingRejectionReport() {
                                                     <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
                                                     <p className="text-indigo-100 text-sm">
                                                         {housing.rejectionReport?.startDate} - {housing.rejectionReport?.endDate}
-                                                        {' '}({housing.rejectionReport?.totalDays} أيام)
+                                                        {' '}({housing.rejectionReport?.totalDays} {t('days')})
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className="text-white text-2xl">{expandedHousing === index ? '▼' : '◀'}</span>
+                                            <span className="text-white text-2xl">{expandedHousing === index ? '▼' : (language === 'ar' ? '◀' : '▶')}</span>
                                         </div>
                                     </div>
 
@@ -309,48 +309,48 @@ export default function HousingRejectionReport() {
                                         <div className="p-6">
                                             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                 <Users className="text-purple-600" size={20} />
-                                                تفاصيل المناديب ({housing.rejectionReport.riderDetails.length})
+                                                {t('riderDetails')} ({housing.rejectionReport.riderDetails.length})
                                             </h4>
 
                                             <div className="overflow-x-auto">
                                                 <table className="min-w-full divide-y divide-gray-200">
                                                     <thead className="bg-gray-50">
                                                         <tr>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم العمل</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم السائق</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الايام</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الطلبات</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">التارجت</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الفرق</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الرفض</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">رفض حقيقي</th>
-                                                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">معدل الرفض</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('workingNumber')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('employees.rider')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('days')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('reports.totalOrders')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('target')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('difference')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('totalRejection')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('actualRejection')}</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">{t('rejectionRate')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="bg-white divide-y divide-gray-200">
                                                         {housing.rejectionReport.riderDetails.map((rider, idx) => (
                                                             <tr key={idx} className="hover:bg-gray-50">
-                                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <span className="font-mono font-bold text-gray-700">{rider.workingId}</span>
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <div>
-                                                                        <div className="font-medium text-gray-900">{rider.riderNameAR}</div>
-                                                                        <div className="text-xs text-gray-500">{rider.riderNameEN}</div>
+                                                                        <div className="font-medium text-gray-900">{ rider.riderNameAR || rider.riderNameEN}</div>
+                                                                        <div className="text-xs text-gray-500">{ rider.riderNameEN || rider.riderNameAR}</div>
                                                                     </div>
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">
                                                                         {rider.totalShifts}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-600 text-start">
                                                                     {rider.totalOrders}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-green-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-green-600 text-start">
                                                                     {rider.targetOrders}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     {(() => {
                                                                         const difference = rider.totalOrders - rider.targetOrders;
                                                                         const isPositive = difference >= 0;
@@ -362,13 +362,13 @@ export default function HousingRejectionReport() {
                                                                         );
                                                                     })()}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-orange-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-orange-600 text-start">
                                                                     {rider.totalRejections}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-red-600">
+                                                                <td className="px-4 py-3 whitespace-nowrap font-semibold text-red-600 text-start">
                                                                     {rider.totalRealRejections}
                                                                 </td>
-                                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.rejectionRate < 10 ? 'bg-green-100 text-green-800' :
                                                                         rider.rejectionRate < 20 ? 'bg-yellow-100 text-yellow-800' :
                                                                             'bg-red-100 text-red-800'

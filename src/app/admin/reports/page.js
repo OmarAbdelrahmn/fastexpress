@@ -12,7 +12,8 @@ import {
   Building,
   Clock,
   History,
-  LayoutList
+  LayoutList,
+  Target
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
@@ -80,9 +81,9 @@ export default function ReportsPage() {
           desc: t('reports.compareCompaniesDesc'),
         },
         {
-          name: "تحقق كيتا",
+          name: t('keta.validationReport'),
           path: "/admin/reports/keta-validation",
-          desc: "تقرير التحقق من أداء مناديب كيتا",
+          desc: t('keta.validationReportDesc'),
         },
 
       ],
@@ -123,9 +124,9 @@ export default function ReportsPage() {
           desc: t('reports.topRidersMonthlyDesc'),
         },
         {
-          name: "تقرير أداء المندوب التفصيلي",
+          name: t('reports.riderPerformanceTitle'),
           path: "/admin/reports/rider-performance",
-          desc: "تقرير تفصيلي يومي لأداء المندوب (سابقاً Rider Daily)",
+          desc: t('reports.riderPerformanceDesc'),
         },
       ],
     },
@@ -243,10 +244,10 @@ export default function ReportsPage() {
             <Award className="text-white" size={36} />
             <div>
               <h2 className="text-2xl font-bold text-white">
-                التقارير المهمة
+                {t('reports.importantReports')}
               </h2>
               <p className="text-indigo-100 text-sm mt-1">
-                التقارير الأساسية والأكثر استخداماً
+                {t('reports.importantReportsDesc')}
               </p>
             </div>
           </div>
@@ -262,11 +263,11 @@ export default function ReportsPage() {
                     <Building className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    تقرير رفض الطلبات
+                    {t('reports.rejectionReports')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  عرض تفاصيل الرفض لجميع مجموعات السكن مع إحصائيات شاملة للسائقين
+                  {t('reports.rejectionReportsDesc')}
                 </p>
               </Link>
 
@@ -279,11 +280,11 @@ export default function ReportsPage() {
                     <Clock className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    تقرير أداء المناديب
+                    {t('reports.ridersPerformance')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  متابعة ساعات العمل، أيام الغياب، والطلبات لجميع المناديب في السكنات
+                  {t('reports.ridersPerformanceDesc')}
                 </p>
               </Link>
 
@@ -296,11 +297,11 @@ export default function ReportsPage() {
                     <History className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    أداء المندوب
+                    {t('reports.riderPerformanceTitle')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  استعراض أداء المندوب
+                  {t('reports.riderPerformanceDesc')}
                 </p>
               </Link>
 
@@ -313,11 +314,11 @@ export default function ReportsPage() {
                     <History className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    سجل المندوب
+                    {t('reports.riderHistory')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  استعراض السجل التاريخي للمندوب والنشاط الشهري عبر السنوات
+                  {t('reports.riderHistoryDesc')}
                 </p>
               </Link>
 
@@ -330,11 +331,11 @@ export default function ReportsPage() {
                     <Calendar className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    التقرير التفصيلي
+                    {t('reports.detailedDailyPerformance')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  عرض الأداء التفصيلي لجميع المناديب في كل مجموعات السكن
+                  {t('reports.detailedDailyPerformanceDesc')}
                 </p>
               </Link>
 
@@ -347,11 +348,11 @@ export default function ReportsPage() {
                     <Calendar className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    تقرير كيتا
+                    {t('keta.validationReport')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  عرض تقرير التحقق من كيتا
+                  {t('keta.validationReportDesc')}
                 </p>
               </Link> */}
 
@@ -364,11 +365,28 @@ export default function ReportsPage() {
                     <LayoutList className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    تقارير  كيتا
+                    {t('keta.reportsTitle')}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  لوحة التحكم بالتقارير اليومية والتراكمية لعمليات كيتا
+                  {t('keta.reportsSubtitle')}
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/hunger/summary"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Target className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    تقرير ملخص هنقرستيشن
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  عرض ملخص الطلبات المستهدفة للشركة والمجموعات
                 </p>
               </Link>
 
@@ -382,7 +400,7 @@ export default function ReportsPage() {
         <Link href="/admin/reports/other">
           <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group">
             <BarChart3 size={20} />
-            <span className="font-semibold">تقارير أخرى</span>
+            <span className="font-semibold">{t('reports.otherReportsButton')}</span>
             <svg
               className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
               fill="none"

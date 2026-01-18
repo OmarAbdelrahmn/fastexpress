@@ -192,6 +192,7 @@ export const API_ENDPOINTS = {
     HOUSING_DETAILED_DAILY_PERFORMANCE: "/api/Report/housing/detailed-daily-performance",
     RIDER_HISTORY: (iqamaNo) => `/api/Report/rider-history?riderIqamaNo=${iqamaNo}`,
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
+    HUNGER_SUMMARY: "/api/Report/hunger/summary",
   },
 
   // Member

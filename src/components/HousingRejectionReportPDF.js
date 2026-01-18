@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const HousingRejectionReportPDF = ({ reportData, startDate, endDate }) => {
+const HousingRejectionReportPDF = ({ reportData, startDate, endDate, title, language, t }) => {
     // Helper to chunk riders for a single housing
     const chunkHousingData = (housing) => {
         const riders = housing.rejectionReport?.riderDetails || [];
@@ -197,43 +197,49 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate }) => {
     // Flatten all data into a linear array of pages
     const reportPages = reportData ? reportData.flatMap(housing => chunkHousingData(housing)) : [];
 
+    const isRtl = language === 'ar';
+
     return (
         <Document>
             {reportPages.map((pageData, globalPageIndex) => (
                 <Page key={globalPageIndex} size="A4" style={styles.page} orientation="landscape">
                     {/* Global Document Header - Repeated on every page */}
-                    <View style={styles.header}>
+                    <View style={[styles.header, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                         <View style={styles.headerContent}>
-                            <Text style={styles.headerTitle}>تقرير رفض الطلبات - مجموعات السكن</Text>
-                            <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                            <Text style={[styles.headerTitle, { textAlign: isRtl ? 'right' : 'left' }]}>{title}</Text>
+                            <Text style={[styles.headerSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>
+                                {t('from')}: {startDate} {t('to')}: {endDate}
+                            </Text>
                         </View>
                         <View style={styles.logoContainer}>
                             <Image src="/2.png" style={styles.headerLogo} />
-                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                            <Text style={styles.companyName}>
+                                {t('common.companyName')}{"\n"}{t('common.logisticsServices')}
+                            </Text>
                         </View>
                     </View>
 
                     {/* Housing Header - Only on the first page of the housing group */}
                     {pageData.isFirstPage && (
-                        <View style={styles.housingHeader}>
-                            <Text style={styles.housingTitle}>{pageData.housingName}</Text>
+                        <View style={[styles.housingHeader, isRtl ? { borderRightWidth: 4, borderLeftWidth: 0 } : { borderLeftWidth: 4, borderRightWidth: 0 }]}>
+                            <Text style={[styles.housingTitle, { textAlign: isRtl ? 'right' : 'left' }]}>{pageData.housingName}</Text>
                         </View>
                     )}
 
                     {/* Riders Table */}
                     <View style={styles.table}>
                         {/* Table Header */}
-                        <View style={styles.tableHeader}>
-                            <View style={styles.colRider}><Text style={styles.headerText}>المندوب</Text></View>
-                            <View style={styles.colId}><Text style={styles.headerText}>رقم العمل</Text></View>
-                            <View style={styles.colDays}><Text style={styles.headerText}>الايام</Text></View>
-                            <View style={styles.colOrders}><Text style={styles.headerText}>الطلبات</Text></View>
-                            <View style={styles.colTarget}><Text style={styles.headerText}>التارجت</Text></View>
-                            <View style={styles.colDiff}><Text style={[styles.headerText, { color: '#fbbf24' }]}>الفرق</Text></View>
-                            <View style={styles.colRej}><Text style={[styles.headerText, { color: '#fca5a5' }]}>الرفض</Text></View>
-                            <View style={styles.colRejRate}><Text style={[styles.headerText, { color: '#fdba74' }]}>نسبة الرفض</Text></View>
-                            <View style={styles.colRealRej}><Text style={[styles.headerText, { color: '#fecaca' }]}>رفض ح</Text></View>
-                            <View style={styles.colRealRate}><Text style={[styles.headerText, { color: '#fed7aa' }]}>نسبة ح</Text></View>
+                        <View style={[styles.tableHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                            <View style={styles.colRider}><Text style={styles.headerText}>{t('employees.rider')}</Text></View>
+                            <View style={styles.colId}><Text style={styles.headerText}>{t('workingNumber')}</Text></View>
+                            <View style={styles.colDays}><Text style={styles.headerText}>{t('days')}</Text></View>
+                            <View style={styles.colOrders}><Text style={styles.headerText}>{t('reports.totalOrders')}</Text></View>
+                            <View style={styles.colTarget}><Text style={styles.headerText}>{t('target')}</Text></View>
+                            <View style={styles.colDiff}><Text style={[styles.headerText, { color: '#fbbf24' }]}>{t('difference')}</Text></View>
+                            <View style={styles.colRej}><Text style={[styles.headerText, { color: '#fca5a5' }]}>{t('totalRejection')}</Text></View>
+                            <View style={styles.colRejRate}><Text style={[styles.headerText, { color: '#fdba74' }]}>{t('rejectionRate')}</Text></View>
+                            <View style={styles.colRealRej}><Text style={[styles.headerText, { color: '#fecaca' }]}>{t('actualRejection')}</Text></View>
+                            <View style={styles.colRealRate}><Text style={[styles.headerText, { color: '#fed7aa' }]}>{t('rejectionRate')}</Text></View>
                         </View>
 
                         {/* Table Rows */}
@@ -242,10 +248,10 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate }) => {
                             const isPositive = difference >= 0;
 
                             return (
-                                <View key={idx} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt]}>
+                                <View key={idx} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                                     <View style={styles.colRider}>
-                                        <Text style={styles.cellText}>{rider.riderNameAR}</Text>
-                                        <Text style={styles.cellTextSmall}>{rider.riderNameEN}</Text>
+                                        <Text style={styles.cellText}>{isRtl ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR}</Text>
+                                        <Text style={styles.cellTextSmall}>{isRtl ? rider.riderNameEN : rider.riderNameAR}</Text>
                                     </View>
                                     <View style={styles.colId}><Text style={styles.cellText}>{rider.workingId}</Text></View>
                                     <View style={styles.colDays}><Text style={styles.cellText}>{rider.totalShifts}</Text></View>
@@ -272,9 +278,9 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate }) => {
                     </View>
 
                     {/* Footer - Page X of Y for this housing group */}
-                    <View style={styles.pageFooter}>
-                        <Text>صفحة {pageData.pageIndex + 1} من {pageData.totalPages} للمجموعة</Text>
-                        <Text>تم الإنشاء: {new Date().toLocaleString('en-US')}</Text>
+                    <View style={[styles.pageFooter, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                        <Text>{t('common.page')} {pageData.pageIndex + 1} {t('common.of')} {pageData.totalPages}</Text>
+                        <Text>{t('common.generatedDate')}: {new Date().toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}</Text>
                     </View>
                 </Page>
             ))}

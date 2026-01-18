@@ -21,8 +21,10 @@ import {
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import RiderHistoryReportPDF from "@/components/RiderHistoryReportPDF";
 import PageHeader from "@/components/layout/pageheader";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function AdminRiderHistoryPage() {
+    const { t, language } = useLanguage();
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -68,7 +70,7 @@ export default function AdminRiderHistoryPage() {
             if (urlIqamaNo && data) {
                 const rider = data.find(r => (r.employeeIqamaNo || r.iqamaNo) == urlIqamaNo);
                 if (rider) {
-                    setSearchQuery(rider.nameAR); // Default to Arabic name
+                    setSearchQuery(language === 'ar' ? rider.nameAR : (rider.nameEN || rider.nameAR)); // Default to appropriate name
                 } else {
                     setSearchQuery(urlIqamaNo);
                 }
@@ -94,14 +96,14 @@ export default function AdminRiderHistoryPage() {
 
     const handleRiderSelect = (rider) => {
         setIqamaNo(rider.employeeIqamaNo || rider.iqamaNo);
-        setSearchQuery(rider.nameAR || rider.nameEN);
+        setSearchQuery(language === 'ar' ? rider.nameAR : (rider.nameEN || rider.nameAR));
         setShowDropdown(false);
         setError(null);
     };
 
     const fetchReport = async () => {
         if (!iqamaNo) {
-            setError("يرجى اختيار مندوب");
+            setError(t('selectRiderError') || t('reports.riderHistory')); // Fallback if key missing
             return;
         }
 
@@ -114,7 +116,7 @@ export default function AdminRiderHistoryPage() {
             // Update URL params
             router.push(`/admin/reports/history?iqamaNo=${iqamaNo}`, { scroll: false });
         } catch (err) {
-            setError(err.message || "حدث خطأ أثناء تحميل التقرير");
+            setError(err.message || t('common.errorLoad'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -131,10 +133,10 @@ export default function AdminRiderHistoryPage() {
     }, [riders]);
 
     return (
-        <div dir="rtl">
+        <div >
             <PageHeader
-                title="سجل المندوب"
-                subtitle="عرض التاريخ الشهري للمندوب"
+                title={t('reports.riderHistory')}
+                subtitle={t('reports.riderHistoryDesc')}
                 icon={History}
             />
 
@@ -146,7 +148,7 @@ export default function AdminRiderHistoryPage() {
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="ابحث عن مندوب (الاسم أو الرقم)"
+                                placeholder={t('searchRiderPlaceholder') || 'ابحث عن مندوب (الاسم أو الرقم)'}
                                 value={searchQuery}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -155,9 +157,9 @@ export default function AdminRiderHistoryPage() {
                                     if (!val) setIqamaNo("");
                                 }}
                                 onFocus={() => setShowDropdown(true)}
-                                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm"
+                                className={`w-full px-4 py-2 ${language === 'ar' ? 'pl-10' : 'pr-10'} border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 font-medium shadow-sm`}
                             />
-                            <ChevronDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                            <ChevronDown className={`absolute ${language === 'ar' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-gray-400`} size={16} />
                         </div>
 
                         {/* Dropdown Results */}
@@ -167,11 +169,15 @@ export default function AdminRiderHistoryPage() {
                                     <button
                                         key={rider.riderId || rider.id || rider.iqamaNo || index}
                                         onClick={() => handleRiderSelect(rider)}
-                                        className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between group"
+                                        className={`w-full ${language === 'ar' ? 'text-right' : 'text-left'} px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 flex items-center justify-between group`}
                                     >
                                         <div>
-                                            <p className="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">{rider.nameAR}</p>
-                                            <p className="text-xs text-gray-500">{rider.nameEN}</p>
+                                            <p className="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">
+                                                {language === 'ar' ? rider.nameAR : (rider.nameEN || rider.nameAR)}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {language === 'ar' ? rider.nameEN : rider.nameAR}
+                                            </p>
                                         </div>
                                         <div className="text-left">
                                             <span className="block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono mb-1">
@@ -194,7 +200,7 @@ export default function AdminRiderHistoryPage() {
                     >
                         {loading ? '...' : (
                             <>
-                                <span>بحث</span>
+                                <span>{t('common.search')}</span>
                                 <Search size={18} />
                             </>
                         )}
@@ -203,13 +209,13 @@ export default function AdminRiderHistoryPage() {
                     {reportData && (
                         <PDFDownloadLink
                             key={reportData.workingId + (reportData.firstShiftDate || '')}
-                            document={<RiderHistoryReportPDF data={reportData} />}
+                            document={<RiderHistoryReportPDF data={reportData} language={language} t={t} />}
                             fileName={`Rider_History_${reportData.riderName || 'Report'}.pdf`}
                             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {({ loading: pdfLoading }) => (
                                 <>
-                                    <span>{pdfLoading ? '...PDF' : 'طباعة PDF'}</span>
+                                    <span>{pdfLoading ? '...PDF' : t('keta.daily.printPDF')}</span>
                                     <Printer size={18} />
                                 </>
                             )}
@@ -245,11 +251,11 @@ export default function AdminRiderHistoryPage() {
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">تاريخ أول اداء</p>
+                            <p className="text-sm text-gray-500 mb-1">{t('firstShiftDate') || 'تاريخ أول اداء'}</p>
                             <p className="font-bold text-gray-900">{reportData.firstShiftDate}</p>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">تاريخ آخر اداء</p>
+                            <p className="text-sm text-gray-500 mb-1">{t('lastShiftDate') || 'تاريخ آخر اداء'}</p>
                             <p className="font-bold text-gray-900">{reportData.lastShiftDate}</p>
                         </div>
                     </div>
@@ -257,9 +263,9 @@ export default function AdminRiderHistoryPage() {
                     {/* Monthly Details Columns by Year */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-900">سجل الشهور (سنوي)</h2>
+                            <h2 className="text-lg font-bold text-gray-900">{t('monthlyHistory') || 'سجل الشهور (سنوي)'}</h2>
                             <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
-                                إجمالي {reportData.totalMonths} شهر
+                                {t('totalMonths', { count: reportData.totalMonths }) || `إجمالي ${reportData.totalMonths} شهر`}
                             </span>
                         </div>
 
@@ -284,8 +290,8 @@ export default function AdminRiderHistoryPage() {
                                             {/* Months List */}
                                             <div className="divide-y divide-gray-100 bg-white">
                                                 <div className="flex justify-between items-center px-4 py-2 bg-gray-100 text-xs font-bold text-gray-500">
-                                                    <span>الشهر</span>
-                                                    <span>الطلبات</span>
+                                                    <span>{t('month')}</span>
+                                                    <span>{t('reports.totalOrders')}</span>
                                                 </div>
                                                 {months.map((month, idx) => (
                                                     <div key={idx} className="flex justify-between items-center px-4 py-3 hover:bg-gray-50 transition-colors">
@@ -307,7 +313,7 @@ export default function AdminRiderHistoryPage() {
             {loading && !reportData && (
                 <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-3xl shadow-sm border border-gray-100">
                     <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4" />
-                    <p className="text-gray-500 animate-pulse font-medium">جاري تحميل البيانات...</p>
+                    <p className="text-gray-500 animate-pulse font-medium">{t('common.loading')}</p>
                 </div>
             )}
         </div>

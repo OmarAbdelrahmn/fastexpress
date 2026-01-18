@@ -19,8 +19,10 @@ import {
     FileSpreadsheet
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function KetaValidationPage() {
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
 
@@ -42,7 +44,6 @@ export default function KetaValidationPage() {
     const fetchReport = async () => {
         setLoading(true);
         try {
-            // API call: api/Report/keta/validation?year=2026&month=1
             const response = await ApiService.get(
                 `/api/Report/keta/validation?year=${year}&month=${month}`
             );
@@ -77,18 +78,18 @@ export default function KetaValidationPage() {
         if (filteredRiderValidations.length === 0) return;
 
         const exportData = filteredRiderValidations.map(rider => ({
-            "الاسم (عربي)": rider.riderNameAR,
-            "الاسم (إنجليزي)": rider.riderNameEN,
-            "الرقم الوظيفي": rider.workingId,
-            "رقم الإقامة": rider.iqamaNo,
-            "السكن": rider.housingName || "-",
-            "الطلبات المحققة": rider.totalOrders,
-            "المستهدف (طلبات)": rider.targetOrders,
-            "أيام العمل": rider.totalWorkingDays,
-            "الأيام المتوقعة": rider.totalExpectedDays,
-            "متوسط الساعات": rider.averageHoursPerDay?.toFixed(2),
-            "الحالة": rider.isValidForMonth ? "صالح" : "غير صالح",
-            "أخطاء التحقق": rider.validationErrors?.join(", ") || "-"
+            [t('employees.nameArabic')]: rider.riderNameAR,
+            [t('employees.nameEnglish')]: rider.riderNameEN,
+            [t('employees.rider')]: rider.workingId,
+            [t('employees.iqamaNumber')]: rider.iqamaNo,
+            [t('common.housingGroup')]: rider.housingName || "-",
+            [t('keta.validation.orders')]: rider.totalOrders,
+            [t('keta.validation.targetOrders')]: rider.targetOrders,
+            [t('keta.validation.workingDays')]: rider.totalWorkingDays,
+            [t('keta.cumulative.expectedDays')]: rider.totalExpectedDays,
+            [t('keta.validation.avgHours')]: rider.averageHoursPerDay?.toFixed(2),
+            [t('common.status')]: rider.isValidForMonth ? t('keta.validation.valid') : t('keta.validation.invalid'),
+            [t('keta.validation.validationErrors')]: rider.validationErrors?.join(", ") || "-"
         }));
 
         const workbook = XLSX.utils.book_new();
@@ -105,50 +106,50 @@ export default function KetaValidationPage() {
         filteredRiderValidations.forEach(rider => {
             // Add summary row for the rider
             exportData.push({
-                "الاسم (عربي)": rider.riderNameAR,
-                "الاسم (إنجليزي)": rider.riderNameEN,
-                "الرقم الوظيفي": rider.workingId,
-                "رقم الإقامة": rider.iqamaNo,
-                "السكن": rider.housingName || "-",
-                "الطلبات المحققة": rider.totalOrders,
-                "المستهدف (طلبات)": rider.targetOrders,
-                "أيام العمل": rider.totalWorkingDays,
-                "الأيام المتوقعة": rider.totalExpectedDays,
-                "متوسط الساعات": rider.averageHoursPerDay?.toFixed(2),
-                "الحالة العامة": rider.isValidForMonth ? "صالح" : "غير صالح",
-                "أخطاء التحقق": rider.validationErrors?.join(", ") || "-",
-                "اليوم": "ملخص",
-                "التاريخ": "",
-                "يوجد شفت": "",
-                "ساعات العمل اليومية": "",
-                "الطلبات اليومية": "",
-                "الحالة اليومية": "",
-                "الملاحظات": ""
+                [t('employees.nameArabic')]: rider.riderNameAR,
+                [t('employees.nameEnglish')]: rider.riderNameEN,
+                [t('employees.rider')]: rider.workingId,
+                [t('employees.iqamaNumber')]: rider.iqamaNo,
+                [t('common.housingGroup')]: rider.housingName || "-",
+                [t('keta.validation.orders')]: rider.totalOrders,
+                [t('keta.validation.targetOrders')]: rider.targetOrders,
+                [t('keta.validation.workingDays')]: rider.totalWorkingDays,
+                [t('keta.cumulative.expectedDays')]: rider.totalExpectedDays,
+                [t('keta.validation.avgHours')]: rider.averageHoursPerDay?.toFixed(2),
+                [t('common.status')]: rider.isValidForMonth ? t('keta.validation.valid') : t('keta.validation.invalid'),
+                [t('keta.validation.validationErrors')]: rider.validationErrors?.join(", ") || "-",
+                [t('common.day')]: t('keta.validation.summary'),
+                [t('common.date')]: "",
+                [t('keta.validation.hasShift')]: "",
+                [t('keta.validation.dailyHours')]: "",
+                [t('keta.validation.dailyOrders')]: "",
+                [t('keta.validation.dailyStats')]: "",
+                [t('common.notes')]: ""
             });
 
             // Add daily detail rows for the rider
             if (rider.dailyDetails && rider.dailyDetails.length > 0) {
                 rider.dailyDetails.forEach(day => {
                     exportData.push({
-                        "الاسم (عربي)": "",
-                        "الاسم (إنجليزي)": "",
-                        "الرقم الوظيفي": "",
-                        "رقم الإقامة": "",
-                        "السكن": "",
-                        "الطلبات المحققة": "",
-                        "المستهدف (طلبات)": "",
-                        "أيام العمل": "",
-                        "الأيام المتوقعة": "",
-                        "متوسط الساعات": "",
-                        "الحالة العامة": "",
-                        "أخطاء التحقق": "",
-                        "اليوم": day.day,
-                        "التاريخ": day.date,
-                        "يوجد شفت": day.hasShift ? "نعم" : "لا",
-                        "ساعات العمل اليومية": day.workingHours,
-                        "الطلبات اليومية": day.acceptedOrders,
-                        "الحالة اليومية": day.isValid ? "صالح" : "غير صالح",
-                        "الملاحظات": day.reason || "-"
+                        [t('employees.nameArabic')]: "",
+                        [t('employees.nameEnglish')]: "",
+                        [t('employees.rider')]: "",
+                        [t('employees.iqamaNumber')]: "",
+                        [t('common.housingGroup')]: "",
+                        [t('keta.validation.orders')]: "",
+                        [t('keta.validation.targetOrders')]: "",
+                        [t('keta.validation.workingDays')]: "",
+                        [t('keta.cumulative.expectedDays')]: "",
+                        [t('keta.validation.avgHours')]: "",
+                        [t('common.status')]: "",
+                        [t('keta.validation.validationErrors')]: "",
+                        [t('common.day')]: day.day,
+                        [t('common.date')]: day.date,
+                        [t('keta.validation.hasShift')]: day.hasShift ? t('common.yes') : t('common.no'),
+                        [t('keta.validation.dailyHours')]: day.workingHours,
+                        [t('keta.validation.dailyOrders')]: day.acceptedOrders,
+                        [t('keta.validation.dailyStats')]: day.isValid ? t('keta.validation.valid') : t('keta.validation.invalid'),
+                        [t('common.notes')]: day.reason || "-"
                     });
                 });
             }
@@ -166,7 +167,7 @@ export default function KetaValidationPage() {
     // Generate Month Options
     const months = Array.from({ length: 12 }, (_, i) => ({
         value: i + 1,
-        label: new Intl.DateTimeFormat('ar-SA', { month: 'long' }).format(new Date(2000, i, 1))
+        label: new Intl.DateTimeFormat(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'long' }).format(new Date(2000, i, 1))
     }));
 
     const StatCard = ({ title, value, icon: Icon, colorClass, subtitle }) => (
@@ -185,10 +186,10 @@ export default function KetaValidationPage() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12" >
             <PageHeader
-                title="تقرير التحقق (كيتا)"
-                subtitle="مراجعة أداء المناديب والتحقق من المستهدفات الشهرية"
+                title={t('keta.validation.title')}
+                subtitle={t('keta.validation.subtitle')}
                 icon={FileCheck}
             />
 
@@ -223,7 +224,7 @@ export default function KetaValidationPage() {
                         <button
                             onClick={fetchReport}
                             className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
-                            title="تحديث البيانات"
+                            title={t('common.refresh')}
                         >
                             <Filter className="w-5 h-5" />
                         </button>
@@ -236,19 +237,19 @@ export default function KetaValidationPage() {
                                 onClick={handleExportSummary}
                                 disabled={loading || filteredRiderValidations.length === 0}
                                 className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                                title="تصدير ملخص Excel"
+                                title={t('keta.validation.exportSummary')}
                             >
                                 <FileSpreadsheet className="w-4 h-4" />
-                                <span className="hidden sm:inline">تصدير ملخص</span>
+                                <span className="hidden sm:inline">{t('keta.validation.exportSummary')}</span>
                             </button>
                             <button
                                 onClick={handleExportDetails}
                                 disabled={loading || filteredRiderValidations.length === 0}
                                 className="flex items-center gap-2 px-3 py-2 bg-teal-50 text-teal-700 rounded-xl hover:bg-teal-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                                title="تصدير تفصيلي Excel"
+                                title={t('keta.validation.exportDetails')}
                             >
                                 <FileSpreadsheet className="w-4 h-4" />
-                                <span className="hidden sm:inline">تصدير تفصيلي</span>
+                                <span className="hidden sm:inline">{t('keta.validation.exportDetails')}</span>
                             </button>
                         </div>
 
@@ -261,7 +262,7 @@ export default function KetaValidationPage() {
                                     }`}
                             >
                                 <LayoutList className="w-4 h-4" />
-                                <span>تفصيلي</span>
+                                <span>{t('keta.validation.details')}</span>
                             </button>
                             <button
                                 onClick={() => setViewMode("summary")}
@@ -271,7 +272,7 @@ export default function KetaValidationPage() {
                                     }`}
                             >
                                 <LayoutGrid className="w-4 h-4" />
-                                <span>ملخص</span>
+                                <span>{t('keta.validation.summary')}</span>
                             </button>
                         </div>
                     </div>
@@ -280,7 +281,7 @@ export default function KetaValidationPage() {
                 {loading && (
                     <div className="py-12 flex flex-col items-center justify-center text-gray-500">
                         <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4" />
-                        <p>جاري تحميل التقرير...</p>
+                        <p>{t('keta.validation.loading')}</p>
                     </div>
                 )}
 
@@ -289,26 +290,26 @@ export default function KetaValidationPage() {
                         {/* Stats Overview */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
-                                title="إجمالي المناديب"
+                                title={t('keta.validation.totalRiders')}
                                 value={data.totalRiders}
                                 icon={Users}
                                 colorClass="bg-blue-50 text-blue-600"
                             />
                             <StatCard
-                                title="المستهدف (طلبات)"
+                                title={t('keta.validation.targetOrders')}
                                 value={data.targetOrders}
-                                subtitle={`للمندوب الواحد (${data.totalExpectedDays} يوم)`}
+                                subtitle={t('keta.validation.targetSubtitle', { days: data.totalExpectedDays })}
                                 icon={CheckCircle}
                                 colorClass="bg-purple-50 text-purple-600"
                             />
                             <StatCard
-                                title="صالحين"
+                                title={t('keta.validation.validRiders')}
                                 value={data.validRiders}
                                 icon={CheckCircle}
                                 colorClass="bg-green-50 text-green-600"
                             />
                             <StatCard
-                                title="غير صالحين"
+                                title={t('keta.validation.invalidRiders')}
                                 value={data.invalidRiders}
                                 icon={XCircle}
                                 colorClass="bg-red-50 text-red-600"
@@ -319,12 +320,12 @@ export default function KetaValidationPage() {
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="بحث باسم المندوب، الإقامة، الرقم الوظيفي، أو السكن..."
+                                placeholder={t('keta.validation.searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-4 pr-12 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
                             />
-                            <Search className="absolute right-4 top-3.5 text-gray-400 w-5 h-5 pointer-events-none" />
+                            <Search className={`absolute ${language === 'ar' ? 'right-4' : 'left-4'} top-3.5 text-gray-400 w-5 h-5 pointer-events-none`} />
                         </div>
 
                         {/* Riders List */}
@@ -346,14 +347,14 @@ export default function KetaValidationPage() {
                                                 {rider.isValidForMonth ? "✓" : "✕"}
                                             </div>
                                             <div>
-                                                <h3 className="text-gray-900 font-bold text-lg">{rider.riderNameAR}</h3>
-                                                <p className="text-gray-500 text-sm font-mono">{rider.riderNameEN}</p>
+                                                <h3 className="text-gray-900 font-bold text-lg">{ rider.riderNameAR}</h3>
+                                                <p className="text-gray-500 text-sm font-mono">{ rider.riderNameEN }</p>
                                                 <div className="flex gap-2 mt-1">
                                                     <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-mono">
-                                                        ID: {rider.workingId}
+                                                        {t('employees.rider')}: {rider.workingId}
                                                     </span>
                                                     <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs font-mono">
-                                                        Iqama: {rider.iqamaNo}
+                                                        {t('employees.iqamaNumber')}: {rider.iqamaNo}
                                                     </span>
                                                     {rider.housingName && (
                                                         <span className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs font-medium">
@@ -367,28 +368,28 @@ export default function KetaValidationPage() {
                                         {/* Rider Stats Grid */}
                                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 w-full lg:w-auto mt-4 lg:mt-0">
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                <p className="text-xs text-gray-500 mb-1">الطلبات</p>
+                                                <p className="text-xs text-gray-500 mb-1">{t('keta.validation.orders')}</p>
                                                 <p className={`font-bold ${rider.totalOrders >= rider.targetOrders ? 'text-green-600' : 'text-red-500'}`}>
                                                     {rider.totalOrders} <span className="text-gray-400 text-xs">/ {rider.targetOrders}</span>
                                                 </p>
                                             </div>
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                <p className="text-xs text-gray-500 mb-1">أيام العمل</p>
+                                                <p className="text-xs text-gray-500 mb-1">{t('keta.validation.workingDays')}</p>
                                                 <p className="font-bold text-gray-800">
                                                     {rider.totalWorkingDays} <span className="text-gray-400 text-xs">/ {rider.totalExpectedDays}</span>
                                                 </p>
                                             </div>
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                <p className="text-xs text-gray-500 mb-1">متوسط الساعات</p>
+                                                <p className="text-xs text-gray-500 mb-1">{t('keta.validation.avgHours')}</p>
                                                 <p className="font-bold text-gray-800">{rider.averageHoursPerDay?.toFixed(1)}</p>
                                             </div>
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                <p className="text-xs text-gray-500 mb-1">الحالة</p>
+                                                <p className="text-xs text-gray-500 mb-1">{t('common.status')}</p>
                                                 <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold ${rider.isValidForMonth
                                                     ? "bg-green-100 text-green-700"
                                                     : "bg-red-100 text-red-700"
                                                     }`}>
-                                                    {rider.isValidForMonth ? "صالح" : "غير صالح"}
+                                                    {rider.isValidForMonth ? t('keta.validation.valid') : t('keta.validation.invalid')}
                                                 </span>
                                             </div>
                                         </div>
@@ -405,7 +406,11 @@ export default function KetaValidationPage() {
                                     {rider.validationErrors && rider.validationErrors.length > 0 && (
                                         <div className="px-4 pb-4">
                                             {rider.validationErrors.map((err, idx) => {
-                                                const isSuccess = err === "✅ جميع شروط التحقق مستوفاة";
+                                                const isSuccess = err === "✅ جميع شروط التحقق مستوفاة"; // TODO: This might need backend change or we handle it by value
+                                                // Assuming backend returns Arabic string, we might need a better way to check success if strings change.
+                                                // For now, I'll keep it as is, but this is a potential issue if backend strings don't match exactly or we want to translate them.
+                                                // Ideally backend sends error codes.
+
                                                 return (
                                                     <div key={idx} className={`flex items-center gap-2 text-sm p-2 rounded-lg mb-1 last:mb-0 ${isSuccess ? "text-green-700 bg-green-50 border border-green-100" : "text-red-600 bg-red-50"}`}>
                                                         {isSuccess ? <CheckCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
@@ -422,41 +427,41 @@ export default function KetaValidationPage() {
                                                 <table className="w-full text-sm text-right">
                                                     <thead className="bg-gray-100 text-gray-600 font-medium">
                                                         <tr>
-                                                            <th className="px-4 py-3">اليوم</th>
-                                                            <th className="px-4 py-3">التاريخ</th>
-                                                            <th className="px-4 py-3">الشفت</th>
-                                                            <th className="px-4 py-3">ساعات العمل</th>
-                                                            <th className="px-4 py-3">الطلبات</th>
-                                                            <th className="px-4 py-3">الحالة اليومية</th>
-                                                            <th className="px-4 py-3">الملاحظات</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.day')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.date')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.shift')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.workingHours')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.orders')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('keta.validation.dailyStats')}</th>
+                                                            <th className="px-4 py-3 text-start">{t('common.notes')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-gray-100">
                                                         {rider.dailyDetails.map((day, idx) => (
                                                             <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
-                                                                <td className="px-4 py-3 font-bold text-gray-700">{day.day}</td>
-                                                                <td className="px-4 py-3 font-mono text-gray-600">{day.date}</td>
-                                                                <td className="px-4 py-3">
+                                                                <td className="px-4 py-3 font-bold text-gray-700 text-start">{day.day}</td>
+                                                                <td className="px-4 py-3 font-mono text-gray-600 text-start">{day.date}</td>
+                                                                <td className="px-4 py-3 text-start">
                                                                     {day.hasShift ? (
-                                                                        <span className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">نعم</span>
+                                                                        <span className="text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">{t('common.yes')}</span>
                                                                     ) : (
-                                                                        <span className="text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded">لا</span>
+                                                                        <span className="text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded">{t('common.no')}</span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-4 py-3 font-bold">{day.workingHours}</td>
-                                                                <td className="px-4 py-3 font-bold">{day.acceptedOrders}</td>
-                                                                <td className="px-4 py-3">
+                                                                <td className="px-4 py-3 font-bold text-start">{day.workingHours}</td>
+                                                                <td className="px-4 py-3 font-bold text-start">{day.acceptedOrders}</td>
+                                                                <td className="px-4 py-3 text-start">
                                                                     {day.isValid ? (
                                                                         <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-1 rounded-full text-xs font-bold">
-                                                                            <CheckCircle className="w-3 h-3" /> صالح
+                                                                            <CheckCircle className="w-3 h-3" /> {t('keta.validation.valid')}
                                                                         </span>
                                                                     ) : (
                                                                         <span className="inline-flex items-center gap-1 text-red-700 bg-red-50 px-2 py-1 rounded-full text-xs font-bold">
-                                                                            <XCircle className="w-3 h-3" /> غير صالح
+                                                                            <XCircle className="w-3 h-3" /> {t('keta.validation.invalid')}
                                                                         </span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-gray-500 text-xs">{day.reason}</td>
+                                                                <td className="px-4 py-3 text-gray-500 text-xs text-start">{day.reason}</td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -471,8 +476,8 @@ export default function KetaValidationPage() {
                                 <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
                                     <p className="text-gray-500">
                                         {data.riderValidations?.length > 0
-                                            ? "لا توجد نتائج تطابق بحثك"
-                                            : "لا توجد بيانات لهذا الشهر"}
+                                            ? t('keta.validation.noResults')
+                                            : t('keta.validation.noData')}
                                     </p>
                                 </div>
                             )}

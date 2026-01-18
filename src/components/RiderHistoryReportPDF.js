@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
 
     // Rider Info Section
     riderInfoCard: {
-        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         backgroundColor: '#f8fafc',
         padding: 10,
@@ -75,12 +74,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         color: '#1e293b',
-        textAlign: 'right',
     },
     riderSubDetail: {
         fontSize: 11,
         color: '#64748b',
-        textAlign: 'right',
         marginTop: 2,
     },
     datesContainer: {
@@ -99,7 +96,6 @@ const styles = StyleSheet.create({
 
     // Yearly Columns
     yearsContainer: {
-        flexDirection: 'row-reverse', // RTL Layout for columns
         gap: 10,
         flexWrap: 'wrap',
     },
@@ -124,7 +120,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     monthsHeader: {
-        flexDirection: 'row-reverse',
         backgroundColor: '#f1f5f9',
         paddingVertical: 5,
         paddingHorizontal: 8,
@@ -132,7 +127,6 @@ const styles = StyleSheet.create({
         borderColor: '#e2e8f0',
     },
     monthRow: {
-        flexDirection: 'row-reverse',
         paddingVertical: 6,
         paddingHorizontal: 8,
         borderBottomWidth: 1,
@@ -144,7 +138,6 @@ const styles = StyleSheet.create({
     monthName: {
         fontSize: 11,
         color: '#1e293b',
-        textAlign: 'right',
     },
     ordersBadge: {
         backgroundColor: '#eff6ff',
@@ -162,7 +155,6 @@ const styles = StyleSheet.create({
         bottom: 20,
         left: 30,
         right: 30,
-        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         fontSize: 9,
         color: '#94a3b8',
@@ -172,8 +164,10 @@ const styles = StyleSheet.create({
     },
 });
 
-const RiderHistoryReportPDF = ({ data }) => {
+const RiderHistoryReportPDF = ({ data, language, t }) => {
     if (!data) return null;
+
+    const isRtl = language === 'ar';
 
     // Process data to group by year (same logic as page.js)
     const yearsData = data.monthlyData?.reduce((acc, month) => {
@@ -189,34 +183,36 @@ const RiderHistoryReportPDF = ({ data }) => {
         <Document>
             <Page size="A4" style={styles.page} orientation="landscape">
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                     <View style={styles.headerContent}>
-                        <Text style={styles.headerTitle}>سجل المندوب التاريخي</Text>
-                        <Text style={styles.headerSubtitle}>عرض الأداء الشهري</Text>
+                        <Text style={[styles.headerTitle, { textAlign: isRtl ? 'right' : 'left' }]}>{t('reports.riderHistory')}</Text>
+                        <Text style={[styles.headerSubtitle, { textAlign: isRtl ? 'right' : 'left' }]}>{t('reports.riderHistoryDesc')}</Text>
                     </View>
                     <View style={styles.logoContainer}>
                         <Image src="/2.png" style={styles.headerLogo} />
-                        <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                        <Text style={styles.companyName}>
+                            {t('common.companyName')}{"\n"}{t('common.logisticsServices')}
+                        </Text>
                     </View>
                 </View>
 
                 {/* Rider Info */}
-                <View style={styles.riderInfoCard}>
+                <View style={[styles.riderInfoCard, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                     <View>
-                        <Text style={styles.riderName}>{data.riderName}</Text>
-                        <Text style={styles.riderSubDetail}>ID: {data.workingId}</Text>
-                        <Text style={styles.riderSubDetail}>Iqama: {data.iqamaNo}</Text>
+                        <Text style={[styles.riderName, { textAlign: isRtl ? 'right' : 'left' }]}>{data.riderName}</Text>
+                        <Text style={[styles.riderSubDetail, { textAlign: isRtl ? 'right' : 'left' }]}>ID: {data.workingId}</Text>
+                        <Text style={[styles.riderSubDetail, { textAlign: isRtl ? 'right' : 'left' }]}>Iqama: {data.iqamaNo}</Text>
                     </View>
-                    <View style={styles.datesContainer}>
-                        <Text style={styles.dateLabel}>تاريخ أول اداء</Text>
+                    <View style={[styles.datesContainer, { alignItems: isRtl ? 'flex-start' : 'flex-end' }]}>
+                        <Text style={styles.dateLabel}>{t('firstShiftDate') || 'تاريخ أول اداء'}</Text>
                         <Text style={styles.dateValue}>{data.firstShiftDate || '-'}</Text>
-                        <Text style={styles.dateLabel}>تاريخ آخر اداء</Text>
+                        <Text style={styles.dateLabel}>{t('lastShiftDate') || 'تاريخ آخر اداء'}</Text>
                         <Text style={styles.dateValue}>{data.lastShiftDate || '-'}</Text>
                     </View>
                 </View>
 
                 {/* Years Columns */}
-                <View style={styles.yearsContainer}>
+                <View style={[styles.yearsContainer, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                     {sortedYears.map(([year, months]) => (
                         <View key={year} style={styles.yearColumn}>
                             {/* Year Title */}
@@ -225,15 +221,15 @@ const RiderHistoryReportPDF = ({ data }) => {
                             </View>
 
                             {/* Table Header inside Column */}
-                            <View style={styles.monthsHeader}>
-                                <Text style={[styles.dateLabel, { flex: 1, textAlign: 'right' }]}>الشهر</Text>
-                                <Text style={[styles.dateLabel, { textAlign: 'left' }]}>الطلبات</Text>
+                            <View style={[styles.monthsHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                                <Text style={[styles.dateLabel, { flex: 1, textAlign: isRtl ? 'right' : 'left' }]}>{t('month')}</Text>
+                                <Text style={[styles.dateLabel, { textAlign: isRtl ? 'left' : 'right' }]}>{t('orders') || t('reports.totalOrders')}</Text>
                             </View>
 
                             {/* Months Rows */}
                             {months.map((month, idx) => (
-                                <View key={idx} style={styles.monthRow}>
-                                    <Text style={styles.monthName}>{month.monthName}</Text>
+                                <View key={idx} style={[styles.monthRow, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
+                                    <Text style={[styles.monthName, { textAlign: isRtl ? 'right' : 'left' }]}>{month.monthName}</Text>
                                     <Text style={styles.ordersBadge}>{month.totalAcceptedOrders}</Text>
                                 </View>
                             ))}
@@ -242,8 +238,8 @@ const RiderHistoryReportPDF = ({ data }) => {
                 </View>
 
                 {/* Footer */}
-                <View style={styles.pageFooter} fixed>
-                    <Text>تم الإنشاء: {new Date().toLocaleString('en-US')}</Text>
+                <View style={[styles.pageFooter, { flexDirection: isRtl ? 'row-reverse' : 'row' }]} fixed>
+                    <Text>{t('common.generatedDate')}: {new Date().toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}</Text>
                     <Text>Fastexpress</Text>
                 </View>
             </Page>

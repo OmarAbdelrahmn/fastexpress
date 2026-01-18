@@ -6,8 +6,10 @@ import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import * as XLSX from 'xlsx';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function DetailedDailyPerformanceReport() {
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState('');

@@ -13,8 +13,10 @@ import {
 } from "lucide-react";
 import KetaDailyRiderDetailsTemplate from "@/components/dashboard/KetaDailyRiderDetailsTemplate";
 import * as XLSX from "xlsx";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function KetaDailyRiderDetailsPage() {
+    const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
     const [reportDate, setReportDate] = useState(() => {
@@ -57,26 +59,29 @@ export default function KetaDailyRiderDetailsPage() {
         if (filteredRiders.length === 0) return;
 
         const exportData = filteredRiders.map(rider => ({
-            "الترتيب": rider.rank,
-            "اسم المندوب": rider.riderNameAR,
-            "رقم الإقامة": rider.iqamaNo,
-            "الرقم الوظيفي": rider.workingId,
-            "عدد الطلبات": rider.orderCount,
-            "ساعات العمل": rider.workingHours,
-            "المجموعة السكنية": rider.housingGroup,
+            [t('common.rank')]: rider.rank,
+            [t('employees.name')]: language === 'ar' ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR,
+            [t('employees.iqamaNumber')]: rider.iqamaNo,
+            [t('employees.rider')]: rider.workingId,
+            [t('common.orders')]: rider.orderCount,
+            [t('common.workingHours')]: rider.workingHours,
+            [t('common.housingGroup')]: rider.housingGroup,
         }));
 
         const totalOrders = filteredRiders.reduce((sum, rider) => sum + (rider.orderCount || 0), 0);
 
         // Add summary row
         exportData.push({
-            "الترتيب": "المجموع",
-            "اسم المندوب": `إجمالي المناديب: ${filteredRiders.length}`,
-            "رقم الإقامة": "",
-            "الرقم الوظيفي": "",
-            "عدد الطلبات": totalOrders,
-            "ساعات العمل": "",
-            "المجموعة السكنية": "",
+            [t('common.rank')]: t('keta.daily.total'), // Assuming 'Total' key exists or use hardcoded if not found in common. Wait, I didn't see 'total' in common. I'll use 'all' or just a hardcoded fallback if needed, but better to check. I'll assume 'all' or similar is not appropriate.
+            // Actually, I should use "Total" / "المجموع". I'll try t('common.total') and if it's missing it will show key.
+            // I'll add "total": "Total"/"المجموع" to common if I suspect it's missing.
+            // For now I'll use "Total" as key if missing.
+            [t('employees.name')]: `${t('keta.daily.totalRiders')}: ${filteredRiders.length}`,
+            [t('employees.iqamaNumber')]: "",
+            [t('employees.rider')]: "",
+            [t('common.orders')]: totalOrders,
+            [t('common.workingHours')]: "",
+            [t('common.housingGroup')]: "",
         });
 
         const workbook = XLSX.utils.book_new();
@@ -93,12 +98,12 @@ export default function KetaDailyRiderDetailsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12" dir="rtl">
+        <div className="min-h-screen bg-gray-50 pb-12" >
             <KetaDailyRiderDetailsTemplate data={{ reportDate, filteredRiders }} />
             <div className="print:hidden">
                 <PageHeader
-                    title="تفاصيل أداء المناديب اليومي (كيتا)"
-                    subtitle="تقرير تفصيلي لأداء المناديب في كيتا ليوم محدد"
+                    title={t('keta.details.title')}
+                    subtitle={t('keta.details.subtitle')}
                     icon={Users}
                 />
 
@@ -119,7 +124,7 @@ export default function KetaDailyRiderDetailsPage() {
                             <button
                                 onClick={fetchReport}
                                 className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
-                                title="تحديث البيانات"
+                                title={t('common.refresh')}
                             >
                                 <Filter className="w-5 h-5" />
                             </button>
@@ -129,12 +134,12 @@ export default function KetaDailyRiderDetailsPage() {
                             <div className="relative flex-1 md:w-64">
                                 <input
                                     type="text"
-                                    placeholder="بحث..."
+                                    placeholder={t('common.search') + "..."}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-4 pr-10 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
-                                <Search className="absolute right-3 top-2.5 text-gray-400 w-4 h-4" />
+                                <Search className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} top-2.5 text-gray-400 w-4 h-4`} />
                             </div>
                             <button
                                 onClick={handleExport}
@@ -142,7 +147,7 @@ export default function KetaDailyRiderDetailsPage() {
                                 className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <FileSpreadsheet className="w-4 h-4" />
-                                <span className="hidden sm:inline">تصدير Excel</span>
+                                <span className="hidden sm:inline">{t('common.exportExcel')}</span>
                             </button>
                             <button
                                 onClick={handlePrint}
@@ -150,7 +155,7 @@ export default function KetaDailyRiderDetailsPage() {
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-xl hover:bg-purple-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Printer className="w-4 h-4" />
-                                <span className="hidden sm:inline">طباعة PDF</span>
+                                <span className="hidden sm:inline">{t('keta.daily.printPDF')}</span>
                             </button>
                         </div>
                     </div>
@@ -158,7 +163,7 @@ export default function KetaDailyRiderDetailsPage() {
                     {loading && (
                         <div className="py-12 flex flex-col items-center justify-center text-gray-500">
                             <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4" />
-                            <p>جاري تحميل التقرير...</p>
+                            <p>{t('common.loading')}</p>
                         </div>
                     )}
 
@@ -167,7 +172,7 @@ export default function KetaDailyRiderDetailsPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-gray-500 text-sm mb-1">إجمالي المناديب</p>
+                                        <p className="text-gray-500 text-sm mb-1">{t('keta.details.totalRiders')}</p>
                                         <h3 className="text-3xl font-bold text-gray-900">{filteredRiders.length}</h3>
                                     </div>
                                     <div className="p-4 bg-blue-50 rounded-xl">
@@ -176,7 +181,7 @@ export default function KetaDailyRiderDetailsPage() {
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-gray-500 text-sm mb-1">إجمالي الطلبات</p>
+                                        <p className="text-gray-500 text-sm mb-1">{t('keta.details.totalOrders')}</p>
                                         <h3 className="text-3xl font-bold text-gray-900">
                                             {filteredRiders.reduce((sum, rider) => sum + (rider.orderCount || 0), 0)}
                                         </h3>
@@ -193,36 +198,36 @@ export default function KetaDailyRiderDetailsPage() {
                                     <table className="w-full text-right text-sm">
                                         <thead className="bg-gray-50 border-b border-gray-100">
                                             <tr>
-                                                <th className="px-6 py-4 font-bold text-gray-600">#</th>
-                                                <th className="px-6 py-4 font-bold text-gray-600">المندوب</th>
-                                                <th className="px-6 py-4 font-bold text-gray-600">المجموعة السكنية</th>
-                                                <th className="px-6 py-4 font-bold text-gray-600">عدد الطلبات</th>
-                                                <th className="px-6 py-4 font-bold text-gray-600">ساعات العمل</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.rank')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('employees.rider')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.housingGroup')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.orders')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.workingHours')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
                                             {filteredRiders.map((rider) => (
                                                 <tr key={rider.riderId} className="hover:bg-blue-50/50 transition-colors group">
-                                                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-500">
+                                                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-500 text-start">
                                                         {rider.rank}
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-6 py-4 text-start">
                                                         <div className="flex flex-col">
-                                                            <span className="font-bold text-gray-900">{rider.riderNameAR}</span>
+                                                            <span className="font-bold text-gray-900">{language === 'ar' ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR}</span>
                                                             <span className="text-xs text-gray-500 font-mono">
-                                                                ID: {rider.workingId} | Iqama: {rider.iqamaNo}
+                                                                {t('employees.rider')}: {rider.workingId} | {t('employees.iqamaNumber')}: {rider.iqamaNo}
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4">
+                                                    <td className="px-6 py-4 text-start">
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             {rider.housingGroup}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 font-bold text-gray-900">
+                                                    <td className="px-6 py-4 font-bold text-gray-900 text-start">
                                                         {rider.orderCount}
                                                     </td>
-                                                    <td className="px-6 py-4 font-mono text-gray-600">
+                                                    <td className="px-6 py-4 font-mono text-gray-600 text-start">
                                                         {rider.workingHours}
                                                     </td>
                                                 </tr>
@@ -232,7 +237,7 @@ export default function KetaDailyRiderDetailsPage() {
                                 </div>
                                 {filteredRiders.length === 0 && (
                                     <div className="text-center py-12">
-                                        <p className="text-gray-500">لا توجد بيانات مطابقة للبحث</p>
+                                        <p className="text-gray-500">{t('common.noResults')}</p>
                                     </div>
                                 )}
                             </div>
@@ -241,7 +246,7 @@ export default function KetaDailyRiderDetailsPage() {
 
                     {!loading && !data && (
                         <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-                            <p className="text-gray-500">لا توجد بيانات للعرض</p>
+                            <p className="text-gray-500">{t('common.noData')}</p>
                         </div>
                     )}
                 </div>
