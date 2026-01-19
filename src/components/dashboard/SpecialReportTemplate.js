@@ -47,7 +47,7 @@ const SpecialReportTemplate = ({ data }) => {
                         </div>
                     </div>
                     <div className="bg-[#00288A] text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg">
-                        {data.period1TotalOrders}
+                        {data.period1TotalOrders} طلب
                     </div>
                 </div>
 
@@ -60,7 +60,7 @@ const SpecialReportTemplate = ({ data }) => {
                     </div>
 
                     <div className={`${Number(data.ordersDifference) < 0 ? 'bg-red-500' : 'bg-green-500'} text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg`}>
-                        {data.ordersDifference}
+                        {data.ordersDifference} طلب
                     </div>
                 </div>
 
@@ -82,7 +82,7 @@ const SpecialReportTemplate = ({ data }) => {
                     </div>
 
                     <div className="bg-[#00288A] text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg">
-                        {data.period2TotalOrders}
+                        {data.period2TotalOrders} طلب
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@ const SpecialReportTemplate = ({ data }) => {
 
             {/* Percentage Section */}
             <div className="flex flex-row items-center mt-10 max-w-sm mx-auto gap-5">
-                <div className="bg-blue-600 text-white py-3 px-8 text-lg font-bold text-center rounded-lg shadow-md min-w-[150px] flex items-center justify-center">
+                <div className="bg-[#00288A] text-white py-3 px-8 text-lg font-bold text-center rounded-lg shadow-md min-w-[150px] flex items-center justify-center">
                     نسبة التغير
                 </div>
                 <div className={`${Number(data.changePercentage) < 0 ? 'bg-red-500' : 'bg-green-500'} text-white py-3 px-8 text-2xl font-bold text-center rounded-lg shadow-lg min-w-[150px]`}>
