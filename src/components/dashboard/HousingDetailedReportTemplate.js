@@ -32,7 +32,7 @@ const HousingDetailedReportTemplate = ({ data }) => {
 
                     <div className="flex flex-col gap-1 pr-2">
                         <div className="flex items-center gap-4 font-bold text-gray-700">
-                            <span className="text-[#1e3a8a] text-lg">تاريخ الطلب:</span>
+                            <span className="text-[#1e3a8a] text-lg">تاريخ التقرير:</span>
                             <span className="text-xl">{formatDate(data.reportDate)}</span>
                         </div>
                     </div>
@@ -88,18 +88,18 @@ const HousingDetailedReportTemplate = ({ data }) => {
                         </table>
 
                         {/* Housing Summary Stats */}
-                        <div className="flex justify-around items-center bg-gray-50 border-t-2 border-dashed border-gray-300 mt-2 p-2 rounded text-sm font-bold text-[#1e3a8a]">
+                        <div className="flex justify-around items-center bg-gray-50 border-t-2 border-dashed border-gray-300 mt-4 p-4 rounded text-lg font-bold text-[#1e3a8a]">
                             <div className="flex items-center gap-2">
                                 <span>إجمالي السائقين:</span>
-                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).totalRiders}</span>
+                                <span className="bg-white px-4 py-1 rounded border border-gray-200 text-xl">{calculateHousingStats(housing.riders).totalRiders}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>إجمالي الطلبات:</span>
-                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).totalOrders}</span>
+                                <span className="bg-white px-4 py-1 rounded border border-gray-200 text-xl">{calculateHousingStats(housing.riders).totalOrders}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>متوسط الطلبات:</span>
-                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).averageOrders}</span>
+                                <span className="bg-white px-4 py-1 rounded border border-gray-200 text-xl">{calculateHousingStats(housing.riders).averageOrders}</span>
                             </div>
                         </div>
                     </div>
