@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import HousingPerformanceReportPDF from '@/components/HousingPerformanceReportPDF';
+import HousingPerformanceReportPDF from '@/components/dashboard/HousingPerformanceReportPDF';
 
 export default function HousingPerformanceReport() {
     const { t, language } = useLanguage();

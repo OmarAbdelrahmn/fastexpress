@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import RidersSummaryReportPDF from "@/components/RidersSummaryReportPDF";
+import RidersSummaryReportPDF from "@/components/dashboard/RidersSummaryReportPDF";
 import {
     ArrowRight,
     Search,

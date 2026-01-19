@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import dynamic from "next/dynamic";
-import HousingReportPDF from "@/components/HousingReportPDF";
-import DailyDetailsReportPDF from "@/components/DailyDetailsReportPDF";
+import HousingReportPDF from "@/components/dashboard/HousingReportPDF";
+import DailyDetailsReportPDF from "@/components/dashboard/DailyDetailsReportPDF";
 
 const PDFDownloadLink = dynamic(
     () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),

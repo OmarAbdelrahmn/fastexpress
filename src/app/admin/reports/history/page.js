@@ -18,7 +18,7 @@ import {
     History,
     Printer
 } from "lucide-react";
-import RiderHistoryPrintTemplate from "@/components/RiderHistoryPrintTemplate";
+import RiderHistoryPrintTemplate from "@/components/dashboard/RiderHistoryPrintTemplate";
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from "@/lib/context/LanguageContext";
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const SpecialReportTemplate = ({ data }) => {
@@ -5,8 +6,8 @@ const SpecialReportTemplate = ({ data }) => {
 
     return (
         <div id="special-report-print" className="hidden print:block bg-white w-full h-full p-8 font-sans" dir="rtl">
-            {/* Simple Header */}
-            <div className="bg-blue-600 text-white px-8 py-5 mb-15 rounded-lg shadow-lg flex items-center justify-between">
+            {/* Header with Gradient */}
+            <div className="bg-gradient-to-r from-indigo-900 via-blue-800 to-blue-700 text-white px-8 py-5 mb-15 rounded-lg shadow-xl flex items-center justify-between">
                 <div className="flex flex-col">
                     <h1 className="text-2xl font-bold">
                         تقرير فرق عدد الطلبات
@@ -33,7 +34,7 @@ const SpecialReportTemplate = ({ data }) => {
 
                 {/* Right Column (Period 1) */}
                 <div className="flex flex-col items-center">
-                    <div className="bg-blue-600 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-md">
+                    <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-lg">
                         الفترة الأولى
                     </div>
                     <div className="flex flex-col gap-2 mb-8 w-full px-4 text-base">
@@ -46,7 +47,7 @@ const SpecialReportTemplate = ({ data }) => {
                             <span className="font-bold">{data.period1End}</span>
                         </div>
                     </div>
-                    <div className="bg-[#00288A] text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg">
+                    <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-xl">
                         {data.period1TotalOrders} طلب
                     </div>
                 </div>
@@ -55,18 +56,18 @@ const SpecialReportTemplate = ({ data }) => {
                 <div className="flex flex-col items-center">
                     <div className="invisible py-3 px-8 text-lg font-bold mb-8 w-full">
                     </div>
-                    <div className="bg-orange-400 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-md">
+                    <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-lg">
                         الفرق
                     </div>
 
-                    <div className={`${Number(data.ordersDifference) < 0 ? 'bg-red-500' : 'bg-green-500'} text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg`}>
+                    <div className={`${Number(data.ordersDifference) < 0 ? 'bg-gradient-to-br from-red-600 to-red-700' : 'bg-gradient-to-br from-emerald-500 to-green-600'} text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-xl`}>
                         {data.ordersDifference} طلب
                     </div>
                 </div>
 
                 {/* Left Column (Period 2) */}
                 <div className="flex flex-col items-center">
-                    <div className="bg-blue-600 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-md">
+                    <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white py-3 px-8 text-lg font-bold mb-8 w-full text-center rounded-lg shadow-lg">
                         الفترة الثانية
                     </div>
 
@@ -81,7 +82,7 @@ const SpecialReportTemplate = ({ data }) => {
                         </div>
                     </div>
 
-                    <div className="bg-[#00288A] text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-lg">
+                    <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 text-white py-4 px-6 text-2xl font-bold w-full text-center rounded-lg shadow-xl">
                         {data.period2TotalOrders} طلب
                     </div>
                 </div>
@@ -90,10 +91,10 @@ const SpecialReportTemplate = ({ data }) => {
 
             {/* Percentage Section */}
             <div className="flex flex-row items-center mt-10 max-w-sm mx-auto gap-5">
-                <div className="bg-[#00288A] text-white py-3 px-8 text-lg font-bold text-center rounded-lg shadow-md min-w-[150px] flex items-center justify-center">
+                <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 text-white py-3 px-8 text-lg font-bold text-center rounded-lg shadow-lg min-w-[150px] flex items-center justify-center">
                     نسبة التغير
                 </div>
-                <div className={`${Number(data.changePercentage) < 0 ? 'bg-red-500' : 'bg-green-500'} text-white py-3 px-8 text-2xl font-bold text-center rounded-lg shadow-lg min-w-[150px]`}>
+                <div className={`${Number(data.changePercentage) < 0 ? 'bg-gradient-to-br from-red-600 to-red-700' : 'bg-gradient-to-br from-emerald-500 to-green-600'} text-white py-3 px-8 text-2xl font-bold text-center rounded-lg shadow-xl min-w-[150px]`}>
                     %{data.changePercentage}
                 </div>
             </div>

@@ -23,7 +23,7 @@ import {
     Printer
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderDailyReportPDF from "@/components/RiderDailyReportPDF";
+import RiderDailyReportPDF from "@/components/dashboard/RiderDailyReportPDF";
 import PageHeader from "@/components/layout/pageheader";
 export default function RiderPerformancePage() {
     const router = useRouter();

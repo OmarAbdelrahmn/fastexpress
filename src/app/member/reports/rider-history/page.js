@@ -19,7 +19,7 @@ import {
     Printer
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderHistoryReportPDF from "@/components/RiderHistoryReportPDF";
+import RiderHistoryReportPDF from "@/components/dashboard/RiderHistoryReportPDF";
 
 export default function RiderHistoryPage() {
     const router = useRouter();

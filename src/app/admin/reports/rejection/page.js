@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import HousingRejectionReportPDF from '@/components/HousingRejectionReportPDF';
+import HousingRejectionReportPDF from '@/components/dashboard/HousingRejectionReportPDF';
 
 export default function HousingRejectionReport() {
     const { t, language } = useLanguage();
@@ -335,8 +335,8 @@ export default function HousingRejectionReport() {
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <div>
-                                                                        <div className="font-medium text-gray-900">{ rider.riderNameAR || rider.riderNameEN}</div>
-                                                                        <div className="text-xs text-gray-500">{ rider.riderNameEN || rider.riderNameAR}</div>
+                                                                        <div className="font-medium text-gray-900">{rider.riderNameAR || rider.riderNameEN}</div>
+                                                                        <div className="text-xs text-gray-500">{rider.riderNameEN || rider.riderNameAR}</div>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap text-start">

@@ -20,7 +20,7 @@ import {
     Printer
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import RejectionReportPDF from "@/components/RejectionReportPDF";
+import RejectionReportPDF from "@/components/dashboard/RejectionReportPDF";
 
 export default function RejectionReportPage() {
     const router = useRouter();
@@ -141,7 +141,7 @@ export default function RejectionReportPage() {
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                             <AlertCircle className="text-red-600" />
-                            تقرير الطلبات المرفوضة 
+                            تقرير الطلبات المرفوضة
                         </h1>
                         <p className="text-gray-500 mt-1 text-sm">
                             متابعة حالات الرفض ونسب الأداء

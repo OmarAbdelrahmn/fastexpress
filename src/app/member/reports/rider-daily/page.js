@@ -24,7 +24,7 @@ import {
     Printer // Added Printer icon
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderDailyReportPDF from "@/components/RiderDailyReportPDF";
+import RiderDailyReportPDF from "@/components/dashboard/RiderDailyReportPDF";
 export default function RiderDailyDetailReportPage() {
     const router = useRouter();
     const searchParams = useSearchParams();

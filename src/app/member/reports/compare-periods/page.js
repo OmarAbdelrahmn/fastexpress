@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import { ArrowRight, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, Minus, Printer } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import ComparePeriodsReportPDF from "@/components/ComparePeriodsReportPDF";
+import ComparePeriodsReportPDF from "@/components/dashboard/ComparePeriodsReportPDF";
 
 export default function ComparePeriodsReportPage() {
     const searchParams = useSearchParams();
