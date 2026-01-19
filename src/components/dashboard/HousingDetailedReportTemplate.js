@@ -25,7 +25,7 @@ const HousingDetailedReportTemplate = ({ data }) => {
 
                     <div className="flex flex-col gap-1 pr-2">
                         <div className="flex items-center gap-4 font-bold text-gray-700">
-                            <span className="text-[#1e3a8a] text-lg">اليوم:</span>
+                            <span className="text-[#1e3a8a] text-lg">تاريخ الطلب:</span>
                             <span className="text-xl">{formatDate(data.reportDate)}</span>
                         </div>
                     </div>
@@ -46,7 +46,7 @@ const HousingDetailedReportTemplate = ({ data }) => {
             {/* Main Content - Housing Loop */}
             <div className="flex flex-col gap-8">
                 {data.housingDetails?.map((housing, hIndex) => (
-                    <div key={hIndex} className="break-inside-avoid">
+                    <div key={hIndex} className={hIndex > 0 ? "break-before-page" : ""}>
                         {/* Housing Header */}
                         <div className="flex justify-end mb-2">
                             <div className="bg-[#fef08a] px-8 py-2 font-bold text-xl text-[#1e3a8a] w-fit rounded-sm shadow-sm">
@@ -59,11 +59,10 @@ const HousingDetailedReportTemplate = ({ data }) => {
                             <thead>
                                 <tr className="bg-[#fde68a] text-black font-bold text-center border-b-2 border-white">
                                     <th className="py-2 px-2 w-[5%]">م</th>
-                                    <th className="py-2 px-4 w-[35%] text-right">اسم السائق</th>
+                                    <th className="py-2 px-4 w-[40%] text-right">اسم السائق</th>
                                     <th className="py-2 px-4 w-[15%]">عدد الطلبات</th>
-                                    <th className="py-2 px-4 w-[15%]">المعرف</th>
-                                    <th className="py-2 px-4 w-[15%]">تاريخ الطلب</th>
-                                    <th className="py-2 px-4 w-[15%] bg-[#ffe4e6]">ملاحظات</th>
+                                    <th className="py-2 px-4 w-[20%]">المعرف</th>
+                                    <th className="py-2 px-4 w-[20%] bg-[#ffe4e6]">ملاحظات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,7 +76,6 @@ const HousingDetailedReportTemplate = ({ data }) => {
                                             </div>
                                         </td>
                                         <td className="py-1 px-4 text-gray-700">{rider.workingId || rider.riderId}</td>
-                                        <td className="py-1 px-4 text-[#854d0e]">{formatDate(rider.shiftDate)}</td>
                                         <td className="py-1 px-4 bg-gray-50"></td>
                                     </tr>
                                 ))}
@@ -127,6 +125,9 @@ const HousingDetailedReportTemplate = ({ data }) => {
           }
           .break-inside-avoid {
                 page-break-inside: avoid;
+          }
+          .break-before-page {
+            page-break-before: always;
           }
         }
       `}</style>
