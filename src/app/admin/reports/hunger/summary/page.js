@@ -229,6 +229,85 @@ export default function HungerSummaryReport() {
         </div>
     );
 
+    const RidersModal = ({ isOpen, onClose, housingName, riders }) => {
+        if (!isOpen) return null;
+
+        return (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col">
+                    <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-800">تفاصيل المناديب</h3>
+                            <p className="text-sm text-gray-500 mt-1">{housingName}</p>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                        >
+                            <span className="text-2xl">&times;</span>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-auto p-6">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-right border-collapse">
+                                <thead className="bg-gray-50 sticky top-0">
+                                    <tr>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">اسم المندوب</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">رقم الهوية</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">الرقم الوظيفي</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">إجمالي الطلبات</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">الهدف</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">الفارق</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">المعدل اليومي</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">الأداء</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {riders?.map((rider, index) => (
+                                        <tr key={rider.riderId || index} className="hover:bg-gray-50 transition-colors">
+                                            <td className="p-4">
+                                                <div className="font-semibold text-gray-800">{rider.riderNameAR}</div>
+                                                <div className="text-xs text-gray-400 mt-0.5">{rider.riderNameEN}</div>
+                                            </td>
+                                            <td className="p-4 text-gray-600 font-mono text-sm">{rider.iqamaNo}</td>
+                                            <td className="p-4 text-gray-600 font-mono text-sm">{rider.workingId}</td>
+                                            <td className="p-4 font-bold text-gray-800">{rider.totalOrders}</td>
+                                            <td className="p-4 text-gray-600">{rider.targetOrders}</td>
+                                            <td className={`p-4 font-bold ${rider.ordersDifference >= 0 ? 'text-green-600' : 'text-red-600'}`} dir="ltr">
+                                                {rider.ordersDifference > 0 ? '+' : ''}{rider.ordersDifference}
+                                            </td>
+                                            <td className="p-4 text-gray-600">{Number(rider.averageOrdersPerDay).toFixed(2)}</td>
+                                            <td className="p-4">
+                                                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold
+                                                    ${rider.tier === 1 ? 'bg-green-100 text-green-700' :
+                                                        rider.tier === 2 ? 'bg-blue-100 text-blue-700' :
+                                                            'bg-red-100 text-red-700'}`}>
+                                                    {rider.tierDescription?.split('-')[0] || rider.tierDescription}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-end">
+                        <button
+                            onClick={onClose}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                        >
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const [selectedHousing, setSelectedHousing] = useState(null);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl">
             <PageHeader
@@ -365,7 +444,7 @@ export default function HungerSummaryReport() {
 
                                 {/* Company Tier Distribution */}
                                 {reportData.companySummary.tierDistribution && (
-                                    <div className="mt-6">
+                                    <div className="m-6">
                                         <h3 className="text-xl font-bold text-gray-800 mb-4">توزيع المستويات - الشركة</h3>
                                         <TierCard
                                             title="ملخص الشركة"
@@ -385,9 +464,9 @@ export default function HungerSummaryReport() {
                                     توزيع المجموعات ({reportData.housingDistributions.length})
                                 </h2>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {reportData.housingDistributions.map((housing, index) => (
-                                        <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                        <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full">
                                             {/* Housing Header */}
                                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
                                                 <div className="flex items-center gap-3">
@@ -403,7 +482,7 @@ export default function HungerSummaryReport() {
 
                                             {/* Housing Tier Distribution */}
                                             {housing.tierDistribution && (
-                                                <div className="p-6">
+                                                <div className="p-6 flex-1 flex flex-col justify-between">
                                                     <div className="space-y-5">
                                                         {/* Excellent */}
                                                         <div>
@@ -471,6 +550,14 @@ export default function HungerSummaryReport() {
                                                             </div>
                                                         )}
                                                     </div>
+
+                                                    <button
+                                                        onClick={() => setSelectedHousing(housing)}
+                                                        className="w-full mt-6 py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg text-sm font-bold border border-gray-200 transition-all flex items-center justify-center gap-2 group"
+                                                    >
+                                                        <Users size={16} className="text-gray-500 group-hover:text-blue-600 transition-colors" />
+                                                        عرض تفاصيل المناديب
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
@@ -480,7 +567,15 @@ export default function HungerSummaryReport() {
                         )}
                     </div>
                 )}
+
+                <RidersModal
+                    isOpen={!!selectedHousing}
+                    onClose={() => setSelectedHousing(null)}
+                    housingName={selectedHousing?.housingName}
+                    riders={selectedHousing?.riders}
+                />
             </div>
         </div>
     );
 }
+

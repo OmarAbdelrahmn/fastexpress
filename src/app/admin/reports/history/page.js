@@ -18,10 +18,24 @@ import {
     History,
     Printer
 } from "lucide-react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderHistoryReportPDF from "@/components/RiderHistoryReportPDF";
+import RiderHistoryPrintTemplate from "@/components/RiderHistoryPrintTemplate";
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from "@/lib/context/LanguageContext";
+
+const monthNamesMap = {
+    "January": "يناير",
+    "February": "فبراير",
+    "March": "مارس",
+    "April": "أبريل",
+    "May": "مايو",
+    "June": "يونيو",
+    "July": "يوليو",
+    "August": "أغسطس",
+    "September": "سبتمبر",
+    "October": "أكتوبر",
+    "November": "نوفمبر",
+    "December": "ديسمبر"
+};
 
 export default function AdminRiderHistoryPage() {
     const { t, language } = useLanguage();
@@ -132,6 +146,10 @@ export default function AdminRiderHistoryPage() {
         }
     }, [riders]);
 
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
         <div >
             <PageHeader
@@ -139,6 +157,9 @@ export default function AdminRiderHistoryPage() {
                 subtitle={t('reports.riderHistoryDesc')}
                 icon={History}
             />
+
+            {/* Print Template - Hidden on screen, visible on print */}
+            <RiderHistoryPrintTemplate data={reportData} language={language} t={t} />
 
             {/* Search Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -207,19 +228,13 @@ export default function AdminRiderHistoryPage() {
                     </button>
 
                     {reportData && (
-                        <PDFDownloadLink
-                            key={reportData.workingId + (reportData.firstShiftDate || '')}
-                            document={<RiderHistoryReportPDF data={reportData} language={language} t={t} />}
-                            fileName={`Rider_History_${reportData.riderName || 'Report'}.pdf`}
+                        <button
+                            onClick={handlePrint}
                             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {({ loading: pdfLoading }) => (
-                                <>
-                                    <span>{pdfLoading ? '...PDF' : t('keta.daily.printPDF')}</span>
-                                    <Printer size={18} />
-                                </>
-                            )}
-                        </PDFDownloadLink>
+                            <span>{t('keta.daily.printPDF') || 'Print Report'}</span>
+                            <Printer size={18} />
+                        </button>
                     )}
                 </div>
             </div>
@@ -232,7 +247,7 @@ export default function AdminRiderHistoryPage() {
                 </div>
             )}
 
-            {/* Report Content */}
+            {/* Report Content Screen View */}
             {reportData && (
                 <div className="space-y-6">
                     {/* Rider Info Card */}
@@ -251,21 +266,21 @@ export default function AdminRiderHistoryPage() {
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">{t('firstShiftDate') || 'تاريخ أول اداء'}</p>
+                            <p className="text-sm text-gray-500 mb-1">{'تاريخ أول اداء'}</p>
                             <p className="font-bold text-gray-900">{reportData.firstShiftDate}</p>
                         </div>
                         <div className="bg-gray-50 p-4 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">{t('lastShiftDate') || 'تاريخ آخر اداء'}</p>
+                            <p className="text-sm text-gray-500 mb-1">{'تاريخ آخر اداء'}</p>
                             <p className="font-bold text-gray-900">{reportData.lastShiftDate}</p>
                         </div>
                     </div>
 
                     {/* Monthly Details Columns by Year */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden m-7 mb-15">
                         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-900">{t('monthlyHistory') || 'سجل الشهور (سنوي)'}</h2>
+                            <h2 className="text-lg font-bold text-gray-900">{'سجل الشهور (سنوي)'}</h2>
                             <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
-                                {t('totalMonths', { count: reportData.totalMonths }) || `إجمالي ${reportData.totalMonths} شهر`}
+                                {`إجمالي ${reportData.totalMonths} شهر`}
                             </span>
                         </div>
 
@@ -281,22 +296,27 @@ export default function AdminRiderHistoryPage() {
                                 )
                                     .sort(([yearA], [yearB]) => yearB - yearA) // Sort years descending (newest first)
                                     .map(([year, months]) => (
-                                        <div key={year} className="flex-none w-full sm:w-1/2 lg:w-1/4 min-w-[280px] border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
+                                        <div key={year} className="flex-none w-full sm:w-1/3 md:w-1/4 lg:w-1/5 min-w-[220px] border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
                                             {/* Year Header */}
-                                            <div className="bg-blue-600 text-white py-3 text-center font-bold text-lg">
+                                            <div className="bg-blue-600 text-white py-2 text-center font-bold text-base">
                                                 {year}
                                             </div>
 
                                             {/* Months List */}
                                             <div className="divide-y divide-gray-100 bg-white">
-                                                <div className="flex justify-between items-center px-4 py-2 bg-gray-100 text-xs font-bold text-gray-500">
-                                                    <span>{t('month')}</span>
-                                                    <span>{t('reports.totalOrders')}</span>
+                                                <div className="flex justify-between items-center px-3 py-2 bg-gray-100 text-[10px] font-bold text-gray-500">
+                                                    <span>الشهر</span>
+                                                    <span>الطلبات</span>
                                                 </div>
                                                 {months.map((month, idx) => (
-                                                    <div key={idx} className="flex justify-between items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-                                                        <span className="font-bold text-gray-800 text-sm">{month.monthName}</span>
-                                                        <span className="bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">
+                                                    <div key={idx} className="flex justify-between items-center px-3 py-2 hover:bg-gray-50 transition-colors">
+                                                        <span className="font-bold text-gray-800 text-xs">
+                                                            {month.monthName}
+                                                            {monthNamesMap[month.monthName] && (
+                                                                <span className="text-gray-800 text-xs"> / {monthNamesMap[month.monthName]}</span>
+                                                            )}
+                                                        </span>
+                                                        <span className={`font-bold px-2 py-0.5 rounded-full text-xs ${month.totalAcceptedOrders < 400 ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-700'}`}>
                                                             {month.totalAcceptedOrders}
                                                         </span>
                                                     </div>
