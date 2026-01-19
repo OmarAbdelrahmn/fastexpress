@@ -36,7 +36,7 @@ export default function HousingPerformanceReport() {
 
                     // Recalculate target orders and difference based on company
                     const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
-                    const recalculatedTargetOrders = rider.actualWorkingDays * dailyOrderTarget;
+                    const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
                     const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
 
                     excelData.push({
@@ -366,7 +366,7 @@ export default function HousingPerformanceReport() {
 
                                                             // Recalculate target orders and difference based on company
                                                             const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
-                                                            const recalculatedTargetOrders = rider.actualWorkingDays * dailyOrderTarget;
+                                                            const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
                                                             const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
                                                             const ordersPositive = recalculatedOrdersDiff >= 0;
 
@@ -407,7 +407,7 @@ export default function HousingPerformanceReport() {
                                                                         {rider.totalOrders}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-start">
-                                                                        {recalculatedTargetOrders}
+                                                                        {rider.targetOrders}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${ordersPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'

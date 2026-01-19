@@ -47,20 +47,20 @@ const HousingReportTemplate = ({ data }) => {
 
             {/* Table Headers */}
             <div className="flex gap-2 mb-2 text-white font-bold text-center text-sm md:text-base">
-                <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
-                    نسبة كل مجموعة<br />
+                <div className="bg-[#1a365d] w-[22%] py-2 flex items-center justify-center rounded-sm">
+                    المجموعة
                 </div>
-                <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
-                    عدد السائقين
+                <div className="bg-[#1a365d] w-[23%] py-2 flex items-center justify-center rounded-sm">
+                    عدد الطلبات الإجمالي
                 </div>
                 <div className="bg-[#1a365d] w-[25%] py-2 flex items-center justify-center rounded-sm">
                     متوسط عدد الطلبات
                 </div>
-                <div className="bg-[#1a365d] w-[23%] py-2 flex items-center justify-center rounded-sm">
-                     عدد الطلبات الإجمالي
+                <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
+                    عدد السائقين
                 </div>
-                <div className="bg-[#1a365d] w-[22%] py-2 flex items-center justify-center rounded-sm">
-                    المجموعة
+                <div className="bg-[#1a365d] w-[15%] py-2 flex items-center justify-center rounded-sm">
+                    نسبة كل مجموعة<br />
                 </div>
             </div>
 
@@ -69,25 +69,25 @@ const HousingReportTemplate = ({ data }) => {
                 {data.housingSummaries?.map((item, index) => (
                     <React.Fragment key={index}>
                         <div className="flex gap-2 items-stretch h-10 text-center font-bold text-black border-none">
-                            {/* Percentage */}
-                            <div className="w-[15%] bg-[#06b6d4] flex items-center justify-center underline decoration-black">
-                                {item.percentageOfTotalOrders}%
-                            </div>
-                            {/* Active Riders */}
-                            <div className="w-[15%] bg-[#fbbf24] flex items-center justify-center underline decoration-black">
-                                {item.activeRiders}
-                            </div>
-                            {/* Avg Orders */}
-                            <div className="w-[25%] bg-[#a3e635] flex items-center justify-center underline decoration-black">
-                                {item.averageOrdersPerRider}
+                            {/* Housing Name */}
+                            <div className="w-[22%] bg-[#b91c1c] text-white flex items-center justify-center rounded-sm">
+                                {item.housingName}
                             </div>
                             {/* Total Orders */}
                             <div className="w-[23%] bg-[#0000cc] text-white flex items-center justify-center underline decoration-white">
                                 {item.totalOrders}
                             </div>
-                            {/* Housing Name */}
-                            <div className="w-[22%] bg-[#b91c1c] text-white flex items-center justify-center rounded-sm">
-                                {item.housingName}
+                            {/* Avg Orders */}
+                            <div className="w-[25%] bg-[#a3e635] flex items-center justify-center underline decoration-black">
+                                {item.averageOrdersPerRider}
+                            </div>
+                            {/* Active Riders */}
+                            <div className="w-[15%] bg-[#fbbf24] flex items-center justify-center underline decoration-black">
+                                {item.activeRiders}
+                            </div>
+                            {/* Percentage */}
+                            <div className="w-[15%] bg-[#06b6d4] flex items-center justify-center underline decoration-black">
+                                {item.percentageOfTotalOrders}%
                             </div>
                         </div>
                         {/* Dashed Separator */}

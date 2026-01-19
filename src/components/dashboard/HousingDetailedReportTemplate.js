@@ -12,6 +12,13 @@ const HousingDetailedReportTemplate = ({ data }) => {
         }
     };
 
+    const calculateHousingStats = (riders) => {
+        const totalRiders = riders?.length || 0;
+        const totalOrders = riders?.reduce((sum, rider) => sum + (Number(rider.acceptedOrders) || 0), 0) || 0;
+        const averageOrders = totalRiders > 0 ? (totalOrders / totalRiders).toFixed(1) : "0";
+        return { totalRiders, totalOrders, averageOrders };
+    };
+
     return (
         <div id="housing-detailed-report-print" className="hidden print:block bg-white w-full h-full p-4 font-sans" dir="rtl">
             {/* Header */}
@@ -59,10 +66,9 @@ const HousingDetailedReportTemplate = ({ data }) => {
                             <thead>
                                 <tr className="bg-[#fde68a] text-black font-bold text-center border-b-2 border-white">
                                     <th className="py-2 px-2 w-[5%]">م</th>
-                                    <th className="py-2 px-4 w-[40%] text-right">اسم السائق</th>
-                                    <th className="py-2 px-4 w-[15%]">عدد الطلبات</th>
-                                    <th className="py-2 px-4 w-[20%]">المعرف</th>
-                                    <th className="py-2 px-4 w-[20%] bg-[#ffe4e6]">ملاحظات</th>
+                                    <th className="py-2 px-4 w-[50%] text-right">اسم السائق</th>
+                                    <th className="py-2 px-4 w-[20%]">الطلبات</th>
+                                    <th className="py-2 px-4 w-[25%]">المعرف</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -76,11 +82,26 @@ const HousingDetailedReportTemplate = ({ data }) => {
                                             </div>
                                         </td>
                                         <td className="py-1 px-4 text-gray-700">{rider.workingId || rider.riderId}</td>
-                                        <td className="py-1 px-4 bg-gray-50"></td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+
+                        {/* Housing Summary Stats */}
+                        <div className="flex justify-around items-center bg-gray-50 border-t-2 border-dashed border-gray-300 mt-2 p-2 rounded text-sm font-bold text-[#1e3a8a]">
+                            <div className="flex items-center gap-2">
+                                <span>إجمالي السائقين:</span>
+                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).totalRiders}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span>إجمالي الطلبات:</span>
+                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).totalOrders}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span>متوسط الطلبات:</span>
+                                <span className="bg-white px-3 py-0.5 rounded border border-gray-200">{calculateHousingStats(housing.riders).averageOrders}</span>
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
