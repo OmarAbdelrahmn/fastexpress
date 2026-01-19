@@ -55,7 +55,7 @@ const HousingDetailedReportTemplate = ({ data }) => {
                 {data.housingDetails?.map((housing, hIndex) => (
                     <div key={hIndex} className={hIndex > 0 ? "break-before-page" : ""}>
                         {/* Housing Header */}
-                        <div className="flex justify-end mb-2">
+                        <div className="flex justify-start mb-2">
                             <div className="bg-[#fef08a] px-8 py-2 font-bold text-xl text-[#1e3a8a] w-fit rounded-sm shadow-sm">
                                 {housing.housingName}
                             </div>
