@@ -163,8 +163,8 @@ export default function HousingPerformanceReport() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
             <PageHeader
-                title={t('ridersPerformance')}
-                subtitle={t('ridersPerformanceDesc')}
+                title={"اداء المندوبين"}
+                subtitle={"تقرير مفصل عن اداء المندوبين"}
                 icon={Clock}
             />
 
@@ -178,7 +178,7 @@ export default function HousingPerformanceReport() {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <Calendar className="text-blue-600" size={24} />
-                            <h2 className="text-xl font-bold text-gray-800">{t('chooseTimePeriod')}</h2>
+                            <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
                         </div>
 
                         {/* Company Toggle Switch */}
@@ -207,7 +207,7 @@ export default function HousingPerformanceReport() {
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('common.startDate')}</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">{"تاريخ البدء"}</label>
                                 <input
                                     type="date"
                                     value={form.startDate}
@@ -216,7 +216,7 @@ export default function HousingPerformanceReport() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('common.endDate')}</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">{"تاريخ الانتهاء"}</label>
                                 <input
                                     type="date"
                                     value={form.endDate}
@@ -235,12 +235,12 @@ export default function HousingPerformanceReport() {
                                 {loading ? (
                                     <>
                                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                                        {t('common.loading')}
+                                        {"جاري التحميل"}
                                     </>
                                 ) : (
                                     <>
                                         <BarChart3 size={20} />
-                                        {t('showReport')}
+                                        {"عرض التقرير"}
                                     </>
                                 )}
                             </button>
@@ -252,7 +252,7 @@ export default function HousingPerformanceReport() {
                                         className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         <FileSpreadsheet size={20} />
-                                        {t('common.exportExcel')}
+                                        {"تصدير اكسل"}
                                     </button>
 
                                     <PDFDownloadLink
@@ -264,7 +264,7 @@ export default function HousingPerformanceReport() {
                                             loading ? t('common.loading') : (
                                                 <>
                                                     <Printer size={20} />
-                                                    {t('keta.daily.printPDF')}
+                                                    {"طباعة"}
                                                 </>
                                             )
                                         }
@@ -282,25 +282,25 @@ export default function HousingPerformanceReport() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={Building}
-                                title={t('totalHousingGroups')}
+                                title={"اجمالي المجمعات"}
                                 value={reportData.length}
                                 color="#3b82f6"
                             />
                             <StatCard
                                 icon={Users}
-                                title={t('reports.totalRiders')}
+                                title={"اجمالي المندوبين"}
                                 value={totals.totalRiders}
                                 color="#10b981"
                             />
                             <StatCard
                                 icon={Clock}
-                                title={t('totalHours')}
+                                title={"اجمالي الساعات"}
                                 value={totals.totalHours.toFixed(1)}
                                 color="#f59e0b"
                             />
                             <StatCard
                                 icon={History}
-                                title={t('absentDays')}
+                                title={"ايام الغياب"}
                                 value={totals.totalMissingDays}
                                 color="#ef4444"
                             />
@@ -310,7 +310,7 @@ export default function HousingPerformanceReport() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                {t('housingGroupsDetails')} ({reportData.length})
+                                تفاصيل السكن ({reportData.length})
                             </h2>
 
                             {reportData.map((housing, index) => (
@@ -327,7 +327,7 @@ export default function HousingPerformanceReport() {
                                                     <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
                                                     <p className="text-indigo-100 text-sm">
                                                         {housing.summaryReport?.startDate} - {housing.summaryReport?.endDate}
-                                                        {' '}({housing.summaryReport?.totalExpectedDays} {t('expectedDays')})
+                                                        {' '}({housing.summaryReport?.totalExpectedDays} {"ايام العمل"})
                                                     </p>
                                                 </div>
                                             </div>
@@ -347,16 +347,16 @@ export default function HousingPerformanceReport() {
                                                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                                                     <thead className="bg-gray-50">
                                                         <tr>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('workingNumber')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('employees.rider')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('days')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-red-500 uppercase">{t('absentDays')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('hours')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('targetHours')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('hoursDifference')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('reports.totalOrders')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('targetOrders')}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{t('ordersDifference')}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"المعرف"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"اسم المندوب"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ايام العمل"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-red-500 uppercase">{"ايام الغياب"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ساعات العمل"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ساعات العمل المستهدفة"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"فرق الساعات"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"اجمالي الطلبات"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"الطلبات المستهدفة"}</th>
+                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"فرق الطلبات"}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="bg-white divide-y divide-gray-200">

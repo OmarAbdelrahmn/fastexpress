@@ -119,11 +119,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     cellText: {
-        fontSize: 9,
+        fontSize: 8,
         color: '#334155',
     },
     cellTextSmall: {
-        fontSize: 8,
+        fontSize: 6,
         color: '#64748b',
     },
 
@@ -231,15 +231,15 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate, title, lang
                         {/* Table Header */}
                         <View style={[styles.tableHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                             <View style={styles.colRider}><Text style={styles.headerText}>{t('employees.rider')}</Text></View>
-                            <View style={styles.colId}><Text style={styles.headerText}>{t('workingNumber')}</Text></View>
-                            <View style={styles.colDays}><Text style={styles.headerText}>{t('days')}</Text></View>
-                            <View style={styles.colOrders}><Text style={styles.headerText}>{t('reports.totalOrders')}</Text></View>
-                            <View style={styles.colTarget}><Text style={styles.headerText}>{t('target')}</Text></View>
-                            <View style={styles.colDiff}><Text style={[styles.headerText, { color: '#fbbf24' }]}>{t('difference')}</Text></View>
-                            <View style={styles.colRej}><Text style={[styles.headerText, { color: '#fca5a5' }]}>{t('totalRejection')}</Text></View>
-                            <View style={styles.colRejRate}><Text style={[styles.headerText, { color: '#fdba74' }]}>{t('rejectionRate')}</Text></View>
-                            <View style={styles.colRealRej}><Text style={[styles.headerText, { color: '#fecaca' }]}>{t('actualRejection')}</Text></View>
-                            <View style={styles.colRealRate}><Text style={[styles.headerText, { color: '#fed7aa' }]}>{t('rejectionRate')}</Text></View>
+                            <View style={styles.colId}><Text style={styles.headerText}>المعرف</Text></View>
+                            <View style={styles.colDays}><Text style={styles.headerText}>عدد الأيام</Text></View>
+                            <View style={styles.colOrders}><Text style={styles.headerText}>إجمالي الطلبات</Text></View>
+                            <View style={styles.colTarget}><Text style={styles.headerText}>التارجيت</Text></View>
+                            <View style={styles.colDiff}><Text style={[styles.headerText, { color: '#fbbf24' }]}>الفرق</Text></View>
+                            <View style={styles.colRej}><Text style={[styles.headerText, { color: '#fca5a5' }]}>إجمالي الرفض</Text></View>
+                            <View style={styles.colRejRate}><Text style={[styles.headerText, { color: '#fdba74' }]}>نسبة الرفض</Text></View>
+                            <View style={styles.colRealRej}><Text style={[styles.headerText, { color: '#fecaca' }]}>الرفض الفعلي</Text></View>
+                            <View style={styles.colRealRate}><Text style={[styles.headerText, { color: '#fed7aa' }]}>نسبة الرفض الفعلي</Text></View>
                         </View>
 
                         {/* Table Rows */}
@@ -250,8 +250,8 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate, title, lang
                             return (
                                 <View key={idx} style={[styles.tableRow, idx % 2 === 1 && styles.tableRowAlt, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                                     <View style={styles.colRider}>
-                                        <Text style={styles.cellText}>{isRtl ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR}</Text>
-                                        <Text style={styles.cellTextSmall}>{isRtl ? rider.riderNameEN : rider.riderNameAR}</Text>
+                                        <Text style={styles.cellText}>{rider.riderNameAR || rider.riderNameEN}</Text>
+                                        <Text style={styles.cellTextSmall}>{rider.riderNameEN || rider.riderNameAR}</Text>
                                     </View>
                                     <View style={styles.colId}><Text style={styles.cellText}>{rider.workingId}</Text></View>
                                     <View style={styles.colDays}><Text style={styles.cellText}>{rider.totalShifts}</Text></View>

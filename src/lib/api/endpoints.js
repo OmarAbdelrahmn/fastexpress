@@ -188,6 +188,7 @@ export const API_ENDPOINTS = {
     STACKED: (workingId) => `/api/Report/stacked/${workingId}`,
     STACKEDd: "/api/Report/stacked",
     ALL_HOUSINGS_REJECTION: "/api/Report/all-housings/rejection",
+    KETA_REJECTION: "/api/Report/all-housings/rejection2",
     ALL_HOUSINGS_SUMMARY: "/api/Report/all-housings/summary",
     HOUSING_DETAILED_DAILY_PERFORMANCE: "/api/Report/housing/detailed-daily-performance",
     RIDER_HISTORY: (iqamaNo) => `/api/Report/rider-history?riderIqamaNo=${iqamaNo}`,

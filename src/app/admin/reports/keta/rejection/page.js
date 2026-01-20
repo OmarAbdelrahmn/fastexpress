@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import HousingRejectionReportPDF from '@/components/dashboard/HousingRejectionReportPDF';
 
-export default function HousingRejectionReport() {
+export default function KetaRejectionReport() {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState(null);
@@ -32,17 +32,17 @@ export default function HousingRejectionReport() {
             if (housing.rejectionReport?.riderDetails) {
                 housing.rejectionReport.riderDetails.forEach(rider => {
                     excelData.push({
-                        [t('housingName')]: housing.housingName,
-                        [t('workingNumber')]: rider.workingId,
-                        [t('employees.name') + ' (AR)']: rider.riderNameAR,
-                        [t('employees.name') + ' (EN)']: rider.riderNameEN,
-                        [t('days')]: rider.totalShifts,
-                        [t('reports.totalOrders')]: rider.totalOrders,
-                        [t('target')]: rider.targetOrders,
-                        [t('difference')]: rider.totalOrders - rider.targetOrders,
-                        [t('totalRejection')]: rider.totalRejections,
-                        [t('rejectionRate')]: `${rider.rejectionRate.toFixed(2)}%`,
-                        [t('actualRejection')]: rider.totalRealRejections
+                        ["اسم السكن"]: housing.housingName,
+                        ["المعرف"]: rider.workingId,
+                        ["اسم المندوب (عربي)"]: rider.riderNameAR,
+                        ["اسم المندوب (انجليزي)"]: rider.riderNameEN,
+                        ["عدد الأيام"]: rider.totalShifts,
+                        ["إجمالي الطلبات"]: rider.totalOrders,
+                        ["الهدف"]: rider.targetOrders,
+                        ["الفرق"]: rider.totalOrders - rider.targetOrders,
+                        ["إجمالي الرفض"]: rider.totalRejections,
+                        ["نسبة الرفض"]: `${rider.rejectionRate.toFixed(2)}%`,
+                        ["الرفض الفعلي"]: rider.totalRealRejections
                     });
                 });
             }
@@ -50,13 +50,13 @@ export default function HousingRejectionReport() {
 
         const ws = XLSX.utils.json_to_sheet(excelData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
-        XLSX.writeFile(wb, `housing_rejection_report_${form.startDate}_${form.endDate}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "تقرير رفض كيتا");
+        XLSX.writeFile(wb, `keta_rejection_report_${form.startDate}_${form.endDate}.xlsx`);
     };
 
     const handleSubmit = async () => {
         if (!form.startDate || !form.endDate) {
-            setError(t('common.periodError')); // Assuming this key exists or fallback
+            setError("يرجى تحديد تاريخ البداية والنهاية");
             return;
         }
 
@@ -66,21 +66,21 @@ export default function HousingRejectionReport() {
         setReportData(null);
 
         try {
-            const data = await ApiService.get(API_ENDPOINTS.REPORTS.ALL_HOUSINGS_REJECTION, {
+            const data = await ApiService.get(API_ENDPOINTS.REPORTS.KETA_REJECTION, {
                 startDate: form.startDate,
                 endDate: form.endDate
             });
 
             if (data && data.length > 0) {
                 setReportData(data);
-                setSuccessMessage(t('common.successLoad'));
+                setSuccessMessage("تم تحميل التقرير بنجاح");
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {
-                setError(t('common.noData'));
+                setError("لا توجد بيانات");
             }
         } catch (err) {
             console.error('Error:', err);
-            setError(err.message || t('common.errorLoad'));
+            setError("حدث خطأ أثناء تحميل التقرير");
         } finally {
             setLoading(false);
         }
@@ -156,9 +156,9 @@ export default function HousingRejectionReport() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
             <PageHeader
-                title={"تقرير رفض الطلبات"}
-                subtitle={"تقرير رفض الطلبات"}
-                icon={Building}ذ
+                title={"تقرير رفض كيتا"}
+                subtitle={"تقرير رفض كيتا"}
+                icon={Building}
             />
 
             <div className="m-6">
@@ -170,13 +170,13 @@ export default function HousingRejectionReport() {
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
                     <div className="flex items-center gap-3 mb-6">
                         <Calendar className="text-blue-600" size={24} />
-                        <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
+                        <h2 className="text-xl font-bold text-gray-800">اختر الفترة</h2>
                     </div>
 
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ البدء</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ البداية</label>
                                 <input
                                     type="date"
                                     value={form.startDate}
@@ -185,7 +185,7 @@ export default function HousingRejectionReport() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ الانتهاء</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">تاريخ النهاية</label>
                                 <input
                                     type="date"
                                     value={form.endDate}
@@ -225,12 +225,12 @@ export default function HousingRejectionReport() {
                                     </button>
 
                                     <PDFDownloadLink
-                                        document={<HousingRejectionReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('detailedRejectionReport')} language={language} t={t} />}
-                                        fileName={`housing_rejection_report_${form.startDate}_${form.endDate}.pdf`}
+                                        document={<HousingRejectionReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('keta.rejectionReport')} language={language} t={t} />}
+                                        fileName={`keta_rejection_report_${form.startDate}_${form.endDate}.pdf`}
                                         className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         {({ blob, url, loading, error }) =>
-                                            loading ? t('common.loading') : (
+                                            loading ? "جاري التحميل" : (
                                                 <>
                                                     <Printer size={20} />
                                                     طباعة
@@ -251,19 +251,19 @@ export default function HousingRejectionReport() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={Building}
-                                title={"عدد المجموعات"}
+                                title={"عدد السكنات"}
                                 value={reportData.length}
                                 color="#3b82f6"
                             />
                             <StatCard
                                 icon={Users}
-                                title={"عدد المندوبين"}
+                                title={"عدد السائقين"}
                                 value={totals.totalRiders}
                                 color="#10b981"
                             />
                             <StatCard
                                 icon={XCircle}
-                                title={"عدد الطلبات المرفوضة"}
+                                title={"إجمالي الطلبات المرفوضة"}
                                 value={totals.totalRejections}
                                 color="#f97316"
                             />
@@ -279,7 +279,7 @@ export default function HousingRejectionReport() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                تقرير الرفض التفصيلي ({reportData.length})
+                                تفاصيل التقرير ({reportData.length})
                             </h2>
 
                             {reportData.map((housing, index) => (
@@ -309,7 +309,7 @@ export default function HousingRejectionReport() {
                                         <div className="p-6">
                                             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                 <Users className="text-purple-600" size={20} />
-                                                تفاصيل المندوبين ({housing.rejectionReport.riderDetails.length})
+                                                تفاصيل السائقين ({housing.rejectionReport.riderDetails.length})
                                             </h4>
 
                                             <div className="overflow-x-auto">
@@ -317,12 +317,12 @@ export default function HousingRejectionReport() {
                                                     <thead className="bg-gray-50">
                                                         <tr>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">المعرف</th>
-                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">المندوب</th>
-                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">عدد الايام</th>
-                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">اجمالي الطلبات</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">السائق</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">عدد الأيام</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">إجمالي الطلبات</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">الهدف</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">الفرق</th>
-                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">اجمالي الرفض</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">إجمالي الرفض</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">الرفض الفعلي</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">نسبة الرفض</th>
                                                         </tr>
@@ -369,10 +369,7 @@ export default function HousingRejectionReport() {
                                                                     {rider.totalRealRejections}
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap text-start">
-                                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.rejectionRate < 10 ? 'bg-green-100 text-green-800' :
-                                                                        rider.rejectionRate < 20 ? 'bg-yellow-100 text-yellow-800' :
-                                                                            'bg-red-100 text-red-800'
-                                                                        }`}>
+                                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${rider.rejectionRate > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                                                                         {rider.rejectionRate.toFixed(2)}%
                                                                     </span>
                                                                 </td>
