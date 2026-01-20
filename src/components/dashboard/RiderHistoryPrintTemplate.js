@@ -1,5 +1,20 @@
 import React from 'react';
 
+const monthNamesMap = {
+    "January": "يناير",
+    "February": "فبراير",
+    "March": "مارس",
+    "April": "أبريل",
+    "May": "مايو",
+    "June": "يونيو",
+    "July": "يوليو",
+    "August": "أغسطس",
+    "September": "سبتمبر",
+    "October": "أكتوبر",
+    "November": "نوفمبر",
+    "December": "ديسمبر"
+};
+
 const RiderHistoryPrintTemplate = ({ data, language, t }) => {
     if (!data) return null;
 
@@ -10,6 +25,11 @@ const RiderHistoryPrintTemplate = ({ data, language, t }) => {
         acc[year].push(month);
         return acc;
     }, {}) || {};
+
+    // Sort months within each year
+    Object.keys(yearsData).forEach(year => {
+        yearsData[year].sort((a, b) => a.month - b.month);
+    });
 
     const sortedYears = Object.entries(yearsData).sort(([yearA], [yearB]) => yearB - yearA);
 
@@ -43,19 +63,31 @@ const RiderHistoryPrintTemplate = ({ data, language, t }) => {
                 <div className="flex flex-col gap-2">
                     <h2 className="text-xl font-bold text-[#1e3a8a]">{data.riderName}</h2>
                     <div className="flex gap-6 text-gray-700 font-bold text-sm">
-                        <p>ID: <span className="text-black">{data.workingId}</span></p>
-                        <p>Iqama: <span className="text-black">{data.iqamaNo}</span></p>
+                        <p>الرقم الوظيفي: <span className="text-black">{data.workingId}</span></p>
+                        <p>الإقامة: <span className="text-black">{data.iqamaNo}</span></p>
                     </div>
                 </div>
                 <div className="text-right flex gap-8">
                     <div>
-                        <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{t('firstShiftDate') || 'First Shift'}</p>
+                        <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{'تاريخ أول وردية'}</p>
                         <p className="font-bold text-black text-sm">{data.firstShiftDate || '-'}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{t('lastShiftDate') || 'Last Shift'}</p>
+                        <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{'تاريخ آخر وردية'}</p>
                         <p className="font-bold text-black text-sm">{data.lastShiftDate || '-'}</p>
                     </div>
+                    {data.activeMonthsCount !== undefined && (
+                        <div>
+                            <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{'الشهور النشطة'}</p>
+                            <p className="font-bold text-black text-sm">{data.activeMonthsCount}</p>
+                        </div>
+                    )}
+                    {data.averageOrdersPerActiveMonth !== undefined && (
+                        <div>
+                            <p className="text-xs text-[#1e3a8a] font-bold uppercase tracking-wider">{'متوسط الطلبات'}</p>
+                            <p className="font-bold text-black text-sm">{Number(data.averageOrdersPerActiveMonth).toFixed(1)}</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -78,7 +110,12 @@ const RiderHistoryPrintTemplate = ({ data, language, t }) => {
                         <div className="bg-white">
                             {months.map((month, idx) => (
                                 <div key={idx} className="flex justify-between items-center px-2 py-1 border-b border-gray-100 last:border-0 text-[10px] font-bold">
-                                    <span className="text-gray-800">{month.monthName}</span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-gray-800">{month.monthName}</span>
+                                        {monthNamesMap[month.monthName] && (
+                                            <span className="text-gray-500 font-normal"> / {monthNamesMap[month.monthName]}</span>
+                                        )}
+                                    </div>
                                     <span className={`px-1.5 py-0 rounded ${month.totalAcceptedOrders < 400 ? 'bg-red-100 text-red-600' : 'text-[#1e3a8a]'}`}>
                                         {month.totalAcceptedOrders}
                                     </span>

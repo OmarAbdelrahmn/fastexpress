@@ -127,6 +127,8 @@ export default function AdminRiderHistoryPage() {
             const data = await ApiService.get(API_ENDPOINTS.REPORTS.RIDER_HISTORY(iqamaNo));
             setReportData(data);
 
+            console.log(data);
+
             // Update URL params
             router.push(`/admin/reports/history?iqamaNo=${iqamaNo}`, { scroll: false });
         } catch (err) {
@@ -279,9 +281,21 @@ export default function AdminRiderHistoryPage() {
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden m-7 mb-15">
                         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                             <h2 className="text-lg font-bold text-gray-900">{'سجل الشهور (سنوي)'}</h2>
-                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
-                                {`إجمالي ${reportData.totalMonths} شهر`}
-                            </span>
+                            <div className="flex gap-2">
+                                <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
+                                    {`إجمالي ${reportData.totalMonths} شهر`}
+                                </span>
+                                {reportData.activeMonthsCount !== undefined && (
+                                    <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                        {`نشط ${reportData.activeMonthsCount} شهر`}
+                                    </span>
+                                )}
+                                {reportData.averageOrdersPerActiveMonth !== undefined && (
+                                    <span className="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">
+                                        {`متوسط ${Math.round(reportData.averageOrdersPerActiveMonth)} طلب/شهر`}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="p-6 overflow-x-auto">
@@ -327,6 +341,56 @@ export default function AdminRiderHistoryPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Detailed Monthly Data Table */}
+                    {reportData.monthlyData && reportData.monthlyData.length > 0 && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden m-7 mb-15">
+                            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                                <h2 className="text-lg font-bold text-gray-900">{'تفاصيل السجل الشهري'}</h2>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-right">
+                                    <thead className="bg-gray-50 text-gray-600 text-xs uppercase font-bold">
+                                        <tr>
+                                            <th className="px-6 py-3">الشهر / السنة</th>
+                                            <th className="px-6 py-3">عدد الطلبات</th>
+                                            <th className="px-6 py-3">إجمالي الايام</th>
+                                            <th className="px-6 py-3">عدد ساعات العمل</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {reportData.monthlyData
+                                            .filter(month => month.totalAcceptedOrders > 0)
+                                            .sort((a, b) => {
+                                                if (a.year !== b.year) return b.year - a.year;
+                                                return b.month - a.month;
+                                            })
+                                            .map((month, index) => (
+                                                <tr key={index} className="hover:bg-gray-50 transition-colors text-sm text-gray-700">
+                                                    <td className="px-6 py-4 font-bold">
+                                                        {month.monthName}
+                                                        {monthNamesMap[month.monthName] && (
+                                                            <span className="text-gray-800"> / {monthNamesMap[month.monthName]}</span>
+                                                        )}
+                                                        <span className="mr-1"> {month.year}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4 font-bold text-blue-600">
+                                                        {month.totalAcceptedOrders}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {month.totalShifts}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {month.totalWorkingHours}
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

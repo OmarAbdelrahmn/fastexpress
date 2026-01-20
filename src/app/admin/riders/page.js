@@ -80,6 +80,33 @@ export default function RidersPage() {
       [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
     }));
 
+    // Add summary row at the end
+    data.push({
+      [t('riders.iqamaNumber')]: '',
+      [t('riders.nameArabic')]: '',
+      [t('riders.nameEnglish')]: '',
+      [t('riders.workingId')]: '',
+      [t('riders.company')]: '',
+      [t('riders.housing')]: '',
+      [t('riders.phoneNumber')]: '',
+      [t('riders.nationality')]: '',
+      [t('common.status')]: '',
+      [t('employees.title')]: ''
+    });
+
+    data.push({
+      [t('riders.iqamaNumber')]: t('common.total'),
+      [t('riders.nameArabic')]: filteredRiders.length,
+      [t('riders.nameEnglish')]: '',
+      [t('riders.workingId')]: '',
+      [t('riders.company')]: '',
+      [t('riders.housing')]: '',
+      [t('riders.phoneNumber')]: '',
+      [t('riders.nationality')]: '',
+      [t('common.status')]: '',
+      [t('employees.title')]: ''
+    });
+
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Riders");
@@ -139,7 +166,8 @@ export default function RidersPage() {
     },
   ];
 
-  const filteredRiders = riders.filter(rider => {
+  // First filter by search term only
+  const searchFilteredRiders = riders.filter(rider => {
     const matchesSearch =
       rider.nameAR?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,6 +178,27 @@ export default function RidersPage() {
       rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.housingAddress?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    return matchesSearch;
+  });
+
+  // Calculate statistics based on search-filtered riders
+  const stats = {
+    total: searchFilteredRiders.length,
+    active: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'enable' && !r.isEmployee).length,
+    inactive: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'disable' && !r.isEmployee).length,
+    fleeing: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee).length,
+    vacation: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'vacation').length,
+    sick: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
+    accident: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
+    other: searchFilteredRiders.filter(r => r.status?.toLowerCase() !== 'enable' && r.status?.toLowerCase() !== 'vacation').length,
+    employees: searchFilteredRiders.filter(r => r.isEmployee).length,
+    inactiveEmployees: searchFilteredRiders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
+    companies: new Set(searchFilteredRiders.map(r => r.companyName)).size,
+    withHousing: searchFilteredRiders.filter(r => r.housingAddress).length
+  };
+
+  // Then apply status filter
+  const filteredRiders = searchFilteredRiders.filter(rider => {
     const isEmployee = rider.isEmployee;
     const status = rider.status?.toLowerCase();
 
@@ -165,24 +214,8 @@ export default function RidersPage() {
       (statusFilter === 'employees' && isEmployee) ||
       (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable');
 
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
-
-  // Statistics
-  const stats = {
-    total: riders.length,
-    active: riders.filter(r => r.status?.toLowerCase() === 'enable' && !r.isEmployee).length,
-    inactive: riders.filter(r => r.status?.toLowerCase() === 'disable' && !r.isEmployee).length,
-    fleeing: riders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee).length,
-    vacation: riders.filter(r => r.status?.toLowerCase() === 'vacation').length,
-    sick: riders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
-    accident: riders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
-    other: riders.filter(r => r.status?.toLowerCase() !== 'enable' && r.status?.toLowerCase() !== 'vacation').length,
-    employees: riders.filter(r => r.isEmployee).length,
-    inactiveEmployees: riders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
-    companies: new Set(riders.map(r => r.companyName)).size,
-    withHousing: riders.filter(r => r.housingAddress).length
-  };
 
   return (
     <div className="space-y-6">
