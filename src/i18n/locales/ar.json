@@ -84,6 +84,12 @@
     "startDate": "تاريخ البداية",
     "endDate": "تاريخ النهاية"
   },
+  "hunger": {
+    "reportsTitle": "تقارير هنقرستيشن",
+    "reportsSubtitle": "لوحة التحكم بتقارير عمليات هنقرستيشن",
+    "summaryReport": "ملخص هنقرستيشن",
+    "summaryReportDesc": "عرض ملخص الطلبات المستهدفة للشركة والمجموعات"
+  },
   "keta": {
     "reportsTitle": "تقارير كيتا",
     "reportsSubtitle": "لوحة التحكم بتقارير عمليات كيتا",

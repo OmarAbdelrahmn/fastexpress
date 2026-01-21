@@ -84,6 +84,12 @@
     "startDate": "Start Date",
     "endDate": "End Date"
   },
+  "hunger": {
+    "reportsTitle": "Hungerstation Reports",
+    "reportsSubtitle": "Hungerstation Operations Reports Dashboard",
+    "summaryReport": "Hungerstation Summary",
+    "summaryReportDesc": "Summary of target orders for company and groups"
+  },
   "keta": {
     "reportsTitle": "Keta Reports",
     "reportsSubtitle": "Keta Operations Reports Dashboard",

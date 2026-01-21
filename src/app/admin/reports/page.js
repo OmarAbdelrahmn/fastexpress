@@ -255,23 +255,6 @@ export default function ReportsPage() {
           <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link
-                href="/admin/reports/rejection"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Building className="text-indigo-600" size={24} />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {t('reports.rejectionReports')}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {t('reports.rejectionReportsDesc')}
-                </p>
-              </Link>
-
-              <Link
                 href="/admin/reports/performance"
                 className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
@@ -306,23 +289,6 @@ export default function ReportsPage() {
               </Link>
 
               <Link
-                href="/admin/reports/history"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <History className="text-indigo-600" size={24} />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {t('reports.riderHistory')}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {t('reports.riderHistoryDesc')}
-                </p>
-              </Link>
-
-              <Link
                 href="/admin/reports/all-riders-history"
                 className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
@@ -339,39 +305,7 @@ export default function ReportsPage() {
                 </p>
               </Link>
 
-              <Link
-                href="/admin/reports/detailed-daily-performance"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Calendar className="text-indigo-600" size={24} />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {t('reports.detailedDailyPerformance')}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {t('reports.detailedDailyPerformanceDesc')}
-                </p>
-              </Link>
 
-              {/* <Link
-                href="/admin/reports/keta-validation"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Calendar className="text-indigo-600" size={24} />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {t('keta.validationReport')}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {t('keta.validationReportDesc')}
-                </p>
-              </Link> */}
 
               <Link
                 href="/admin/reports/keta"
@@ -391,7 +325,7 @@ export default function ReportsPage() {
               </Link>
 
               <Link
-                href="/admin/reports/hunger/summary"
+                href="/admin/reports/hunger"
                 className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
                 <div className="flex items-center gap-3 mb-3">
@@ -399,11 +333,11 @@ export default function ReportsPage() {
                     <Target className="text-indigo-600" size={24} />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    تقرير ملخص هنقرستيشن
+                    {t('hunger.reportsTitle') || "تقارير هنقرستيشن"}
                   </h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  عرض ملخص الطلبات المستهدفة للشركة والمجموعات
+                  {t('hunger.reportsSubtitle') || "عرض تقارير هنقرستيشن، الرفض وسجل المناديب"}
                 </p>
               </Link>
 
