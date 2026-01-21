@@ -30,7 +30,10 @@ export default function DeletedEmployeesPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE.DELETED);
-      setDeletedEmployees(Array.isArray(data) ? data : []);
+      const filteredData = Array.isArray(data)
+        ? data.filter(emp => emp.iqamaNo?.toString() !== '9999')
+        : [];
+      setDeletedEmployees(filteredData);
     } catch (err) {
       console.error('Error loading deleted employees:', err);
       setErrorMessage(err?.message || t('employees.loadDeletedError'));
@@ -75,16 +78,27 @@ export default function DeletedEmployeesPage() {
         </div>
       )
     },
-    { header: t('employees.country'), accessor: 'country' },
-    { header: t('employees.phone'), accessor: 'phone' },
-    { header: t('employees.company'), accessor: 'companyName' },
     { header: t('employees.sponsor'), accessor: 'sponsor' },
     {
-      header: t('riders.accountStatus'),
-      accessor: 'status',
-      render: (row) => <StatusBadge status="stopped" />
+      header: t('employees.sponsorNumber'),
+      accessor: 'sponsorNo',
+      render: (row) => (
+        <span className="text-sm font-medium text-blue-600">{row.sponsorNo || '-'}</span>
+      )
     },
-    { header: t('employees.jobTitle'), accessor: 'jobTitle' },
+    {
+      header: t('common.reason'),
+      accessor: 'status',
+      render: (row) => {
+        const status = row.status?.toLowerCase();
+        const isDefaultStatus = !status || status === 'enable' || status === 'قيد التشغيل' || status === 'نشط' || status === 'نشط ' || status === 'تم الإيقاف';
+        return (
+          <span className="text-sm text-gray-600 italic">
+            {isDefaultStatus ? '-' : row.status}
+          </span>
+        );
+      }
+    },
     {
       header: t('employees.deleteDate'),
       accessor: 'deletedAt',
@@ -100,8 +114,10 @@ export default function DeletedEmployeesPage() {
     emp.nameAR?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.iqamaNo?.toString().includes(searchTerm) ||
-    emp.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.sponsor?.toLowerCase().includes(searchTerm.toLowerCase())
+    emp.workingId?.toString().includes(searchTerm) ||
+    emp.sponsorNo?.toString().includes(searchTerm) ||
+    emp.sponsor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {

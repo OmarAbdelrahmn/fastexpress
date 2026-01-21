@@ -3,12 +3,12 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ 
-  isOpen, 
-  onClose, 
-  title, 
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
   children,
-  size = 'md' 
+  size = 'md'
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -34,16 +34,16 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      <div
+        className="fixed inset-0 bg-white/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className={`relative bg-white rounded-lg shadow-xl ${sizes[size]} w-full mx-auto`}>
+        <div className={`relative bg-white/90 rounded-[2rem] shadow-2xl ${sizes[size]} w-full mx-auto overflow-hidden border border-white/20`}>
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-[#1b428e]">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200/50 bg-[#1b428e]">
             <h3 className="text-xl font-bold text-white">{title}</h3>
             <button
               onClick={onClose}

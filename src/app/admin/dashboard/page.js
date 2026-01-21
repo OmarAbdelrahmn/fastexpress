@@ -31,10 +31,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
-import SpecialReportTemplate from "@/components/dashboard/SpecialReportTemplate";
-import HousingReportTemplate from "@/components/dashboard/HousingReportTemplate";
-import HousingDetailedReportTemplate from "@/components/dashboard/HousingDetailedReportTemplate";
+// import SpecialReportTemplate from "@/components/dashboard/SpecialReportTemplate";
+// import HousingReportTemplate from "@/components/dashboard/HousingReportTemplate";
+// import HousingDetailedReportTemplate from "@/components/dashboard/HousingDetailedReportTemplate";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  { ssr: false, loading: () => <p>Loading PDF...</p> }
+);
+
+// PDF Components
+import HousingDetailedReportPDF from "@/components/dashboard/HousingDetailedReportPDF";
+import SpecialReportPDF from "@/components/dashboard/SpecialReportPDF";
+import HousingSummaryReportPDF from "@/components/dashboard/HousingSummaryReportPDF";
 
 const TokenManager = {
   getToken: () =>
@@ -413,17 +424,17 @@ export default function EnhancedDashboard() {
 
   const handleHousingDetailedReport = async () => {
     try {
+      setHousingDetailedReportData(null); // Reset
       const response = await get("/api/report/special2");
       const data = response.data || {
         reportDate: "2025-12-14",
         housingDetails: [],
         grandTotalOrders: 0,
-        grandTotalRiders: 0
+        grandTotalRiders: 0,
+        companyName: "شركة الخدمة السريعة"
       };
       setHousingDetailedReportData(data);
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing detailed report:", error);
       alert(t('common.error'));
@@ -432,6 +443,7 @@ export default function EnhancedDashboard() {
 
   const handleSpecialReport = async () => {
     try {
+      setSpecialReportData(null); // Reset
       const response = await get("/api/report/special");
       const reportData = response.data || {
         "period1Start": "2025-11-01",
@@ -442,12 +454,11 @@ export default function EnhancedDashboard() {
         "period2TotalOrders": 18,
         "ordersDifference": 18,
         "changePercentage": 10,
-        "trendDescription": "🚀"
+        "trendDescription": "🚀",
+        "companyName": "شركة الخدمة السريعة"
       };
       setSpecialReportData(reportData);
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch special report:", error);
       alert(t('common.error'));
@@ -456,18 +467,18 @@ export default function EnhancedDashboard() {
 
   const handleHousingReport = async () => {
     try {
+      setHousingReportData(null);
       const response = await get("/api/report/special1");
       const data = response.data || {
         reportDate: "2025-12-14",
         housingSummaries: [],
         totalOrders: 0,
         totalRiders: 0,
-        averageOrdersPerRider: 0
+        averageOrdersPerRider: 0,
+        companyName: "شركة الخدمة السريعة"
       };
       setHousingReportData(data);
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing report:", error);
       alert(t('common.error'));
@@ -677,9 +688,63 @@ export default function EnhancedDashboard() {
   return (
     <div dir="rtl">
       {/* Printable Components */}
-      {specialReportData && <SpecialReportTemplate data={specialReportData} />}
-      {housingReportData && <HousingReportTemplate data={housingReportData} />}
-      {housingDetailedReportData && <HousingDetailedReportTemplate data={housingDetailedReportData} />}
+      {/* Download Modal */}
+      {isPrinting && (
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl max-w-md w-full relative">
+            <button
+              onClick={() => setIsPrinting(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Printer size={32} className="text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">تقرير جاهز للتحميل</h3>
+              <p className="text-gray-500">تم تجهيز التقرير بنجاح، يرجى الضغط أدناه للتحميل</p>
+            </div>
+
+            {housingDetailedReportData && (
+              <PDFDownloadLink
+                document={<HousingDetailedReportPDF data={housingDetailedReportData} />}
+                fileName={`تقرير تفصيلي بتاريخ${housingDetailedReportData.reportDate}.pdf`}
+                className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                }
+              </PDFDownloadLink>
+            )}
+
+            {specialReportData && (
+              <PDFDownloadLink
+                document={<SpecialReportPDF data={specialReportData} />}
+                fileName={`تقرير الفرق و النسبة حتى${specialReportData.period1Start}_${specialReportData.period2End}.pdf`}
+                className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                }
+              </PDFDownloadLink>
+            )}
+
+            {housingReportData && (
+              <PDFDownloadLink
+                document={<HousingSummaryReportPDF data={housingReportData} />}
+                fileName={`تقرير اجمالي بتاريخ${housingReportData.reportDate}.pdf`}
+                className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                }
+              </PDFDownloadLink>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto">
         <PageHeader />

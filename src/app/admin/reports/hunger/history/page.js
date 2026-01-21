@@ -130,7 +130,7 @@ export default function AdminRiderHistoryPage() {
             console.log(data);
 
             // Update URL params
-            router.push(`/admin/reports/history?iqamaNo=${iqamaNo}`, { scroll: false });
+            router.push(`/admin/reports/hunger/history?iqamaNo=${iqamaNo}`, { scroll: false });
         } catch (err) {
             setError(err.message || t('common.errorLoad'));
             console.error(err);

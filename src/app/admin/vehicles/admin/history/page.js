@@ -15,17 +15,17 @@ import {
   Clock,
   Activity,
   FileText,
-  Download
+  Download,
+  Users,
+  Shield,
+  PackageX
 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from "@/lib/api/apiService";
 import { formatPlateNumber } from "@/lib/utils/formatters";
-import {
-  VehicleStatusType,
-  getVehicleStatusAttributes,
-  normalizeVehicleStatus
-} from "@/lib/constants/vehicleStatus";
+import PageHeader from "@/components/layout/pageheader";
+
 
 export default function VehicleHistory() {
   const { t } = useLanguage();
@@ -39,6 +39,118 @@ export default function VehicleHistory() {
   useEffect(() => {
     loadAllVehicles();
   }, []);
+
+
+  const VehicleStatusType = {
+    Taken: 1,
+    Returned: 2, // Equivalent to Available
+    Problem: 3,
+    Stolen: 4,
+    BreakUp: 5,
+  };
+
+  const normalizeVehicleStatus = (status) => {
+    if (typeof status === "number") return status;
+    if (!status) return VehicleStatusType.Returned; // Default to Available/Returned if undefined logic allows
+
+    const lowerStatus = String(status).toLowerCase().trim();
+
+    if (lowerStatus === "taken") return VehicleStatusType.Taken;
+    if (lowerStatus === "returned" || lowerStatus === "available") return VehicleStatusType.Returned;
+    if (lowerStatus === "problem") return VehicleStatusType.Problem;
+    if (lowerStatus === "stolen") return VehicleStatusType.Stolen;
+    if (lowerStatus === "breakup" || lowerStatus === "break-up") return VehicleStatusType.BreakUp;
+
+    // Attempt to parse if it's a string number "1"
+    const parsed = parseInt(status, 10);
+    return isNaN(parsed) ? null : parsed;
+  };
+
+
+  const getVehicleStatusAttributes = (statusType, t) => {
+    const normalizedStatus = normalizeVehicleStatus(statusType);
+
+    switch (normalizedStatus) {
+      case VehicleStatusType.Taken:
+        return {
+          key: "taken",
+          label: t ? "استلام" : "Taken", // Fallback if t not provided
+          color: "indigo",
+          icon: Users,
+          styles: {
+            bg: "bg-indigo-50",
+            border: "border-indigo-200",
+            text: "text-indigo-600",
+            badge: "bg-indigo-600",
+          },
+        };
+      case VehicleStatusType.Returned: // Available
+        return {
+          key: "available",
+          label: t ? "ايقاف" : "Available",
+          color: "green",
+          icon: CheckCircle,
+          styles: {
+            bg: "bg-green-50",
+            border: "border-green-200",
+            text: "text-green-600",
+            badge: "bg-green-600",
+          },
+        };
+      case VehicleStatusType.Problem:
+        return {
+          key: "problem",
+          label: t ? "صيانة" : "Problem",
+          color: "orange",
+          icon: AlertTriangle,
+          styles: {
+            bg: "bg-orange-50",
+            border: "border-orange-200",
+            text: "text-orange-600",
+            badge: "bg-orange-600",
+          },
+        };
+      case VehicleStatusType.Stolen:
+        return {
+          key: "stolen",
+          label: t ? "مسروقة" : "Stolen",
+          color: "red",
+          icon: Shield,
+          styles: {
+            bg: "bg-red-50",
+            border: "border-red-200",
+            text: "text-red-600",
+            badge: "bg-red-600",
+          },
+        };
+      case VehicleStatusType.BreakUp:
+        return {
+          key: "breakup",
+          label: t ? "تشليح" : "BreakUp",
+          color: "gray",
+          icon: PackageX,
+          styles: {
+            bg: "bg-gray-50",
+            border: "border-gray-200",
+            text: "text-gray-600",
+            badge: "bg-gray-600",
+          },
+        };
+      default:
+        return {
+          key: "unknown",
+          label: t ? "غير معروف" : "Unknown",
+          color: "gray",
+          icon: Car,
+          styles: {
+            bg: "bg-gray-50",
+            border: "border-gray-200",
+            text: "text-gray-600",
+            badge: "bg-gray-600",
+          },
+        };
+    }
+  }
 
   const loadAllVehicles = async () => {
     setLoading(true);
@@ -133,36 +245,12 @@ export default function VehicleHistory() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-6 py-10 shadow-2xl">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-4 mb-3">
-                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                  <Car size={36} />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold">{t('vehicles.vehicleHistoryTitle')}</h1>
-                  <p className="text-blue-100 mt-1">
-                    {loading
-                      ? t('common.loading')
-                      : `${allVehicles.length} ${t('vehicles.vehicleHistorySubtitle')}`}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={loadAllVehicles}
-              disabled={loading}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 backdrop-blur-sm border border-white/20 hover:scale-105 transform"
-            >
-              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-              {t('common.refresh')}
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title={t('vehicles.vehicleHistoryTitle')}
+        subtitle={loading ? t('common.loading') : `${allVehicles.length} ${t('vehicles.vehicleHistorySubtitle')}`}
+        icon={Car}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

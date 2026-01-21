@@ -9,6 +9,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
+import PageHeader from '@/components/layout/pageheader';
 import { Plus, Search, Edit, Trash2, Car, Eye, Settings } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
@@ -256,27 +257,11 @@ export default function VehicleManagePage() {
 
   return (
     <div className="w-full">
-      {/* Full Width Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 py-8 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-              <Settings size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold mb-1">{t('vehicles.manageVehiclesTitle')}</h1>
-              <p className="text-purple-100">{t('vehicles.manageVehiclesSubtitle')}</p>
-            </div>
-          </div>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 bg-white text-purple-600 hover:bg-purple-50 px-6 py-3 rounded-lg transition font-medium"
-          >
-            <Plus size={18} />
-            <span>{t('vehicles.addNewVehicle')}</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={t('vehicles.manageVehiclesTitle')}
+        subtitle={t('vehicles.manageVehiclesSubtitle')}
+        icon={Settings}
+      />
 
       <div className="px-6 space-y-6">
         {successMessage && (

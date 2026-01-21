@@ -60,8 +60,17 @@ export default function VehiclesWithRidersPage() {
     }
   };
 
-  const filteredVehicles = vehicles.filter((v) => {
-    const matchesSearch =
+  const getEffectiveStatus = (v) => {
+    return v.isStolen ? VehicleStatusType.Stolen :
+      v.isBreakUp ? VehicleStatusType.BreakUp :
+        v.hasActiveProblem ? VehicleStatusType.Problem :
+          normalizeVehicleStatus(v.currentStatus) ||
+          (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+  };
+
+  const searchFilteredVehicles = vehicles.filter((v) => {
+    if (!searchTerm) return true;
+    return (
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.serialNumber?.toString().includes(searchTerm) ||
@@ -71,14 +80,12 @@ export default function VehiclesWithRidersPage() {
       v.currentRider?.employeeIqamaNo?.toString().includes(searchTerm) ||
       v.currentRider?.workingId?.toString().includes(searchTerm) ||
       v.currentRider?.phoneNumber?.toString().includes(searchTerm) ||
-      v.location?.toLowerCase().includes(searchTerm.toLowerCase());
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
-    const effectiveStatus =
-      v.isStolen ? VehicleStatusType.Stolen :
-        v.isBreakUp ? VehicleStatusType.BreakUp :
-          v.hasActiveProblem ? VehicleStatusType.Problem :
-            normalizeVehicleStatus(v.currentStatus) ||
-            (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+  const filteredVehicles = searchFilteredVehicles.filter((v) => {
+    const effectiveStatus = getEffectiveStatus(v);
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -88,24 +95,15 @@ export default function VehiclesWithRidersPage() {
       (statusFilter.toLowerCase() === "stolen" && effectiveStatus === VehicleStatusType.Stolen) ||
       (statusFilter.toLowerCase() === "breakup" && effectiveStatus === VehicleStatusType.BreakUp);
 
-    return matchesSearch && matchesStatus;
+    return matchesStatus;
   });
 
   const getStatsCount = (statusType) => {
-    return vehicles.filter(v => {
-      const effectiveStatus =
-        v.isStolen ? VehicleStatusType.Stolen :
-          v.isBreakUp ? VehicleStatusType.BreakUp :
-            v.hasActiveProblem ? VehicleStatusType.Problem :
-              normalizeVehicleStatus(v.currentStatus) ||
-              (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
-
-      return effectiveStatus === statusType;
-    }).length;
+    return searchFilteredVehicles.filter(v => getEffectiveStatus(v) === statusType).length;
   };
 
   const stats = {
-    total: vehicles.length,
+    total: searchFilteredVehicles.length,
     returned: getStatsCount(VehicleStatusType.Returned),
     taken: getStatsCount(VehicleStatusType.Taken),
     problems: getStatsCount(VehicleStatusType.Problem),
@@ -116,12 +114,7 @@ export default function VehiclesWithRidersPage() {
 
   const handleExportExcel = () => {
     const data = filteredVehicles.map(v => {
-      const effectiveStatus =
-        v.isStolen ? VehicleStatusType.Stolen :
-          v.isBreakUp ? VehicleStatusType.BreakUp :
-            v.hasActiveProblem ? VehicleStatusType.Problem :
-              normalizeVehicleStatus(v.currentStatus) ||
-              (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+      const effectiveStatus = getEffectiveStatus(v);
 
       const statusAttrs = getVehicleStatusAttributes(effectiveStatus, t);
 
@@ -343,12 +336,7 @@ export default function VehiclesWithRidersPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredVehicles.map((vehicle) => {
-                    const effectiveStatus =
-                      vehicle.isStolen ? VehicleStatusType.Stolen :
-                        vehicle.isBreakUp ? VehicleStatusType.BreakUp :
-                          vehicle.hasActiveProblem ? VehicleStatusType.Problem :
-                            normalizeVehicleStatus(vehicle.currentStatus) ||
-                            (!vehicle.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
+                    const effectiveStatus = getEffectiveStatus(vehicle);
 
                     const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 

@@ -13,6 +13,7 @@ import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, UserCog, Building, Package, Filter, Download, FileSpreadsheet, Clock, Archive, BarChart3, AlertCircle, History } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
+import Modal from '@/components/Ui/Model';
 import * as XLSX from 'xlsx';
 
 export default function RidersPage() {
@@ -24,6 +25,18 @@ export default function RidersPage() {
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [riderToDelete, setRiderToDelete] = useState(null);
+  const [selectedReason, setSelectedReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+
+  const deleteReasons = [
+    'خرج ولم يعد',
+    'خروج نهائي',
+    'متغيب عن العمل',
+    'نقل كفالة',
+    'اخرى'
+  ];
 
   useEffect(() => {
     loadRiders();
@@ -43,12 +56,28 @@ export default function RidersPage() {
     }
   };
 
-  const handleDelete = async (iqamaNo) => {
-    if (!confirm(t('riders.confirmDelete'))) return;
+  const handleDelete = (iqamaNo) => {
+    setRiderToDelete(iqamaNo);
+    setSelectedReason('');
+    setCustomReason('');
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    const finalReason = selectedReason === 'اخرى' ? customReason : selectedReason;
+
+    if (!finalReason.trim()) {
+      alert(t('common.required'));
+      return;
+    }
 
     try {
-      await ApiService.delete(API_ENDPOINTS.RIDER.DELETE(iqamaNo));
+      await ApiService.delete(API_ENDPOINTS.RIDER.DELETE(riderToDelete), { Reason: finalReason });
       setSuccessMessage(t('riders.deleteSuccess'));
+      setShowDeleteModal(false);
+      setRiderToDelete(null);
+      setSelectedReason('');
+      setCustomReason('');
       loadRiders();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
@@ -115,8 +144,26 @@ export default function RidersPage() {
 
   const columns = [
     { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
-    { header: t('riders.nameArabic'), accessor: 'nameAR' },
-    { header: t('riders.nameEnglish'), accessor: 'nameEN' },
+    {
+      header: t('riders.nameArabic'),
+      accessor: 'nameAR',
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="font-medium text-gray-900">{row.nameAR}</span>
+          <span className="text-xs text-gray-500">{row.nameEN}</span>
+        </div>
+      )
+    },
+    {
+      header: t('riders.sponsorInfo'),
+      accessor: 'sponsor',
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="font-medium text-gray-900">{row.sponsor || '-'}</span>
+          <span className="text-xs text-gray-500">{row.sponsorNo || '-'}</span>
+        </div>
+      )
+    },
     {
       header: t('riders.housing'),
       accessor: 'housingAddress',
@@ -176,6 +223,7 @@ export default function RidersPage() {
       rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rider.sponsorNo?.toString().includes(searchTerm) ||
       rider.housingAddress?.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesSearch;
@@ -221,7 +269,7 @@ export default function RidersPage() {
     <div className="space-y-6">
       <PageHeader
         title={t('employees.title')}
-        subtitle={`${t('riders.totalRiders')}: ${riders.length}`}
+        subtitle={`${t('riders.totalRiders')}: ${filteredRiders.length}`}
         icon={UserCheck}
         actionButton={{
           text: t('riders.addNewRider'),
@@ -492,6 +540,63 @@ export default function RidersPage() {
       </Card>
 
       {/* Quick Actions */}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={t('riders.delete')}
+      >
+        <div className="space-y-4">
+          <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-700">
+            <AlertCircle size={24} />
+            <p className="font-medium">{t('riders.confirmDelete')}</p>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700">
+              {t('common.reason')} <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedReason}
+              onChange={(e) => setSelectedReason(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="">{'اختر السبب'}</option>
+              {deleteReasons.map((reason) => (
+                <option key={reason} value={reason}>
+                  {reason}
+                </option>
+              ))}
+            </select>
+
+            {selectedReason === 'اخرى' && (
+              <textarea
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 h-32"
+                placeholder={t('common.reason')}
+              />
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              className="!bg-red-600 hover:!bg-red-700 text-white"
+              onClick={confirmDelete}
+              disabled={!selectedReason || (selectedReason === 'اخرى' && !customReason.trim())}
+            >
+              {t('common.delete')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
     </div>
   );

@@ -17,6 +17,7 @@ import {
   Clock, Archive, BarChart3, Calendar, History, Package
 } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
+import Modal from '@/components/Ui/Model';
 
 export default function EmployeeAdminPage() {
   const router = useRouter();
@@ -26,6 +27,18 @@ export default function EmployeeAdminPage() {
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [selectedReason, setSelectedReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+
+  const deleteReasons = [
+    'خرج ولم يعد',
+    'خروج نهائي',
+    'متغيب عن العمل',
+    'نقل كفالة',
+    'اخرى'
+  ];
 
   useEffect(() => {
     loadEmployees();
@@ -45,12 +58,28 @@ export default function EmployeeAdminPage() {
     }
   };
 
-  const handleDelete = async (iqamaNo) => {
-    if (!confirm(t('employees.confirmDelete'))) return;
+  const handleDelete = (iqamaNo) => {
+    setEmployeeToDelete(iqamaNo);
+    setSelectedReason('');
+    setCustomReason('');
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    const finalReason = selectedReason === 'اخرى' ? customReason : selectedReason;
+
+    if (!finalReason.trim()) {
+      alert(t('common.required'));
+      return;
+    }
 
     try {
-      await ApiService.delete(API_ENDPOINTS.EMPLOYEE.DELETE(iqamaNo));
+      await ApiService.delete(API_ENDPOINTS.EMPLOYEE.DELETE(employeeToDelete), { Reason: finalReason });
       setSuccessMessage(t('employees.deleteSuccess'));
+      setShowDeleteModal(false);
+      setEmployeeToDelete(null);
+      setSelectedReason('');
+      setCustomReason('');
       loadEmployees();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
@@ -241,7 +270,7 @@ export default function EmployeeAdminPage() {
               bgClass="bg-blue-50"
               className="!p-2"
             />
-           <MiniStatRow
+            <MiniStatRow
               icon={BarChart3}
               title={t('employees.statistics')}
               description={t('employees.dataDashboard')}
@@ -328,6 +357,64 @@ export default function EmployeeAdminPage() {
           loading={loading}
         />
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={t('employees.delete')}
+      >
+        <div className="space-y-4">
+          <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-700">
+            <AlertCircle size={24} />
+            <p className="font-medium">{t('employees.confirmDelete')}</p>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700">
+              {t('common.reason')} <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedReason}
+              onChange={(e) => setSelectedReason(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              <option value="">{t('common.selectReason') || 'اختر السبب'}</option>
+              {deleteReasons.map((reason) => (
+                <option key={reason} value={reason}>
+                  {reason}
+                </option>
+              ))}
+            </select>
+
+            {selectedReason === 'اخرى' && (
+              <textarea
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 h-32"
+                placeholder={t('common.reason')}
+              />
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              className="!bg-red-600 hover:!bg-red-700 text-white"
+              onClick={confirmDelete}
+              disabled={!selectedReason || (selectedReason === 'اخرى' && !customReason.trim())}
+            >
+              {t('common.delete')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }

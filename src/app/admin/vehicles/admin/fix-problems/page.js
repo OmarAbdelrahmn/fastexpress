@@ -90,24 +90,13 @@ export default function FixProblemsPage() {
 
   return (
     <div className="w-full">
-      {/* Full Width Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white px-8 py-8 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-              <Wrench size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold mb-1">{t("vehicles.fixProblemsTitle")}</h1>
-              <p className="text-orange-100">
-                {t("vehicles.fixProblemsSubtitle")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={t('vehicles.fixProblemsTitle')}
+        subtitle={t('vehicles.fixProblemsSubtitle')}
+        icon={Wrench}
+      />
 
-      <div className="px-6 space-y-6">
+      <div className="px-6 space-y-6 p-5">
         {errorMessage && (
           <Alert
             type="error"

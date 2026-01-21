@@ -118,20 +118,11 @@ export default function ChangeLocationPage() {
 
   return (
     <div className="w-full">
-      {/* Full Width Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-teal-800 text-white px-8 py-8 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-white bg-opacity-20 p-3 rounded-xl">
-              <MapPin size={32} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold mb-1">{t('vehicles.changeLocation')}</h1>
-              <p className="text-teal-100">{t('vehicles.updateLocations')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={t('vehicles.changeLocation')}
+        subtitle={t('vehicles.updateLocations')}
+        icon={MapPin}
+      />
 
       <div className="px-6 space-y-6">
 
