@@ -848,7 +848,7 @@ export default function EnhancedDashboard() {
 
           <div className="space-y-4">
             {/* Company Statistics Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.statistics")}
@@ -929,7 +929,7 @@ export default function EnhancedDashboard() {
 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Car size={20} color={COLORS.blue} />
                 {t("dashboard.vehiclesBreakdown")}
@@ -956,7 +956,7 @@ export default function EnhancedDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.orange} />
                 {t("dashboard.ridersStatus")}
@@ -990,7 +990,7 @@ export default function EnhancedDashboard() {
             </div>
 
             {/* Active Riders by Company */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.blue} />
                 {t("dashboard.activeRidersByCompany")}
@@ -1012,7 +1012,7 @@ export default function EnhancedDashboard() {
             </div>
 
             {/* System Overview */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 md:col-span-2 lg:col-span-2 hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.gray} />
                 {t("dashboard.overview")}
