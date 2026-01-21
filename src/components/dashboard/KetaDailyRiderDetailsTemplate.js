@@ -68,7 +68,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
                             </td>
                             <td className="border border-gray-300 px-4 py-2">{rider.housingGroup}</td>
                             <td className="border border-gray-300 px-4 py-2 font-bold">{rider.orderCount}</td>
-                            <td className="border border-gray-300 px-4 py-2">{rider.workingHours}</td>
+                            <td className="border border-gray-300 px-4 py-2">{rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00"}</td>
                         </tr>
                     ))}
                 </tbody>

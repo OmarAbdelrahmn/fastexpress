@@ -64,7 +64,7 @@ export default function KetaDailyRiderDetailsPage() {
             [t('employees.iqamaNumber')]: rider.iqamaNo,
             [t('employees.rider')]: rider.workingId,
             [t('common.orders')]: rider.orderCount,
-            [t('common.workingHours')]: rider.workingHours,
+            [t('common.workingHours')]: rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00",
             [t('common.housingGroup')]: rider.housingGroup,
         }));
 
@@ -228,7 +228,7 @@ export default function KetaDailyRiderDetailsPage() {
                                                         {rider.orderCount}
                                                     </td>
                                                     <td className="px-6 py-4 font-mono text-gray-600 text-start">
-                                                        {rider.workingHours}
+                                                        {rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00"}
                                                     </td>
                                                 </tr>
                                             ))}

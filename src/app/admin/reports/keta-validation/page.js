@@ -156,7 +156,7 @@ export default function KetaValidationPage() {
                         [t('common.day')]: day.day,
                         [t('common.date')]: day.date,
                         [t('keta.validation.hasShift')]: day.hasShift ? t('common.yes') : t('common.no'),
-                        [t('keta.validation.dailyHours')]: day.workingHours,
+                        [t('keta.validation.dailyHours')]: day.workingHours ? Number(day.workingHours).toFixed(2) : "0.00",
                         [t('keta.validation.dailyOrders')]: day.acceptedOrders,
                         [t('keta.validation.dailyStats')]: day.isValid ? t('keta.validation.valid') : t('keta.validation.invalid'),
                         [t('common.notes')]: day.reason || "-"
@@ -391,7 +391,7 @@ export default function KetaValidationPage() {
                                             </div>
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
                                                 <p className="text-xs text-gray-500 mb-1">{t('keta.validation.avgHours')}</p>
-                                                <p className="font-bold text-gray-800">{rider.averageHoursPerDay?.toFixed(1)}</p>
+                                                <p className="font-bold text-gray-800">{rider.averageHoursPerDay?.toFixed(2)}</p>
                                             </div>
                                             <div className="text-center p-2 bg-gray-50 rounded-lg">
                                                 <p className="text-xs text-gray-500 mb-1">{t('common.status')}</p>
@@ -458,7 +458,7 @@ export default function KetaValidationPage() {
                                                                         <span className="text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded">{t('common.no')}</span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-4 py-3 font-bold text-start">{day.workingHours}</td>
+                                                                <td className="px-4 py-3 font-bold text-start">{day.workingHours ? Number(day.workingHours).toFixed(2) : "0.00"}</td>
                                                                 <td className="px-4 py-3 font-bold text-start">{day.acceptedOrders}</td>
                                                                 <td className="px-4 py-3 text-start">
                                                                     {day.isValid ? (

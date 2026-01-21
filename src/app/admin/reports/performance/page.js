@@ -46,9 +46,9 @@ export default function HousingPerformanceReport() {
                         [t('employees.name') + ' (EN)']: rider.riderNameEN,
                         [t('actualWorkingDays')]: rider.actualWorkingDays,
                         [t('absentDays')]: Math.abs(rider.missingDays || 0),
-                        [t('totalHours')]: rider.totalWorkingHours?.toFixed(1),
+                        [t('totalHours')]: rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00",
                         [t('targetHours')]: rider.targetWorkingHours,
-                        [t('hoursDifference')]: hoursDiff?.toFixed(1),
+                        [t('hoursDifference')]: hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00",
                         [t('reports.totalOrders')]: rider.totalOrders,
                         [t('targetOrders')]: recalculatedTargetOrders,
                         [t('ordersDifference')]: recalculatedOrdersDiff
@@ -295,7 +295,7 @@ export default function HousingPerformanceReport() {
                             <StatCard
                                 icon={Clock}
                                 title={"اجمالي الساعات"}
-                                value={totals.totalHours.toFixed(1)}
+                                value={totals.totalHours.toFixed(2)}
                                 color="#f59e0b"
                             />
                             <StatCard
@@ -392,7 +392,7 @@ export default function HousingPerformanceReport() {
                                                                         {missingDays > 0 ? missingDays : '-'}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap font-semibold text-gray-700 text-start">
-                                                                        {rider.totalWorkingHours?.toFixed(1)}
+                                                                        {rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00"}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-start">
                                                                         {rider.targetWorkingHours}
@@ -400,7 +400,7 @@ export default function HousingPerformanceReport() {
                                                                     <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${hoursPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                                                             }`}>
-                                                                            {hoursPositive ? '+' : ''}{hoursDiff?.toFixed(1)}
+                                                                            {hoursPositive ? '+' : ''}{hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00"}
                                                                         </span>
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-600 text-start">

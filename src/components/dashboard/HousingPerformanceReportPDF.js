@@ -252,7 +252,7 @@ const HousingPerformanceReportPDF = ({ reportData, startDate, endDate }) => {
                                     <View style={styles.colId}><Text style={styles.cellText}>{rider.workingId}</Text></View>
                                     <View style={styles.colDays}><Text style={styles.cellText}>{rider.actualWorkingDays}</Text></View>
                                     <View style={styles.colMissing}><Text style={[styles.cellText, { color: missingDays > 0 ? '#dc2626' : '#334155' }]}>{missingDays}</Text></View>
-                                    <View style={styles.colHours}><Text style={styles.cellText}>{rider.totalWorkingHours?.toFixed(1)}</Text></View>
+                                    <View style={styles.colHours}><Text style={styles.cellText}>{rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00"}</Text></View>
                                     <View style={styles.colTargetHours}><Text style={styles.cellText}>{rider.targetWorkingHours}</Text></View>
                                     <View style={styles.colDiffHours}>
                                         <Text style={[
@@ -262,7 +262,7 @@ const HousingPerformanceReportPDF = ({ reportData, startDate, endDate }) => {
                                                 fontWeight: 'bold'
                                             }
                                         ]}>
-                                            {hoursPositive ? '+' : ''}{hoursDiff?.toFixed(1)}
+                                            {hoursPositive ? '+' : ''}{hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00"}
                                         </Text>
                                     </View>
                                     <View style={styles.colOrders}><Text style={styles.cellText}>{rider.totalOrders}</Text></View>
