@@ -156,7 +156,11 @@
       "endDate": "End Date",
       "expectedDays": "Expected Working Days",
       "totalOrders": "Total Orders"
-    }
+    },
+    "rejectionReport": "Rejection Report (Keta)",
+    "rejectionReportDesc": "Detailed rejection report for Keta",
+    "declinedOrdersReport": "Declined Orders Report (Stacked)",
+    "declinedOrdersReportDesc": "Detailed declined orders (Stacked) report for Keta"
   },
   "navigation": {
     "manageRiders": "Manage Riders",

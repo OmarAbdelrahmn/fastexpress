@@ -1,6 +1,6 @@
 {
   "common": {
-    "quickActions":"إجراءات سريعة",
+    "quickActions": "إجراءات سريعة",
     "results": "نتائج",
     "search": "بحث",
     "add": "إضافة",
@@ -159,7 +159,9 @@
       "totalOrders": "إجمالي الطلبات"
     },
     "rejectionReport": "تقرير رفض الطلبات (كيتا)",
-    "rejectionReportDesc": "تقرير تفصيلي لرفض الطلبات لشركة كيتا"
+    "rejectionReportDesc": "تقرير تفصيلي لرفض الطلبات لشركة كيتا",
+    "declinedOrdersReport": "تقرير الطلبات المرفوضة",
+    "declinedOrdersReportDesc": "تقرير تفصيلي للطلبات المرفوضة لشركة كيتا"
   },
   "navigation": {
     "manageRiders": "إدارة المناديب",
@@ -1189,7 +1191,7 @@
     "disableInstructions4": "أرسل الطلب وانتظر موافقة المسؤول"
   },
   "riders": {
-    "manageRiders":"إدارة المناديب",
+    "manageRiders": "إدارة المناديب",
     "accountStatus": "حالة الحساب",
     "target": "الهدف",
     "title1": "المناديب",
