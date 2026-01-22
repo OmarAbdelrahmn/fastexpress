@@ -206,6 +206,106 @@ export default function KetaDeclinedOrdersReport() {
                             />
                         </div>
 
+                        {/* Summary Section */}
+                        {reportData.summary && (
+                            <div className="space-y-6">
+                                {/* Top Performer & Stats */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Top Performer Card */}
+                                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                                            <TrendingUp size={100} />
+                                        </div>
+                                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                            <Users className="text-indigo-200" />
+                                            الأكثر إلغاءاً للطلبات
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-indigo-200 text-sm mb-1">الاسم</p>
+                                                <p className="text-2xl font-bold">{reportData.summary.topPerformerName}</p>
+                                                <p className="text-indigo-200 text-xs">{reportData.summary.topPerformerWorkingId}</p>
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-indigo-200 text-sm mb-1">عدد الطلبات الملغاة</p>
+                                                <p className="text-3xl font-bold text-red-200">{reportData.summary.topStackedDeliveries}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Company Stats */}
+                                    <div className="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-500">
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <Building className="text-blue-500" />
+                                            إحصائيات الشركة
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-gray-500 text-sm">معدل الإلغاء العام</p>
+                                                <p className="text-2xl font-bold text-gray-800">{reportData.summary.companyStackedRate?.toFixed(2)}%</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 text-sm">أيام العمل</p>
+                                                <p className="text-2xl font-bold text-gray-800">{reportData.summary.totalWorkingDays}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Housing Breakdown Table */}
+                                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <Building className="text-blue-600" />
+                                            تفاصيل المجموعات السكنية
+                                        </h3>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">المجموعة</th>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">عدد المناديب</th>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات الملغاة</th>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات المقبولة</th>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">نسبة الإلغاء</th>
+                                                    <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">متوسط الإلغاء/مندوب</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {reportData.summary.housingBreakdowns?.map((bg, idx) => (
+                                                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-800">
+                                                            {bg.housingName}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-blue-600 font-bold">
+                                                            {bg.totalRiders}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-red-600 font-bold">
+                                                            {bg.totalStackedDeliveries}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-green-600 font-bold">
+                                                            {bg.totalAcceptedOrders}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${bg.stackedRate > 5 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                                                                    {bg.stackedRate?.toFixed(2)}%
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-gray-600 font-bold">
+                                                            {bg.averageStackedPerRider?.toFixed(1)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Riders Table */}
                         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
