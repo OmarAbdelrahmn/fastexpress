@@ -160,8 +160,8 @@
     },
     "rejectionReport": "تقرير رفض الطلبات (كيتا)",
     "rejectionReportDesc": "تقرير تفصيلي لرفض الطلبات لشركة كيتا",
-    "declinedOrdersReport": "تقرير الطلبات المرفوضة",
-    "declinedOrdersReportDesc": "تقرير تفصيلي للطلبات المرفوضة لشركة كيتا"
+    "declinedOrdersReport": "تقرير الطلبات الملغاة",
+    "declinedOrdersReportDesc": "تقرير تفصيلي للطلبات الملغاة لشركة كيتا"
   },
   "navigation": {
     "manageRiders": "إدارة المناديب",

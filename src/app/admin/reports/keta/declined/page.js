@@ -29,7 +29,7 @@ export default function KetaDeclinedOrdersReport() {
             ["السكن"]: rider.housingName,
             ["إجمالي الشفتات"]: rider.totalShifts,
             ["إجمالي الطلبات المقبولة"]: rider.totalAcceptedOrders,
-            ["إجمالي الطلبات المرفوضة"]: rider.totalStackedDeliveries, // Swapped as requested
+            ["إجمالي الطلبات الملغاة"]: rider.totalStackedDeliveries, // Swapped as requested
             ["نسبة الرفض"]: `${rider.stackedPercentage.toFixed(2)}%`,
             ["أعلى رفص في يوم"]: rider.maxStackedInDay,
             ["تاريخ أعلى رفض"]: rider.maxStackedDate
@@ -37,7 +37,7 @@ export default function KetaDeclinedOrdersReport() {
 
         const ws = XLSX.utils.json_to_sheet(excelData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "تقرير الطلبات المرفوضة");
+        XLSX.utils.book_append_sheet(wb, ws, "تقرير الطلبات الملغاة");
         XLSX.writeFile(wb, `keta_declined_report_${form.startDate}_${form.endDate}.xlsx`);
     };
 
@@ -182,13 +182,13 @@ export default function KetaDeclinedOrdersReport() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={XCircle}
-                                title={"إجمالي الطلبات المرفوضة"}
+                                title={"إجمالي الطلبات الملغاة"}
                                 value={reportData.totalStackedDeliveries}
                                 color="#ef4444"
                             />
                             <StatCard
                                 icon={TrendingUp}
-                                title={"نسبة الرفض العامة"}
+                                title={"نسبة الالغاءالعامة"}
                                 value={`${reportData.stackedDeliveryRate?.toFixed(2)}%`}
                                 color="#f97316"
                             />
@@ -200,7 +200,7 @@ export default function KetaDeclinedOrdersReport() {
                             />
                             <StatCard
                                 icon={AlertTriangle}
-                                title={"متوسط الرفض / مندوب"}
+                                title={"متوسط الالغاء/ مندوب"}
                                 value={reportData.averageStackedPerRider?.toFixed(1)}
                                 color="#8b5cf6"
                             />
@@ -224,7 +224,7 @@ export default function KetaDeclinedOrdersReport() {
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">السكن</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">عدد الشفتات</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات المقبولة</th>
-                                            <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات المرفوضة</th>
+                                            <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات الملغاة</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">نسبة الرفض</th>
                                         </tr>
                                     </thead>
