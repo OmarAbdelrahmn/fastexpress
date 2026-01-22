@@ -10,6 +10,8 @@ import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { AlertCircle, CheckCircle, XCircle, User, Clock } from 'lucide-react';
+import { TokenManager } from '@/lib/auth/tokenManager';
+import { useAuth } from '@/lib/auth/authContext';
 
 export default function StatusRequestsPage() {
   const router = useRouter();
@@ -19,6 +21,30 @@ export default function StatusRequestsPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [processingId, setProcessingId] = useState(null);
+  const [user, setUser] = useState(null);
+  const { logout } = useAuth();
+
+  useEffect(() => {
+        const userData = TokenManager.getUserFromToken();
+        setUser(userData);
+    
+        const updateTimer = () => {
+          const remaining = TokenManager.getRemainingTime();
+          if (remaining <= 0) {
+            logout();
+            return;
+          }
+    
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          setRemainingTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+        };
+    
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+    
+        return () => clearInterval(interval);
+      }, [logout]);
 
   useEffect(() => {
     loadPendingRequests();
@@ -49,7 +75,7 @@ export default function StatusRequestsPage() {
       await ApiService.post('/api/Temp/employee-resolve-status-changes', {
         iqamaNo: iqamaNo,
         resolution: resolution,
-        resolvedBy: 'Admin',
+        resolvedBy: user.unique_name,
         adminNot: adminNotes
       });
 
