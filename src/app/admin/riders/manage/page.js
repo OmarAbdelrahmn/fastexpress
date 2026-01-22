@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { FileSpreadsheet, Clock, AlertCircle, Archive, BarChart3, History, ArrowLeft, Settings } from 'lucide-react';
+import { FileSpreadsheet, Clock, AlertCircle, Archive, BarChart3, History, ArrowLeft, Settings, User } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 
@@ -80,6 +80,14 @@ export default function RiderManagePage() {
                             onClick={() => router.push('/admin/riders/manage/statistics')}
                             color="#2a86a1ff"
                             bgClass="bg-gray-100"
+                        />
+                        <MiniStatRow
+                            icon={User}
+                            title={t('employees.histories')}
+                            description={t('employees.viewHistory')}
+                            onClick={() => router.push('/admin/riders/manage/date-range')}
+                            color="#343438ff" // indigo-600
+                            bgClass="bg-blue-50"
                         />
                         <MiniStatRow
                             icon={History}

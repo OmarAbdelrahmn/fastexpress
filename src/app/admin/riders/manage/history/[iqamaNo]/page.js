@@ -34,7 +34,7 @@ export default function EmployeeHistoryPage() {
         setLoading(true);
         setErrorMessage('');
         try {
-            const data = await ApiService.get(`/api/Temp/employee/history/${iqamaNo}`);
+            const data = await ApiService.get(`/api/employee/history/${iqamaNo}`);
             setHistoryData(data);
         } catch (err) {
             console.error('Error loading employee history:', err);

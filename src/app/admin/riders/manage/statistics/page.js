@@ -129,7 +129,7 @@ export default function StatisticsPage() {
             )}
 
             {/* Main Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-10">
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
                     <div className="flex items-center justify-between mb-2">
                         <TrendingUp size={32} className="opacity-80" />
@@ -169,7 +169,7 @@ export default function StatisticsPage() {
 
             {/* Status Breakdown */}
             <Card>
-                <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 p-5">
                     <PieChart size={20} />
                     {t('employees.requestsByStatus')}
                 </h3>
@@ -213,7 +213,7 @@ export default function StatisticsPage() {
 
             {/* Monthly Requests Chart */}
             <Card>
-                <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 p-5">
                     <Calendar size={20} />
                     {t('employees.monthlyRequests')}
                 </h3>

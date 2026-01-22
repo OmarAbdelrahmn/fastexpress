@@ -27,7 +27,7 @@ export default function StatusRequestsPage() {
 
 
 
-    useEffect(() => {
+  useEffect(() => {
       const userData = TokenManager.getUserFromToken();
       setUser(userData);
   

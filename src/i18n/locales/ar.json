@@ -1,5 +1,6 @@
 {
   "common": {
+    "quickActions":"إجراءات سريعة",
     "results": "نتائج",
     "search": "بحث",
     "add": "إضافة",
@@ -855,6 +856,7 @@
     "deletedEmployees": "الموظفين المحذوفين",
     "archive": "الأرشيف",
     "history": "السجل التاريخي",
+    "histories": " سجل طلبات المشرفين فى فترة ",
     "viewHistory": "عرض السجل",
     "searchPlaceholder": "البحث بالاسم، رقم الإقامة، البلد، أو الكفيل...",
     "employeeIqamaNumber": "رقم إقامة الموظف",
@@ -1187,6 +1189,7 @@
     "disableInstructions4": "أرسل الطلب وانتظر موافقة المسؤول"
   },
   "riders": {
+    "manageRiders":"إدارة المناديب",
     "accountStatus": "حالة الحساب",
     "target": "الهدف",
     "title1": "المناديب",
