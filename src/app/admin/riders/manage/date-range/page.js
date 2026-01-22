@@ -12,6 +12,7 @@ import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { Calendar, Search, Download, Filter, CheckCircle, XCircle, Clock, User } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 export default function DateRangeHistoryPage() {
     const router = useRouter();
@@ -48,6 +49,7 @@ export default function DateRangeHistoryPage() {
             );
 
             setSearchResults(data);
+            console.log(data);
             setSuccessMessage(t('employees.foundRecords').replace('{{count}}', data.totalRecords));
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
@@ -71,32 +73,24 @@ export default function DateRangeHistoryPage() {
     const handleExport = () => {
         if (!searchResults?.data || searchResults.data.length === 0) return;
 
-        const headers = language === 'ar'
-            ? ['رقم الإقامة', 'الاسم (عربي)', 'الاسم (إنجليزي)', 'الحالة المطلوبة', 'السبب', 'مقدم الطلب', 'تاريخ الطلب', 'محلول', 'القرار', 'تم الحل بواسطة', 'تاريخ الحل']
-            : ['Iqama No', 'Name (Arabic)', 'Name (English)', 'Requested Status', 'Reason', 'Requested By', 'Request Date', 'Resolved', 'Resolution', 'Resolved By', 'Resolved Date'];
+        const exportData = searchResults.data.map(record => ({
+            [t('employees.iqamaNumber')]: record.iqamaNo,
+            [t('employees.nameArabic')]: record.employeeNameAR,
+            [t('employees.nameEnglish')]: record.employeeNameEN,
+            [t('employees.requestedStatus')]: record.requestedStatus,
+            [t('common.reason')]: record.reason || '',
+            [t('employees.requestedBy')]: record.requestedBy,
+            [t('employees.requestDate')]: new Date(record.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US'),
+            [t('employees.resolution')]: record.isResolved ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No'),
+            [t('employees.approved')]: record.resolution || '-',
+            [t('employees.resolvedBy')]: record.resolvedBy || '-',
+            [t('employees.resolvedDate')]: record.resolvedAt ? new Date(record.resolvedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US') : '-'
+        }));
 
-        const csvContent = [
-            headers.join(','),
-            ...searchResults.data.map(record => [
-                record.iqamaNo,
-                record.employeeNameAR,
-                record.employeeNameEN,
-                record.requestedStatus,
-                `"${record.reason || ''}"`,
-                record.requestedBy,
-                new Date(record.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US'),
-                record.isResolved ? (language === 'ar' ? 'نعم' : 'Yes') : (language === 'ar' ? 'لا' : 'No'),
-                record.resolution || '-',
-                record.resolvedBy || '-',
-                record.resolvedAt ? new Date(record.resolvedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US') : '-'
-            ].join(','))
-        ].join('\n');
-
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `status_changes_${startDate}_to_${endDate}.csv`;
-        link.click();
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Status Changes");
+        XLSX.writeFile(workbook, `status_changes_${startDate}_to_${endDate}.xlsx`);
     };
 
     const getResolutionBadge = (isResolved, resolution) => {
@@ -137,8 +131,16 @@ export default function DateRangeHistoryPage() {
                 </button>
             )
         },
-        { header: t('employees.nameArabic'), accessor: 'employeeNameAR' },
-        { header: t('employees.nameEnglish'), accessor: 'employeeNameEN' },
+        {
+            header: t('common.name'),
+            accessor: 'employeeNameAR',
+            render: (row) => (
+                <div className="flex flex-col">
+                    <span className="font-medium">{row.employeeNameAR}</span>
+                    <span className="text-xs text-gray-500">{row.employeeNameEN}</span>
+                </div>
+            )
+        },
         {
             header: t('employees.requestedStatus'),
             accessor: 'requestedStatus',
@@ -159,7 +161,21 @@ export default function DateRangeHistoryPage() {
             accessor: 'requestedAt',
             render: (row) => (
                 <span className="text-sm text-gray-600">
-                    {new Date(row.requestedAt).toLocaleDateString(language === 'ar' ? 'en-US' : 'en-US')}
+                    {row.requestedAt ? new Date(row.requestedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US') : '-'}
+                </span>
+            )
+        },
+        {
+            header: t('employees.resolvedBy'),
+            accessor: 'resolvedBy',
+            render: (row) => row.resolvedBy || '-'
+        },
+        {
+            header: t('employees.resolvedDate'),
+            accessor: 'resolvedAt',
+            render: (row) => (
+                <span className="text-sm text-gray-600">
+                    {row.resolvedAt ? new Date(row.resolvedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US') : '-'}
                 </span>
             )
         },
@@ -265,7 +281,7 @@ export default function DateRangeHistoryPage() {
                                         onClick={handleExport}
                                     >
                                         <Download size={18} className="ml-2" />
-                                        {t('employees.exportCSV')}
+                                        {t('common.exportExcel')}
                                     </Button>
                                 )}
                             </div>
