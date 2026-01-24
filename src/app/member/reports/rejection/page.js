@@ -11,7 +11,6 @@ import {
     Search,
     AlertCircle,
     Users,
-    Calendar,
     FileText,
     TrendingDown,
     Target,
@@ -28,6 +27,7 @@ export default function RejectionReportPage() {
     // State
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [filterType, setFilterType] = useState('all');
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -63,11 +63,6 @@ export default function RejectionReportPage() {
         }
     };
 
-    // Auto-fetch on mount once dates are set (optional, maybe better to wait for click)
-    // stick to button click for explicit action or fetch when dates change if desired.
-    // Let's fetch when dates are initialized if we want, but better let user click or fetch strictly on useEffect of dates if we want live updates.
-    // Given the request implies specific dates, let's just fetch when the user clicks or if we have initial dates. 
-    // I'll add a useEffect to fetch initially when dates are ready.
     useEffect(() => {
         if (startDate && endDate && !reportData) {
             fetchReport();
@@ -88,10 +83,55 @@ export default function RejectionReportPage() {
         </div>
     );
 
-    const handleExport = () => {
-        if (!reportData?.riderDetails) return;
+    const getFilteredData = () => {
+        if (!reportData) return null;
+        if (filterType === 'all') return reportData;
 
-        const data = reportData.riderDetails.map(rider => ({
+        const isHunger = filterType === 'hunger';
+        const isKeta = filterType === 'keta';
+
+        const filteredRiders = (reportData.riderDetails || []).filter(r => {
+            const wid = String(r.workingId || '').trim();
+            if (isHunger) return wid.length < 10;
+            if (isKeta) return wid.length >= 10;
+            return true;
+        });
+
+        // Recalculate totals
+        const totals = filteredRiders.reduce((acc, r) => ({
+            totalRiders: acc.totalRiders + 1,
+            totalOrders: acc.totalOrders + (r.totalOrders || 0),
+            totalTargetOrders: acc.totalTargetOrders + (r.targetOrders || 0),
+            totalRejections: acc.totalRejections + (r.totalRejections || 0),
+            totalRealRejections: acc.totalRealRejections + (r.totalRealRejections || 0)
+        }), {
+            totalRiders: 0, totalOrders: 0, totalTargetOrders: 0, totalRejections: 0, totalRealRejections: 0
+        });
+
+        const overallRejectionRate = totals.totalOrders > 0
+            ? ((totals.totalRejections / totals.totalOrders) * 100).toFixed(2)
+            : "0.00";
+        const overallRealRejectionRate = totals.totalOrders > 0
+            ? ((totals.totalRealRejections / totals.totalOrders) * 100).toFixed(2)
+            : "0.00";
+
+        return {
+            ...reportData,
+            totals: {
+                ...totals,
+                overallRejectionRate,
+                overallRealRejectionRate
+            },
+            riderDetails: filteredRiders
+        };
+    };
+
+    const finalData = getFilteredData();
+
+    const handleExport = () => {
+        if (!finalData?.riderDetails) return;
+
+        const data = finalData.riderDetails.map(rider => ({
             "المندوب": rider.riderNameAR || rider.riderNameEN,
             "المعرف": rider.workingId,
             "الأيام": rider.totalShifts,
@@ -121,7 +161,8 @@ export default function RejectionReportPage() {
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
-        XLSX.writeFile(wb, `Rejection_Report_${startDate}_to_${endDate}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
+        XLSX.writeFile(wb, `Rejection_Report_${startDate}_to_${endDate}_${filterType}.xlsx`);
     };
 
     return (
@@ -178,12 +219,26 @@ export default function RejectionReportPage() {
                                 <span>عرض</span>
                                 <Search size={18} />
                             </>
+
                         )}
                     </button>
+                    {/* Filter Select */}
+                    <div className="w-16">
+                        <select
+                            className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 block p-2 shadow-sm font-medium"
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                        >
+                            <option value="all">الكل</option>
+                            <option value="hunger">هنقر</option>
+                            <option value="keta">كيتا</option>
+                        </select>
+                    </div>
+
                     {/* Export Button */}
                     <button
                         onClick={handleExport}
-                        disabled={loading || !reportData}
+                        disabled={loading || !finalData}
                         className="flex items-center gap-2 p-2 px-4 border border-gray-200 rounded-xl hover:bg-green-50 text-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold"
                         title="تصدير Excel"
                     >
@@ -192,10 +247,10 @@ export default function RejectionReportPage() {
                     </button>
 
                     {/* PDF Button */}
-                    {reportData && (
+                    {finalData && (
                         <PDFDownloadLink
-                            document={<RejectionReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
-                            fileName={`Rejection_Report_${startDate}_${endDate}.pdf`}
+                            document={<RejectionReportPDF data={finalData} startDate={startDate} endDate={endDate} />}
+                            fileName={`Rejection_Report_${startDate}_${endDate}_${filterType}.pdf`}
                             className="flex items-center gap-2 p-2 px-4 border border-gray-200 rounded-xl hover:bg-red-50 text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold"
                         >
                             {({ blob, url, loading, error }) => (
@@ -210,129 +265,137 @@ export default function RejectionReportPage() {
             </div>
 
             {/* Error Message */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3">
-                    <AlertCircle size={20} />
-                    <p className="font-medium">{error}</p>
-                </div>
-            )}
+            {
+                error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3">
+                        <AlertCircle size={20} />
+                        <p className="font-medium">{error}</p>
+                    </div>
+                )
+            }
 
             {/* Statistics Cards */}
-            {reportData?.totals && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                        title="إجمالي المناديب"
-                        value={reportData.totals.totalRiders}
-                        icon={Users}
-                        color={{ bg: "bg-blue-50", text: "text-blue-600" }}
-                    />
-                    <StatCard
-                        title="إجمالي الطلبات"
-                        value={reportData.totals.totalOrders}
-                        icon={FileText}
-                        color={{ bg: "bg-green-50", text: "text-green-600" }}
-                    />
-                    <StatCard
-                        title="التاجت"
-                        value={reportData.totals.totalTargetOrders}
-                        icon={Target}
-                        color={{ bg: "bg-purple-50", text: "text-purple-600" }}
-                    />
-                    <StatCard
-                        title="الفرق"
-                        value={reportData.totals.totalOrders - reportData.totals.totalTargetOrders}
-                        icon={AlertCircle}
-                        color={{ bg: "bg-purple-50", text: "text-purple-600" }}
-                    />
-                    <StatCard
-                        title="إجمالي الرفض"
-                        value={reportData.totals.totalRejections}
-                        icon={TrendingDown}
-                        color={{ bg: "bg-red-50", text: "text-red-600" }}
-                    />
-                    <StatCard
-                        title="نسبة الرفض"
-                        value={reportData.totals.overallRejectionRate}
-                        icon={Percent}
-                        color={{ bg: "bg-orange-50", text: "text-orange-600" }}
-                        suffix="%"
-                    />
-                    <StatCard
-                        title="الرفض الحقيقي"
-                        value={reportData.totals.totalRealRejections}
-                        icon={AlertCircle}
-                        color={{ bg: "bg-red-100", text: "text-red-700" }}
-                    />
-                    <StatCard
-                        title="نسبة الرفض الحقيقي"
-                        value={reportData.totals.overallRealRejectionRate}
-                        icon={Percent}
-                        color={{ bg: "bg-orange-100", text: "text-orange-700" }}
-                        suffix="%"
-                    />
+            {
+                finalData?.totals && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <StatCard
+                            title="إجمالي المناديب"
+                            value={finalData.totals.totalRiders}
+                            icon={Users}
+                            color={{ bg: "bg-blue-50", text: "text-blue-600" }}
+                        />
+                        <StatCard
+                            title="إجمالي الطلبات"
+                            value={finalData.totals.totalOrders}
+                            icon={FileText}
+                            color={{ bg: "bg-green-50", text: "text-green-600" }}
+                        />
+                        <StatCard
+                            title="التاجت"
+                            value={finalData.totals.totalTargetOrders}
+                            icon={Target}
+                            color={{ bg: "bg-purple-50", text: "text-purple-600" }}
+                        />
+                        <StatCard
+                            title="الفرق"
+                            value={finalData.totals.totalOrders - finalData.totals.totalTargetOrders}
+                            icon={AlertCircle}
+                            color={{ bg: "bg-purple-50", text: "text-purple-600" }}
+                        />
+                        <StatCard
+                            title="إجمالي الرفض"
+                            value={finalData.totals.totalRejections}
+                            icon={TrendingDown}
+                            color={{ bg: "bg-red-50", text: "text-red-600" }}
+                        />
+                        <StatCard
+                            title="نسبة الرفض"
+                            value={finalData.totals.overallRejectionRate}
+                            icon={Percent}
+                            color={{ bg: "bg-orange-50", text: "text-orange-600" }}
+                            suffix="%"
+                        />
+                        <StatCard
+                            title="الرفض الحقيقي"
+                            value={finalData.totals.totalRealRejections}
+                            icon={AlertCircle}
+                            color={{ bg: "bg-red-100", text: "text-red-700" }}
+                        />
+                        <StatCard
+                            title="نسبة الرفض الحقيقي"
+                            value={finalData.totals.overallRealRejectionRate}
+                            icon={Percent}
+                            color={{ bg: "bg-orange-100", text: "text-orange-700" }}
+                            suffix="%"
+                        />
 
-                </div>
-            )}
+                    </div>
+                )
+            }
 
             {/* Details Table */}
-            {reportData?.riderDetails && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                        <h2 className="text-lg font-bold text-gray-900">تفاصيل المناديب</h2>
-                        <span className="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
-                            {reportData.riderDetails.length} سجل
-                        </span>
-                    </div>
+            {
+                finalData?.riderDetails && (
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                            <h2 className="text-lg font-bold text-gray-900">تفاصيل المناديب</h2>
+                            <span className="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
+                                {finalData.riderDetails.length} سجل
+                            </span>
+                        </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-right">
-                            <thead className="bg-gray-50 text-gray-500 text-sm">
-                                <tr>
-                                    <th className="px-6 py-3 font-semibold">المندوب</th>
-                                    <th className="px-6 py-3 font-semibold">المعرف</th>
-                                    <th className="px-6 py-3 font-semibold">الأيام</th>
-                                    <th className="px-6 py-3 font-semibold">عدد الطلبات</th>
-                                    <th className="px-6 py-3 font-semibold">التارجيت</th>
-                                    <th className="px-6 py-3 font-semibold text-orange-600">الرفض</th>
-                                    <th className="px-6 py-3 font-semibold text-orange-600">نسبة الرفض</th>
-                                    <th className="px-6 py-3 font-semibold text-red-700">رفض حقيقي</th>
-                                    <th className="px-6 py-3 font-semibold text-red-700">نسبة (ح)</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm">
-                                {reportData.riderDetails.map((rider) => (
-                                    <tr key={rider.riderId} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">{rider.riderNameAR}</div>
-                                            <div className="text-xs text-gray-500 font-mono">{rider.riderNameEN}</div>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-gray-600">{rider.workingId}</td>
-                                        <td className="px-6 py-4">{rider.totalShifts}</td>
-                                        <td className="px-6 py-4 font-semibold text-gray-900">{rider.totalOrders}</td>
-                                        <td className="px-6 py-4 text-gray-600">{rider.targetOrders}</td>
-                                        <td className="px-6 py-4 text-red-600 font-medium">{rider.totalRejections}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${rider.rejectionRate > 10 ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
-                                                }`}>
-                                                {rider.rejectionRate}%
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-red-700 font-medium">{rider.totalRealRejections}</td>
-                                        <td className="px-6 py-4 font-mono">{rider.realRejectionRate}%</td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-right">
+                                <thead className="bg-gray-50 text-gray-500 text-sm">
+                                    <tr>
+                                        <th className="px-6 py-3 font-semibold">المندوب</th>
+                                        <th className="px-6 py-3 font-semibold">المعرف</th>
+                                        <th className="px-6 py-3 font-semibold">الأيام</th>
+                                        <th className="px-6 py-3 font-semibold">عدد الطلبات</th>
+                                        <th className="px-6 py-3 font-semibold">التارجيت</th>
+                                        <th className="px-6 py-3 font-semibold text-orange-600">الرفض</th>
+                                        <th className="px-6 py-3 font-semibold text-orange-600">نسبة الرفض</th>
+                                        <th className="px-6 py-3 font-semibold text-red-700">رفض حقيقي</th>
+                                        <th className="px-6 py-3 font-semibold text-red-700">نسبة (ح)</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 text-sm">
+                                    {finalData.riderDetails.map((rider) => (
+                                        <tr key={rider.riderId} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-gray-900">{rider.riderNameAR}</div>
+                                                <div className="text-xs text-gray-500 font-mono">{rider.riderNameEN}</div>
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-gray-600">{rider.workingId}</td>
+                                            <td className="px-6 py-4">{rider.totalShifts}</td>
+                                            <td className="px-6 py-4 font-semibold text-gray-900">{rider.totalOrders}</td>
+                                            <td className="px-6 py-4 text-gray-600">{rider.targetOrders}</td>
+                                            <td className="px-6 py-4 text-red-600 font-medium">{rider.totalRejections}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${rider.rejectionRate > 10 ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                                                    }`}>
+                                                    {rider.rejectionRate}%
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-red-700 font-medium">{rider.totalRealRejections}</td>
+                                            <td className="px-6 py-4 font-mono">{rider.realRejectionRate}%</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {loading && !reportData && (
-                <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-3xl shadow-sm border border-gray-100">
-                    <div className="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin mb-4" />
-                    <p className="text-gray-500 animate-pulse font-medium">جاري تحميل البيانات...</p>
-                </div>
-            )}
-        </div>
+            {
+                loading && !reportData && (
+                    <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-3xl shadow-sm border border-gray-100">
+                        <div className="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin mb-4" />
+                        <p className="text-gray-500 animate-pulse font-medium">جاري تحميل البيانات...</p>
+                    </div>
+                )
+            }
+        </div >
     );
 }

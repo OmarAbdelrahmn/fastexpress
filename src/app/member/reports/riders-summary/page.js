@@ -28,6 +28,7 @@ export default function RidersSummaryReportPage() {
     // State
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [filterType, setFilterType] = useState('all');
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -89,10 +90,54 @@ export default function RidersSummaryReportPage() {
         </div>
     );
 
-    const handleExport = () => {
-        if (!reportData?.riderSummaries) return;
+    const getFilteredData = () => {
+        if (!reportData) return null;
+        if (filterType === 'all') return reportData;
 
-        const data = reportData.riderSummaries.map(rider => {
+        const isHunger = filterType === 'hunger';
+        const isKeta = filterType === 'keta';
+
+        const filteredRiders = (reportData.riderSummaries || []).filter(r => {
+            const wid = String(r.workingId || '').trim();
+            if (isHunger) return wid.length < 10;
+            if (isKeta) return wid.length >= 10;
+            return true;
+        });
+
+        // Recalculate totals
+        const totals = filteredRiders.reduce((acc, r) => ({
+            totalRiders: acc.totalRiders + 1,
+            totalWorkingDays: acc.totalWorkingDays + (r.actualWorkingDays || 0),
+            totalOrders: acc.totalOrders + (r.totalOrders || 0),
+            totalTargetOrders: acc.totalTargetOrders + (r.targetOrders || 0),
+            ordersDifference: acc.ordersDifference + (r.ordersDifference || 0),
+            totalWorkingHours: acc.totalWorkingHours + (r.totalWorkingHours || 0),
+            totalTargetHours: acc.totalTargetHours + (r.targetWorkingHours || 0),
+            hoursDifference: acc.hoursDifference + (r.hoursDifference || 0),
+        }), {
+            totalRiders: 0,
+            totalWorkingDays: 0,
+            totalOrders: 0,
+            totalTargetOrders: 0,
+            ordersDifference: 0,
+            totalWorkingHours: 0,
+            totalTargetHours: 0,
+            hoursDifference: 0
+        });
+
+        return {
+            ...reportData,
+            totals,
+            riderSummaries: filteredRiders
+        };
+    };
+
+    const finalData = getFilteredData();
+
+    const handleExport = () => {
+        if (!finalData?.riderSummaries) return;
+
+        const data = finalData.riderSummaries.map(rider => {
             const missingDays = rider.missingDays ?? rider.MissingDays ?? 0;
             return {
                 "المندوب": rider.riderNameAR || rider.riderNameEN,
@@ -127,7 +172,8 @@ export default function RidersSummaryReportPage() {
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Riders Summary");
-        XLSX.writeFile(wb, `Riders_Summary_${startDate}_to_${endDate}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Riders Summary");
+        XLSX.writeFile(wb, `Riders_Summary_${startDate}_to_${endDate}_${filterType}.xlsx`);
     };
 
     return (
@@ -184,9 +230,22 @@ export default function RidersSummaryReportPage() {
                         )}
                     </button>
 
+                    {/* Filter Select */}
+                    <div className="w-16">
+                        <select
+                            className="w-full bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-2 shadow-sm font-medium"
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                        >
+                            <option value="all">الكل</option>
+                            <option value="hunger">هنقر</option>
+                            <option value="keta">كيتا</option>
+                        </select>
+                    </div>
+
                     <button
                         onClick={handleExport}
-                        disabled={loading || !reportData}
+                        disabled={loading || !finalData}
                         className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="تصدير Excel"
                     >
@@ -194,10 +253,10 @@ export default function RidersSummaryReportPage() {
                         <span className="font-medium">Excel</span>
                     </button>
 
-                    {reportData && (
+                    {finalData && (
                         <PDFDownloadLink
-                            document={<RidersSummaryReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
-                            fileName={`Riders_Summary_${startDate}_to_${endDate}.pdf`}
+                            document={<RidersSummaryReportPDF data={finalData} startDate={startDate} endDate={endDate} />}
+                            fileName={`Riders_Summary_${startDate}_to_${endDate}_${filterType}.pdf`}
                             className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {({ loading: pdfLoading }) => (
@@ -220,31 +279,31 @@ export default function RidersSummaryReportPage() {
             )}
 
             {/* Statistics Cards */}
-            {reportData?.totals && (
+            {finalData?.totals && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
                         title="إجمالي المناديب"
-                        value={reportData.totals.totalRiders}
+                        value={finalData.totals.totalRiders}
                         icon={Users}
                         color={{ bg: "bg-blue-50", text: "text-blue-600" }}
                     />
                     <StatCard
                         title="إجمالي الاداء"
-                        value={reportData.totals.totalWorkingDays}
+                        value={finalData.totals.totalWorkingDays}
                         icon={Calendar}
                         color={{ bg: "bg-indigo-50", text: "text-indigo-600" }}
                     />
                     <StatCard
                         title="إجمالي الطلبات"
-                        value={reportData.totals.totalOrders}
-                        subValue={`المستهدف: ${reportData.totals.totalTargetOrders} (الفرق: ${reportData.totals.ordersDifference})`}
+                        value={finalData.totals.totalOrders}
+                        subValue={`المستهدف: ${finalData.totals.totalTargetOrders} (الفرق: ${finalData.totals.ordersDifference})`}
                         icon={FileText}
                         color={{ bg: "bg-green-50", text: "text-green-600" }}
                     />
                     <StatCard
                         title="إجمالي الساعات"
-                        value={reportData.totals.totalWorkingHours?.toFixed(2)}
-                        subValue={`المستهدف: ${reportData.totals.totalTargetHours} (الفرق: ${reportData.totals.hoursDifference?.toFixed(2)})`}
+                        value={finalData.totals.totalWorkingHours?.toFixed(2)}
+                        subValue={`المستهدف: ${finalData.totals.totalTargetHours} (الفرق: ${finalData.totals.hoursDifference?.toFixed(2)})`}
                         icon={Clock}
                         color={{ bg: "bg-orange-50", text: "text-orange-600" }}
                         suffix="ساعة"
@@ -253,12 +312,12 @@ export default function RidersSummaryReportPage() {
             )}
 
             {/* Details Table */}
-            {reportData?.riderSummaries && (
+            {finalData?.riderSummaries && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                         <h2 className="text-lg font-bold text-gray-900">تفاصيل أداء المناديب</h2>
                         <span className="bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
-                            {reportData.riderSummaries.length} سجل
+                            {finalData.riderSummaries.length} سجل
                         </span>
                     </div>
 
@@ -279,7 +338,7 @@ export default function RidersSummaryReportPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 text-sm">
-                                {reportData.riderSummaries.map((rider) => {
+                                {finalData.riderSummaries.map((rider) => {
                                     // Handle potential casing mismatches for missingDays
                                     const missingDays = rider.missingDays ?? rider.MissingDays ?? 0;
 
