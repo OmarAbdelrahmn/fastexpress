@@ -165,6 +165,24 @@
     "declinedOrdersReport": "تقرير الطلبات الملغاة",
     "declinedOrdersReportDesc": "تقرير تفصيلي للطلبات الملغاة لشركة كيتا"
   },
+  "companyDailyTrend": {
+    "title": "اتجاهات الشركة اليومية",
+    "subtitle": "تصور للطلبات المقبولة بمرور الوقت مع مستويات تكبير قابلة للتعديل.",
+    "zoomLevel": "مستوى التكبير",
+    "days": "أيام",
+    "months": "شهور",
+    "years": "سنوات",
+    "acceptedOrders": "الطلبات المقبولة",
+    "rejectedOrders": "الطلبات المرفوضة",
+    "hunger": "هنقرستيشن (ID: 1)",
+    "keta": "كيتا (ID: 2)",
+    "metric": "نوع البيانات",
+    "selectCompany": "اختر الشركة",
+    "allCompanies": "جميع الشركات",
+    "accepted": "مقبولة",
+    "rejected": "مرفوضة",
+    "bothMetrics": "الكل (مقبولة ومرفوضة)"
+  },
   "navigation": {
     "manageRiders": "إدارة المناديب",
     "home": "الرئيسية",

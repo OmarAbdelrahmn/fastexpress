@@ -162,6 +162,24 @@
     "declinedOrdersReport": "Declined Orders Report (Stacked)",
     "declinedOrdersReportDesc": "Detailed declined orders (Stacked) report for Keta"
   },
+  "companyDailyTrend": {
+    "title": "Company Daily Trends",
+    "subtitle": "Visualizing accepted orders over time with adjustable zoom levels.",
+    "zoomLevel": "Zoom Level",
+    "days": "Days",
+    "months": "Months",
+    "years": "Years",
+    "acceptedOrders": "Accepted Orders",
+    "rejectedOrders": "Rejected Orders",
+    "hunger": "Hungerstation (ID: 1)",
+    "keta": "Keta (ID: 2)",
+    "metric": "Metric",
+    "selectCompany": "Select Company",
+    "allCompanies": "All Companies",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "bothMetrics": "Both (Accepted & Rejected)"
+  },
   "navigation": {
     "manageRiders": "Manage Riders",
     "home": "Home",
