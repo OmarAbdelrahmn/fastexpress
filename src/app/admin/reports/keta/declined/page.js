@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building, Users, XCircle, TrendingUp, Calendar, BarChart3, FileSpreadsheet, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Building, Users, XCircle, TrendingUp, Calendar, BarChart3, FileSpreadsheet, AlertTriangle, AlertCircle, Search } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -14,15 +14,27 @@ export default function KetaDeclinedOrdersReport() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
+    const [searchQuery, setSearchQuery] = useState('');
     const [form, setForm] = useState({
         startDate: '',
         endDate: '',
     });
 
-    const handleExcelExport = () => {
-        if (!reportData || !reportData.riderDetails || reportData.riderDetails.length === 0) return;
+    const filteredRiders = reportData?.riderDetails?.filter(rider => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            rider.workingId?.toString().toLowerCase().includes(query) ||
+            rider.riderNameAR?.includes(query) ||
+            rider.riderNameEN?.toLowerCase().includes(query) ||
+            rider.housingName?.toLowerCase().includes(query)
+        );
+    }) || [];
 
-        const excelData = reportData.riderDetails.map(rider => ({
+    const handleExcelExport = () => {
+        if (!reportData || !filteredRiders || filteredRiders.length === 0) return;
+
+        const excelData = filteredRiders.map(rider => ({
             ["المعرف"]: rider.workingId,
             ["اسم المندوب (عربي)"]: rider.riderNameAR,
             ["اسم المندوب (انجليزي)"]: rider.riderNameEN,
@@ -308,11 +320,21 @@ export default function KetaDeclinedOrdersReport() {
 
                         {/* Riders Table */}
                         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
+                            <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-gray-50 to-white">
                                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                                     <Users className="text-blue-600" />
-                                    تفاصيل المناديب ({reportData.riderDetails?.length || 0})
+                                    تفاصيل المناديب ({filteredRiders.length})
                                 </h2>
+                                <div className="relative w-full md:w-64">
+                                    <input
+                                        type="text"
+                                        placeholder="بحث باسم، رقم، أو سكن..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -329,7 +351,7 @@ export default function KetaDeclinedOrdersReport() {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {reportData.riderDetails?.map((rider, idx) => (
+                                        {filteredRiders.map((rider, idx) => (
                                             <tr key={idx} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className="font-mono font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">
