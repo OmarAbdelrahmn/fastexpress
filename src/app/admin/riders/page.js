@@ -197,21 +197,21 @@ export default function RidersPage() {
         <div className="flex gap-2">
           <button
             onClick={() => handleViewDetails(row.iqamaNo)}
-            className="text-green-600 hover:text-green-800 p-1"
+            className="text-green-600 hover:text-green-800 p-1 cursor-pointer"
             title={t('riders.viewDetails')}
           >
             <Eye size={18} />
           </button>
           <button
             onClick={() => handleEdit(row.iqamaNo)}
-            className="text-blue-600 hover:text-blue-800 p-1"
+            className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer"
             title={t('riders.edit')}
           >
             <Edit size={18} />
           </button>
           <button
             onClick={() => handleDelete(row.iqamaNo)}
-            className="text-red-600 hover:text-red-800 p-1"
+            className="text-red-600 hover:text-red-800 p-1 cursor-pointer"
             title={t('riders.delete')}
           >
             <Trash2 size={18} />
