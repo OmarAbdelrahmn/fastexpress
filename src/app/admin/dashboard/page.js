@@ -472,6 +472,9 @@ export default function EnhancedDashboard() {
 
   // Color Palette Constants
   const COLORS = {
+    yellow: "#f59e0b", // yellow-500
+    red: "#ef4444", // red-500
+    green: "#10b981", // green-500
     blue: "#2563eb",   // blue-600
     orange: "#f97316", // orange-500
     gray: "#64748b",   // slate-500
@@ -661,12 +664,12 @@ export default function EnhancedDashboard() {
   const MiniStatRow = ({ label, value, icon: Icon, color }) => (
     <div className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-md group-hover:bg-opacity-20 transition-all" style={getBgStyle(color)}>
+        <div className="p-1 transition-all">
           <Icon size={18} color={color} />
         </div>
-        <span className="text-sm font-medium text-gray-600">{label}</span>
+        <span className="text-sm font-medium text-blue-600">{label}</span>
       </div>
-      <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{value}</span>
+      <span className="font-bold text-blue-900 group-hover:text-blue-600 transition-colors">{value}</span>
     </div>
   );
 
@@ -833,7 +836,7 @@ export default function EnhancedDashboard() {
 
           <div className="space-y-4">
             {/* Company Statistics Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.statistics")}
@@ -843,19 +846,19 @@ export default function EnhancedDashboard() {
                   label={t("dashboard.companyTotal")}
                   value={stats.companyTotal}
                   icon={Users}
-                  color={COLORS.blue}
+                  color={COLORS.green}
                 />
                 <MiniStatRow
                   label={t("dashboard.companyRiders")}
                   value={stats.companyRidersCount}
                   icon={Car}
-                  color={COLORS.orange}
+                  color={COLORS.blue}
                 />
                 <MiniStatRow
                   label={t("dashboard.companyEmployees")}
                   value={stats.companyEmployeesCount}
                   icon={Users}
-                  color={COLORS.gray}
+                  color={COLORS.red}
                 />
               </div>
             </div>
@@ -914,7 +917,7 @@ export default function EnhancedDashboard() {
 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg  border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Car size={20} color={COLORS.blue} />
                 {t("dashboard.vehiclesBreakdown")}
@@ -924,26 +927,26 @@ export default function EnhancedDashboard() {
                   label={t("dashboard.readyForDelivery")}
                   value={stats.availableVehicles}
                   icon={CheckCircle}
-                  color={COLORS.blue}
+                  color={COLORS.green}
                 />
                 <MiniStatRow
                   label={t("dashboard.inService")}
                   value={stats.takenVehicles}
                   icon={Users}
-                  color={COLORS.gray}
+                  color={COLORS.blue}
                 />
                 <MiniStatRow
                   label={t("dashboard.inMaintenance")}
                   value={stats.problemVehicles}
                   icon={AlertTriangle}
-                  color={COLORS.orange}
+                  color={COLORS.red}
                 />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Users size={20} color={COLORS.orange} />
+                <Users size={20} color={COLORS.blue} />
                 {t("dashboard.ridersStatus")}
               </h3>
               <div className="space-y-4">
@@ -951,22 +954,22 @@ export default function EnhancedDashboard() {
                   label={t("dashboard.active")}
                   value={stats.activeRiders}
                   icon={CheckCircle}
-                  color={COLORS.blue}
+                  color={COLORS.green}
                 />
                 <MiniStatRow
                   label={t("dashboard.inactive")}
                   value={stats.inactiveRiders}
                   icon={Clock}
-                  color={COLORS.gray}
+                  color={COLORS.red}
                 />
                 <div className="pt-4 border-t border-gray-100 mt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-semibold uppercase text-gray-400">{t("dashboard.performanceRate")}</span>
-                    <span className="text-xl font-bold text-orange-500">{stats.riderEfficiency.toFixed(0)}%</span>
+                    <span className="text-xl font-bold text-blue-500">{stats.riderEfficiency.toFixed(0)}%</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2 mt-2">
                     <div
-                      className="bg-orange-300 h-2 rounded-full transition-all duration-1000"
+                      className="bg-blue-300 h-2 rounded-full transition-all duration-1000"
                       style={{ width: `${Math.min(stats.riderEfficiency, 100)}%` }}
                     ></div>
                   </div>
@@ -975,7 +978,7 @@ export default function EnhancedDashboard() {
             </div>
 
             {/* Active Riders by Company */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
+            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.blue} />
                 {t("dashboard.activeRidersByCompany")}
@@ -985,21 +988,21 @@ export default function EnhancedDashboard() {
                   label={t("dashboard.hunger")}
                   value={stats.activeHungerRiders}
                   icon={CheckCircle}
-                  color={COLORS.orange}
+                  color={COLORS.yellow}
                 />
                 <MiniStatRow
                   label={t("dashboard.keeta")}
                   value={stats.activeKeetaRiders}
                   icon={CheckCircle}
-                  color={COLORS.blue}
+                  color={COLORS.green}
                 />
               </div>
             </div>
 
             {/* System Overview */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
+            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <BarChart3 size={20} color={COLORS.gray} />
+                <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.overview")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1007,19 +1010,19 @@ export default function EnhancedDashboard() {
                   label={t("dashboard.theCompanies")}
                   value={stats.companies}
                   icon={Building2}
-                  color={COLORS.blue}
+                  color={COLORS.yellow}
                 />
                 <MiniStatRow
                   label={t("dashboard.theHousing")}
                   value={stats.housing}
                   icon={Home}
-                  color={COLORS.gray}
+                  color={COLORS.green}
                 />
                 <MiniStatRow
                   label={t("dashboard.theUsers")}
                   value={stats.users}
                   icon={Users}
-                  color={COLORS.orange}
+                  color={COLORS.red}
                 />
               </div>
             </div>
