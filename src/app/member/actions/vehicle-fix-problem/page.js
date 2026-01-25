@@ -198,7 +198,7 @@ export default function VehicleFixProblemPage() {
                                             <span className="font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
                                         </div>
                                         <span className="text-xs px-2 py-1 rounded-full font-medium bg-red-100 text-red-700">
-                                            {vehicle.currentStatus || 'مشكلة'}
+                                            {vehicle.currentStatus?.toLowerCase() === 'problem' ? 'مشكلة' : (vehicle.currentStatus || 'مشكلة')}
                                         </span>
                                     </div>
                                     <div className="text-sm text-gray-600 space-y-1">

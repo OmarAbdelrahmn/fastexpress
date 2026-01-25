@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 import {
     Car,
     IdCard,
@@ -206,7 +207,7 @@ export default function VehicleSwitchRequestPage() {
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Car className="text-blue-600" size={16} />
-                                        <span className="font-bold text-gray-900">{vehicle.plateNumberA}</span>
+                                        <span className="font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
                                     </div>
                                     <div className="text-sm text-gray-600 space-y-1">
                                         <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
@@ -263,7 +264,7 @@ export default function VehicleSwitchRequestPage() {
                         <input
                             type="text"
                             name="newVehiclePlate"
-                            value={formData.newVehiclePlate}
+                            value={formatPlateNumber(formData.newVehiclePlate)}
                             onChange={handleInputChange}
                             placeholder="اختر مركبة من القائمة أعلاه"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"

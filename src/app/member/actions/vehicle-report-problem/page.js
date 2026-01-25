@@ -56,8 +56,10 @@ export default function VehicleReportProblemPage() {
             const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
             // Show all vehicles (both taken and returned)
             const allVehicles = Array.isArray(response) ? response : [];
-            setVehicles(allVehicles);
-            setFilteredVehicles(allVehicles);
+            // Filter out vehicles that already have a problem
+            const validVehicles = allVehicles.filter(v => v.currentStatus?.toLowerCase() !== 'problem');
+            setVehicles(validVehicles);
+            setFilteredVehicles(validVehicles);
         } catch (error) {
             console.error("Error loading vehicles:", error);
         } finally {
