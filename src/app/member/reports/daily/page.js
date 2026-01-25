@@ -46,6 +46,7 @@ export default function DailyReportPage() {
     // State
     const [selectedDate, setSelectedDate] = useState("");
     const [activeTab, setActiveTab] = useState(viewParam);
+    const [filterType, setFilterType] = useState('all');
     const [reportData, setReportData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -79,7 +80,7 @@ export default function DailyReportPage() {
     const fetchReport = async (date, view) => {
         setLoading(true);
         setError(null);
-        setReportData(null); // Clear previous data to avoid mixups
+        setReportData(null);
         try {
             let url;
             if (view === 'detailed') {
@@ -107,11 +108,56 @@ export default function DailyReportPage() {
         router.push(`/member/reports/daily?date=${selectedDate}&view=${tab}`);
     };
 
+    const getFilteredData = () => {
+        if (!reportData) return null;
+
+        // If summary view, return data as is (no filtering)
+        if (activeTab === 'summary') return reportData;
+
+        let data = { ...reportData };
+
+        if (filterType === 'all') return data;
+
+        // Filter Iteration
+        const isHunger = filterType === 'hunger';
+        const isKeta = filterType === 'keta';
+
+        const filteredDetails = (data.housingDetails || []).map(housing => {
+            const riders = (housing.riders || []).filter(r => {
+                const wid = String(r.workingId || '').trim();
+                if (isHunger) return wid.length < 10;
+                if (isKeta) return wid.length >= 10;
+                return true;
+            });
+            return { ...housing, riders, housingRiderCount: riders.length }; // update count if used
+        }).filter(h => h.riders && h.riders.length > 0);
+
+        // Re-calculate Stats
+        const totalOrders = filteredDetails.reduce((acc, h) => acc + h.riders.reduce((s, r) => s + (Number(r.acceptedOrders) || 0), 0), 0);
+        const activeRiders = filteredDetails.reduce((acc, h) => acc + h.riders.length, 0);
+        const avg = activeRiders > 0 ? (totalOrders / activeRiders).toFixed(1) : 0;
+
+        return {
+            ...data,
+            housingDetails: filteredDetails,
+            totalOrders,
+            grandTotalOrders: totalOrders,
+            activeRiders,
+            grandTotalRiders: activeRiders,
+            averageOrdersPerRider: avg,
+            // Keep percentage as is or recalculate if possible. 
+            // Since we don't have total possible orders, we might just keep original or show N/A. 
+            // But let's leave it from original data for now.
+        };
+    };
+
+    const finalReportData = getFilteredData();
+
     const handleExportExcel = () => {
-        if (!reportData || !reportData.housingDetails) return;
+        if (!finalReportData || !finalReportData.housingDetails) return;
 
         const data = [];
-        reportData.housingDetails.forEach(housing => {
+        finalReportData.housingDetails.forEach(housing => {
             if (housing.riders) {
                 housing.riders.forEach(rider => {
                     data.push({
@@ -121,7 +167,7 @@ export default function DailyReportPage() {
                         'المعرف': rider.workingId,
                         'تاريخ المناوبة': rider.shiftDate,
                         'الطلبات المقبولة': rider.acceptedOrders,
-                        'الحالة': rider.acceptedOrders < 14 ? 'غير مكتمل' : 'مكتمل' // Example logic, accept actual if available
+                        'الحالة': rider.acceptedOrders < 14 ? 'غير مكتمل' : 'مكتمل'
                     });
                 });
             }
@@ -130,7 +176,7 @@ export default function DailyReportPage() {
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Detailed Report");
-        XLSX.writeFile(wb, `Daily_Report_${selectedDate}.xlsx`);
+        XLSX.writeFile(wb, `Daily_Report_${selectedDate}_${filterType}.xlsx`);
     };
 
     // --- Components ---
@@ -158,7 +204,7 @@ export default function DailyReportPage() {
                         <Activity className="text-purple-600" size={24} />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900">{reportData.housingName || "تقرير الأداء"}</h2>
+                        <h2 className="text-lg font-bold text-gray-900">{finalReportData.housingName || "تقرير الأداء"}</h2>
                         <p className="text-sm text-gray-500">ملخص الأداء للمجموعة</p>
                     </div>
                 </div>
@@ -167,27 +213,27 @@ export default function DailyReportPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     title="إجمالي الطلبات"
-                    value={reportData.totalOrders ?? 0}
+                    value={finalReportData.totalOrders ?? 0}
                     icon={BarChart3}
                     color={{ bg: "bg-blue-50", text: "text-blue-600" }}
                     suffix="طلب"
                 />
                 <StatCard
                     title="المناديب النشطين"
-                    value={reportData.activeRiders ?? 0}
+                    value={finalReportData.activeRiders ?? 0}
                     icon={Users}
                     color={{ bg: "bg-green-50", text: "text-green-600" }}
                     suffix="مندوب"
                 />
                 <StatCard
                     title="متوسط الطلبات / مندوب"
-                    value={reportData.averageOrdersPerRider ?? 0}
+                    value={finalReportData.averageOrdersPerRider ?? 0}
                     icon={Calculator}
                     color={{ bg: "bg-orange-50", text: "text-orange-600" }}
                 />
                 <StatCard
                     title="نسبة الطلبات"
-                    value={reportData.percentageOfTotalOrders ?? 0}
+                    value={finalReportData.percentageOfTotalOrders ?? 0}
                     icon={PieChart}
                     color={{ bg: "bg-purple-50", text: "text-purple-600" }}
                     suffix="%"
@@ -198,8 +244,8 @@ export default function DailyReportPage() {
 
     const renderDetailedView = () => (
         <div className="space-y-8 animate-fade-in">
-            {reportData.housingDetails?.length > 0 ? (
-                reportData.housingDetails.map((housing) => (
+            {finalReportData.housingDetails?.length > 0 ? (
+                finalReportData.housingDetails.map((housing) => (
                     <div key={housing.housingId} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transform transition-all hover:shadow-md">
                         <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -317,10 +363,12 @@ export default function DailyReportPage() {
                         </div>
 
                         <div className="flex gap-2 w-full sm:w-auto">
-                            {activeTab === 'summary' && reportData && (
+
+
+                            {activeTab === 'summary' && finalReportData && (
                                 <PDFDownloadLink
-                                    document={<HousingReportPDF data={{ ...reportData, date: selectedDate }} />}
-                                    fileName={`Daily_Report_Summary_${selectedDate}.pdf`}
+                                    document={<HousingReportPDF data={{ ...finalReportData, date: selectedDate }} />}
+                                    fileName={`Daily_Report_Summary_${selectedDate}_${filterType}.pdf`}
                                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm shadow-sm"
                                 >
                                     {({ blob, url, loading, error }) => (
@@ -334,11 +382,11 @@ export default function DailyReportPage() {
                                 </PDFDownloadLink>
                             )}
 
-                            {activeTab === 'detailed' && reportData?.housingDetails && (
+                            {activeTab === 'detailed' && finalReportData?.housingDetails && (
                                 <>
                                     <PDFDownloadLink
-                                        document={<DailyDetailsReportPDF data={{ ...reportData, reportDate: selectedDate, grandTotalOrders: reportData?.grandTotalOrders || 0, grandTotalRiders: reportData?.grandTotalRiders || 0 }} />}
-                                        fileName={`Daily_Details_Report_${selectedDate}.pdf`}
+                                        document={<DailyDetailsReportPDF data={{ ...finalReportData, reportDate: selectedDate, grandTotalOrders: finalReportData?.grandTotalOrders || 0, grandTotalRiders: finalReportData?.grandTotalRiders || 0 }} />}
+                                        fileName={`Daily_Details_Report_${selectedDate}_${filterType}.pdf`}
                                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm shadow-sm"
                                     >
                                         {({ blob, url, loading, error }) => (
@@ -359,6 +407,20 @@ export default function DailyReportPage() {
                                         <span className="hidden sm:inline">إكسل</span>
                                     </button>
                                 </>
+                            )}
+
+                            {activeTab === 'detailed' && (
+                                <div className="min-w-[120px]">
+                                    <select
+                                        className="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 block p-2.5"
+                                        value={filterType}
+                                        onChange={(e) => setFilterType(e.target.value)}
+                                    >
+                                        <option value="all">الكل</option>
+                                        <option value="hunger">هنقرستيشن</option>
+                                        <option value="keta">كيتا</option>
+                                    </select>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -399,7 +461,7 @@ export default function DailyReportPage() {
                 )}
 
                 {/* Content */}
-                {!loading && !error && reportData && (
+                {!loading && !error && finalReportData && (
                     activeTab === 'summary' ? renderSummaryView() : renderDetailedView()
                 )}
             </div >
