@@ -59,7 +59,7 @@ export const API_ENDPOINTS = {
     UPDATE: (name) => `/api/housing/${name}`,
     DELETE: (name) => `/api/housing/${name}`,
     ADD_EMPLOYEE: (iqamaNo, housingName) =>
-      `/api/housing/${iqamaNo}/add/${housingName}`,
+      `/api/Housing/${iqamaNo}/add/${housingName}`,
     CHANGE_EMPLOYEE: (iqamaNo, oldHousing, newHousing) =>
       `/api/housing/${iqamaNo}/change/${oldHousing}/${newHousing}`,
     BY_MANAGER: (managerIqamaNo) => `/api/housing/manager/${managerIqamaNo}`,

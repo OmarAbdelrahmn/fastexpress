@@ -29,6 +29,7 @@ export default function EditRiderPage() {
     iqamaEndH: '',
     passportNo: '',
     passportEnd: '',
+    sponsorNo: '',
     sponsor: '',
     jobTitle: '',
     nameAR: '',
@@ -78,6 +79,7 @@ export default function EditRiderPage() {
           iqamaEndH: rider.iqamaEndH?.split('T')[0] || '',
           passportNo: rider.passportNo || '',
           passportEnd: rider.passportEnd?.split('T')[0] || '',
+          sponsorNo: rider.sponsorNo || '',
           sponsor: rider.sponsor || '',
           jobTitle: rider.jobTitle || '',
           nameAR: rider.nameAR || '',
@@ -132,6 +134,9 @@ export default function EditRiderPage() {
       }
       if (formData.passportEnd && formData.passportEnd !== originalData?.passportEnd?.split('T')[0]) {
         requestData.passportEnd = formData.passportEnd;
+      }
+      if (formData.sponsorNo !== originalData?.sponsorNo) {
+        requestData.sponsorNo = formData.sponsorNo;
       }
       if (formData.sponsor !== originalData?.sponsor) {
         requestData.sponsor = formData.sponsor;
@@ -357,6 +362,15 @@ export default function EditRiderPage() {
           <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.sponsorInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
+              label={t('riders.sponsorNumber')}
+              type="text"
+              name="sponsorNo"
+              value={formData.sponsorNo}
+              onChange={handleInputChange}
+              placeholder={t('riders.enterSponsorNumber')}
+            />
+
+            <Input
               label={t('riders.sponsor')}
               type="text"
               name="sponsor"
@@ -389,18 +403,6 @@ export default function EditRiderPage() {
               placeholder="SA..."
             />
 
-            <div className="flex items-center gap-2 pt-7">
-              <input
-                type="checkbox"
-                name="inksa"
-                checked={formData.inksa}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-              />
-              <label className="text-sm text-gray-700">
-                {t('riders.inKSA')}
-              </label>
-            </div>
           </div>
         </Card>
 
@@ -409,63 +411,55 @@ export default function EditRiderPage() {
           <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-              <Input
-                label={t('riders.workingId')}
-                type="number"
-                name="workingId"
-                value={formData.workingId}
+            <Input
+              label={t('riders.workingId')}
+              type="number"
+              name="workingId"
+              value={formData.workingId}
+              onChange={handleInputChange}
+              placeholder={t('riders.enterWorkingId')}
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('riders.tshirtSize')}
+              </label>
+              <select
+                name="tshirtSize"
+                value={formData.tshirtSize}
                 onChange={handleInputChange}
-                placeholder={t('riders.enterWorkingId')}
-              />
-              <Input
-                label={t('riders.licenseNumber')}
-                type="text"
-                name="licenseNumber"
-                value={formData.licenseNumber}
-                onChange={handleInputChange}
-                placeholder={t('riders.enterLicenseNumber')}
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('riders.tshirtSize')}
-                </label>
-                <select
-                  name="tshirtSize"
-                  value={formData.tshirtSize}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  <option value="">{t('riders.selectSize')}</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                  <option value="XXL">XXL</option>
-                  <option value="XXXL">XXXL</option>
-                </select>
-              </div>
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">{t('riders.selectSize')}</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+                <option value="XXXL">XXXL</option>
+              </select>
+            </div>
 
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('riders.company')}
-                </label>
-                <select
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  <option value="">{t('riders.selectCompany')}</option>
-                  {companies.map((company) => (
-                    <option key={company.name} value={company.name}>
-                      {company.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('riders.company')}
+              </label>
+              <select
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">{t('riders.selectCompany')}</option>
+                {companies.map((company) => (
+                  <option key={company.name} value={company.name}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </Card> 
+        </Card>
 
         {/* Submit Buttons */}
         <Card>

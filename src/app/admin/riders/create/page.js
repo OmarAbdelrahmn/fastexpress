@@ -20,6 +20,7 @@ export default function CreateRiderPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [companies, setCompanies] = useState([]);
+  const [housings, setHousings] = useState([]);
 
   const [formData, setFormData] = useState({
     iqamaNo: '',
@@ -37,16 +38,17 @@ export default function CreateRiderPage() {
     dateOfBirth: '',
     status: 'enable',
     iban: '',
-    inksa: false,
+    inksa: true,
     workingId: '',
     tshirtSize: '',
     licenseNumber: '',
     companyName: '',
-    isEmployee: false
+    isEmployee: false,
   });
 
   useEffect(() => {
     loadCompanies();
+    loadHousings();
   }, []);
 
   const loadCompanies = async () => {
@@ -56,6 +58,16 @@ export default function CreateRiderPage() {
     } catch (err) {
       console.error('Error loading companies:', err);
       setErrorMessage(t('riders.loadCompaniesError'));
+    }
+  };
+
+  const loadHousings = async () => {
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.HOUSING.LIST);
+      setHousings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error loading housings:', err);
+      // Optional: show error or just log it
     }
   };
 
@@ -94,13 +106,29 @@ export default function CreateRiderPage() {
         inksa: formData.inksa,
         workingId: formData.workingId,
         tshirtSize: formData.tshirtSize,
-        licenseNumber: formData.licenseNumber,
+        licenseNumber: '0',
         companyName: formData.companyName,
         isEmployee: formData.isEmployee
       };
 
       console.log('Submitting rider data:', requestData);
+      console.log('Submitting rider data:', requestData);
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
+
+      // Add to housing if selected
+      if (formData.housingName) {
+        try {
+          // The API endpoint seems to be (iqamaNo, housingName)
+          // based on: ADD_EMPLOYEE: (iqamaNo, housingName) => `/api/housing/${iqamaNo}/add/${housingName}`
+          await ApiService.put(
+            API_ENDPOINTS.HOUSING.ADD_EMPLOYEE(requestData.iqamaNo, formData.housingName)
+          );
+        } catch (housingErr) {
+          console.error('Error adding to housing:', housingErr);
+          // We don't fail the whole process if housing add fails, but maybe alert user?
+          // For now, proceeding as success but logging error.
+        }
+      }
 
       setSuccessMessage(t('riders.createSuccess'));
       setTimeout(() => {
@@ -339,19 +367,6 @@ export default function CreateRiderPage() {
               onChange={handleInputChange}
               placeholder="SA..."
             />
-
-            <div className="flex items-center gap-2 pt-7">
-              <input
-                type="checkbox"
-                name="inksa"
-                checked={formData.inksa}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-              />
-              <label className="text-sm text-gray-700">
-                {t('employees.inKSA')}
-              </label>
-            </div>
           </div>
         </Card>
 
@@ -365,18 +380,7 @@ export default function CreateRiderPage() {
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
-              required={!formData.isEmployee}
               placeholder={t('riders.enterWorkingId')}
-            />
-
-            <Input
-              label={t('riders.licenseNumber')}
-              type="text"
-              name="licenseNumber"
-              value={formData.licenseNumber}
-              onChange={handleInputChange}
-              required={!formData.isEmployee}
-              placeholder={t('riders.enterLicenseNumber')}
             />
 
             <div>
@@ -402,19 +406,37 @@ export default function CreateRiderPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.company')} {!formData.isEmployee && <span className="text-red-500">*</span>}
+                {t('riders.company')}
               </label>
               <select
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                required={!formData.isEmployee}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="">{t('riders.selectCompany')}</option>
                 {companies.map((company) => (
                   <option key={company.name} value={company.name}>
                     {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                السكن
+              </label>
+              <select
+                name="housingName"
+                value={formData.housingName}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">السكن</option>
+                {housings.map((h) => (
+                  <option key={h.id || h.name} value={h.name}>
+                    {h.name}
                   </option>
                 ))}
               </select>
