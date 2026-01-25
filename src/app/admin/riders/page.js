@@ -29,6 +29,7 @@ export default function RidersPage() {
   const [riderToDelete, setRiderToDelete] = useState(null);
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
 
   const deleteReasons = [
     'خرج ولم يعد',
@@ -60,6 +61,7 @@ export default function RidersPage() {
     setRiderToDelete(iqamaNo);
     setSelectedReason('');
     setCustomReason('');
+    setDeletePassword('');
     setShowDeleteModal(true);
   };
 
@@ -71,6 +73,11 @@ export default function RidersPage() {
       return;
     }
 
+    if (deletePassword !== '9999') {
+      alert(t('common.incorrectPassword') || 'كلمة المرور غير صحيحة');
+      return;
+    }
+
     try {
       await ApiService.delete(API_ENDPOINTS.RIDER.DELETE(riderToDelete), { Reason: finalReason });
       setSuccessMessage(t('riders.deleteSuccess'));
@@ -78,6 +85,7 @@ export default function RidersPage() {
       setRiderToDelete(null);
       setSelectedReason('');
       setCustomReason('');
+      setDeletePassword('');
       loadRiders();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
@@ -578,6 +586,19 @@ export default function RidersPage() {
                 placeholder={t('common.reason')}
               />
             )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                {t('common.password') || 'كلمة المرور'} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mt-1"
+                placeholder={t('common.passwordPlaceholder') || 'أدخل كلمة المرور'}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3">
@@ -590,7 +611,7 @@ export default function RidersPage() {
             <Button
               className="!bg-red-600 hover:!bg-red-700 text-white"
               onClick={confirmDelete}
-              disabled={!selectedReason || (selectedReason === 'اخرى' && !customReason.trim())}
+              disabled={!selectedReason || (selectedReason === 'اخرى' && !customReason.trim()) || !deletePassword}
             >
               {t('common.delete')}
             </Button>
