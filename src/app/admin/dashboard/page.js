@@ -426,14 +426,11 @@ export default function EnhancedDashboard() {
     try {
       setHousingDetailedReportData(null); // Reset
       const response = await get("/api/report/special2");
-      const data = response.data || {
-        reportDate: "2025-12-14",
-        housingDetails: [],
-        grandTotalOrders: 0,
-        grandTotalRiders: 0,
-        companyName: "شركة الخدمة السريعة"
-      };
-      setHousingDetailedReportData(data);
+      if (!response.data) {
+        alert("لا توجد بيانات لعرض التقرير");
+        return;
+      }
+      setHousingDetailedReportData(response.data);
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing detailed report:", error);
@@ -445,19 +442,11 @@ export default function EnhancedDashboard() {
     try {
       setSpecialReportData(null); // Reset
       const response = await get("/api/report/special");
-      const reportData = response.data || {
-        "period1Start": "2025-11-01",
-        "period1End": "2025-11-13",
-        "period2Start": "2025-12-01",
-        "period2End": "2025-12-13",
-        "period1TotalOrders": 0,
-        "period2TotalOrders": 18,
-        "ordersDifference": 18,
-        "changePercentage": 10,
-        "trendDescription": "🚀",
-        "companyName": "شركة الخدمة السريعة"
-      };
-      setSpecialReportData(reportData);
+      if (!response.data) {
+        alert("لا توجد بيانات لعرض التقرير");
+        return;
+      }
+      setSpecialReportData(response.data);
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch special report:", error);
@@ -469,15 +458,11 @@ export default function EnhancedDashboard() {
     try {
       setHousingReportData(null);
       const response = await get("/api/report/special1");
-      const data = response.data || {
-        reportDate: "2025-12-14",
-        housingSummaries: [],
-        totalOrders: 0,
-        totalRiders: 0,
-        averageOrdersPerRider: 0,
-        companyName: "شركة الخدمة السريعة"
-      };
-      setHousingReportData(data);
+      if (!response.data) {
+        alert("لا توجد بيانات لعرض التقرير");
+        return;
+      }
+      setHousingReportData(response.data);
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing report:", error);
