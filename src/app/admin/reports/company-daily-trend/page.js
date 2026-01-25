@@ -24,7 +24,7 @@ export default function CompanyDailyTrendPage() {
     const { t } = useLanguage();
 
     const [rawData, setRawData] = useState([]);
-    const [zoomLevel, setZoomLevel] = useState('day'); // 'day', 'month', 'year'
+    const [zoomLevel, setZoomLevel] = useState('month'); // 'day', 'month', 'year'
     const [loading, setLoading] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState('all'); // 'all', '1', '2'
     const [selectedMetric, setSelectedMetric] = useState('accepted'); // 'accepted', 'rejected', 'both'
@@ -241,7 +241,7 @@ export default function CompanyDailyTrendPage() {
                                         minTickGap={30}
                                     />
                                     <YAxis
-                                        width={80} // Fixed width to prevent overlap
+                                        tick={{ dx: -40 }}
                                         tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}
                                         label={{ value: getYAxisLabel(), angle: -90, position: 'insideLeft' }}
                                     />
