@@ -24,7 +24,7 @@ export default function CompanyDailyTrendPage() {
     const { t } = useLanguage();
 
     const [rawData, setRawData] = useState([]);
-    const [zoomLevel, setZoomLevel] = useState('month'); // 'day', 'month', 'year'
+    const [zoomLevel, setZoomLevel] = useState('month'); // 'day', 'week', 'month', 'year'
     const [loading, setLoading] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState('all'); // 'all', '1', '2'
     const [selectedMetric, setSelectedMetric] = useState('accepted'); // 'accepted', 'rejected', 'both'
@@ -76,6 +76,12 @@ export default function CompanyDailyTrendPage() {
 
             if (zoomLevel === 'day') {
                 key = item.shiftDate;
+            } else if (zoomLevel === 'week') {
+                // Get week number - ISO week starts on Monday
+                const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+                key = `${date.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
             } else if (zoomLevel === 'month') {
                 key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             } else if (zoomLevel === 'year') {
@@ -107,6 +113,105 @@ export default function CompanyDailyTrendPage() {
         return Object.values(groupedData).sort((a, b) => a.originalDate - b.originalDate);
     }, [rawData, zoomLevel, startDate, endDate]);
 
+    // Calculate statistics for the filtered data
+    const statistics = useMemo(() => {
+        if (!chartData.length) return null;
+
+        // Calculate totals for current period
+        let totalAccepted = 0;
+        let totalRejected = 0;
+        let hungerAccepted = 0;
+        let ketaAccepted = 0;
+
+        chartData.forEach(item => {
+            if (selectedCompany === 'all' || selectedCompany === '1') {
+                totalAccepted += item.hungerAccepted || 0;
+                totalRejected += item.hungerRejected || 0;
+                hungerAccepted += item.hungerAccepted || 0;
+            }
+            if (selectedCompany === 'all' || selectedCompany === '2') {
+                totalAccepted += item.ketaAccepted || 0;
+                totalRejected += item.ketaRejected || 0;
+                ketaAccepted += item.ketaAccepted || 0;
+            }
+        });
+
+        // Calculate previous period stats for comparison
+        let previousAccepted = 0;
+        let previousRejected = 0;
+        let previousHungerAccepted = 0;
+        let previousKetaAccepted = 0;
+
+        if (chartData.length > 0 && startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const periodDuration = end - start;
+
+            // Calculate previous period dates
+            const prevEnd = new Date(start);
+            prevEnd.setDate(prevEnd.getDate() - 1);
+            const prevStart = new Date(prevEnd - periodDuration);
+
+            // Filter raw data for previous period
+            const previousData = rawData.filter(item => {
+                const itemDate = new Date(item.shiftDate);
+                return itemDate >= prevStart && itemDate <= prevEnd;
+            });
+
+            // Calculate previous period totals
+            previousData.forEach(item => {
+                if (selectedCompany === 'all' || selectedCompany === '1') {
+                    if (item.companyId === 1) {
+                        previousAccepted += item.totalAcceptedOrders || 0;
+                        previousRejected += item.totalRejectedOrders || 0;
+                        previousHungerAccepted += item.totalAcceptedOrders || 0;
+                    }
+                }
+                if (selectedCompany === 'all' || selectedCompany === '2') {
+                    if (item.companyId === 2) {
+                        previousAccepted += item.totalAcceptedOrders || 0;
+                        previousRejected += item.totalRejectedOrders || 0;
+                        previousKetaAccepted += item.totalAcceptedOrders || 0;
+                    }
+                }
+            });
+        }
+
+        // Calculate current and previous total orders
+        const totalOrders = totalAccepted + totalRejected;
+        const previousTotalOrders = previousAccepted + previousRejected;
+
+        // Calculate percentage changes
+        const acceptedChange = previousAccepted > 0
+            ? ((totalAccepted - previousAccepted) / previousAccepted) * 100
+            : 0;
+        const rejectedChange = previousRejected > 0
+            ? ((totalRejected - previousRejected) / previousRejected) * 100
+            : 0;
+        const totalOrdersChange = previousTotalOrders > 0
+            ? ((totalOrders - previousTotalOrders) / previousTotalOrders) * 100
+            : 0;
+        const hungerChange = previousHungerAccepted > 0
+            ? ((hungerAccepted - previousHungerAccepted) / previousHungerAccepted) * 100
+            : 0;
+        const ketaChange = previousKetaAccepted > 0
+            ? ((ketaAccepted - previousKetaAccepted) / previousKetaAccepted) * 100
+            : 0;
+
+        return {
+            totalAccepted,
+            totalRejected,
+            acceptedChange,
+            rejectedChange,
+            totalOrdersChange,
+            hungerAccepted,
+            ketaAccepted,
+            hungerChange,
+            ketaChange,
+            hasPreviousData: previousAccepted > 0 || previousRejected > 0
+        };
+    }, [chartData, rawData, selectedCompany, startDate, endDate]);
+
     // Determine lines to show
     const showHunger = selectedCompany === 'all' || selectedCompany === '1';
     const showKeta = selectedCompany === 'all' || selectedCompany === '2';
@@ -127,13 +232,13 @@ export default function CompanyDailyTrendPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 pb-12">
             <PageHeader
-                title={t('companyDailyTrend.title')}
-                subtitle={t('companyDailyTrend.subtitle')}
+                title={"رسم بياني لاداء الشركات"}
+                subtitle={"عرض مخطط بياني للاداء اليومي و الشهري و السنوي للشركات"}
                 icon={Calendar}
             />
 
             {/* Filters & Controls */}
-            <div className="mx-6 mb-6">
+            <div className="mx-8 my-5">
                 <Card>
                     <div className="flex flex-col gap-6">
                         {/* Top Row: Filters */}
@@ -193,6 +298,13 @@ export default function CompanyDailyTrendPage() {
                                     {t('companyDailyTrend.days')}
                                 </Button>
                                 <Button
+                                    variant={zoomLevel === 'week' ? 'primary' : 'outline'}
+                                    onClick={() => setZoomLevel('week')}
+                                    size="sm"
+                                >
+                                    {t('companyDailyTrend.weeks')}
+                                </Button>
+                                <Button
                                     variant={zoomLevel === 'month' ? 'primary' : 'outline'}
                                     onClick={() => setZoomLevel('month')}
                                     size="sm"
@@ -217,8 +329,131 @@ export default function CompanyDailyTrendPage() {
                 </Card>
             </div>
 
+            {/* Statistics Cards */}
+            {statistics && (
+                <div className="mx-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Total Accepted Orders Card */}
+                        <Card>
+                            <div className="p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.totalAccepted')}</p>
+                                        <p className="text-3xl font-bold text-blue-600 mt-2">
+                                            {statistics.totalAccepted.toLocaleString()}
+                                        </p>
+                                        {statistics.hasPreviousData && (
+                                            <div className={`flex items-center mt-2 text-sm ${statistics.acceptedChange >= 0 ? 'text-green-600' : 'text-red-600'
+                                                }`}>
+                                                <span className="font-medium">
+                                                    {statistics.acceptedChange >= 0 ? '↑' : '↓'}
+                                                    {Math.abs(statistics.acceptedChange).toFixed(1)}%
+                                                </span>
+                                                <span className="ml-2 text-gray-500">{t('companyDailyTrend.vsPrevious')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 bg-blue-100 rounded-full">
+                                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Total Rejected Orders Card */}
+                        <Card>
+                            <div className="p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.totalRejected')}</p>
+                                        <p className="text-3xl font-bold text-red-600 mt-2">
+                                            {statistics.totalRejected.toLocaleString()}
+                                        </p>
+                                        {statistics.hasPreviousData && (
+                                            <div className={`flex items-center mt-2 text-sm ${statistics.rejectedChange <= 0 ? 'text-green-600' : 'text-red-600'
+                                                }`}>
+                                                <span className="font-medium">
+                                                    {statistics.rejectedChange >= 0 ? '↑' : '↓'}
+                                                    {Math.abs(statistics.rejectedChange).toFixed(1)}%
+                                                </span>
+                                                <span className="ml-2 text-gray-500">{t('companyDailyTrend.vsPrevious')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 bg-red-100 rounded-full">
+                                        <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Hunger Company Card */}
+                        <Card>
+                            <div className="p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.hungerOrders')}</p>
+                                        <p className="text-3xl font-bold text-purple-600 mt-2">
+                                            {statistics.hungerAccepted.toLocaleString()}
+                                        </p>
+                                        {statistics.hasPreviousData && (
+                                            <div className={`flex items-center mt-2 text-sm ${statistics.hungerChange >= 0 ? 'text-green-600' : 'text-red-600'
+                                                }`}>
+                                                <span className="font-medium">
+                                                    {statistics.hungerChange >= 0 ? '↑' : '↓'}
+                                                    {Math.abs(statistics.hungerChange).toFixed(1)}%
+                                                </span>
+                                                <span className="ml-2 text-gray-500">{t('companyDailyTrend.vsPrevious')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 bg-purple-100 rounded-full">
+                                        <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+
+                        {/* Keta Company Card */}
+                        <Card>
+                            <div className="p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.ketaOrders')}</p>
+                                        <p className="text-3xl font-bold text-orange-600 mt-2">
+                                            {statistics.ketaAccepted.toLocaleString()}
+                                        </p>
+                                        {statistics.hasPreviousData && (
+                                            <div className={`flex items-center mt-2 text-sm ${statistics.ketaChange >= 0 ? 'text-green-600' : 'text-red-600'
+                                                }`}>
+                                                <span className="font-medium">
+                                                    {statistics.ketaChange >= 0 ? '↑' : '↓'}
+                                                    {Math.abs(statistics.ketaChange).toFixed(1)}%
+                                                </span>
+                                                <span className="ml-2 text-gray-500">{t('companyDailyTrend.vsPrevious')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3 bg-orange-100 rounded-full">
+                                        <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            )}
+
             {/* Chart Area */}
-            <div className="mx-6">
+            <div className="mx-8 my-5">
                 <Card>
                     <div className="h-[500px] w-full p-4">
                         {loading ? (
@@ -241,7 +476,7 @@ export default function CompanyDailyTrendPage() {
                                         minTickGap={30}
                                     />
                                     <YAxis
-                                        tick={{ dx: -40 }}
+                                        tick={{ dx: -30 }}
                                         tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}
                                         label={{ value: getYAxisLabel(), angle: -90, position: 'insideLeft' }}
                                     />

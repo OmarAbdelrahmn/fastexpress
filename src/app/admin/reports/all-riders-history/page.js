@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import PageHeader from "@/components/layout/pageheader";
-import { History, Calendar, ChevronDown, ChevronUp, Search, Download, Filter } from "lucide-react";
+import { History, Calendar, ChevronDown, ChevronUp, Search, Download, Filter, CheckCircle, XCircle, Package } from "lucide-react";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import StatusBadge from "@/components/Ui/StatusBadge";
 import * as XLSX from 'xlsx';
@@ -112,6 +112,18 @@ export default function AllRidersHistoryPage() {
         XLSX.writeFile(wb, "riders_history.xlsx");
     };
 
+    const stats = filteredData.reduce((acc, rider) => {
+        const riderAccepted = rider.activeMonths?.reduce((sum, month) => sum + (month.totalAcceptedOrders || 0), 0) || 0;
+        const riderRejected = rider.activeMonths?.reduce((sum, month) => sum + (month.totalRejectedOrders || 0), 0) || 0;
+
+        return {
+            accepted: acc.accepted + riderAccepted,
+            rejected: acc.rejected + riderRejected
+        };
+    }, { accepted: 0, rejected: 0 });
+
+    const totalOrders = stats.accepted + stats.rejected;
+
     return (
         <div >
             <PageHeader
@@ -120,8 +132,9 @@ export default function AllRidersHistoryPage() {
                 icon={History}
             />
 
+
             {/* Filters */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end mb-6">
+            <div className="bg-white p-4  rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end m-6">
                 <div className="flex-1 w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-1">{"بحث"}</label>
                     <div className="relative">
@@ -177,8 +190,30 @@ export default function AllRidersHistoryPage() {
                 </div>
             </div>
 
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">الطلبات المقبولة</p>
+                        <h3 className="text-2xl font-bold text-gray-800">{loading ? "..." : stats.accepted.toLocaleString()}</h3>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-full">
+                        <CheckCircle className="text-green-600" size={24} />
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">الطلبات المرفوضة</p>
+                        <h3 className="text-2xl font-bold text-gray-800">{loading ? "..." : stats.rejected.toLocaleString()}</h3>
+                    </div>
+                    <div className="p-3 bg-red-50 rounded-full">
+                        <XCircle className="text-red-600" size={24} />
+                    </div>
+                </div>
+            </div>
+
             {/* Data Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden m-6">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-right">
                         <thead className="bg-gray-50 text-gray-700 font-bold uppercase text-xs">

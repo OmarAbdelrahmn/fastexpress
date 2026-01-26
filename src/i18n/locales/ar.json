@@ -170,6 +170,7 @@
     "subtitle": "تصور للطلبات المقبولة بمرور الوقت مع مستويات تكبير قابلة للتعديل.",
     "zoomLevel": "مستوى التكبير",
     "days": "أيام",
+    "weeks": "أسابيع",
     "months": "شهور",
     "years": "سنوات",
     "acceptedOrders": "الطلبات المقبولة",
@@ -181,7 +182,14 @@
     "allCompanies": "جميع الشركات",
     "accepted": "مقبولة",
     "rejected": "مرفوضة",
-    "bothMetrics": "الكل (مقبولة ومرفوضة)"
+    "bothMetrics": "الكل (مقبولة ومرفوضة)",
+    "totalAccepted": "إجمالي الطلبات المقبولة",
+    "totalRejected": "إجمالي الطلبات المرفوضة",
+    "totalOrders": "إجمالي الطلبات",
+    "acceptanceRate": "معدل القبول",
+    "vsPrevious": "مقارنة بالفترة السابقة",
+    "hungerOrders": "طلبات هنقرستيشن",
+    "ketaOrders": "طلبات كيتا"
   },
   "navigation": {
     "manageRiders": "إدارة المناديب",
