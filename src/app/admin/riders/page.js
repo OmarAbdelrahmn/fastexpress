@@ -423,12 +423,12 @@ export default function RidersPage() {
       </div>
       <Card>
         <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="hidden md:flex items-center gap-2 mb-3">
             <Filter size={20} className="text-gray-600" />
             <h3 className="text-lg font-bold text-gray-800">{t('common.filter')}</h3>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="hidden md:flex flex-wrap gap-2">
             <button
               onClick={() => setStatusFilter("all")}
               className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
