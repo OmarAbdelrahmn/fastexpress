@@ -85,6 +85,11 @@ export default function ReportsPage() {
           path: "/admin/reports/keta-validation",
           desc: t('keta.validationReportDesc'),
         },
+        {
+          name: "Company Daily Trends",
+          path: "/admin/reports/company-daily-trend",
+          desc: "Visualizing daily accepted orders with zoom.",
+        },
 
       ],
     },
@@ -305,6 +310,22 @@ export default function ReportsPage() {
                 </p>
               </Link>
 
+              <Link
+                href="/admin/reports/company-daily-trend"
+                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    {'سجل كل الشركات'}
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {'عرض سجل الأداء لجميع الشركات'}
+                </p>
+              </Link>
 
 
               <Link
