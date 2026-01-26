@@ -111,7 +111,7 @@ export default function RidersPage() {
       [t('riders.workingId')]: rider.workingId || '',
       [t('riders.company')]: rider.companyName || '',
       [t('riders.housing')]: rider.housingAddress || '',
-      [t('riders.phoneNumber')]: rider.phoneNumber || '',
+      [t('riders.phoneNumber')]: rider.phone || '',
       [t('riders.nationality')]: rider.country || '',
       [t('common.status')]: rider.status || '',
       [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
@@ -176,7 +176,10 @@ export default function RidersPage() {
       header: t('riders.housing'),
       accessor: 'housingAddress',
       render: (row) => (
-        <span className="text-gray-600">{row.housingAddress || t('riders.notSpecified')}</span>
+        <div className="flex flex-col">
+          <span className="font-medium text-gray-900">{row.housingAddress || t('riders.notSpecified')}</span>
+          <span className="text-xs text-gray-500">{row.phone || '-'}</span>
+        </div>
       )
     },
     {
