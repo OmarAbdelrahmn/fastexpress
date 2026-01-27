@@ -174,6 +174,18 @@ export const adminNavigationConfig = {
     ],
   },
 
+  maintenance: {
+    title: "navigation.maintenance",
+    icon: "🔧",
+    routes: [
+      { path: "/admin/maintenance/suppliers", label: "navigation.suppliers" },
+      { path: "/admin/maintenance/bills", label: "ادارة الفواتير" },
+      { path: "/admin/maintenance/spare-parts", label: "ادارة القطع الغيار" },
+      { path: "/admin/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
+      { path: "/admin/maintenance/transfers", label: "التحويلات" },
+    ],
+  },
+
   admin: {
     title: "navigation.admin",
     icon: "👨‍✈️",

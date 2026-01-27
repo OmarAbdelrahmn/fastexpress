@@ -118,6 +118,18 @@ export const API_ENDPOINTS = {
     STOP: (workingId) => `/api/substitution/${workingId}/stop`,
   },
 
+  // Supplier
+  SUPPLIER: {
+    LIST: "/api/Supplier",
+    CREATE: "/api/Supplier",
+    ACTIVE: "/api/Supplier/active",
+    BY_ID: (id) => `/api/Supplier/${id}`,
+    UPDATE: (id) => `/api/Supplier/${id}`,
+    DELETE: (id) => `/api/Supplier/${id}`,
+    TOGGLE_ACTIVE: (id) => `/api/Supplier/${id}/toggle-active`,
+    SEARCH: "/api/Supplier/search",
+  },
+
   // Vehicles
   VEHICLES: {
     LIST: "/api/vehicles",
@@ -232,6 +244,51 @@ export const API_ENDPOINTS = {
     REPORTS_REJECTION: "/api/Member/reports/rejection",
     REPORTS_RIDERS_SUMMARY: "/api/Member/reports/riders-summary",
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
+    REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
+  },
+
+  // RiderAccessory
+  RIDER_ACCESSORY: {
+    LIST: "/api/RiderAccessory",
+    CREATE: "/api/RiderAccessory",
+    BY_ID: (id) => `/api/RiderAccessory/${id}`,
+    UPDATE: (id) => `/api/RiderAccessory/${id}`,
+    DELETE: (id) => `/api/RiderAccessory/${id}`,
+    SEARCH: "/api/RiderAccessory/search",
+    ISSUE: (id) => `/api/RiderAccessory/${id}/issue`,
+    BY_RIDER: (riderId) => `/api/RiderAccessory/rider/${riderId}`,
+    HISTORY: (id) => `/api/RiderAccessory/${id}/history`,
+  },
+
+  // Bill
+  BILL: {
+    LIST: "/api/Bill",
+    CREATE: "/api/Bill",
+    BY_ID: (id) => `/api/Bill/${id}`,
+    DELETE: (id) => `/api/Bill/${id}`,
+    BY_DATE_RANGE: "/api/Bill/date-range",
+    BY_SUPPLIER: (supplierId) => `/api/Bill/supplier/${supplierId}`,
+  },
+
+  // SpareParts
+  SPARE_PARTS: {
+    LIST: "/api/SparePart",
+    CREATE: "/api/SparePart",
+    BY_ID: (id) => `/api/SparePart/${id}`,
+    UPDATE: (id) => `/api/SparePart/${id}`,
+    DELETE: (id) => `/api/SparePart/${id}`,
+    SEARCH: "/api/SparePart/search",
+    ISSUE: (id) => `/api/SparePart/${id}/issue`,
+    BY_RIDER: (riderId) => `/api/SparePart/rider/${riderId}`,
+    HISTORY: (id) => `/api/SparePart/${id}/history`,
+  },
+
+  // Transfer
+  TRANSFER: {
+    LIST: "/api/Transfer",
+    CREATE: "/api/Transfer",
+    BY_ID: (id) => `/api/Transfer/${id}`,
+    BY_HOUSING: (housingId) => `/api/Transfer/housing/${housingId}`,
   },
 };
