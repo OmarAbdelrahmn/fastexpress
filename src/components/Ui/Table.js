@@ -1,4 +1,3 @@
-// File: src/components/ui/Table.js
 'use client';
 
 import { useLanguage } from '@/lib/context/LanguageContext';

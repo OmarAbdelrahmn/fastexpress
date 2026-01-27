@@ -128,7 +128,7 @@ export default function MaintenancePage() {
                             icon={FileText}
                             title="نقل المعدات"
                             description="متابعة نقل المعدات"
-                            onClick={() => router.push('/admin/maintenance/transfer')}
+                            onClick={() => router.push('/admin/maintenance/transfers')}
                             color="#2563eb"
                             bgClass="bg-blue-50"
                         />

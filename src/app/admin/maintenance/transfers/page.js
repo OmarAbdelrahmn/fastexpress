@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Search, FileText, Filter, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileText, Filter, Eye, History } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -56,7 +56,8 @@ export default function TransfersPage() {
 
     const filteredData = data.filter(item => {
         const matchesSearch =
-            item.housingName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.fromLocation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.toLocation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             String(item.id).includes(searchQuery);
 
         const matchesHousing = !filterHousing || String(item.housingId) === String(filterHousing);
@@ -109,13 +110,17 @@ export default function TransfersPage() {
             accessor: 'id',
         },
         {
-            header: 'السكن',
-            accessor: 'housingName',
+            header: 'من',
+            accessor: 'fromLocation',
+        },
+        {
+            header: 'إلى',
+            accessor: 'toLocation',
         },
         {
             header: 'تاريخ التحويل',
-            accessor: 'transferDate',
-            render: (row) => new Date(row.transferDate).toLocaleString('ar-SA', {
+            accessor: 'transferredAt',
+            render: (row) => new Date(row.transferredAt).toLocaleString('ar-SA', {
                 timeZone: 'Asia/Riyadh',
                 year: 'numeric',
                 month: '2-digit',
@@ -133,6 +138,20 @@ export default function TransfersPage() {
             header: 'الإجراءات',
             render: (row) => (
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => router.push(`/admin/maintenance/transfers/${row.id}`)}
+                        className="text-green-600 hover:text-green-800 cursor-pointer"
+                        title="عرض التفاصيل"
+                    >
+                        <Eye size={18} />
+                    </button>
+                    <button
+                        onClick={() => router.push(`/admin/maintenance/transfers/housing/${row.housingId}`)}
+                        className="text-amber-600 hover:text-amber-800 cursor-pointer"
+                        title="آخر تحويل للسكن"
+                    >
+                        <History size={18} />
+                    </button>
                     <button
                         onClick={() => {
                             setEditingItem(row);
