@@ -124,6 +124,14 @@ export default function MaintenancePage() {
                             color="#eab308"
                             bgClass="bg-yellow-50"
                         />
+                        <MiniStatRow
+                            icon={FileText}
+                            title="نقل المعدات"
+                            description="متابعة نقل المعدات"
+                            onClick={() => router.push('/admin/maintenance/transfer')}
+                            color="#2563eb"
+                            bgClass="bg-blue-50"
+                        />
                     </div>
                 </div>
 
