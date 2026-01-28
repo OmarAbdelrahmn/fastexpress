@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Package, ClipboardList, History } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package, ClipboardList, History, FileSpreadsheet, MapPin } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -13,12 +13,15 @@ import Modal from '@/components/Ui/Model';
 import Alert from '@/components/Ui/Alert';
 import RiderAccessoryForm from './components/RiderAccessoryForm';
 import IssueForm from './components/IssueForm';
+import * as XLSX from 'xlsx';
 
 export default function RiderAccessoriesPage() {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const [housings, setHousings] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedLocation, setSelectedLocation] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -30,13 +33,13 @@ export default function RiderAccessoriesPage() {
 
     useEffect(() => {
         loadData();
+        loadHousings();
     }, []);
 
     const loadData = async () => {
         setLoading(true);
         try {
             const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST);
-            console.log(response);
             setData(response || []);
         } catch (error) {
             console.error('Error loading rider accessories:', error);
@@ -46,10 +49,50 @@ export default function RiderAccessoriesPage() {
         }
     };
 
-    const filteredData = data.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.location && item.location.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const loadHousings = async () => {
+        try {
+            const response = await ApiService.get(API_ENDPOINTS.HOUSING.LIST);
+            setHousings(response || []);
+        } catch (error) {
+            console.error('Error loading housings:', error);
+        }
+    };
+
+    const handleExcelExport = () => {
+        if (!filteredData || filteredData.length === 0) return;
+
+        const excelData = filteredData.map(item => ({
+            "الاسم": item.name,
+            "الكمية": item.quantity,
+            "السعر": `${Number(item.price).toFixed(2)} ر.س`,
+            "الموقع": item.location || 'غير محدد',
+            "تاريخ الإضافة": new Date(item.createdAt).toLocaleDateString('ar-SA')
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        // Set column widths
+        const wscols = [
+            { wch: 30 }, // Name
+            { wch: 10 }, // Quantity
+            { wch: 15 }, // Price
+            { wch: 20 }, // Location
+            { wch: 15 }  // Date
+        ];
+        ws['!cols'] = wscols;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "إكسسوارات السائقين");
+        XLSX.writeFile(wb, `rider_accessories_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
+
+    const filteredData = data.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.location && item.location.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        const matchesLocation = !selectedLocation || item.location === selectedLocation;
+
+        return matchesSearch && matchesLocation;
+    });
 
     const handleDelete = async (id) => {
         if (!confirm('هل أنت متأكد من حذف هذا الإكسسوار؟')) return;
@@ -96,7 +139,7 @@ export default function RiderAccessoriesPage() {
     };
 
     const handleViewHistory = async (item) => {
-        setIssueItem(item); // Reusing issueItem to know which accessory we are viewing
+        setIssueItem(item);
         setIsHistoryModalOpen(true);
         setHistoryLoading(true);
         try {
@@ -149,16 +192,6 @@ export default function RiderAccessoriesPage() {
                     >
                         <History size={18} />
                     </button>
-                    {/* <button
-                        onClick={() => {
-                            setIssueItem(row);
-                            setIsIssueModalOpen(true);
-                        }}
-                        className="text-green-600 hover:text-green-800"
-                        title="تسجيل إصدار"
-                    >
-                        <ClipboardList size={18} />
-                    </button> */}
                     <button
                         onClick={() => {
                             setEditingItem(row);
@@ -169,16 +202,9 @@ export default function RiderAccessoriesPage() {
                     >
                         <Edit size={18} />
                     </button>
-                    {/* <button
-                        onClick={() => handleDelete(row.id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="حذف"
-                    >
-                        <Trash2 size={18} />
-                    </button> */}
                 </div>
             ),
-        },
+        }
     ];
 
     return (
@@ -193,23 +219,53 @@ export default function RiderAccessoriesPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer m-5" onClick={() => {
-                setEditingItem(null);
-                setIsModalOpen(true);
-            }}>
-                <Plus size={20} className="ml-2" />
-                إضافة إكسسوار جديد
-            </Button>
+            <div className="flex justify-between items-center px-5">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer" onClick={() => {
+                    setEditingItem(null);
+                    setIsModalOpen(true);
+                }}>
+                    <Plus size={20} className="ml-2" />
+                    إضافة إكسسوار جديد
+                </Button>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex gap-4 mb-4">
+                <Button
+                    variant="outline"
+                    className="border-green-600 text-green-600 hover:bg-green-50"
+                    onClick={handleExcelExport}
+                    disabled={filteredData.length === 0}
+                >
+                    <FileSpreadsheet size={20} className="ml-2" />
+                    تصدير إكسل
+                </Button>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow-sm mx-5">
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <div className="flex-1">
                         <Input
-                            placeholder="بحث عن إكسسوار (الاسم أو الموقع)..."
+                            placeholder="بحث عن إكسسوار (الاسم)..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             icon={Search}
                         />
+                    </div>
+                    <div className="w-full md:w-64">
+                        <div className="relative">
+                            <MapPin className="absolute right-3 top-3 text-gray-400" size={18} />
+                            <select
+                                value={selectedLocation}
+                                onChange={(e) => setSelectedLocation(e.target.value)}
+                                className="w-full pr-10 pl-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white text-gray-700"
+                            >
+                                <option value="">كل المواقع</option>
+                                <option value="الشركة">الشركة</option>
+                                {housings.map((housing) => (
+                                    <option key={housing.name} value={housing.name}>
+                                        {housing.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 

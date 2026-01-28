@@ -53,7 +53,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
 
     const loadSpareParts = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.LIST);
+            const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.LIST + "/2");
             setSpareParts(response || []);
         } catch (error) {
             console.error('Error loading spare parts:', error);
@@ -62,7 +62,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
 
     const loadRiderAccessories = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST);
+            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST + "/2");
             setRiderAccessories(response || []);
         } catch (error) {
             console.error('Error loading rider accessories:', error);
