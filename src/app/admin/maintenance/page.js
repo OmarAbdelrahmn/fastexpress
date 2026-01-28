@@ -157,6 +157,14 @@ export default function MaintenancePage() {
                             color="#0d9488"
                             bgClass="bg-teal-50"
                         />
+                        <MiniStatRow
+                            icon={History}
+                            title="تتبع الاستخدام"
+                            description="تسجيل ومتابعة استخدام قطع الغيار والمعدات"
+                            onClick={() => router.push('/admin/maintenance/usage')}
+                            color="#f59e0b"
+                            bgClass="bg-amber-50"
+                        />
                     </div>
                 </div>
             </div>

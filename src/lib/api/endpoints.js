@@ -259,6 +259,8 @@ export const API_ENDPOINTS = {
     ISSUE: (id) => `/api/RiderAccessory/${id}/issue`,
     BY_RIDER: (riderId) => `/api/RiderAccessory/rider/${riderId}`,
     HISTORY: (id) => `/api/RiderAccessory/${id}/history`,
+    RECORD_USAGE: (id) => `/api/RiderAccessory/${id}/usage`,
+    VEHICLE_HISTORY: (vehicleNumber) => `/api/RiderAccessory/vehicle/${vehicleNumber}/history`,
   },
 
   // Bill
@@ -282,6 +284,8 @@ export const API_ENDPOINTS = {
     ISSUE: (id) => `/api/SparePart/${id}/issue`,
     BY_RIDER: (riderId) => `/api/SparePart/rider/${riderId}`,
     HISTORY: (id) => `/api/SparePart/${id}/history`,
+    RECORD_USAGE: (id) => `/api/SparePart/${id}/usage`,
+    VEHICLE_HISTORY: (vehicleNumber) => `/api/SparePart/vehicle/${vehicleNumber}/history`,
   },
 
   // Transfer
