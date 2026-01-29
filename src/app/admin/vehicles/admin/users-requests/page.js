@@ -18,7 +18,8 @@ import {
   RefreshCw,
   Package,
   Filter,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber } from "@/lib/utils/formatters";
@@ -409,15 +410,15 @@ export default function PendingVehicleRequestsPage() {
                           {isSwitched ? (
                             <div className="flex items-center gap-2">
                               <h4 className="font-bold text-gray-800 line-through text-sm opacity-60">
-                                {formatPlateNumber(request.vehiclePlateNumber)}
-                              </h4>
-                              <ArrowRight size={14} className="text-gray-400" />
-                              <h4 className="font-bold text-gray-800 border-b-2 border-purple-500 pb-0.5">
                                 {formatPlateNumber(request.newVehiclePlate)}
+                              </h4>
+                              <ArrowLeft size={14} className="text-gray-400" />
+                              <h4 className="font-bold text-gray-800 border-b-2 border-purple-500 pb-0.5">
+                                {formatPlateNumber(request.vehiclePlateNumber)}
                               </h4>
                             </div>
                           ) : (
-                            <h4 className="font-bold text-gray-800">{formatPlateNumber(request.vehiclePlateNumber)}</h4>
+                            <h4 className="font-bold text-gray-800">{formatPlateNumber(request.newVehiclePlate)}</h4>
                           )}
 
                           <p className={`text-xs ${colors.text} mt-1`}>
@@ -516,13 +517,13 @@ export default function PendingVehicleRequestsPage() {
                           <div className="flex justify-between items-center bg-red-50 p-2 rounded">
                             <span className="text-gray-600 text-xs">{t('vehicles.returnRequestLabel')}</span>
                             <span className="font-bold text-gray-800 font-mono text-base line-through opacity-70">
-                              {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
+                              {formatPlateNumber(selectedRequest.newVehiclePlate)}
                             </span>
                           </div>
                           <div className="flex justify-between items-center bg-green-50 p-2 rounded">
                             <span className="text-gray-600 text-xs">{t('vehicles.takeRequestLabel')}</span>
                             <span className="font-bold text-gray-800 font-mono text-lg">
-                              {formatPlateNumber(selectedRequest.newVehiclePlate)}
+                              {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
                             </span>
                           </div>
                         </>
@@ -530,7 +531,7 @@ export default function PendingVehicleRequestsPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
                           <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">
-                            {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
+                              {formatPlateNumber(selectedRequest.newVehiclePlate)}
                           </span>
                         </div>
                       )}
