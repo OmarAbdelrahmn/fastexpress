@@ -13,6 +13,7 @@ import Input from '@/components/Ui/Input';
 import Modal from '@/components/Ui/Model';
 import Alert from '@/components/Ui/Alert';
 import ReturnForm from './components/ReturnForm';
+import ReturnDetails from './components/ReturnDetails';
 
 export default function ReturnsPage() {
     const router = useRouter();
@@ -21,8 +22,10 @@ export default function ReturnsPage() {
     const [data, setData] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [viewingItem, setViewingItem] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [alert, setAlert] = useState(null);
     const [filterSupplier, setFilterSupplier] = useState('');
 
@@ -35,7 +38,9 @@ export default function ReturnsPage() {
         setLoading(true);
         try {
             const response = await ApiService.get(API_ENDPOINTS.RETURN.LIST);
-            setData(response || []);
+            // Handle both array and single object responses
+            const formattedData = Array.isArray(response) ? response : (response ? [response] : []);
+            setData(formattedData);
         } catch (error) {
             console.error('Error loading returns:', error);
             showAlert('error', 'حدث خطأ أثناء تحميل البيانات');
@@ -53,7 +58,7 @@ export default function ReturnsPage() {
         }
     };
 
-    const filteredData = data.filter(item => {
+    const filteredData = (Array.isArray(data) ? data : []).filter(item => {
         const matchesSearch =
             item.returnNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.reason?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,8 +126,8 @@ export default function ReturnsPage() {
         },
         {
             header: 'التاريخ',
-            accessor: 'createdAt',
-            render: (row) => row.createdAt ? new Date(row.createdAt).toLocaleString('ar-SA', {
+            accessor: 'returnDate',
+            render: (row) => row.returnDate ? new Date(row.returnDate).toLocaleString('ar-SA', {
                 timeZone: 'Asia/Riyadh',
                 year: 'numeric',
                 month: '2-digit',
@@ -140,7 +145,16 @@ export default function ReturnsPage() {
             header: 'الإجراءات',
             render: (row) => (
                 <div className="flex gap-2">
-                    {/* Assuming a details page will be created later if needed */}
+                    <button
+                        onClick={() => {
+                            setViewingItem(row);
+                            setIsDetailsModalOpen(true);
+                        }}
+                        className="text-green-600 hover:text-green-800 cursor-pointer"
+                        title="عرض التفاصيل"
+                    >
+                        <Eye size={18} />
+                    </button>
                     <button
                         onClick={() => {
                             setEditingItem(row);
@@ -234,6 +248,18 @@ export default function ReturnsPage() {
                     }}
                     suppliers={suppliers}
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isDetailsModalOpen}
+                onClose={() => {
+                    setIsDetailsModalOpen(false);
+                    setViewingItem(null);
+                }}
+                title="تفاصيل المرتجع"
+                size="lg"
+            >
+                <ReturnDetails data={viewingItem} />
             </Modal>
         </div>
     );
