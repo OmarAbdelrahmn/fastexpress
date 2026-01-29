@@ -286,7 +286,8 @@
     "disabilities": "Hunger Deficit",
     "personalInfo": "My Personal Information",
     "updateShifts": "Update Performance",
-    "generalSettings": "General Settings"
+    "generalSettings": "General Settings",
+    "returnsManagement": "Returns Management"
   },
   "dashboard": {
     "riders": "Riders",

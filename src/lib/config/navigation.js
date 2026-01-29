@@ -183,6 +183,7 @@ export const adminNavigationConfig = {
       { path: "/admin/maintenance/spare-parts", label: "ادارة القطع الغيار" },
       { path: "/admin/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
       { path: "/admin/maintenance/transfers", label: "التحويلات" },
+      { path: "/admin/maintenance/returns", label: "ادارة المرتجعات" },
     ],
   },
 

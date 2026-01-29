@@ -289,7 +289,8 @@
     "disabilities": "عجز هنقر",
     "personalInfo": "معلوماتي شخصية",
     "updateShifts": "تحديث الأداء",
-    "generalSettings": "الإعدادات العامة"
+    "generalSettings": "الإعدادات العامة",
+    "returnsManagement": "إدارة المرتجعات"
   },
   "dashboard": {
     "riders": "مناديب",

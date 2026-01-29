@@ -295,4 +295,10 @@ export const API_ENDPOINTS = {
     BY_ID: (id) => `/api/Transfer/${id}`,
     BY_HOUSING: (housingId) => `/api/Transfer/housing/${housingId}`,
   },
+
+  // Return
+  RETURN: {
+    CREATE: "/api/return",
+    LIST: "/api/return",
+  },
 };
