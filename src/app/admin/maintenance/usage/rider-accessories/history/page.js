@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { History, Search, ArrowRight, Package, Truck } from 'lucide-react';
+import { History, Search, ArrowRight, Package, User } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { formatPlateNumber } from '@/lib/utils/formatters';
 import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
@@ -15,51 +14,49 @@ import Alert from '@/components/Ui/Alert';
 export default function RiderAccessoriesHistoryPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [vehicles, setVehicles] = useState([]);
-    const [vehicleSearch, setVehicleSearch] = useState('');
-    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [riders, setRiders] = useState([]);
+    const [riderSearch, setRiderSearch] = useState('');
+    const [selectedRider, setSelectedRider] = useState(null);
     const [historyData, setHistoryData] = useState([]);
     const [alert, setAlert] = useState(null);
 
     useEffect(() => {
-        loadVehicles();
+        loadRiders();
     }, []);
 
-    const loadVehicles = async () => {
+    const loadRiders = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.LIST);
-            setVehicles(response || []);
+            const response = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+            setRiders(response || []);
         } catch (error) {
-            console.error('Error loading vehicles:', error);
-            showAlert('error', 'حدث خطأ أثناء تحميل المركبات');
+            console.error('Error loading riders:', error);
+            showAlert('error', 'حدث خطأ أثناء تحميل السائقين');
         }
     };
 
-    const filteredVehicles = vehicles.filter(vehicle => {
-        if (!vehicleSearch) return true;
-        const search = vehicleSearch.toLowerCase();
+    const filteredRiders = riders.filter(rider => {
+        if (!riderSearch) return true;
+        const search = riderSearch.toLowerCase();
         return (
-            vehicle.plateNumberA?.toLowerCase().includes(search) ||
-            vehicle.plateNumberE?.toLowerCase().includes(search) ||
-            vehicle.vehicleNumber?.toLowerCase().includes(search) ||
-            String(vehicle.serialNumber || '')?.toLowerCase().includes(search) ||
-            vehicle.vehicleType?.toLowerCase().includes(search) ||
-            vehicle.manufacturer?.toLowerCase().includes(search) ||
-            vehicle.ownerName?.toLowerCase().includes(search)
+            rider.nameAR?.toLowerCase().includes(search) ||
+            rider.nameEN?.toLowerCase().includes(search) ||
+            rider.iqamaNo?.toString().includes(search) ||
+            rider.workingId?.toLowerCase().includes(search) ||
+            rider.phoneNumber?.toLowerCase().includes(search)
         );
     });
 
-    const handleVehicleSelect = async (vehicle) => {
-        setSelectedVehicle(vehicle);
-
-        // Load history for selected vehicle
-        await loadHistory(vehicle.plateNumberA || vehicle.vehicleNumber);
+    const handleRiderSelect = async (rider) => {
+        setSelectedRider(rider);
+        // Load history for selected rider using riderid
+        await loadHistory(rider.riderId);
     };
 
-    const loadHistory = async (vehicleNumber) => {
+    const loadHistory = async (riderId) => {
         setLoading(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.VEHICLE_HISTORY(vehicleNumber));
+            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.BY_RIDER(riderId));
+            console.log(response);
             setHistoryData(response || []);
         } catch (error) {
             console.error('Error loading history:', error);
@@ -82,20 +79,16 @@ export default function RiderAccessoriesHistoryPage() {
         },
         {
             header: 'اسم معدات السائق',
-            accessor: 'riderAccessoryName',
+            accessor: 'accessoryName',
         },
         {
-            header: 'رقم المركبة',
-            accessor: 'vehicleNumber',
+            header: 'اسم السائق',
+            accessor: 'riderNameAR',
         },
         {
-            header: 'الكمية المستخدمة',
-            accessor: 'quantityUsed',
-        },
-        {
-            header: 'تاريخ الاستخدام',
-            accessor: 'usedAt',
-            render: (row) => new Date(row.usedAt).toLocaleString('ar-SA', {
+            header: 'تاريخ التسليم',
+            accessor: 'issuedAt',
+            render: (row) => new Date(row.issuedAt).toLocaleString('ar-SA', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -109,7 +102,7 @@ export default function RiderAccessoriesHistoryPage() {
         <div className="space-y-6">
             <PageHeader
                 title="سجل استخدام معدات السائقين"
-                subtitle="عرض سجل استخدام معدات السائقين حسب المركبة"
+                subtitle="عرض سجل استخدام معدات السائقين حسب السائق"
                 icon={History}
             />
 
@@ -138,113 +131,103 @@ export default function RiderAccessoriesHistoryPage() {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
-                {/* Vehicle Search */}
+                {/* Rider Search */}
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ابحث عن المركبة
+                        ابحث عن السائق
                     </label>
                     <Input
-                        placeholder="ابحث عن المركبة (رقم اللوحة، رقم الشاسيه، رقم التسلسل، الموديل، اللون...)"
-                        value={vehicleSearch}
-                        onChange={(e) => setVehicleSearch(e.target.value)}
+                        placeholder="ابحث عن السائق (الاسم، رقم الهوية، ID العمل، رقم الهاتف...)"
+                        value={riderSearch}
+                        onChange={(e) => setRiderSearch(e.target.value)}
                         icon={Search}
                     />
                 </div>
 
-                {/* Vehicles Grid */}
-                {!selectedVehicle && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 mb-6">
-                        {filteredVehicles.map((vehicle) => (
+                {/* Riders Grid */}
+                {!selectedRider && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 mb-6 border-2 border-gray-100 rounded-lg">
+                        {filteredRiders.map((rider, index) => (
                             <div
-                                key={vehicle.plateNumberA || vehicle.vehicleNumber}
-                                onClick={() => handleVehicleSelect(vehicle)}
+                                key={rider.riderid || rider.iqamaNo || `rider-${index}`}
+                                onClick={() => handleRiderSelect(rider)}
                                 className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-purple-300 hover:bg-gray-50"
                             >
                                 <div className="flex items-start gap-3">
-                                    <Truck className="text-gray-400" size={24} />
+                                    <User className="text-gray-400" size={24} />
                                     <div className="flex-1">
                                         <div className="font-bold text-gray-900">
-                                            {formatPlateNumber(vehicle.plateNumberA) || vehicle.vehicleNumber}
+                                            {rider.nameAR}
                                         </div>
                                         <div className="text-sm text-gray-600 mt-1">
-                                            {vehicle.vehicleType} - {vehicle.manufacturer}
+                                            هوية: {rider.iqamaNo}
                                         </div>
-                                        {vehicle.vehicleNumber && (
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                رقم المركبة: {vehicle.vehicleNumber}
-                                            </div>
-                                        )}
+                                        <div className="text-xs text-gray-500 mt-1">
+                                            ID العمل: {rider.workingId}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
 
-                        {filteredVehicles.length === 0 && (
+                        {filteredRiders.length === 0 && (
                             <div className="col-span-full text-center py-8 text-gray-500">
-                                لا توجد مركبات تطابق البحث
+                                لا يوجد سائقون يطابقون البحث
                             </div>
                         )}
                     </div>
                 )}
 
-                {/* Vehicle Details */}
-                {selectedVehicle && (
+                {/* Rider Details */}
+                {selectedRider && (
                     <>
                         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex justify-between items-start mb-3">
                                 <h4 className="font-medium text-blue-900 flex items-center gap-2">
-                                    <Package size={20} />
-                                    تفاصيل المركبة
+                                    <User size={20} />
+                                    تفاصيل السائق
                                 </h4>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                        setSelectedVehicle(null);
+                                        setSelectedRider(null);
                                         setHistoryData([]);
                                     }}
                                     className="text-sm"
                                 >
-                                    اختيار مركبة أخرى
+                                    اختيار سائق آخر
                                 </Button>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                                 <div>
-                                    <span className="font-medium text-gray-700">رقم اللوحة (عربي):</span>
-                                    <span className="mr-2 text-gray-900">{formatPlateNumber(selectedVehicle.plateNumberA) || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">الاسم (عربي):</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.nameAR}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">رقم اللوحة (إنجليزي):</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.plateNumberE || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">الاسم (إنجليزي):</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.nameEN}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">نوع المركبة:</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.vehicleType || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">رقم الهوية:</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.iqamaNo}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">الشركة المصنعة:</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.manufacturer || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">ID العمل:</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.workingId}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">رقم المركبة:</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.vehicleNumber || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">رقم الهاتف:</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.phoneNumber || '-'}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">الرقم التسلسلي:</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.serialNumber || 'غير متوفر'}</span>
+                                    <span className="font-medium text-gray-700">الشركة:</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.companyName || '-'}</span>
                                 </div>
-                                {selectedVehicle.manufactureYear && (
-                                    <div>
-                                        <span className="font-medium text-gray-700">سنة الصنع:</span>
-                                        <span className="mr-2 text-gray-900">{selectedVehicle.manufactureYear}</span>
-                                    </div>
-                                )}
-                                {selectedVehicle.location && (
-                                    <div>
-                                        <span className="font-medium text-gray-700">الموقع:</span>
-                                        <span className="mr-2 text-gray-900">{selectedVehicle.location}</span>
-                                    </div>
-                                )}
+                                <div>
+                                    <span className="font-medium text-gray-700">السكن:</span>
+                                    <span className="mr-2 text-gray-900">{selectedRider.housingAddress || '-'}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -262,17 +245,17 @@ export default function RiderAccessoriesHistoryPage() {
 
                             {!loading && historyData.length === 0 && (
                                 <div className="text-center py-8 text-gray-500">
-                                    لا يوجد سجل استخدام لهذه المركبة
+                                    لا يوجد سجل استخدام لهذا السائق
                                 </div>
                             )}
                         </div>
                     </>
                 )}
 
-                {!selectedVehicle && filteredVehicles.length > 0 && (
+                {!selectedRider && filteredRiders.length > 0 && (
                     <div className="text-center py-8 text-gray-500">
                         <History size={48} className="mx-auto mb-3 text-gray-400" />
-                        <p>اختر مركبة لعرض سجل الاستخدام</p>
+                        <p>اختر سائقاً لعرض سجل الاستخدام</p>
                     </div>
                 )}
             </div>

@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Search, History, ArrowRight, Truck } from 'lucide-react';
+import { Package, Search, History, ArrowRight, User, Plus, Trash2 } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { formatPlateNumber } from '@/lib/utils/formatters';
 import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
@@ -15,21 +14,23 @@ export default function RiderAccessoriesUsagePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [accessories, setAccessories] = useState([]);
-    const [vehicles, setVehicles] = useState([]);
-    const [selectedAccessory, setSelectedAccessory] = useState('');
-    const [vehicleSearch, setVehicleSearch] = useState('');
-    const [selectedVehicle, setSelectedVehicle] = useState(null);
-    const [quantityUsed, setQuantityUsed] = useState('');
+    const [riders, setRiders] = useState([]);
+    const [riderSearch, setRiderSearch] = useState('');
     const [alert, setAlert] = useState(null);
+
+    // Array to hold multiple usage entries
+    const [usageEntries, setUsageEntries] = useState([
+        { accessoryId: '', riderId: '', selectedRider: null }
+    ]);
 
     useEffect(() => {
         loadAccessories();
-        loadVehicles();
+        loadRiders();
     }, []);
 
     const loadAccessories = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST +"/2");
+            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST + "/2");
             setAccessories(response || []);
         } catch (error) {
             console.error('Error loading accessories:', error);
@@ -37,66 +38,94 @@ export default function RiderAccessoriesUsagePage() {
         }
     };
 
-    const loadVehicles = async () => {
+    const loadRiders = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.LIST);
-            setVehicles(response || []);
+            const response = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+
+            setRiders(response || []);
         } catch (error) {
-            console.error('Error loading vehicles:', error);
-            showAlert('error', 'حدث خطأ أثناء تحميل المركبات');
+            console.error('Error loading riders:', error);
+            showAlert('error', 'حدث خطأ أثناء تحميل السائقين');
         }
     };
 
-    const filteredVehicles = vehicles.filter(vehicle => {
-        if (!vehicleSearch) return true;
-        const search = vehicleSearch.toLowerCase();
+    const filteredRiders = riders.filter(rider => {
+        if (!riderSearch) return true;
+        const search = riderSearch.toLowerCase();
         return (
-            vehicle.plateNumberA?.toLowerCase().includes(search) ||
-            vehicle.plateNumberE?.toLowerCase().includes(search) ||
-            vehicle.vehicleNumber?.toLowerCase().includes(search) ||
-            String(vehicle.serialNumber || '')?.toLowerCase().includes(search) ||
-            vehicle.vehicleType?.toLowerCase().includes(search) ||
-            vehicle.manufacturer?.toLowerCase().includes(search) ||
-            vehicle.ownerName?.toLowerCase().includes(search)
+            rider.nameAR?.toLowerCase().includes(search) ||
+            rider.nameEN?.toLowerCase().includes(search) ||
+            rider.iqamaNo?.toString().includes(search) ||
+            rider.workingId?.toLowerCase().includes(search) ||
+            rider.phoneNumber?.toLowerCase().includes(search)
         );
     });
 
-    const handleVehicleSelect = (vehicle) => {
-        setSelectedVehicle(vehicle);
+    const handleRiderSelect = (rider, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].selectedRider = rider;
+        updatedEntries[index].riderId = rider.riderId;
+        setUsageEntries(updatedEntries);
+        setRiderSearch(''); // Clear search after selection
+    };
+
+    const handleAccessoryChange = (value, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].accessoryId = value;
+        setUsageEntries(updatedEntries);
+    };
+
+    const addUsageEntry = () => {
+        setUsageEntries([
+            ...usageEntries,
+            { accessoryId: '', riderId: '', selectedRider: null }
+        ]);
+    };
+
+    const removeUsageEntry = (index) => {
+        if (usageEntries.length > 1) {
+            const updatedEntries = usageEntries.filter((_, i) => i !== index);
+            setUsageEntries(updatedEntries);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!selectedAccessory) {
-            showAlert('error', 'الرجاء اختيار معدات السائق');
-            return;
-        }
+        // Validate all entries
+        for (let i = 0; i < usageEntries.length; i++) {
+            const entry = usageEntries[i];
 
-        if (!selectedVehicle) {
-            showAlert('error', 'الرجاء اختيار المركبة');
-            return;
-        }
+            if (!entry.accessoryId) {
+                showAlert('error', `الرجاء اختيار المعدات للإدخال رقم ${i + 1}`);
+                return;
+            }
 
-        if (!quantityUsed || quantityUsed <= 0) {
-            showAlert('error', 'الرجاء إدخال كمية صحيحة');
-            return;
+            if (!entry.selectedRider) {
+                showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
+                return;
+            }
         }
 
         setLoading(true);
         try {
-            await ApiService.post(API_ENDPOINTS.RIDER_ACCESSORY.RECORD_USAGE(selectedAccessory), {
-                vehicleNumber: selectedVehicle.plateNumberA || selectedVehicle.vehicleNumber,
-                quantityUsed: parseInt(quantityUsed)
-            });
+            // Prepare the request body in the new format
+            const requestBody = {
+                usages: usageEntries.map(entry => ({
+                    accessoryId: parseInt(entry.accessoryId),
+                    riderId: parseInt(entry.riderId)
+                }))
+            };
+
+            await ApiService.post(API_ENDPOINTS.RIDER_ACCESSORY.RECORD_USAGE, requestBody);
 
             showAlert('success', 'تم تسجيل الاستخدام بنجاح');
 
             // Reset form
-            setSelectedAccessory('');
-            setSelectedVehicle(null);
-            setVehicleSearch('');
-            setQuantityUsed('');
+            setUsageEntries([
+                { accessoryId: '', riderId: '', selectedRider: null }
+            ]);
+            setRiderSearch('');
         } catch (error) {
             console.error('Error recording usage:', error);
             showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
@@ -114,7 +143,7 @@ export default function RiderAccessoriesUsagePage() {
         <div className="space-y-6">
             <PageHeader
                 title="تسجيل استخدام معدات السائقين"
-                subtitle="تسجيل استخدام معدات السائقين للمركبات"
+                subtitle="تسجيل توزيع معدات السائقين على السائقين"
                 icon={Package}
             />
 
@@ -144,110 +173,130 @@ export default function RiderAccessoriesUsagePage() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Accessory Selection */}
+                    {/* Rider Search - Shared for all entries */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            معدات السائق <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            value={selectedAccessory}
-                            onChange={(e) => setSelectedAccessory(e.target.value)}
-                            className="w-full px-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                            required
-                        >
-                            <option value="">اختر معدات السائق</option>
-                            {accessories.map((accessory) => (
-                                <option key={accessory.id} value={accessory.id}>
-                                    {accessory.name} - الكمية المتاحة: {accessory.quantity}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Vehicle Search */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            المركبة <span className="text-red-500">*</span>
+                            البحث عن السائقين
                         </label>
                         <Input
-                            placeholder="ابحث عن المركبة (رقم اللوحة، رقم الشاسيه، رقم التسلسل، الموديل، اللون...)"
-                            value={vehicleSearch}
-                            onChange={(e) => setVehicleSearch(e.target.value)}
+                            placeholder="ابحث عن السائق (الاسم، رقم الهوية، ID العمل، رقم الهاتف...)"
+                            value={riderSearch}
+                            onChange={(e) => setRiderSearch(e.target.value)}
                             icon={Search}
                         />
                     </div>
 
-                    {/* Vehicles Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2">
-                        {filteredVehicles.map((vehicle) => (
-                            <div
-                                key={vehicle.plateNumberA || vehicle.vehicleNumber}
-                                onClick={() => handleVehicleSelect(vehicle)}
-                                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
-                                    ? 'border-purple-500 bg-purple-50'
-                                    : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <div className="flex items-start gap-3">
-                                    <Truck className={`${selectedVehicle?.plateNumberA === vehicle.plateNumberA ? 'text-purple-600' : 'text-gray-400'}`} size={24} />
-                                    <div className="flex-1">
-                                        <div className="font-bold text-gray-900">
-                                            {formatPlateNumber(vehicle.plateNumberA) || vehicle.vehicleNumber}
-                                        </div>
-                                        <div className="text-sm text-gray-600 mt-1">
-                                            {vehicle.vehicleType} - {vehicle.manufacturer}
-                                        </div>
-                                        {vehicle.vehicleNumber && (
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                رقم المركبة: {vehicle.vehicleNumber}
+                    {/* Riders Grid - Only show when searching */}
+                    {riderSearch && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 border-2 border-gray-200 rounded-lg">
+                            {filteredRiders.map((rider, riderIdx) => (
+                                <div
+                                    key={rider.riderId || `rider-${riderIdx}`}
+                                    className="p-4 border-2 rounded-lg cursor-pointer transition-all border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <User className="text-gray-400" size={24} />
+                                        <div className="flex-1">
+                                            <div className="font-bold text-gray-900">
+                                                {rider.nameAR}
                                             </div>
-                                        )}
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                هوية: {rider.iqamaNo}
+                                            </div>
+                                            {/* Add selection buttons for each entry */}
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {usageEntries.map((entry, entryIdx) => (
+                                                    <button
+                                                        key={`select-btn-${rider.riderId || riderIdx}-${entryIdx}`}
+                                                        type="button"
+                                                        onClick={() => handleRiderSelect(rider, entryIdx)}
+                                                        className={`text-xs px-2 py-1 rounded ${entry.selectedRider?.riderId === rider.riderId
+                                                            ? 'bg-purple-500 text-white'
+                                                            : 'bg-gray-200 text-gray-700 hover:bg-purple-100'
+                                                            }`}
+                                                    >
+                                                        إدخال {entryIdx + 1}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
-                        {filteredVehicles.length === 0 && (
-                            <div className="col-span-full text-center py-8 text-gray-500">
-                                لا توجد مركبات تطابق البحث
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Selected Vehicle Details */}
-                    {selectedVehicle && (
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-medium text-blue-900 mb-2">تفاصيل المركبة المختارة:</h4>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div><span className="font-medium">رقم اللوحة (عربي):</span> {formatPlateNumber(selectedVehicle.plateNumberA) || 'غير متوفر'}</div>
-                                <div><span className="font-medium">رقم اللوحة (إنجليزي):</span> {selectedVehicle.plateNumberE || 'غير متوفر'}</div>
-                                <div><span className="font-medium">نوع المركبة:</span> {selectedVehicle.vehicleType || 'غير متوفر'}</div>
-                                <div><span className="font-medium">الشركة المصنعة:</span> {selectedVehicle.manufacturer || 'غير متوفر'}</div>
-                                <div><span className="font-medium">رقم المركبة:</span> {selectedVehicle.vehicleNumber || 'غير متوفر'}</div>
-                                <div><span className="font-medium">الرقم التسلسلي:</span> {selectedVehicle.serialNumber || 'غير متوفر'}</div>
-                                {selectedVehicle.manufactureYear && (
-                                    <div><span className="font-medium">سنة الصنع:</span> {selectedVehicle.manufactureYear}</div>
-                                )}
-                                {selectedVehicle.location && (
-                                    <div><span className="font-medium">الموقع:</span> {selectedVehicle.location}</div>
-                                )}
-                            </div>
+                            {filteredRiders.length === 0 && (
+                                <div className="col-span-full text-center py-8 text-gray-500">
+                                    لا توجد سائقين يطابقون البحث
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {/* Quantity */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            الكمية المستخدمة <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                            type="number"
-                            min="1"
-                            placeholder="أدخل الكمية المستخدمة"
-                            value={quantityUsed}
-                            onChange={(e) => setQuantityUsed(e.target.value)}
-                            required
-                        />
+                    {/* Usage Entries */}
+                    <div className="space-y-4">
+                        <div key="usage-header" className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
+                            <Button
+                                type="button"
+                                onClick={addUsageEntry}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                                <Plus size={20} className="ml-2" />
+                                إضافة إدخال
+                            </Button>
+                        </div>
+
+                        {usageEntries.map((entry, index) => (
+                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg space-y-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-medium text-gray-900">إدخال رقم {index + 1}</h4>
+                                    {usageEntries.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeUsageEntry(index)}
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Accessory Selection */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        معدات السائق <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={entry.accessoryId}
+                                        onChange={(e) => handleAccessoryChange(e.target.value, index)}
+                                        className="w-full px-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        required
+                                    >
+                                        <option value="">اختر معدات السائق</option>
+                                        {accessories.map((accessory, accIdx) => (
+                                            <option key={accessory.id || `acc-${accIdx}`} value={accessory.id}>
+                                                {accessory.name} - الكمية المتاحة: {accessory.quantity}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Selected Rider Display */}
+                                {entry.selectedRider ? (
+                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <h5 className="font-medium text-blue-900 mb-2">السائق المختار:</h5>
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div><span className="font-medium">الاسم:</span> {entry.selectedRider.nameAR}</div>
+                                            <div><span className="font-medium">رقم الهوية:</span> {entry.selectedRider.iqamaNo}</div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500">
+                                        الرجاء اختيار سائق من نتائج البحث أعلاه
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
 
                     {/* Submit Button */}
