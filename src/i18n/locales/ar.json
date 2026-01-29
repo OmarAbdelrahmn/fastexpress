@@ -189,7 +189,11 @@
     "acceptanceRate": "معدل القبول",
     "vsPrevious": "مقارنة بالفترة السابقة",
     "hungerOrders": "طلبات هنقرستيشن",
-    "ketaOrders": "طلبات كيتا"
+    "ketaOrders": "طلبات كيتا",
+    "uniqueRiders": "عدد المناديب",
+    "uniqueRidersMetric": "عدد المناديب",
+    "hungerUniqueRiders": "مناديب هنقرستيشن",
+    "ketaUniqueRiders": "مناديب كيتا"
   },
   "navigation": {
     "manageRiders": "إدارة المناديب",

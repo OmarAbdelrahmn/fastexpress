@@ -186,7 +186,11 @@
     "acceptanceRate": "Acceptance Rate",
     "vsPrevious": "vs previous period",
     "hungerOrders": "Hungerstation Orders",
-    "ketaOrders": "Keta Orders"
+    "ketaOrders": "Keta Orders",
+    "uniqueRiders": "Unique Riders",
+    "uniqueRidersMetric": "Unique Riders",
+    "hungerUniqueRiders": "Hungerstation Riders",
+    "ketaUniqueRiders": "Keta Riders"
   },
   "navigation": {
     "manageRiders": "Manage Riders",

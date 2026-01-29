@@ -42,6 +42,7 @@ export default function CompanyDailyTrendPage() {
         setLoading(true);
         try {
             const data = await ApiService.get(API_ENDPOINTS.REPORTS.FROM_START);
+            console.log(data);
             setRawData(Array.isArray(data) ? data : []);
 
             // Optional: Set default date range based on data?
@@ -91,79 +92,123 @@ export default function CompanyDailyTrendPage() {
                 groupedData[key] = {
                     date: key,
                     originalDate: date.getTime(), // For sorting
+                    count: 0,
                     // Initialize metrics
                     hungerAccepted: 0,
                     hungerRejected: 0,
+                    hungerUniqueRiders: 0,
                     ketaAccepted: 0,
                     ketaRejected: 0,
+                    ketaUniqueRiders: 0,
                 };
             }
+
+            groupedData[key].count += 1;
 
             // Aggregate based on company
             if (item.companyId === 1) { // Hunger
                 groupedData[key].hungerAccepted += item.totalAcceptedOrders || 0;
                 groupedData[key].hungerRejected += item.totalRejectedOrders || 0;
+                groupedData[key].hungerUniqueRiders += item.uniqueRiders || 0;
             } else if (item.companyId === 2) { // Keta
                 groupedData[key].ketaAccepted += item.totalAcceptedOrders || 0;
                 groupedData[key].ketaRejected += item.totalRejectedOrders || 0;
+                groupedData[key].ketaUniqueRiders += item.uniqueRiders || 0;
             }
         });
 
-        return Object.values(groupedData).sort((a, b) => a.originalDate - b.originalDate);
+        // Convert sums to averages for unique riders in each group
+        const result = Object.values(groupedData).sort((a, b) => a.originalDate - b.originalDate);
+        return result.map(item => ({
+            ...item,
+            hungerUniqueRiders: item.count > 0 ? Math.round(item.hungerUniqueRiders / (item.count / 2)) : 0, // Approx count of days
+            ketaUniqueRiders: item.count > 0 ? Math.round(item.ketaUniqueRiders / (item.count / 2)) : 0,
+            // Actually, since we have companyId 1 and 2, each day might have 2 records. 
+            // If we group by date, we might have 1 record for Hunger and 1 for Keta.
+            // Let's refine: item.count is total records. If each day has both companies, item.count / 2 is day count.
+        }));
     }, [rawData, zoomLevel, startDate, endDate]);
 
     // Calculate statistics for the filtered data
     const statistics = useMemo(() => {
-        if (!chartData.length) return null;
+        if (!rawData.length) return null;
 
-        // Calculate totals for current period
+        // 1. Filter raw data matches the chartData filtering
+        const filteredRawData = rawData.filter(item => {
+            if (!startDate && !endDate) return true;
+            const itemDate = new Date(item.shiftDate);
+            const start = startDate ? new Date(startDate) : new Date('2000-01-01');
+            const end = endDate ? new Date(endDate) : new Date('2100-01-01');
+            return itemDate >= start && itemDate <= end;
+        });
+
+        if (!filteredRawData.length) return null;
+
+        // For Unique Riders, we want the daily average in the period
+        const dailyRiders = {}; // date -> riders
         let totalAccepted = 0;
         let totalRejected = 0;
         let hungerAccepted = 0;
         let ketaAccepted = 0;
 
-        chartData.forEach(item => {
+        filteredRawData.forEach(item => {
+            const date = item.shiftDate;
+            if (!dailyRiders[date]) dailyRiders[date] = 0;
+
             if (selectedCompany === 'all' || selectedCompany === '1') {
-                totalAccepted += item.hungerAccepted || 0;
-                totalRejected += item.hungerRejected || 0;
-                hungerAccepted += item.hungerAccepted || 0;
+                if (item.companyId === 1) {
+                    totalAccepted += item.totalAcceptedOrders || 0;
+                    totalRejected += item.totalRejectedOrders || 0;
+                    hungerAccepted += item.totalAcceptedOrders || 0;
+                    dailyRiders[date] += item.uniqueRiders || 0;
+                }
             }
             if (selectedCompany === 'all' || selectedCompany === '2') {
-                totalAccepted += item.ketaAccepted || 0;
-                totalRejected += item.ketaRejected || 0;
-                ketaAccepted += item.ketaAccepted || 0;
+                if (item.companyId === 2) {
+                    totalAccepted += item.totalAcceptedOrders || 0;
+                    totalRejected += item.totalRejectedOrders || 0;
+                    ketaAccepted += item.totalAcceptedOrders || 0;
+                    dailyRiders[date] += item.uniqueRiders || 0;
+                }
             }
         });
+
+        const dayCount = Object.keys(dailyRiders).length;
+        const totalUniqueRidersSum = Object.values(dailyRiders).reduce((a, b) => a + b, 0);
+        const avgUniqueRiders = dayCount > 0 ? Math.round(totalUniqueRidersSum / dayCount) : 0;
 
         // Calculate previous period stats for comparison
         let previousAccepted = 0;
         let previousRejected = 0;
+        let previousUniqueRidersSum = 0;
+        const previousDailyRiders = {};
         let previousHungerAccepted = 0;
         let previousKetaAccepted = 0;
 
-        if (chartData.length > 0 && startDate && endDate) {
+        if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             const periodDuration = end - start;
 
-            // Calculate previous period dates
             const prevEnd = new Date(start);
             prevEnd.setDate(prevEnd.getDate() - 1);
             const prevStart = new Date(prevEnd - periodDuration);
 
-            // Filter raw data for previous period
             const previousData = rawData.filter(item => {
                 const itemDate = new Date(item.shiftDate);
                 return itemDate >= prevStart && itemDate <= prevEnd;
             });
 
-            // Calculate previous period totals
             previousData.forEach(item => {
+                const date = item.shiftDate;
+                if (!previousDailyRiders[date]) previousDailyRiders[date] = 0;
+
                 if (selectedCompany === 'all' || selectedCompany === '1') {
                     if (item.companyId === 1) {
                         previousAccepted += item.totalAcceptedOrders || 0;
                         previousRejected += item.totalRejectedOrders || 0;
                         previousHungerAccepted += item.totalAcceptedOrders || 0;
+                        previousDailyRiders[date] += item.uniqueRiders || 0;
                     }
                 }
                 if (selectedCompany === 'all' || selectedCompany === '2') {
@@ -171,10 +216,15 @@ export default function CompanyDailyTrendPage() {
                         previousAccepted += item.totalAcceptedOrders || 0;
                         previousRejected += item.totalRejectedOrders || 0;
                         previousKetaAccepted += item.totalAcceptedOrders || 0;
+                        previousDailyRiders[date] += item.uniqueRiders || 0;
                     }
                 }
             });
         }
+
+        const prevDayCount = Object.keys(previousDailyRiders).length;
+        const totalPrevUniqueRidersSum = Object.values(previousDailyRiders).reduce((a, b) => a + b, 0);
+        const avgPreviousUniqueRiders = prevDayCount > 0 ? Math.round(totalPrevUniqueRidersSum / prevDayCount) : 0;
 
         // Calculate current and previous total orders
         const totalOrders = totalAccepted + totalRejected;
@@ -186,6 +236,9 @@ export default function CompanyDailyTrendPage() {
             : 0;
         const rejectedChange = previousRejected > 0
             ? ((totalRejected - previousRejected) / previousRejected) * 100
+            : 0;
+        const uniqueRidersChange = avgPreviousUniqueRiders > 0
+            ? ((avgUniqueRiders - avgPreviousUniqueRiders) / avgPreviousUniqueRiders) * 100
             : 0;
         const totalOrdersChange = previousTotalOrders > 0
             ? ((totalOrders - previousTotalOrders) / previousTotalOrders) * 100
@@ -200,22 +253,25 @@ export default function CompanyDailyTrendPage() {
         return {
             totalAccepted,
             totalRejected,
+            totalUniqueRiders: avgUniqueRiders,
             acceptedChange,
             rejectedChange,
+            uniqueRidersChange,
             totalOrdersChange,
             hungerAccepted,
             ketaAccepted,
             hungerChange,
             ketaChange,
-            hasPreviousData: previousAccepted > 0 || previousRejected > 0
+            hasPreviousData: previousAccepted > 0 || previousRejected > 0 || avgPreviousUniqueRiders > 0
         };
-    }, [chartData, rawData, selectedCompany, startDate, endDate]);
+    }, [rawData, selectedCompany, startDate, endDate]);
 
     // Determine lines to show
     const showHunger = selectedCompany === 'all' || selectedCompany === '1';
     const showKeta = selectedCompany === 'all' || selectedCompany === '2';
     const showAccepted = selectedMetric === 'accepted' || selectedMetric === 'both';
     const showRejected = selectedMetric === 'rejected' || selectedMetric === 'both';
+    const showUniqueRiders = selectedMetric === 'uniqueRiders';
 
     const formatXAxis = (tickItem) => {
         return tickItem;
@@ -225,6 +281,7 @@ export default function CompanyDailyTrendPage() {
     const getYAxisLabel = () => {
         if (selectedMetric === 'accepted') return t('companyDailyTrend.acceptedOrders');
         if (selectedMetric === 'rejected') return t('companyDailyTrend.rejectedOrders');
+        if (selectedMetric === 'uniqueRiders') return t('companyDailyTrend.uniqueRidersMetric');
         return t('companyDailyTrend.bothMetrics');
     };
 
@@ -266,6 +323,7 @@ export default function CompanyDailyTrendPage() {
                                 >
                                     <option value="accepted">{t('companyDailyTrend.accepted')}</option>
                                     <option value="rejected">{t('companyDailyTrend.rejected')}</option>
+                                    <option value="uniqueRiders">{t('companyDailyTrend.uniqueRidersMetric')}</option>
                                     <option value="both">{t('companyDailyTrend.bothMetrics')}</option>
                                 </select>
                             </div>
@@ -447,6 +505,7 @@ export default function CompanyDailyTrendPage() {
                                 </div>
                             </div>
                         </Card>
+
                     </div>
                 </div>
             )}
@@ -503,6 +562,16 @@ export default function CompanyDailyTrendPage() {
                                             strokeDasharray="5 5"
                                         />
                                     )}
+                                    {showHunger && showUniqueRiders && (
+                                        <Line
+                                            type="monotone"
+                                            dataKey="hungerUniqueRiders"
+                                            name={`${t('companyDailyTrend.hunger')} - ${t('companyDailyTrend.uniqueRidersMetric')}`}
+                                            stroke="#9333ea"
+                                            strokeWidth={2}
+                                            activeDot={{ r: 6 }}
+                                        />
+                                    )}
 
                                     {/* Lines for Keta (ID: 2) */}
                                     {showKeta && showAccepted && (
@@ -523,6 +592,16 @@ export default function CompanyDailyTrendPage() {
                                             stroke="#ff6b6b"
                                             strokeWidth={2}
                                             strokeDasharray="5 5"
+                                        />
+                                    )}
+                                    {showKeta && showUniqueRiders && (
+                                        <Line
+                                            type="monotone"
+                                            dataKey="ketaUniqueRiders"
+                                            name={`${t('companyDailyTrend.keta')} - ${t('companyDailyTrend.uniqueRidersMetric')}`}
+                                            stroke="#f97316"
+                                            strokeWidth={2}
+                                            activeDot={{ r: 6 }}
                                         />
                                     )}
                                 </LineChart>
