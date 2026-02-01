@@ -5,13 +5,12 @@ import { useRouter } from 'next/navigation';
 import { History, Search, ArrowRight, Package, User } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Table from '@/components/Ui/Table';
 import Alert from '@/components/Ui/Alert';
 
-export default function RiderAccessoriesHistoryPage() {
+export default function MemberRiderAccessoriesHistoryPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [riders, setRiders] = useState([]);
@@ -26,7 +25,8 @@ export default function RiderAccessoriesHistoryPage() {
 
     const loadRiders = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+            // Using member-specific endpoint for riders
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDERS);
             setRiders(response || []);
         } catch (error) {
             console.error('Error loading riders:', error);
@@ -55,8 +55,9 @@ export default function RiderAccessoriesHistoryPage() {
     const loadHistory = async (riderId) => {
         setLoading(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.BY_RIDER(riderId));
-            console.log(response);
+            // NOTE: Similar assumption as spare parts history.
+            // Using standard query param pattern:
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDER_ACCESSORIES.HISTORY(riderId));
             setHistoryData(response || []);
         } catch (error) {
             console.error('Error loading history:', error);
@@ -96,16 +97,19 @@ export default function RiderAccessoriesHistoryPage() {
                 minute: '2-digit'
             })
         },
+        // Include Cost column as requested in previous steps for consistency
+        {
+            header: 'التكلفة',
+            accessor: 'totalCost',
+            render: (row) => {
+                const cost = row.totalCost || row.cost || (row.unitPrice * row.quantity) || 0;
+                return `${Number(cost).toFixed(2)} ر.س`;
+            }
+        }
     ];
 
     return (
         <div className="space-y-6">
-            <PageHeader
-                title="سجل استخدام معدات السائقين"
-                subtitle="عرض سجل استخدام معدات السائقين حسب السائق"
-                icon={History}
-            />
-
             {alert && (
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
@@ -113,7 +117,7 @@ export default function RiderAccessoriesHistoryPage() {
             <div className="flex gap-4 px-5">
                 <Button
                     variant="outline"
-                    onClick={() => router.push('/admin/maintenance/usage')}
+                    onClick={() => router.push('/member/maintenance/rider-accessories')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                     <ArrowRight size={20} className="ml-2" />
@@ -122,7 +126,7 @@ export default function RiderAccessoriesHistoryPage() {
 
                 <Button
                     variant="outline"
-                    onClick={() => router.push('/admin/maintenance/usage/rider-accessories')}
+                    onClick={() => router.push('/member/maintenance/rider-accessories')}
                     className="border-purple-600 text-purple-600 hover:bg-purple-50"
                 >
                     <Package size={20} className="ml-2" />
@@ -209,20 +213,8 @@ export default function RiderAccessoriesHistoryPage() {
                                     <span className="mr-2 text-gray-900">{selectedRider.nameEN}</span>
                                 </div>
                                 <div>
-                                    <span className="font-medium text-gray-700">رقم الهوية:</span>
-                                    <span className="mr-2 text-gray-900">{selectedRider.iqamaNo}</span>
-                                </div>
-                                <div>
-                                    <span className="font-medium text-gray-700">ID العمل:</span>
+                                    <span className="font-medium text-gray-700">معرف العمل:</span>
                                     <span className="mr-2 text-gray-900">{selectedRider.workingId}</span>
-                                </div>
-                                <div>
-                                    <span className="font-medium text-gray-700">رقم الهاتف:</span>
-                                    <span className="mr-2 text-gray-900">{selectedRider.phoneNumber || '-'}</span>
-                                </div>
-                                <div>
-                                    <span className="font-medium text-gray-700">السكن:</span>
-                                    <span className="mr-2 text-gray-900">{selectedRider.housingAddress || '-'}</span>
                                 </div>
                                 <div className="col-span-full mt-4 pt-4 border-t border-blue-200 grid grid-cols-2 gap-4">
                                     <div className="bg-white p-3 rounded shadow-sm">
@@ -246,14 +238,7 @@ export default function RiderAccessoriesHistoryPage() {
                                 سجل الاستخدام
                             </h4>
                             <Table
-                                columns={[...columns, {
-                                    header: 'التكلفة',
-                                    accessor: 'totalCost',
-                                    render: (row) => {
-                                        const cost = row.totalCost || row.cost || (row.unitPrice * row.quantity) || 0;
-                                        return `${Number(cost).toFixed(2)} ر.س`;
-                                    }
-                                }]}
+                                columns={columns}
                                 data={historyData}
                                 loading={loading}
                             />

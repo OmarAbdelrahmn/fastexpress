@@ -20,6 +20,16 @@ export const userNavigationConfig = {
     icon: "🚗",
     path: "/member/vehicles",
   },
+  maintenance: {
+    title: "navigation.maintenance",
+    icon: "🔧",
+    routes: [
+      { path: "/member/maintenance/spare-parts", label: "ادارة القطع الغيار" },
+      { path: "/member/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
+      { path: "/member/maintenance/cost-summary", label: "ملخص التكاليف" },
+      { path: "/member/maintenance/transfers", label: "التحويلات" },
+    ],
+  },
   requests: {
     title: "الطلبات",
     icon: "📝",

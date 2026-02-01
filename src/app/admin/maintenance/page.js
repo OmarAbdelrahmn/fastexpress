@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Wrench, Calendar, History, FileText, AlertCircle, CheckCircle, Clock, TrendingUp, Package } from 'lucide-react';
+import { Wrench, Calendar, History, FileText, AlertCircle, CheckCircle, Clock, TrendingUp, Package, BadgeDollarSign } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 
 export default function MaintenancePage() {
@@ -82,7 +82,7 @@ export default function MaintenancePage() {
                 <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-purple-600 mb-1">إكسسوارات السائقين</p>
+                            <p className="text-sm text-purple-600 mb-1">إكسسوارات معدات السائقين</p>
                             <p className="text-3xl font-bold text-purple-700">{loading ? '...' : stats.riderAccessoriesCount}</p>
                         </div>
                         <Package className="text-purple-500" size={40} />
@@ -143,7 +143,7 @@ export default function MaintenancePage() {
                     <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={Package}
-                            title="إدارة معدات السائقين"
+                            title="إدارة إكسسوارات معدات السائقين"
                             description="متابعة المخزون و معدات السائقين"
                             onClick={() => router.push('/admin/maintenance/rider-accessories')}
                             color="#8b5cf6"
@@ -164,6 +164,14 @@ export default function MaintenancePage() {
                             onClick={() => router.push('/admin/maintenance/usage')}
                             color="#f59e0b"
                             bgClass="bg-amber-50"
+                        />
+                        <MiniStatRow
+                            icon={BadgeDollarSign}
+                            title="تكاليف السكن"
+                            description="عرض تكاليف قطع الغيار لكل سكن"
+                            onClick={() => router.push('/admin/maintenance/housing-costs')}
+                            color="#10b981"
+                            bgClass="bg-emerald-50"
                         />
                     </div>
                 </div>

@@ -81,7 +81,7 @@ export default function RiderAccessoriesPage() {
         ws['!cols'] = wscols;
 
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "إكسسوارات السائقين");
+        XLSX.utils.book_append_sheet(wb, ws, "إكسسوارات معدات السائقين");
         XLSX.writeFile(wb, `rider_accessories_report_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
@@ -210,8 +210,8 @@ export default function RiderAccessoriesPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="إكسسوارات السائقين"
-                subtitle="إدارة إكسسوارات السائقين والمخزون"
+                title="إكسسوارات معدات السائقين"
+                subtitle="إدارة إكسسوارات معدات السائقين والمخزون"
                 icon={Package}
             />
 
@@ -225,7 +225,7 @@ export default function RiderAccessoriesPage() {
                     setIsModalOpen(true);
                 }}>
                     <Plus size={20} className="ml-2" />
-                    إضافة إكسسوار جديد
+                    إضافة إكسسوار معدات جديد
                 </Button>
 
                 <Button
@@ -243,7 +243,7 @@ export default function RiderAccessoriesPage() {
                 <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <div className="flex-1">
                         <Input
-                            placeholder="بحث عن إكسسوار (الاسم)..."
+                            placeholder="بحث عن إكسسوار معدات (الاسم)..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             icon={Search}
@@ -282,7 +282,7 @@ export default function RiderAccessoriesPage() {
                     setIsModalOpen(false);
                     setEditingItem(null);
                 }}
-                title={editingItem ? 'تعديل إكسسوار' : 'إضافة إكسسوار جديد'}
+                title={editingItem ? 'تعديل إكسسوار معدات' : 'إضافة إكسسوار معدات جديد'}
             >
                 <RiderAccessoryForm
                     initialData={editingItem}
@@ -300,7 +300,7 @@ export default function RiderAccessoriesPage() {
                     setIsIssueModalOpen(false);
                     setIssueItem(null);
                 }}
-                title="تسجيل إصدار إكسسوار"
+                title="تسجيل إصدار إكسسوار معدات"
             >
                 <IssueForm
                     onSubmit={handleRecordIssue}

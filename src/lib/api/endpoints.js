@@ -246,6 +246,21 @@ export const API_ENDPOINTS = {
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
+    SPARE_PARTS: {
+      LIST: "/api/member/spare-parts",
+      RECORD_USAGE: "/api/Member/spare-parts/usage/batch",
+      HISTORY: (vehicleNumber) => `/api/Member/vehicles/${vehicleNumber}/spare-parts-history`,
+    },
+    RIDER_ACCESSORIES: {
+      LIST: "/api/member/accessories",
+      RECORD_USAGE: "/api/Member/accessories/usage/batch",
+      HISTORY: (riderId) => `/api/Member/riders/${riderId}/accessories-history`,
+    },
+    COST_SUMMARY: "/api/Member/cost-summary",
+    TRANSFERS: {
+      CREATE: "/api/member/transfers",
+      LIST: "/api/member/transfers",
+    },
   },
 
   // RiderAccessory
@@ -286,6 +301,7 @@ export const API_ENDPOINTS = {
     HISTORY: (id) => `/api/SparePart/${id}/history`,
     RECORD_USAGE: `/api/SparePart/spare-parts`,
     VEHICLE_HISTORY: (vehicleNumber) => `/api/SparePart/vehicle/${vehicleNumber}/history`,
+    ALL_HOUSINGS_COSTS: (fromDate, toDate) => `/api/sparepart/all-housings?fromDate=${fromDate}&toDate=${toDate}`,
   },
 
   // Transfer

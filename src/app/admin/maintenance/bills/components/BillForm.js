@@ -53,7 +53,7 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
 
     const loadSpareParts = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.LIST+"/2");
+            const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.LIST + "/2");
             setSpareParts(response || []);
         } catch (error) {
             console.error('Error loading spare parts:', error);
@@ -62,7 +62,7 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
 
     const loadRiderAccessories = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST+"/2");
+            const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.LIST + "/2");
             setRiderAccessories(response || []);
         } catch (error) {
             console.error('Error loading rider accessories:', error);
@@ -81,8 +81,8 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
         // Auto-fill unit price when item is selected
         if (field === 'itemId' && value) {
             const itemType = newItems[index].itemType;
-            const items = itemType === 1 ? spareParts : riderAccessories;
-            const selectedItem = items.find(item => item.id === value);
+            const itemsList = itemType === 1 ? spareParts : riderAccessories;
+            const selectedItem = itemsList.find(item => String(item.id) === String(value));
             if (selectedItem) {
                 newItems[index].unitPrice = selectedItem.price;
             }
@@ -215,7 +215,7 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
                                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value={1}>قطع غيار</option>
-                                <option value={2}>إكسسوارات</option>
+                                <option value={2}>إكسسوارات معدات السائقين</option>
                             </select>
                         </div>
 

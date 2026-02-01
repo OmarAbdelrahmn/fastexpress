@@ -1,0 +1,327 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Package, Search, History, ArrowRight, User, Plus, Trash2 } from 'lucide-react';
+import { ApiService } from '@/lib/api/apiService';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import Button from '@/components/Ui/Button';
+import Input from '@/components/Ui/Input';
+import Alert from '@/components/Ui/Alert';
+
+export default function MemberRiderAccessoriesPage() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [accessories, setAccessories] = useState([]);
+    const [riders, setRiders] = useState([]);
+    const [riderSearch, setRiderSearch] = useState('');
+    const [alert, setAlert] = useState(null);
+
+    // Array to hold multiple usage entries
+    const [usageEntries, setUsageEntries] = useState([
+        { accessoryId: '', riderId: '', selectedRider: null }
+    ]);
+
+    useEffect(() => {
+        loadAccessories();
+        loadRiders();
+    }, []);
+
+    const loadAccessories = async () => {
+        try {
+            // Using member-specific endpoint for accessories list
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDER_ACCESSORIES.LIST);
+            setAccessories(response || []);
+        } catch (error) {
+            console.error('Error loading accessories:', error);
+            showAlert('error', 'حدث خطأ أثناء تحميل معدات السائقين');
+        }
+    };
+
+    const loadRiders = async () => {
+        try {
+            // Using member-specific endpoint for riders
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDERS);
+            setRiders(response || []);
+        } catch (error) {
+            console.error('Error loading riders:', error);
+            showAlert('error', 'حدث خطأ أثناء تحميل السائقين');
+        }
+    };
+
+    const filteredRiders = riders.filter(rider => {
+        if (!riderSearch) return true;
+        const search = riderSearch.toLowerCase();
+        return (
+            rider.nameAR?.toLowerCase().includes(search) ||
+            rider.nameEN?.toLowerCase().includes(search) ||
+            rider.iqamaNo?.toString().includes(search) ||
+            rider.workingId?.toLowerCase().includes(search) ||
+            rider.phoneNumber?.toLowerCase().includes(search)
+        );
+    });
+
+    const handleRiderSelect = (rider, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].selectedRider = rider;
+        updatedEntries[index].riderId = rider.riderId;
+        setUsageEntries(updatedEntries);
+        setRiderSearch(''); // Clear search after selection
+    };
+
+    const handleAccessoryChange = (value, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].accessoryId = value;
+        setUsageEntries(updatedEntries);
+    };
+
+    const addUsageEntry = () => {
+        setUsageEntries([
+            ...usageEntries,
+            { accessoryId: '', riderId: '', selectedRider: null }
+        ]);
+    };
+
+    const removeUsageEntry = (index) => {
+        if (usageEntries.length > 1) {
+            const updatedEntries = usageEntries.filter((_, i) => i !== index);
+            setUsageEntries(updatedEntries);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        for (let i = 0; i < usageEntries.length; i++) {
+            const entry = usageEntries[i];
+
+            if (!entry.accessoryId) {
+                showAlert('error', `الرجاء اختيار المعدات للإدخال رقم ${i + 1}`);
+                return;
+            }
+
+            if (!entry.selectedRider) {
+                showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
+                return;
+            }
+        }
+
+        setLoading(true);
+        try {
+            const requestBody = {
+                usages: usageEntries.map(entry => ({
+                    accessoryId: parseInt(entry.accessoryId),
+                    riderId: parseInt(entry.riderId)
+                }))
+            };
+
+            await ApiService.post(API_ENDPOINTS.MEMBER.RIDER_ACCESSORIES.RECORD_USAGE, requestBody);
+
+            showAlert('success', 'تم تسجيل الاستخدام بنجاح');
+
+            setUsageEntries([
+                { accessoryId: '', riderId: '', selectedRider: null }
+            ]);
+            setRiderSearch('');
+        } catch (error) {
+            console.error('Error recording usage:', error);
+            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const showAlert = (type, message) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
+
+    return (
+        <div className="space-y-6">
+            {alert && (
+                <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
+            )}
+
+            <div className="flex gap-4 px-5">
+                <Button
+                    variant="outline"
+                    onClick={() => router.push('/member/dashboard')}
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                    <ArrowRight size={20} className="ml-2" />
+                    رجوع
+                </Button>
+
+                <Button
+                    variant="outline"
+                    onClick={() => router.push('/member/maintenance/rider-accessories/history')}
+                    className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                >
+                    <History size={20} className="ml-2" />
+                    عرض السجل
+                </Button>
+
+                <Button
+                    variant="outline"
+                    onClick={() => router.push('/member/maintenance/rider-accessories/stock')}
+                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                    <Package size={20} className="ml-2" />
+                    عرض المخزون
+                </Button>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Rider Search - Shared for all entries */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            البحث عن السائقين
+                        </label>
+                        <Input
+                            placeholder="ابحث عن السائق (الاسم، رقم الهوية، ID العمل، رقم الهاتف...)"
+                            value={riderSearch}
+                            onChange={(e) => setRiderSearch(e.target.value)}
+                            icon={Search}
+                        />
+                    </div>
+
+                    {/* Riders Grid - Only show when searching */}
+                    {riderSearch && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 border-2 border-gray-200 rounded-lg">
+                            {filteredRiders.map((rider, riderIdx) => (
+                                <div
+                                    key={rider.riderId || `rider-${riderIdx}`}
+                                    className="p-4 border-2 rounded-lg cursor-pointer transition-all border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <User className="text-gray-400" size={24} />
+                                        <div className="flex-1">
+                                            <div className="font-bold text-gray-900">
+                                                {rider.nameAR}
+                                            </div>
+                                            {/* Add selection buttons for each entry */}
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {usageEntries.map((entry, entryIdx) => (
+                                                    <button
+                                                        key={`select-btn-${rider.riderId || riderIdx}-${entryIdx}`}
+                                                        type="button"
+                                                        onClick={() => handleRiderSelect(rider, entryIdx)}
+                                                        className={`text-xs px-2 py-1 rounded ${entry.selectedRider?.riderId === rider.riderId
+                                                            ? 'bg-purple-500 text-white'
+                                                            : 'bg-gray-200 text-gray-700 hover:bg-purple-100'
+                                                            }`}
+                                                    >
+                                                        إدخال {entryIdx + 1}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {filteredRiders.length === 0 && (
+                                <div className="col-span-full text-center py-8 text-gray-500">
+                                    لا توجد سائقين يطابقون البحث
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Usage Entries */}
+                    <div className="space-y-4">
+                        <div key="usage-header" className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
+                            <Button
+                                type="button"
+                                onClick={addUsageEntry}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                                <Plus size={20} className="ml-2" />
+                                إضافة إدخال
+                            </Button>
+                        </div>
+
+                        {usageEntries.map((entry, index) => (
+                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg space-y-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-medium text-gray-900">إدخال رقم {index + 1}</h4>
+                                    {usageEntries.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeUsageEntry(index)}
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Accessory Selection */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        معدات السائق <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={entry.accessoryId}
+                                        onChange={(e) => handleAccessoryChange(e.target.value, index)}
+                                        className="w-full px-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        required
+                                    >
+                                        <option value="">اختر معدات السائق</option>
+                                        {accessories.map((accessory, accIdx) => (
+                                            <option
+                                                key={accessory.id || `acc-${accIdx}`}
+                                                value={accessory.id}
+                                                disabled={accessory.quantity <= 0}
+                                                className={accessory.quantity <= 0 ? 'text-gray-400 bg-gray-50' : ''}
+                                            >
+                                                {accessory.name} - {accessory.quantity > 0 ? `الكمية المتاحة: ${accessory.quantity}` : 'نفدت الكمية'}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Selected Rider Display */}
+                                {entry.selectedRider ? (
+                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <h5 className="font-medium text-blue-900 mb-2">السائق المختار:</h5>
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div><span className="font-medium">الاسم:</span> {entry.selectedRider.nameAR}</div>
+                                            <div><span className="font-medium">معرف العمل:</span> {entry.selectedRider.workingId}</div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500">
+                                        الرجاء اختيار سائق من نتائج البحث أعلاه
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex gap-3">
+                        <Button
+                            type="submit"
+                            className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+                            disabled={loading}
+                        >
+                            {loading ? 'جاري التسجيل...' : 'تسجيل الاستخدام'}
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => router.push('/member/dashboard')}
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        >
+                            إلغاء
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}

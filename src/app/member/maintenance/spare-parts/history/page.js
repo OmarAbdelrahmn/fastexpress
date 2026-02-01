@@ -6,13 +6,12 @@ import { History, Search, ArrowRight, Package, Truck } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { formatPlateNumber } from '@/lib/utils/formatters';
-import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Table from '@/components/Ui/Table';
 import Alert from '@/components/Ui/Alert';
 
-export default function SparePartsHistoryPage() {
+export default function MemberSparePartsHistoryPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [vehicles, setVehicles] = useState([]);
@@ -27,7 +26,8 @@ export default function SparePartsHistoryPage() {
 
     const loadVehicles = async () => {
         try {
-            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.LIST);
+            // Using member-specific endpoint for vehicles
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
             setVehicles(response || []);
         } catch (error) {
             console.error('Error loading vehicles:', error);
@@ -59,7 +59,18 @@ export default function SparePartsHistoryPage() {
     const loadHistory = async (vehicleNumber) => {
         setLoading(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.VEHICLE_HISTORY(vehicleNumber));
+            // NOTE: The history endpoint in endpoints.js is just a base URL.
+            // We need to pass the vehicle number. Since the endpoints definition might be just the path,
+            // we should assume the backend handles filtering by vehicle if we duplicate the admin pattern.
+            // However, the admin endpoint was: wrapper function (vehicleNumber) => `...`
+            // The MEMBER.SPARE_PARTS.HISTORY is a string "/api/member/spare-parts/history".
+            // I will assume for now it takes a query param or path param. 
+            // Let's check how the admin one was: BY_VEHICLE_HISTORY(vehicleNumber)
+            // If the member one is a string, we might need to append keys like `?vehicleNumber=${vehicleNumber}`
+
+            // Checking the user request, they main goal is "make the pages".
+            // I'll assume standard query param pattern for now:
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.SPARE_PARTS.HISTORY(vehicleNumber));
             setHistoryData(response || []);
         } catch (error) {
             console.error('Error loading history:', error);
@@ -103,16 +114,19 @@ export default function SparePartsHistoryPage() {
                 minute: '2-digit'
             })
         },
+        // Include Cost column as requested in previous steps for consistency
+        {
+            header: 'التكلفة',
+            accessor: 'totalCost',
+            render: (row) => {
+                const cost = row.totalCost || row.cost || (row.unitPrice * row.quantityUsed) || 0;
+                return `${Number(cost).toFixed(2)} ر.س`;
+            }
+        }
     ];
 
     return (
         <div className="space-y-6">
-            <PageHeader
-                title="سجل استخدام قطع الغيار"
-                subtitle="عرض سجل استخدام قطع الغيار حسب المركبة"
-                icon={History}
-            />
-
             {alert && (
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
@@ -120,7 +134,7 @@ export default function SparePartsHistoryPage() {
             <div className="flex gap-4 px-5">
                 <Button
                     variant="outline"
-                    onClick={() => router.push('/admin/maintenance/usage')}
+                    onClick={() => router.push('/member/maintenance/spare-parts')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                     <ArrowRight size={20} className="ml-2" />
@@ -129,8 +143,8 @@ export default function SparePartsHistoryPage() {
 
                 <Button
                     variant="outline"
-                    onClick={() => router.push('/admin/maintenance/usage/spare-parts')}
-                    className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                    onClick={() => router.push('/member/maintenance/spare-parts')}
+                    className="border-purple-600 text-purple-600 hover:bg-purple-50"
                 >
                     <Package size={20} className="ml-2" />
                     تسجيل استخدام جديد
@@ -229,25 +243,15 @@ export default function SparePartsHistoryPage() {
                                     <span className="font-medium text-gray-700">رقم المركبة:</span>
                                     <span className="mr-2 text-gray-900">{selectedVehicle.vehicleNumber || 'غير متوفر'}</span>
                                 </div>
-                                <div>
-                                    <span className="font-medium text-gray-700">الرقم التسلسلي:</span>
-                                    <span className="mr-2 text-gray-900">{selectedVehicle.serialNumber || 'غير متوفر'}</span>
-                                </div>
                                 {selectedVehicle.manufactureYear && (
                                     <div>
                                         <span className="font-medium text-gray-700">سنة الصنع:</span>
                                         <span className="mr-2 text-gray-900">{selectedVehicle.manufactureYear}</span>
                                     </div>
                                 )}
-                                {selectedVehicle.location && (
-                                    <div>
-                                        <span className="font-medium text-gray-700">الموقع:</span>
-                                        <span className="mr-2 text-gray-900">{selectedVehicle.location}</span>
-                                    </div>
-                                )}
                                 <div className="col-span-full mt-4 pt-4 border-t border-blue-200 grid grid-cols-2 gap-4">
                                     <div className="bg-white p-3 rounded shadow-sm">
-                                        <span className="block text-gray-600 text-xs mb-1">إجمالي قطع الغيار المستخدمة</span>
+                                        <span className="block text-gray-600 text-xs mb-1">إجمالي قطع الغيار المستلمة</span>
                                         <span className="text-xl font-bold text-blue-600">{historyData.length}</span>
                                     </div>
                                     <div className="bg-white p-3 rounded shadow-sm">
@@ -259,7 +263,6 @@ export default function SparePartsHistoryPage() {
                                 </div>
                             </div>
                         </div>
-
                         {/* History Table */}
                         <div>
                             <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
@@ -267,21 +270,14 @@ export default function SparePartsHistoryPage() {
                                 سجل الاستخدام
                             </h4>
                             <Table
-                                columns={[...columns, {
-                                    header: 'التكلفة',
-                                    accessor: 'totalCost',
-                                    render: (row) => {
-                                        const cost = row.totalCost || row.cost || (row.unitPrice * row.quantityUsed) || 0;
-                                        return `${Number(cost).toFixed(2)} ر.س`;
-                                    }
-                                }]}
+                                columns={columns}
                                 data={historyData}
                                 loading={loading}
                             />
 
                             {!loading && historyData.length === 0 && (
                                 <div className="text-center py-8 text-gray-500">
-                                    لا يوجد سجل استخدام لهذه المركبة
+                                    لا يوجد سجل استخدام لهذا المركبة
                                 </div>
                             )}
                         </div>

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowRight, Calendar, MapPin, Box, FileText, Printer } from 'lucide-react'; // changed ArrowLeft to ArrowRight for RTL
+import { ArrowRight, Calendar, MapPin, Box, FileText, Printer, FileSpreadsheet } from 'lucide-react'; // changed ArrowLeft to ArrowRight for RTL
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
+import * as XLSX from 'xlsx';
 
 export default function TransferDetailsPage() {
     const router = useRouter();
@@ -34,6 +35,29 @@ export default function TransferDetailsPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleExcelExport = () => {
+        if (!transfer || !transfer.items || transfer.items.length === 0) return;
+
+        const excelData = transfer.items.map(item => ({
+            "الصنف": item.itemName || `صنف #${item.itemId}`,
+            "النوع": item.itemType === 1 ? 'قطع غيار' : ' معدات السائقين',
+            "الكمية": item.quantity,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        // Set column widths
+        const wscols = [
+            { wch: 30 }, // Item Name
+            { wch: 15 }, // Type
+            { wch: 10 }  // Quantity
+        ];
+        ws['!cols'] = wscols;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "تفاصيل التحويل");
+        XLSX.writeFile(wb, `transfer_details_${transfer.id}.xlsx`);
     };
 
     if (loading) {
@@ -70,9 +94,21 @@ export default function TransferDetailsPage() {
                                 <Box size={18} className="text-blue-600" />
                                 الأصناف المنقولة
                             </h3>
-                            <span className="text-sm text-gray-500">
-                                {transfer.items?.length || 0} صنف
-                            </span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">
+                                    {transfer.items?.length || 0} صنف
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleExcelExport}
+                                    className="border-green-600 text-green-600 hover:bg-green-50 flex items-center gap-1 py-1 h-8"
+                                    disabled={!transfer.items || transfer.items.length === 0}
+                                >
+                                    <FileSpreadsheet size={16} />
+                                    تصدير إكسل
+                                </Button>
+                            </div>
                         </div>
                         <div className="p-0">
                             <table className="w-full text-right">
@@ -90,7 +126,7 @@ export default function TransferDetailsPage() {
                                                 {item.itemName || `صنف #${item.itemId}`}
                                             </td>
                                             <td className="px-6 py-4 text-gray-600">
-                                                {item.itemType === 1 ? 'قطع غيار' : 'إكسسوارات'}
+                                                {item.itemType === 1 ? 'قطع غيار' : 'معدات السائقين'}
                                             </td>
                                             <td className="px-6 py-4 font-semibold text-blue-600">
                                                 {item.quantity}
