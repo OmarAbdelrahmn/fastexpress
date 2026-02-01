@@ -836,14 +836,14 @@ export default function EnhancedDashboard() {
 
           <div className="space-y-4">
             {/* Company Statistics Card */}
-<div
-  className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
-             hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
-  style={{
-    backgroundImage:
-      "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
-  }}
->
+          <div
+            className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+                      hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
+            }}
+          >
          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.statistics")}
@@ -924,14 +924,14 @@ export default function EnhancedDashboard() {
 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div
-              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
-                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
-              }}
-            >
+          <div
+            className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+                      hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
+            }}
+          >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Car size={20} color={COLORS.blue} />
                 {t("dashboard.vehiclesBreakdown")}
@@ -958,13 +958,13 @@ export default function EnhancedDashboard() {
               </div>
             </div>
 
-            <div
-              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
-                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
-              }}
+          <div
+            className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+                      hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
+            }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.blue} />
@@ -1004,7 +1004,7 @@ export default function EnhancedDashboard() {
                         hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
               style={{
                 backgroundImage:
-                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
               }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -1033,7 +1033,7 @@ export default function EnhancedDashboard() {
                         hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
               style={{
                 backgroundImage:
-                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
               }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
