@@ -132,6 +132,14 @@ export default function MaintenancePage() {
                             color="#2563eb"
                             bgClass="bg-blue-50"
                         />
+                        <MiniStatRow
+                            icon={FileText}
+                            title="تفاصيل استخدام السكنات"
+                            description="تفاصيل استخدام قطع الغيار في السكنات"
+                            onClick={() => router.push('/admin/maintenance/all-housings-details')}
+                            color="#10b981"
+                            bgClass="bg-emerald-50"
+                        />
                     </div>
                 </div>
 
