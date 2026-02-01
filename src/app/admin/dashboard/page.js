@@ -836,8 +836,15 @@ export default function EnhancedDashboard() {
 
           <div className="space-y-4">
             {/* Company Statistics Card */}
-            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
-              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+<div
+  className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+             hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+  style={{
+    backgroundImage:
+      "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+  }}
+>
+         <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.statistics")}
               </h3>
@@ -917,7 +924,14 @@ export default function EnhancedDashboard() {
 
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg  border border-gray-200 hover:shadow-lg transition-shadow">
+            <div
+              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Car size={20} color={COLORS.blue} />
                 {t("dashboard.vehiclesBreakdown")}
@@ -944,7 +958,14 @@ export default function EnhancedDashboard() {
               </div>
             </div>
 
-            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-lg transition-shadow">
+            <div
+              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow
+                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.blue} />
                 {t("dashboard.ridersStatus")}
@@ -978,7 +999,14 @@ export default function EnhancedDashboard() {
             </div>
 
             {/* Active Riders by Company */}
-            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
+            <div
+              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow md:col-span-2 lg:col-span-2
+                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Users size={20} color={COLORS.blue} />
                 {t("dashboard.activeRidersByCompany")}
@@ -1000,7 +1028,14 @@ export default function EnhancedDashboard() {
             </div>
 
             {/* System Overview */}
-            <div className="bg-gray-200 p-6 rounded-2xl shadow-lg border border-gray-200 md:col-span-2 lg:col-span-2 hover:shadow-lg transition-shadow">
+            <div
+              className="bg-white p-6 rounded-2xl border border-gray-200 transition-shadow md:col-span-2 lg:col-span-2
+                        hover:shadow-[0_20px_60px_rgba(99,102,241,0.10)]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 8px)",
+              }}
+            >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <BarChart3 size={20} color={COLORS.blue} />
                 {t("dashboard.overview")}
