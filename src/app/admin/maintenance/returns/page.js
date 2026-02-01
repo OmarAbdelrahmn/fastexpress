@@ -181,7 +181,7 @@ export default function ReturnsPage() {
         <div className="space-y-6">
             <PageHeader
                 title="إدارة المرتجعات"
-                subtitle="تسجيل وإدارة مرتجعات قطع الغيار والإكسسوارات"
+                subtitle="تسجيل وإدارة مرتجعات قطع الغيار و معدات السائقين"
                 icon={RotateCcw}
             />
 

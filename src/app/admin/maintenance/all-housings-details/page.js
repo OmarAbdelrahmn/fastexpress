@@ -91,7 +91,7 @@ export default function AllHousingsDetailsPage() {
                             rows.push({
                                 housingName: housingName,
                                 date: item.issuedAt,
-                                type: 'إكسسوارات',
+                                type: 'معدات السائقين',
                                 itemName: item.accessoryName,
                                 entityName: `${riderUsage.riderNameAR} (${riderUsage.riderNameEN})`, // Rider
                                 quantity: 1, // Accessorries usually 1 per record in this context unless specified otherwise
@@ -207,7 +207,7 @@ export default function AllHousingsDetailsPage() {
         <div className="space-y-6">
             <PageHeader
                 title="تفاصيل استخدام السكنات والمخزون"
-                subtitle="عرض تفاصيل شاملة لاستخدام قطع الغيار والإكسسوارات"
+                subtitle="عرض تفاصيل شاملة لاستخدام قطع الغيار و معدات السائقين"
                 icon={FileText}
             />
 
@@ -244,7 +244,7 @@ export default function AllHousingsDetailsPage() {
                 <div className="bg-white p-4 rounded-lg shadow-sm border-r-4 border-purple-500">
                     <div className="flex justify-between items-center">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">إكسسوارات السائقين</p>
+                            <p className="text-sm text-gray-500 mb-1">معدات السائقين</p>
                             <h3 className="text-2xl font-bold text-gray-800">
                                 {summary ? `${Number(summary.totalAccessoriesCost).toFixed(2)} ر.س` : '-'}
                             </h3>

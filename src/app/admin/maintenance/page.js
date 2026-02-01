@@ -82,7 +82,7 @@ export default function MaintenancePage() {
                 <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-purple-600 mb-1">إكسسوارات معدات السائقين</p>
+                            <p className="text-sm text-purple-600 mb-1"> معدات السائقين</p>
                             <p className="text-3xl font-bold text-purple-700">{loading ? '...' : stats.riderAccessoriesCount}</p>
                         </div>
                         <Package className="text-purple-500" size={40} />
@@ -151,7 +151,7 @@ export default function MaintenancePage() {
                     <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={Package}
-                            title="إدارة إكسسوارات معدات السائقين"
+                            title="إدارة معدات السائقين"
                             description="متابعة المخزون و معدات السائقين"
                             onClick={() => router.push('/admin/maintenance/rider-accessories')}
                             color="#8b5cf6"

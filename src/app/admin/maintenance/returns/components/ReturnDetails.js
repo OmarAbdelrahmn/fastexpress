@@ -65,7 +65,7 @@ export default function ReturnDetails({ data }) {
                                         {item.itemName}
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                        {item.itemType === "SparePart" ? "قطع غيار" : "إكسسوارات"}
+                                        {item.itemType === "SparePart" ? "قطع غيار" : "معدات السائقين"}
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-semibold">
                                         {item.quantity}

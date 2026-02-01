@@ -199,7 +199,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
                                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value={1}>قطع غيار</option>
-                                <option value={2}>إكسسوارات</option>
+                                <option value={2}>معدات السائقين</option>
                             </select>
                         </div>
 

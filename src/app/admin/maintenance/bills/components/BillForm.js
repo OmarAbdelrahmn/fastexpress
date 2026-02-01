@@ -215,7 +215,7 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
                                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                                 <option value={1}>قطع غيار</option>
-                                <option value={2}>إكسسوارات معدات السائقين</option>
+                                <option value={2}>معدات السائقين</option>
                             </select>
                         </div>
 

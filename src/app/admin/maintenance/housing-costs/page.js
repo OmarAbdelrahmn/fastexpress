@@ -46,7 +46,7 @@ export default function HousingCostsPage() {
                         riderCount: "-",
                         sparePartsCost: response.companyStock.sparePartsCost || 0,
                         accessoriesCost: response.companyStock.accessoriesCost || 0,
-                        accessoriesLabel: 'إكسسوارات معدات السائقين',
+                        accessoriesLabel: 'معدات السائقين',
                         totalCost: response.companyStock.totalCost || 0,
                         isCompanyStock: true // For potential styling
                     };
@@ -84,8 +84,8 @@ export default function HousingCostsPage() {
             "عدد المركبات": item.vehicleCount,
             "عدد السائقين": item.riderCount,
             "تكلفة قطع الغيار": `${Number(item.sparePartsCost).toFixed(2)} ر.س`,
-            "تكلفة الإكسسوارات": `${Number(item.accessoriesCost).toFixed(2)} ر.س`,
-            "نوع الصنف": "إكسسوارات معدات السائقين",
+            "تكلفة معدات السائقين": `${Number(item.accessoriesCost).toFixed(2)} ر.س`,
+            "نوع الصنف": "معدات السائقين",
             "التكلفة الإجمالية": `${Number(item.totalCost).toFixed(2)} ر.س`,
         }));
 
@@ -129,7 +129,7 @@ export default function HousingCostsPage() {
             render: (row) => `${Number(row.sparePartsCost).toFixed(2)} ر.س`
         },
         {
-            header: 'تكلفة إكسسوارات معدات السائقين',
+            header: 'تكلفة معدات السائقين',
             accessor: 'accessoriesCost',
             render: (row) => `${Number(row.accessoriesCost).toFixed(2)} ر.س`
         },
@@ -181,7 +181,7 @@ export default function HousingCostsPage() {
                 <div className="bg-white p-4 rounded-lg shadow-sm border-r-4 border-purple-500">
                     <div className="flex justify-between items-center">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">إكسسوارات معدات السائقين</p>
+                            <p className="text-sm text-gray-500 mb-1">معدات السائقين</p>
                             <h3 className="text-2xl font-bold text-gray-800">
                                 {summary ? `${Number(summary.grandTotalAccessoriesCost).toFixed(2)} ر.س` : '-'}
                             </h3>

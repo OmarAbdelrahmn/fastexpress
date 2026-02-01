@@ -178,7 +178,7 @@ export default function TransfersPage() {
         <div className="space-y-6">
             <PageHeader
                 title="إدارة التحويلات"
-                subtitle="تحويل قطع الغيار والإكسسوارات للسكن"
+                subtitle="تحويل قطع الغيار و معدات السائقين للسكن"
                 icon={FileText}
             />
 

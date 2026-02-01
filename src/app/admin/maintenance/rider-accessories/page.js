@@ -81,7 +81,7 @@ export default function RiderAccessoriesPage() {
         ws['!cols'] = wscols;
 
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "إكسسوارات معدات السائقين");
+        XLSX.utils.book_append_sheet(wb, ws, " معدات السائقين");
         XLSX.writeFile(wb, `rider_accessories_report_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
@@ -210,8 +210,8 @@ export default function RiderAccessoriesPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="إكسسوارات معدات السائقين"
-                subtitle="إدارة إكسسوارات معدات السائقين والمخزون"
+                title="معدات السائقين"
+                subtitle="إدارة معدات السائقين والمخزون"
                 icon={Package}
             />
 
