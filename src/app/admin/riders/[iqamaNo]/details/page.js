@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { formatPlateNumber } from '@/lib/utils/formatters';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
@@ -338,7 +339,7 @@ export default function RiderDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('vehicles.plateNumber') || 'Plate Number'}</p>
-                <p className="font-bold text-gray-800 text-lg">{vehicle.plateNumberA}</p>
+                <p className="font-bold text-gray-800 text-lg">{formatPlateNumber(vehicle.plateNumberA)}</p>
                 <p className="text-xs text-gray-500">{vehicle.plateNumberE}</p>
               </div>
               <div>
