@@ -20,7 +20,9 @@ import {
   Package,
   FileText,
   Shield,
-  Briefcase
+  Briefcase,
+  Truck,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
@@ -33,12 +35,29 @@ export default function RiderDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [rider, setRider] = useState(null);
+  const [vehicle, setVehicle] = useState(null);
+  const [loadingVehicle, setLoadingVehicle] = useState(false);
 
   useEffect(() => {
     if (iqamaNo) {
       loadRiderDetails();
+      loadVehicleDetails();
     }
   }, [iqamaNo]);
+
+  const loadVehicleDetails = async () => {
+    setLoadingVehicle(true);
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.RIDER.VEHICLE(iqamaNo));
+      if (data) {
+        setVehicle(data);
+      }
+    } catch (err) {
+      console.error('Error loading vehicle details:', err);
+    } finally {
+      setLoadingVehicle(false);
+    }
+  };
 
   const loadRiderDetails = async () => {
     setLoading(true);
@@ -302,6 +321,123 @@ export default function RiderDetailsPage() {
             <p className="font-bold text-gray-800">{formatDate(rider.passportEnd)}</p>
           </div>
         </div>
+      </Card>
+
+      {/* Vehicle Information */}
+      <Card>
+        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <Truck size={20} />
+          {t('vehicles.title') || 'Vehicle Information'}
+        </h3>
+        {loadingVehicle ? (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : vehicle ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.plateNumber') || 'Plate Number'}</p>
+                <p className="font-bold text-gray-800 text-lg">{vehicle.plateNumberA}</p>
+                <p className="text-xs text-gray-500">{vehicle.plateNumberE}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.vehicleType') || 'Vehicle Type'}</p>
+                <p className="font-medium text-gray-800">{vehicle.vehicleType}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.vehicleNumber') || 'Vehicle Number'}</p>
+                <p className="font-medium text-gray-800">{vehicle.vehicleNumber}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.manufacturer') || 'Manufacturer'}</p>
+                <p className="font-medium text-gray-800">{vehicle.manufacturer}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.manufactureYear') || 'Manufacture Year'}</p>
+                <p className="font-medium text-gray-800">{vehicle.manufactureYear}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.licenseExpiry') || 'License Expiry Date'}</p>
+                <p className="font-medium text-gray-800 flex items-center gap-2">
+                  <Calendar size={14} />
+                  {formatDate(vehicle.licenseExpiryDate)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('common.location') || 'Location'}</p>
+                <p className="font-medium text-gray-800 flex items-center gap-2">
+                  <MapPin size={14} />
+                  {vehicle.location}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{t('vehicles.ownerName') || 'Owner Name'}</p>
+                <p className="font-medium text-gray-800">{vehicle.ownerName}</p>
+              </div>
+            </div>
+
+            {/* Vehicle Images */}
+            {(vehicle.vehicleImagePath || vehicle.licenseImagePath || vehicle.exstraImage || vehicle.exstraImage1) && (
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                  <ImageIcon size={16} />
+                  {t('common.images') || 'Images'}
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {vehicle.vehicleImagePath && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500">{t('vehicles.vehicleImage') || 'Vehicle Image'}</p>
+                      <img
+                        src={vehicle.vehicleImagePath}
+                        alt="Vehicle"
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                  {vehicle.licenseImagePath && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500">{t('vehicles.licenseImage') || 'License Image'}</p>
+                      <img
+                        src={vehicle.licenseImagePath}
+                        alt="License"
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                  {vehicle.exstraImage && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500">{t('common.extraImage') || 'Extra Image 1'}</p>
+                      <img
+                        src={vehicle.exstraImage}
+                        alt="Extra 1"
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                  {vehicle.exstraImage1 && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500">{t('common.extraImage') || 'Extra Image 2'}</p>
+                      <img
+                        src={vehicle.exstraImage1}
+                        alt="Extra 2"
+                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-500 py-4 flex items-center gap-2 italic">
+            {t('vehicles.noVehicleAssigned') || 'No vehicle currently assigned to this rider.'}
+          </p>
+        )}
       </Card>
 
       {/* Sponsor Information */}

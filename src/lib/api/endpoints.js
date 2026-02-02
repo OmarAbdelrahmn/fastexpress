@@ -78,6 +78,7 @@ export const API_ENDPOINTS = {
     ADD_EMPLOYEE: (iqamaNo) => `/api/rider/${iqamaNo}/add-employee`,
     SMART_SEARCH: "/api/rider/smart-search",
     SEARCH: "/api/rider/search",
+    VEHICLE: (iqamaNo) => `/api/rider/vehicle?iqamaNo=${iqamaNo}`,
   },
 
   // Roles

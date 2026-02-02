@@ -413,7 +413,7 @@ export default function EditRiderPage() {
 
             <Input
               label={t('riders.workingId')}
-              type="number"
+              type="text"
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
