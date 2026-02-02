@@ -178,7 +178,7 @@ export default function EditRiderPage() {
         requestData.licenseNumber = formData.licenseNumber;
       }
       if (formData.companyName !== originalData?.companyName) {
-        requestData.companyName = formData.companyName;
+        requestData.companyName = formData.companyName === '' ? null : formData.companyName;
       }
 
       await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
