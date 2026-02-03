@@ -416,7 +416,7 @@ export default function KetaValidationPage() {
                                     {rider.validationErrors && rider.validationErrors.length > 0 && (
                                         <div className="px-4 pb-4">
                                             {rider.validationErrors.map((err, idx) => {
-                                                const isSuccess = err === "✅ جميع شروط التحقق مستوفاة"; // TODO: This might need backend change or we handle it by value
+                                                const isSuccess = err === "✅ جميع شروط التحقق مستوفاة" || err === "ℹ️ موظف مستمر من الشهر الماضي (متوقع العمل من يوم 1)";
                                                 // Assuming backend returns Arabic string, we might need a better way to check success if strings change.
                                                 // For now, I'll keep it as is, but this is a potential issue if backend strings don't match exactly or we want to translate them.
                                                 // Ideally backend sends error codes.
