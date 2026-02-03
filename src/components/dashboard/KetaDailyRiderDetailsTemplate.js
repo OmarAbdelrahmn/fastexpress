@@ -7,7 +7,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
     if (!data) return null;
 
     return (
-        <div id="keta-rider-details-print" className="hidden print:block bg-white w-full h-full p-4 font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div id="keta-rider-details-print" className="hidden print:block bg-white w-full h-full p-4 font-sans">
             {/* Header */}
             <div className="flex justify-between items-start mb-8 border-b-2 border-dashed border-gray-400 pb-4">
                 <div className="flex flex-col items-start gap-4">
