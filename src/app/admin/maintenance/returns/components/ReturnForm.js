@@ -5,6 +5,7 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { TokenManager } from '@/lib/auth/tokenManager';
 import { Plus, Trash2 } from 'lucide-react';
+import SearchableSelect from '@/components/Ui/SearchableSelect';
 
 export default function ReturnForm({ initialData, onSubmit, onCancel, isLoading, suppliers }) {
     const user = TokenManager.getUserFromToken();
@@ -117,23 +118,15 @@ export default function ReturnForm({ initialData, onSubmit, onCancel, isLoading,
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        المورد <span className="text-red-500">*</span>
-                    </label>
-                    <select
+                    <SearchableSelect
+                        label="المورد"
                         name="supplierId"
                         value={formData.supplierId}
                         onChange={handleChange}
+                        options={suppliers}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">اختر المورد</option>
-                        {suppliers.map(supplier => (
-                            <option key={supplier.id} value={supplier.id}>
-                                {supplier.name}
-                            </option>
-                        ))}
-                    </select>
+                        placeholder="اختر المورد"
+                    />
                 </div>
 
                 <Input
@@ -195,22 +188,14 @@ export default function ReturnForm({ initialData, onSubmit, onCancel, isLoading,
                         </div>
 
                         <div className="col-span-3">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                الصنف
-                            </label>
-                            <select
+                            <SearchableSelect
+                                label="الصنف"
                                 value={item.itemId}
                                 onChange={(e) => handleItemChange(index, 'itemId', e.target.value)}
+                                options={item.itemType === 1 ? spareParts : riderAccessories}
+                                placeholder="اختر الصنف"
                                 required
-                                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">اختر الصنف</option>
-                                {(item.itemType === 1 ? spareParts : riderAccessories).map(spareItem => (
-                                    <option key={spareItem.id} value={spareItem.id}>
-                                        {spareItem.name}
-                                    </option>
-                                ))}
-                            </select>
+                            />
                         </div>
 
                         <div className="col-span-2">

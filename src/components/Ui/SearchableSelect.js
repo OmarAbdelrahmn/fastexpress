@@ -9,47 +9,49 @@ const SearchableSelect = ({
     placeholder = 'Search...',
     required = false,
     error = '',
-    name
+    name,
+    className = ''
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(value || '');
-    const [filteredOptions, setFilteredOptions] = useState(options);
+    const [searchTerm, setSearchTerm] = useState('');
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        // If external value changes, update internal search term, 
-        // but only if we're not currently typing (document.activeElement check could be added if needed,
-        // but simplicity usually works: if value prop updates, sync it).
-        // However, during typing, we don't want to overwrite unless selection happened.
-        // For now, let's sync if value exists.
-        if (value) {
-            setSearchTerm(value);
-        }
-    }, [value]);
+    // Normalize options to handle both strings and objects
+    const normalizedOptions = options.map(opt =>
+        typeof opt === 'object' ? { id: opt.id, name: opt.name } : { id: opt, name: opt }
+    );
 
+    // Sync search term with value when value changes or options load
     useEffect(() => {
-        if (searchTerm === '') {
-            setFilteredOptions(options);
+        if (value !== undefined && value !== null && value !== '') {
+            const selectedOption = normalizedOptions.find(opt => String(opt.id) === String(value));
+            if (selectedOption) {
+                setSearchTerm(selectedOption.name);
+            } else if (typeof value === 'string') {
+                setSearchTerm(value);
+            }
         } else {
-            setFilteredOptions(
-                options.filter(option =>
-                    option.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-            );
+            setSearchTerm('');
         }
-    }, [searchTerm, options]);
+    }, [value, options]);
+
+    const filteredOptions = searchTerm === '' || normalizedOptions.some(opt => opt.name === searchTerm)
+        ? normalizedOptions
+        : normalizedOptions.filter(option =>
+            option.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsOpen(false);
-                // On close, if the text doesn't match a value, should we reset?
-                // If strictly selecting from list:
-                if (!options.includes(searchTerm) && value) {
-                    setSearchTerm(value); // Revert to last valid value
-                } else if (!options.includes(searchTerm) && !value) {
-                    setSearchTerm(''); // Clear if invalid
+                // On close, if the text doesn't match a value, revert to last valid name
+                const selectedOption = normalizedOptions.find(opt => String(opt.id) === String(value));
+                if (selectedOption) {
+                    setSearchTerm(selectedOption.name);
+                } else if (!value) {
+                    setSearchTerm('');
                 }
             }
         };
@@ -58,19 +60,16 @@ const SearchableSelect = ({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [searchTerm, options, value]);
+    }, [searchTerm, normalizedOptions, value]);
 
     const handleInputChange = (e) => {
         setSearchTerm(e.target.value);
         setIsOpen(true);
-        // Optional: if allowing free text, call onChange here.
-        // But for "Select", we usually want a valid option.
-        // Use case: Country selection (Strict).
     };
 
     const handleSelect = (option) => {
-        onChange({ target: { name, value: option } });
-        setSearchTerm(option);
+        onChange({ target: { name, value: option.id } });
+        setSearchTerm(option.name);
         setIsOpen(false);
     };
 
@@ -86,9 +85,9 @@ const SearchableSelect = ({
     };
 
     return (
-        <div className="relative w-full" ref={dropdownRef}>
+        <div className={`relative ${className || 'w-full'}`} ref={dropdownRef}>
             {label && (
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 ">
                     {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
@@ -99,10 +98,10 @@ const SearchableSelect = ({
                     type="text"
                     name={name}
                     className={`
-            w-full pl-4 pr-10 py-3 border rounded-lg bg-white
-            focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent
+            w-full pl-4 pr-10 py-1.5 border rounded-lg bg-white
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
             ${error ? 'border-red-500' : 'border-gray-300'}
-            text-gray-900 placeholder-gray-400
+            text-sm text-gray-900 placeholder-gray-400
           `}
                     placeholder={placeholder}
                     value={searchTerm}
@@ -134,18 +133,18 @@ const SearchableSelect = ({
                 </div>
 
                 {isOpen && (
-                    <div className="absolute z-[60] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                    <div className="absolute z-[60] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option, index) => (
                                 <div
                                     key={index}
                                     className={`
                     px-4 py-2.5 text-sm cursor-pointer transition-colors
-                    ${option === value ? 'bg-orange-50 text-orange-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}
+                    ${String(option.id) === String(value) ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}
                   `}
-                                    onMouseDown={() => handleSelect(option)} // onMouseDown fires before onBlur
+                                    onMouseDown={() => handleSelect(option)}
                                 >
-                                    {option}
+                                    {option.name}
                                 </div>
                             ))
                         ) : (

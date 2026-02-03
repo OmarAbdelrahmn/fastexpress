@@ -10,6 +10,7 @@ import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
+import SearchableSelect from '@/components/Ui/SearchableSelect';
 
 export default function SparePartsUsagePage() {
     const router = useRouter();
@@ -282,24 +283,17 @@ export default function SparePartsUsagePage() {
                                 </div>
 
                                 {/* Spare Part Selection */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        قطعة الغيار <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={entry.sparePartId}
-                                        onChange={(e) => handleSparePartChange(e.target.value, index)}
-                                        className="w-full px-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                        required
-                                    >
-                                        <option value="">اختر قطعة الغيار</option>
-                                        {spareParts.map((part) => (
-                                            <option key={part.id} value={part.id}>
-                                                {part.name} - الكمية المتاحة: {part.quantity}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <SearchableSelect
+                                    label="قطعة الغيار"
+                                    value={entry.sparePartId}
+                                    onChange={(e) => handleSparePartChange(e.target.value, index)}
+                                    options={spareParts.map(part => ({
+                                        id: part.id,
+                                        name: `${part.name} - الكمية المتاحة: ${part.quantity}`
+                                    }))}
+                                    placeholder="اختر قطعة الغيار"
+                                    required
+                                />
 
                                 {/* Selected Vehicle Display */}
                                 {entry.selectedVehicle ? (

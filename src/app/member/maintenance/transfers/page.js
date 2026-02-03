@@ -8,6 +8,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
+import SearchableSelect from '@/components/Ui/SearchableSelect';
 
 export default function MemberTransfersPage() {
     const router = useRouter();
@@ -237,19 +238,14 @@ export default function MemberTransfersPage() {
 
                             {transferType === 'HOUSING' && (
                                 <div className="mt-4 max-w-md">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">اختر السكن <span className="text-red-500">*</span></label>
-                                    <select
+                                    <SearchableSelect
+                                        label="اختر السكن"
                                         value={selectedHousing}
                                         onChange={(e) => setSelectedHousing(e.target.value)}
-                                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="">اختر السكن...</option>
-                                        {housings.map(housing => (
-                                            <option key={housing.id} value={housing.id}>
-                                                {housing.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        options={housings}
+                                        placeholder="اختر السكن..."
+                                        required
+                                    />
                                 </div>
                             )}
                         </div>
@@ -279,24 +275,17 @@ export default function MemberTransfersPage() {
                                         </div>
 
                                         <div className="w-full md:w-2/4">
-                                            <label className="block text-xs font-medium text-gray-500 mb-1">اسم العنصر</label>
-                                            <select
+                                            <SearchableSelect
+                                                label="اسم العنصر"
                                                 value={item.itemId}
                                                 onChange={(e) => handleItemChange(index, 'itemId', e.target.value)}
-                                                className="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500"
-                                            >
-                                                <option value="">اختر العنصر...</option>
-                                                {(item.itemType === '1' ? spareParts : accessories).map(opt => (
-                                                    <option
-                                                        key={opt.id}
-                                                        value={opt.id}
-                                                        disabled={opt.quantity <= 0}
-                                                        className={opt.quantity <= 0 ? 'bg-gray-100 text-gray-400' : ''}
-                                                    >
-                                                        {opt.name} {opt.quantity <= 0 ? '(نفذت الكمية)' : `(المتاح: ${opt.quantity})`}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                                options={(item.itemType === '1' ? spareParts : accessories).map(opt => ({
+                                                    id: opt.id,
+                                                    name: `${opt.name} ${opt.quantity <= 0 ? '(نفذت الكمية)' : `(المتاح: ${opt.quantity})`}`
+                                                }))}
+                                                placeholder="اختر العنصر..."
+                                                required
+                                            />
                                         </div>
 
                                         <div className="w-full md:w-1/4">

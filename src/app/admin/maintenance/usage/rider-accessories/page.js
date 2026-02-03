@@ -9,6 +9,7 @@ import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
+import SearchableSelect from '@/components/Ui/SearchableSelect';
 
 export default function RiderAccessoriesUsagePage() {
     const router = useRouter();
@@ -262,24 +263,17 @@ export default function RiderAccessoriesUsagePage() {
                                 </div>
 
                                 {/* Accessory Selection */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        معدات السائق <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={entry.accessoryId}
-                                        onChange={(e) => handleAccessoryChange(e.target.value, index)}
-                                        className="w-full px-4 py-2 border-2 border-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                        required
-                                    >
-                                        <option value="">اختر معدات السائق</option>
-                                        {accessories.map((accessory, accIdx) => (
-                                            <option key={accessory.id || `acc-${accIdx}`} value={accessory.id}>
-                                                {accessory.name} - الكمية المتاحة: {accessory.quantity}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <SearchableSelect
+                                    label="معدات السائق"
+                                    value={entry.accessoryId}
+                                    onChange={(e) => handleAccessoryChange(e.target.value, index)}
+                                    options={accessories.map(accessory => ({
+                                        id: accessory.id,
+                                        name: `${accessory.name} - الكمية المتاحة: ${accessory.quantity}`
+                                    }))}
+                                    placeholder="اختر معدات السائق"
+                                    required
+                                />
 
                                 {/* Selected Rider Display */}
                                 {entry.selectedRider ? (
