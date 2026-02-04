@@ -117,6 +117,7 @@ export const API_ENDPOINTS = {
     INACTIVE: "/api/substitution/inactive",
     HISTORY: (riderWorkingId) => `/api/substitution/history/${riderWorkingId}`,
     STOP: (workingId) => `/api/substitution/${workingId}/stop`,
+    IMPORT: "/api/import/sub",
   },
 
   // Supplier

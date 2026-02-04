@@ -171,6 +171,7 @@ export const adminNavigationConfig = {
     routes: [
       { path: "/admin/substitution", label: "navigation.allSubstitutes" },
       { path: "/admin/substitution/new", label: "navigation.addSubstitution" },
+      { path: "/admin/substitution/import", label: "استيراد من Excel" },
       { path: "/admin/substitution/history", label: "navigation.substituteHistory" },
     ],
   },
