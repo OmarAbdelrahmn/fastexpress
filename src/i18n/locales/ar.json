@@ -1,5 +1,6 @@
 {
   "common": {
+    "location": "الموقع",
     "password": "كلمة المرور",
     "passwordPlaceholder": "أدخل كلمة المرور",
     "quickActions": "إجراءات سريعة",
