@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRightLeft, Plus, Clock, CheckCircle, XCircle, History, Users, AlertCircle } from 'lucide-react';
+import { ArrowRightLeft, Plus, Clock, CheckCircle, XCircle, History, Users, AlertCircle, Search } from 'lucide-react';
+
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -17,6 +18,8 @@ export default function SubstitutionsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [showAddModal, setShowAddModal] = useState(false);
   const [stats, setStats] = useState({ active: 0, inactive: 0, total: 0 });
+  const [searchTerm, setSearchTerm] = useState('');
+
 
   const [formData, setFormData] = useState({
     actualRiderWorkingId: '',
@@ -137,6 +140,17 @@ export default function SubstitutionsPage() {
     return days;
   };
 
+  const filteredSubstitutions = substitutions.filter(sub => {
+    const searchLow = searchTerm.toLowerCase();
+    return (
+      sub.actualRiderName?.toLowerCase().includes(searchLow) ||
+      sub.actualRiderWorkingId?.toString().includes(searchLow) ||
+      sub.substituteRiderName?.toLowerCase().includes(searchLow) ||
+      sub.substituteWorkingId?.toString().includes(searchLow)
+    );
+  });
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
 
@@ -188,8 +202,18 @@ export default function SubstitutionsPage() {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-md p-4">
+        {/* Filters and Search */}
+        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="البحث باسم السائق أو الرقم الوظيفي..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
           <div className="flex gap-2">
             {['all', 'active', 'inactive'].map((f) => (
               <button
@@ -206,13 +230,15 @@ export default function SubstitutionsPage() {
           </div>
         </div>
 
+
         {/* Substitutions Table */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="bg-blue-600 px-6 py-4">
             <h3 className="text-lg font-bold text-white">
-              {t('substitution.substitutes')} ({substitutions.length})
+              {t('substitution.substitutes')} ({filteredSubstitutions.length})
             </h3>
           </div>
+
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -235,9 +261,10 @@ export default function SubstitutionsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {substitutions.length > 0 ? (
-                    substitutions.map((sub) => (
+                  {filteredSubstitutions.length > 0 ? (
+                    filteredSubstitutions.map((sub) => (
                       <tr key={sub.id} className="hover:bg-blue-50/50 transition-colors">
+
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="font-medium text-gray-900">{sub.actualRiderName}</div>
                         </td>
