@@ -210,6 +210,10 @@ export const API_ENDPOINTS = {
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
     HUNGER_SUMMARY: "/api/Report/hunger/summary",
     FROM_START: "/api/report/from-start",
+    KETA_FREELANCER: {
+      IMPORT: "/api/KetaFreeLancer",
+      BY_MONTH: (month) => `/api/KetaFreeLancer?month=${month}`,
+    },
   },
 
   // Member

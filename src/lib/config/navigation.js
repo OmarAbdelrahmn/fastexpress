@@ -160,7 +160,8 @@ export const adminNavigationConfig = {
       { path: "/admin/shifts/date-range", label: "navigation.shiftsInPeriod" },
       { path: "/admin/shifts/update", label: "navigation.updateShifts" },
       { path: "/admin/shifts/hunger-disabilities", label: "navigation.hungerDeficit" },
-
+      { path: "/admin/shifts/keta-freelancer/import", label: "رفع كيتا فري لانسر" },
+      { path: "/admin/shifts/keta-freelancer", label: "بيانات كيتا فري لانسر" },
     ],
 
   },

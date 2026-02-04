@@ -90,6 +90,11 @@ export default function ReportsPage() {
           path: "/admin/reports/company-daily-trend",
           desc: "Visualizing daily accepted orders with zoom.",
         },
+        {
+          name: "Keta Freelancer",
+          path: "/admin/shifts/keta-freelancer",
+          desc: "إدارة واستيراد بيانات مناديب كيتا فري لانسر والشهرية",
+        },
 
       ],
     },
