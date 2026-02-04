@@ -18,6 +18,8 @@ import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import * as XLSX from 'xlsx';
+
 
 export default function SubstitutionImportPage() {
     const { t, locale } = useLanguage();
@@ -28,6 +30,28 @@ export default function SubstitutionImportPage() {
     const [dragActive, setDragActive] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [fileInputKey, setFileInputKey] = useState(0);
+
+    const downloadTemplate = () => {
+        const data = [
+            {
+                'ActualRiderWorkingId': '',
+                'SubstituteWorkingId': ''
+            }
+        ];
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Substitutions");
+
+        // Adjust column widths
+        const wscols = [
+            { wch: 25 },
+            { wch: 25 }
+        ];
+        ws['!cols'] = wscols;
+
+        XLSX.writeFile(wb, "substitution_import_template.xlsx");
+    };
+
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -141,88 +165,101 @@ export default function SubstitutionImportPage() {
                 icon={FileSpreadsheet}
             />
 
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-4">
                 {/* Upload Section */}
                 {!result || !uploadSuccess ? (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md">
-                        <div className="p-8">
-                            <div
-                                onDragEnter={handleDrag}
-                                onDragLeave={handleDrag}
-                                onDragOver={handleDrag}
-                                onDrop={handleDrop}
-                                className={`relative border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center transition-all ${dragActive ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50/50'
-                                    }`}
+                    <>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={downloadTemplate}
+                                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-2xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-100 active:scale-95"
                             >
-                                <input
-                                    key={fileInputKey}
-                                    type="file"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    onChange={handleFileChange}
-                                    accept=".xlsx, .xls"
-                                />
-
-                                <div className="bg-blue-100 p-4 rounded-full mb-4">
-                                    <Upload size={32} className="text-blue-600" />
-                                </div>
-
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                    {file ? file.name : 'اسحب وافلت ملف Excel هنا'}
-                                </h3>
-                                <p className="text-gray-500 text-sm mb-6 text-center">
-                                    أو انقر لاختيار ملف من جهازك. الصيغ المدعومة: .xlsx, .xls
-                                </p>
-
-                            </div>
-
-                            {file && (
-                                <div className="mt-6 flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 animate-in fade-in zoom-in duration-300">
-                                    <div className="flex-1 flex items-center gap-3">
-                                        <div className="bg-blue-600 p-2 rounded-lg">
-                                            <FileSpreadsheet size={20} className="text-white" />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-gray-900">{file.name}</div>
-                                            <div className="text-xs text-gray-500">{(file.size / 1024).toFixed(2)} KB</div>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={() => setFile(null)}
-                                            className="px-6 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-white transition-all active:scale-95"
-                                        >
-                                            إلغاء
-                                        </button>
-                                        <button
-                                            onClick={handleUpload}
-                                            disabled={loading}
-                                            className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <RefreshCcw size={18} className="animate-spin" />
-                                                    جاري المعالجة...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Upload size={18} />
-                                                    رفع ومعالجة الملف
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-700 animate-in fade-in zoom-in duration-300">
-                                    <AlertCircle size={20} />
-                                    <p className="font-medium">{error}</p>
-                                </div>
-                            )}
+                                <Download size={20} />
+                                تحميل نموذج ملف الـ Excel
+                            </button>
                         </div>
-                    </div>
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md">
+
+                            <div className="p-8">
+                                <div
+                                    onDragEnter={handleDrag}
+                                    onDragLeave={handleDrag}
+                                    onDragOver={handleDrag}
+                                    onDrop={handleDrop}
+                                    className={`relative border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center transition-all ${dragActive ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50/50'
+                                        }`}
+                                >
+                                    <input
+                                        key={fileInputKey}
+                                        type="file"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        onChange={handleFileChange}
+                                        accept=".xlsx, .xls"
+                                    />
+
+                                    <div className="bg-blue-100 p-4 rounded-full mb-4">
+                                        <Upload size={32} className="text-blue-600" />
+                                    </div>
+
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                        {file ? file.name : 'اسحب وافلت ملف Excel هنا'}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm mb-6 text-center">
+                                        أو انقر لاختيار ملف من جهازك. الصيغ المدعومة: .xlsx, .xls
+                                    </p>
+
+                                </div>
+
+                                {file && (
+                                    <div className="mt-6 flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 animate-in fade-in zoom-in duration-300">
+                                        <div className="flex-1 flex items-center gap-3">
+                                            <div className="bg-blue-600 p-2 rounded-lg">
+                                                <FileSpreadsheet size={20} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-bold text-gray-900">{file.name}</div>
+                                                <div className="text-xs text-gray-500">{(file.size / 1024).toFixed(2)} KB</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => setFile(null)}
+                                                className="px-6 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-bold hover:bg-white transition-all active:scale-95"
+                                            >
+                                                إلغاء
+                                            </button>
+                                            <button
+                                                onClick={handleUpload}
+                                                disabled={loading}
+                                                className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <RefreshCcw size={18} className="animate-spin" />
+                                                        جاري المعالجة...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Upload size={18} />
+                                                        رفع ومعالجة الملف
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-700 animate-in fade-in zoom-in duration-300">
+                                        <AlertCircle size={20} />
+                                        <p className="font-medium">{error}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </>
                 ) : (
+
                     <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-100 p-3 rounded-full">
