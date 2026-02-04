@@ -302,20 +302,24 @@ export default function KetaFreelancerImportPage() {
                                 <table className="w-full text-right border-collapse">
                                     <thead>
                                         <tr className="bg-gray-50/50 text-gray-400 text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
-                                            <th className="px-6 py-4 border-b">السطر</th>
-                                            <th className="px-6 py-4 border-b">المعرف الوظيفي</th>
-                                            <th className="px-6 py-4 border-b">الشهر</th>
-                                            <th className="px-6 py-4 border-b">إجمالي الطلبات</th>
-                                            <th className="px-6 py-4 border-b">الحالة</th>
-                                            <th className="px-6 py-4 border-b">النتيجة</th>
-                                            <th className="px-6 py-4 border-b">ملاحظات/أخطاء</th>
+                                            <th className="px-6 py-4 border-b text-right">المعرف</th>
+                                            <th className="px-6 py-4 border-b text-right">الاسم (عربي)</th>
+                                            <th className="px-6 py-4 border-b text-right">رقم الإقامة</th>
+                                            <th className="px-6 py-4 border-b text-right">السكن</th>
+                                            <th className="px-6 py-4 border-b text-right">الشهر</th>
+                                            <th className="px-6 py-4 border-b text-right">الطلبات</th>
+                                            <th className="px-6 py-4 border-b text-right">الحالة</th>
+                                            <th className="px-6 py-4 border-b text-right">النتيجة</th>
+                                            <th className="px-6 py-4 border-b text-right">ملاحظات</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {(result.results ?? result.Results ?? []).map((row, idx) => (
                                             <tr key={idx} className="hover:bg-blue-50/30 transition-all">
-                                                <td className="px-6 py-4 text-sm font-black text-gray-300">#{row.rowNumber ?? row.RowNumber}</td>
                                                 <td className="px-6 py-4 font-mono font-bold text-gray-700">{row.workingId ?? row.WorkingId}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 font-bold">{row.riderNameAR ?? row.RiderNameAR ?? '-'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-500 font-mono">{row.iqamaNo ?? row.IqamaNo ?? '-'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600">{row.housingName ?? row.HousingName ?? '-'}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-600">{row.month ?? row.Month}</td>
                                                 <td className="px-6 py-4 font-bold text-blue-600">{row.totalOrders ?? row.TotalOrders}</td>
                                                 <td className="px-6 py-4">
@@ -331,7 +335,7 @@ export default function KetaFreelancerImportPage() {
                                                         {(row.updated ?? row.Updated) && <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-bold whitespace-nowrap">تحديث</span>}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-xs font-medium min-w-[200px]">
+                                                <td className="px-6 py-4 text-xs font-medium min-w-[150px]">
                                                     {(row.errorMessage ?? row.ErrorMessage) && <div className="text-red-500 font-bold mb-1">{row.errorMessage ?? row.ErrorMessage}</div>}
                                                     {(row.warnings ?? row.Warnings ?? []).map((w, i) => <div key={i} className="text-orange-500">• {w}</div>)}
                                                 </td>

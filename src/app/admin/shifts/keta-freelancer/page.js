@@ -50,7 +50,9 @@ export default function KetaFreelancerPage() {
     };
 
     const filteredData = data.filter(item =>
-        item.workingId?.toLowerCase().includes(searchTerm.toLowerCase())
+        (item.workingId ?? item.WorkingId)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.riderNameAR ?? item.RiderNameAR)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.iqamaNo ?? item.IqamaNo)?.toString().includes(searchTerm)
     );
 
     const totalOrders = filteredData.reduce((sum, item) => sum + (item.totalOrders || 0), 0);
@@ -95,12 +97,12 @@ export default function KetaFreelancerPage() {
                             />
                         </div>
                         <div className="space-y-2 lg:col-span-2">
-                            <label className="text-sm font-bold text-gray-700">بحث بالمعرف الوظيفي</label>
+                            <label className="text-sm font-bold text-gray-700">بحث سريع</label>
                             <div className="relative">
                                 <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
                                 <input
                                     type="text"
-                                    placeholder="أدخل المعرف الوظيفي..."
+                                    placeholder="المعرف، الاسم، أو الإقامة..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
@@ -172,22 +174,26 @@ export default function KetaFreelancerPage() {
                             <table className="w-full text-right border-collapse">
                                 <thead>
                                     <tr className="bg-gray-50/50 text-gray-400 text-[11px] font-black uppercase tracking-widest border-b">
-                                        <th className="px-6 py-4">ID</th>
-                                        <th className="px-6 py-4">المعرف الوظيفي</th>
-                                        <th className="px-6 py-4">الشهر</th>
-                                        <th className="px-6 py-4">إجمالي الطلبات</th>
-                                        <th className="px-6 py-4">تاريخ الإضافة</th>
+                                        <th className="px-6 py-4 text-right">المعرف</th>
+                                        <th className="px-6 py-4 text-right">الاسم (عربي)</th>
+                                        <th className="px-6 py-4 text-right">رقم الإقامة</th>
+                                        <th className="px-6 py-4 text-right">السكن</th>
+                                        <th className="px-6 py-4 text-right">الشهر</th>
+                                        <th className="px-6 py-4 text-right text-center">الطلبات</th>
+                                        <th className="px-6 py-4 text-right">تاريخ الإضافة</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {filteredData.map((item) => (
-                                        <tr key={item.id} className="hover:bg-blue-50/30 transition-all">
-                                            <td className="px-6 py-4 text-sm font-black text-gray-300">#{item.id}</td>
-                                            <td className="px-6 py-4 font-mono font-bold text-gray-700">{item.workingId}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{item.month}</td>
-                                            <td className="px-6 py-4 font-bold text-blue-600 text-lg">{item.totalOrders}</td>
+                                        <tr key={item.id ?? item.Id} className="hover:bg-blue-50/30 transition-all">
+                                            <td className="px-6 py-4 font-mono font-bold text-gray-700">{item.workingId ?? item.WorkingId}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 font-bold">{item.riderNameAR ?? item.RiderNameAR ?? '-'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-500 font-mono">{item.iqamaNo ?? item.IqamaNo ?? '-'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">{item.housingName ?? item.HousingName ?? '-'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">{item.month ?? item.Month}</td>
+                                            <td className="px-6 py-4 font-bold text-blue-600 text-lg text-center">{item.totalOrders ?? item.TotalOrders}</td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
-                                                {new Date(item.createdAt).toLocaleString('ar-SA')}
+                                                {new Date(item.createdAt ?? item.CreatedAt).toLocaleString('ar-SA')}
                                             </td>
                                         </tr>
                                     ))}
