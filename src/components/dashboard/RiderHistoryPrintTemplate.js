@@ -49,7 +49,7 @@ const RiderHistoryPrintTemplate = ({ data, language, t }) => {
                         <h2 className="text-3xl font-black text-[#1e3a8a] leading-none mb-0.5">{t('common.companyName')}</h2>
                         <p className="text-[#f59e0b] font-black text-[18px] tracking-wide">{t('common.logisticsServices')}</p>
                     </div>
-                    <div className="w-10 h-10 flex items-center justify-center p-0.5 bg-white rounded shadow-sm border border-gray-100">
+                    <div className="w-15 h-15 flex items-center justify-center p-0.5 bg-white">
                         <img src="/2.png" className="w-full h-full object-contain" alt="logo" />
                     </div>
                 </div>
