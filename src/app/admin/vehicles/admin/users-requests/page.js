@@ -48,6 +48,7 @@ export default function PendingVehicleRequestsPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get('/api/temp/vehicles');
+      console.log(data);
 
       let requests = Array.isArray(data) ? data : [];
 
@@ -418,7 +419,7 @@ export default function PendingVehicleRequestsPage() {
                               </h4>
                             </div>
                           ) : (
-                            <h4 className="font-bold text-gray-800">{formatPlateNumber(request.newVehiclePlate)}</h4>
+                            <h4 className="font-bold text-gray-800">{formatPlateNumber(request.vehiclePlateNumber)}</h4>
                           )}
 
                           <p className={`text-xs ${colors.text} mt-1`}>
@@ -531,7 +532,7 @@ export default function PendingVehicleRequestsPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
                           <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">
-                              {formatPlateNumber(selectedRequest.newVehiclePlate)}
+                              {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
                           </span>
                         </div>
                       )}
