@@ -60,16 +60,16 @@ const RiderHistoryPrintTemplate = ({ data, language, t }) => {
                 <div className="flex justify-between items-center">
                     <div className="flex gap-4">
                         <div className="text-center bg-white rounded border border-gray-200 px-3 py-2 min-w-[100px]">
-                            <p className="text-[9px] text-blue-600 font-black uppercase tracking-wider mb-1">آخر وردية</p>
+                            <p className="text-[14px] text-blue-600 font-black uppercase tracking-wider mb-1">آخر وردية</p>
                             <p className="font-black text-gray-900 text-sm">{data.lastShiftDate || '-'}</p>
                         </div>
                         <div className="text-center bg-white rounded border border-gray-200 px-3 py-2 min-w-[100px]">
-                            <p className="text-[9px] text-blue-600 font-black uppercase tracking-wider mb-1">أول وردية</p>
+                            <p className="text-[14px] text-blue-600 font-black uppercase tracking-wider mb-1">أول وردية</p>
                             <p className="font-black text-gray-900 text-sm">{data.firstShiftDate || '-'}</p>
                         </div>
                         {data.activeMonthsCount !== undefined && (
                             <div className="text-center bg-blue-600 rounded shadow px-3 py-2 min-w-[100px] text-white">
-                                <p className="text-[9px] font-black uppercase tracking-wider mb-1 opacity-90">الشهور النشطة</p>
+                                <p className="text-[14px] font-black uppercase tracking-wider mb-1 opacity-90">الشهور النشطة</p>
                                 <p className="font-black text-lg">{data.activeMonthsCount}</p>
                             </div>
                         )}
