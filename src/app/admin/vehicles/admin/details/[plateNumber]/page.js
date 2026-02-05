@@ -134,18 +134,12 @@ export default function VehicleDetailsPage() {
         title={`${t("vehicles.vehicle")} ${formatPlateNumber(vehicle.plateNumberA)}`}
         subtitle={vehicle.vehicleType}
         icon={Car}
-        actionButton={{
-          text: t("common.back"),
-          icon: <ArrowRight size={18} />,
-          onClick: () => router.back(),
-          variant: "secondary",
-        }}
       />
 
       <div className="px-6 space-y-6">
         {/* Status Banner */}
         <div
-          className={`${statusInfo.styles.bg} border-r-4 ${statusInfo.styles.border.replace('border-', 'border-r-')} p-6 rounded-lg`}
+          className={`${statusInfo.styles.bg} border-r-4 ${statusInfo.styles.border.replace('border-', 'border-r-')} p-6 rounded-lg m-6`}
         >
           <div className="flex items-center gap-4">
             <div className={`bg-white p-3 rounded-xl`}>
