@@ -49,7 +49,6 @@ export default function DateRangeHistoryPage() {
             );
 
             setSearchResults(data);
-            console.log(data);
             setSuccessMessage(t('employees.foundRecords').replace('{{count}}', data.totalRecords));
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {

@@ -28,7 +28,6 @@ export default function RiderDetailPage({ params }) {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    console.log('Component mounted with:', { workingId, startDate, endDate });
     if (workingId && startDate && endDate) {
       loadRiderReport();
     } else {
@@ -45,13 +44,11 @@ export default function RiderDetailPage({ params }) {
     setMessage({ type: '', text: '' });
 
     try {
-      console.log('Fetching reports with dates:', startDate, endDate);
       const data = await ApiService.get(
         API_ENDPOINTS.REPORTS.CUSTOM_PERIOD_ALL,
         { startDate, endDate }
       );
 
-      console.log('API Response:', data);
 
       if (!data || (Array.isArray(data) && data.length === 0)) {
         setMessage({
@@ -70,7 +67,6 @@ export default function RiderDetailPage({ params }) {
           });
           setReport(null);
         } else {
-          console.log('Found report:', riderReport);
           setReport(riderReport);
         }
       }

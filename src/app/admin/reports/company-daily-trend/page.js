@@ -42,7 +42,6 @@ export default function CompanyDailyTrendPage() {
         setLoading(true);
         try {
             const data = await ApiService.get(API_ENDPOINTS.REPORTS.FROM_START);
-            console.log(data);
             setRawData(Array.isArray(data) ? data : []);
 
             // Optional: Set default date range based on data?

@@ -58,7 +58,6 @@ export default function MemberTransfersPage() {
     const loadTransfers = async () => {
         try {
             const response = await ApiService.get(API_ENDPOINTS.MEMBER.TRANSFERS.LIST);
-            console.log(response);
             setTransfers(response || []);
         } catch (error) {
             console.error('Error loading transfers:', error);

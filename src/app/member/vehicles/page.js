@@ -32,7 +32,6 @@ export default function MemberVehiclesPage() {
             try {
                 const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
 
-               // console.log(response);
 
                 setVehicles(Array.isArray(response) ? response : []);
             } catch (err) {

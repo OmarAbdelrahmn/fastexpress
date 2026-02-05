@@ -112,8 +112,6 @@ export default function CreateRiderPage() {
         isEmployee: formData.isEmployee
       };
 
-      console.log('Submitting rider data:', requestData);
-      console.log('Submitting rider data:', requestData);
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
 
       // Add to housing if selected

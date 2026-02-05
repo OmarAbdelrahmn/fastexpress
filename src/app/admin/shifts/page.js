@@ -101,19 +101,13 @@ export default function ShiftsPage() {
 
   const handleImport = async () => {
     try {
-      console.log('=== IMPORT STARTED ===');
-      console.log('Upload File:', uploadFile);
-      console.log('Selected Date:', selectedDate);
-
       if (!uploadFile) {
-        console.log('No file selected');
         setMessage({ type: 'error', text: t('shifts.selectFile') });
         return;
       }
 
       // Validate date format
       if (!selectedDate || selectedDate === '') {
-        console.log('Invalid date');
         setMessage({ type: 'error', text: t('shifts.selectDate') });
         return;
       }
@@ -122,7 +116,6 @@ export default function ShiftsPage() {
       setImportResult(null);
       setMessage({ type: '', text: '' });
 
-      console.log('Creating FormData...');
       const formData = new FormData();
       formData.append('excelFile', uploadFile);
 
@@ -182,7 +175,6 @@ export default function ShiftsPage() {
         text: `${t('shifts.importError')}: ${error.message || t('errors.generalError')}`
       });
     } finally {
-      console.log('=== IMPORT FINISHED ===');
       setLoading(false);
     }
   };

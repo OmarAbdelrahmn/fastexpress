@@ -56,7 +56,6 @@ export default function RiderAccessoriesHistoryPage() {
         setLoading(true);
         try {
             const response = await ApiService.get(API_ENDPOINTS.RIDER_ACCESSORY.BY_RIDER(riderId));
-            console.log(response);
             setHistoryData(response || []);
         } catch (error) {
             console.error('Error loading history:', error);

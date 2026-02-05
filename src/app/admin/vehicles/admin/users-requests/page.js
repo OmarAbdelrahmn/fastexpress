@@ -48,7 +48,6 @@ export default function PendingVehicleRequestsPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get('/api/temp/vehicles');
-      console.log(data);
 
       let requests = Array.isArray(data) ? data : [];
 
@@ -59,7 +58,6 @@ export default function PendingVehicleRequestsPage() {
             // New vehicle info is stored in vehicleNumber for switched requests
             // We need to fetch the plate number for the NEW vehicle
             const newVehicleData = await ApiService.get(API_ENDPOINTS.VEHICLES.BY_CHASE(req.vehicleNumber));
-            console.log(newVehicleData);
             return {
               ...req,
               newVehiclePlate: newVehicleData[0]?.plateNumberA || 'Unknown'

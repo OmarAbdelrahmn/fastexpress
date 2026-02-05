@@ -135,7 +135,6 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
             }))
         };
 
-        console.log('Submitting transfer with UTC date:', formattedData);
         onSubmit(formattedData);
     };
 

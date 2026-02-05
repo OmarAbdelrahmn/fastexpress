@@ -138,7 +138,6 @@ export default function BillForm({ initialData, onSubmit, onCancel, isLoading, s
             }))
         };
 
-        console.log('Submitting bill with UTC date:', formattedData);
         onSubmit(formattedData);
     };
 

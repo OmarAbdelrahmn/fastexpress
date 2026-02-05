@@ -47,7 +47,6 @@ export default function CompareRidersPage() {
         }
       );
 
-      console.log(data);
 
       if (data && Array.isArray(data)) {
         setComparisons(data);

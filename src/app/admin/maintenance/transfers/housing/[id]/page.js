@@ -22,7 +22,6 @@ export default function LastTransferByHousingPage() {
         setLoading(true);
         try {
             const response = await ApiService.get(API_ENDPOINTS.TRANSFER.BY_HOUSING(housingId));
-            console.log(response);
             if (response) {
                 const data = Array.isArray(response) ? response : [response];
                 setTransfers(data);

@@ -134,7 +134,6 @@ export default function SparePartsUsagePage() {
 
             await ApiService.post(API_ENDPOINTS.SPARE_PARTS.RECORD_USAGE, requestBody);
 
-            console.log(requestBody);
             showAlert('success', 'تم تسجيل الاستخدام بنجاح');
 
             // Reset form

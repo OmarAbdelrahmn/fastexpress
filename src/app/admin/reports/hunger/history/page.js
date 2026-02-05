@@ -127,7 +127,6 @@ export default function AdminRiderHistoryPage() {
             const data = await ApiService.get(API_ENDPOINTS.REPORTS.RIDER_HISTORY(iqamaNo));
             setReportData(data);
 
-            console.log(data);
 
             // Update URL params
             router.push(`/admin/reports/hunger/history?iqamaNo=${iqamaNo}`, { scroll: false });

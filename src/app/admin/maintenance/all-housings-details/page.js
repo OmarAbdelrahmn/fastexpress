@@ -31,8 +31,6 @@ export default function AllHousingsDetailsPage() {
         setLoading(true);
         try {
             const response = await ApiService.get(API_ENDPOINTS.SPARE_PARTS.ALL_HOUSINGS_DETAILS(fromDate, toDate));
-            console.log(response);
-
             if (response) {
                 setSummary({
                     totalCost: response.totalCompanyCost || 0,
