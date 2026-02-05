@@ -129,6 +129,19 @@ const pathTranslationKeys = {
   "admin/companies/create": "navigation.createCompany",
   "admin/companies/manage": "navigation.manageCompanies",
 
+  // Maintenance
+  maintenance: "navigation.maintenance",
+  "admin/maintenance": "navigation.maintenance",
+  "admin/maintenance/suppliers": "navigation.suppliers",
+  "admin/maintenance/spare-parts": "navigation.spareParts",
+  "admin/maintenance/transfers": "navigation.maintenanceTransfers",
+  "admin/maintenance/all-housings-details": "navigation.allHousingsDetails",
+  "admin/maintenance/rider-accessories": "navigation.riderAccessories",
+  "admin/maintenance/bills": "navigation.maintenanceBills",
+  "admin/maintenance/usage": "navigation.maintenanceUsage",
+  "admin/maintenance/housing-costs": "navigation.maintenanceHousingCosts",
+  "admin/maintenance/returns": "navigation.returnsManagement",
+
   // Admin & Settings
   admin: "navigation.admin",
   "admin/users": "navigation.userManagement",
