@@ -138,7 +138,7 @@ export default function VehicleDetailsPage() {
 
       <div className="px-6 space-y-6">
         {/* Main Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
           {/* Vehicle Information */}
           <Card>
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
