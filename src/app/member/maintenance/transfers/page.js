@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Plus, Trash2, Building2, Briefcase, History } from 'lucide-react';
+import { ArrowRight, Plus, Trash2, Building2, Briefcase, History, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Button from '@/components/Ui/Button';
@@ -131,6 +132,45 @@ export default function MemberTransfersPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleExcelExport = () => {
+        if (!transfers || transfers.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = [];
+        transfers.forEach(transfer => {
+            if (transfer.items && transfer.items.length > 0) {
+                transfer.items.forEach(item => {
+                    dataToExport.push({
+                        'رقم التحويل': transfer.id,
+                        'الوجهة': transfer.toLocation || 'الشركة الرئيسية',
+                        'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleDateString('ar-SA'),
+                        'نوع العنصر': item.itemType === 1 || item.itemType === '1' ? 'قطعة غيار' : 'معدات سائقين',
+                        'اسم العنصر': item.itemName || getItemName(item.itemType, item.itemId),
+                        'الكمية': item.quantity,
+                        'الحالة': 'تم التحويل'
+                    });
+                });
+            } else {
+                dataToExport.push({
+                    'رقم التحويل': transfer.id,
+                    'الوجهة': transfer.toLocation || 'الشركة الرئيسية',
+                    'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleDateString('ar-SA'),
+                    'نوع العنصر': 'لا يوجد',
+                    'اسم العنصر': 'لا يوجد',
+                    'الكمية': 0,
+                    'الحالة': 'تم التحويل'
+                });
+            }
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transfers History');
+        XLSX.writeFile(workbook, `transfers_history_${new Date().getTime()}.xlsx`);
     };
 
     const showAlert = (type, message) => {
@@ -328,9 +368,21 @@ export default function MemberTransfersPage() {
                 <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
                     <div className="flex justify-between items-center mb-6 border-b pb-4">
                         <h2 className="text-xl font-bold text-gray-800">سجل التحويلات السابقة</h2>
-                        <Button variant="outline" onClick={loadTransfers} className="text-sm">
-                            تحديث
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleExcelExport}
+                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                disabled={loading || transfers.length === 0}
+                            >
+                                <FileSpreadsheet size={16} className="ml-2" />
+                                تصدير Excel
+                            </Button>
+                            <Button variant="outline" onClick={loadTransfers} className="text-sm">
+                                تحديث
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto">

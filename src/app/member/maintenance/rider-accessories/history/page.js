@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { History, Search, ArrowRight, Package, User } from 'lucide-react';
+import { History, Search, ArrowRight, Package, User, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Button from '@/components/Ui/Button';
@@ -66,6 +67,28 @@ export default function MemberRiderAccessoriesHistoryPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleExcelExport = () => {
+        if (!historyData || historyData.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = historyData.map(row => ({
+            'رقم السجل': row.id,
+            'اسم معدات السائق': row.accessoryName,
+            'اسم السائق': row.riderNameAR,
+            'تاريخ التسليم': new Date(row.issuedAt).toLocaleString('ar-SA'),
+            'التكلفة (ر.س)': (row.totalCost || row.cost || (row.unitPrice * row.quantity) || 0).toFixed(2)
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Rider Accessories History');
+
+        const fileName = `rider_accessories_history_${selectedRider?.workingId || 'export'}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
     };
 
     const showAlert = (type, message) => {
@@ -233,10 +256,22 @@ export default function MemberRiderAccessoriesHistoryPage() {
 
                         {/* History Table */}
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                                <History size={20} />
-                                سجل الاستخدام
-                            </h4>
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                                    <History size={20} />
+                                    سجل الاستخدام
+                                </h4>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleExcelExport}
+                                    className="text-green-600 border-green-600 hover:bg-green-50"
+                                    disabled={loading || historyData.length === 0}
+                                >
+                                    <FileSpreadsheet size={16} className="ml-2" />
+                                    تصدير Excel
+                                </Button>
+                            </div>
                             <Table
                                 columns={columns}
                                 data={historyData}

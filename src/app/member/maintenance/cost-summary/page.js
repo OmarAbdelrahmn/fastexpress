@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, Search, ArrowRight, Filter, Calendar, Truck, User, Hash } from 'lucide-react';
+import { DollarSign, Search, ArrowRight, Filter, Calendar, Truck, User, Hash, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { formatPlateNumber } from '@/lib/utils/formatters';
@@ -59,6 +60,41 @@ export default function MemberCostSummaryPage() {
         setFromDate(new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]);
         setToDate(new Date().toISOString().split('T')[0]);
         loadCostSummary();
+    };
+
+    const handleVehicleExport = () => {
+        if (!summary?.vehicleCosts || summary.vehicleCosts.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = summary.vehicleCosts.map(row => ({
+            'رقم اللوحة': row.vehiclePlate,
+            'إجمالي التكلفة (ر.س)': row.totalCost.toFixed(2)
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Vehicle Costs');
+        XLSX.writeFile(workbook, `vehicle_costs_${summary.housingName || 'export'}.xlsx`);
+    };
+
+    const handleRiderExport = () => {
+        if (!summary?.riderCosts || summary.riderCosts.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = summary.riderCosts.map(row => ({
+            'اسم المندوب': row.riderName,
+            'معرف العمل': row.workingId,
+            'إجمالي التكلفة (ر.س)': row.totalCost.toFixed(2)
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Rider Costs');
+        XLSX.writeFile(workbook, `rider_costs_${summary.housingName || 'export'}.xlsx`);
     };
 
     const showAlert = (type, message) => {
@@ -211,10 +247,22 @@ export default function MemberCostSummaryPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mx-5">
                 {/* Vehicle Costs Table */}
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-4">
-                        <Truck className="text-blue-600" size={20} />
-                        تكاليف المركبات
-                    </h3>
+                    <div className="flex justify-between items-center mb-4 border-b pb-4">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <Truck className="text-blue-600" size={20} />
+                            تكاليف المركبات
+                        </h3>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleVehicleExport}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            disabled={loading || !summary?.vehicleCosts?.length}
+                        >
+                            <FileSpreadsheet size={16} className="ml-2" />
+                            تصدير Excel
+                        </Button>
+                    </div>
                     <Table
                         columns={vehicleColumns}
                         data={summary?.vehicleCosts || []}
@@ -224,10 +272,22 @@ export default function MemberCostSummaryPage() {
 
                 {/* Rider Costs Table */}
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 border-b pb-4">
-                        <User className="text-purple-600" size={20} />
-                        تكاليف المناديب
-                    </h3>
+                    <div className="flex justify-between items-center mb-4 border-b pb-4">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <User className="text-purple-600" size={20} />
+                            تكاليف المناديب
+                        </h3>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleRiderExport}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            disabled={loading || !summary?.riderCosts?.length}
+                        >
+                            <FileSpreadsheet size={16} className="ml-2" />
+                            تصدير Excel
+                        </Button>
+                    </div>
                     <Table
                         columns={riderColumns}
                         data={summary?.riderCosts || []}

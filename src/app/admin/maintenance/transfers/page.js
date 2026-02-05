@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Search, FileText, Filter, Eye, History } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileText, Filter, Eye, History, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -97,6 +98,46 @@ export default function TransfersPage() {
             console.error('Error saving:', error);
             showAlert('error', 'حدث خطأ أثناء الحفظ');
         }
+    };
+
+    const handleExcelExport = () => {
+        if (!filteredData || filteredData.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = [];
+        filteredData.forEach(transfer => {
+            if (transfer.items && transfer.items.length > 0) {
+                transfer.items.forEach(item => {
+                    dataToExport.push({
+                        'رقم التحويل': transfer.id,
+                        'من': transfer.fromLocation,
+                        'إلى': transfer.toLocation,
+                        'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleString('ar-SA'),
+                        'اسم الصنف': item.itemName,
+                        'الكمية': item.quantity,
+                        'نوع الصنف': item.itemType === 1 || item.itemType === '1' ? 'قطعة غيار' : 'معدات سائقين'
+                    });
+                });
+            } else {
+                dataToExport.push({
+                    'رقم التحويل': transfer.id,
+                    'من': transfer.fromLocation,
+                    'إلى': transfer.toLocation,
+                    'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleString('ar-SA'),
+                    'اسم الصنف': '-',
+                    'الكمية': 0,
+                    'نوع الصنف': '-'
+                });
+            }
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Transfers');
+
+        XLSX.writeFile(workbook, `maintenance_transfers_${new Date().getTime()}.xlsx`);
     };
 
     const showAlert = (type, message) => {
@@ -217,6 +258,17 @@ export default function TransfersPage() {
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div>
+                        <Button
+                            variant="outline"
+                            onClick={handleExcelExport}
+                            className="text-green-600 border-green-600 hover:bg-green-50 h-full"
+                            disabled={loading || filteredData.length === 0}
+                        >
+                            <FileSpreadsheet size={20} className="ml-2" />
+                            تصدير Excel
+                        </Button>
                     </div>
                 </div>
 

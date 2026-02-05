@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Search, FileText, Filter, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, FileText, Filter, Eye, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -92,6 +93,27 @@ export default function BillsPage() {
             console.error('Error saving:', error);
             showAlert('error', 'حدث خطأ أثناء الحفظ');
         }
+    };
+
+    const handleExcelExport = () => {
+        if (!filteredData || filteredData.length === 0) {
+            showAlert('error', 'لا توجد بيانات لتصديرها');
+            return;
+        }
+
+        const dataToExport = filteredData.map(row => ({
+            'رقم الفاتورة': row.invoiceNumber,
+            'المورد': row.supplierName,
+            'تاريخ الفاتورة': new Date(row.processedAt).toLocaleString('ar-SA'),
+            'عدد الأصناف': row.totalItems,
+            'المبلغ الإجمالي (ر.س)': Number(row.totalAmount).toFixed(2)
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Bills');
+
+        XLSX.writeFile(workbook, `maintenance_bills_${new Date().getTime()}.xlsx`);
     };
 
     const showAlert = (type, message) => {
@@ -205,6 +227,17 @@ export default function BillsPage() {
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div>
+                        <Button
+                            variant="outline"
+                            onClick={handleExcelExport}
+                            className="text-green-600 border-green-600 hover:bg-green-50 h-full"
+                            disabled={loading || filteredData.length === 0}
+                        >
+                            <FileSpreadsheet size={20} className="ml-2" />
+                            تصدير Excel
+                        </Button>
                     </div>
                 </div>
 
