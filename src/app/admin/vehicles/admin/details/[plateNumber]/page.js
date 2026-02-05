@@ -137,28 +137,6 @@ export default function VehicleDetailsPage() {
       />
 
       <div className="px-6 space-y-6">
-        {/* Status Banner */}
-        <div
-          className={`${statusInfo.styles.bg} border-r-4 ${statusInfo.styles.border.replace('border-', 'border-r-')} p-6 rounded-lg m-6`}
-        >
-          <div className="flex items-center gap-4">
-            <div className={`bg-white p-3 rounded-xl`}>
-              <StatusIcon
-                className={`${statusInfo.styles.text}`}
-                size={32}
-              />
-            </div>
-            <div>
-              <h2 className={`text-2xl font-bold ${statusInfo.styles.text.replace('text-', 'text-opacity-80-')}`}>
-                {statusInfo.label}
-              </h2>
-              <p className={`${statusInfo.styles.text} text-opacity-80`}>
-                {t("vehicles.currentVehicleStatus")}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Main Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Vehicle Information */}
