@@ -19,7 +19,7 @@ const SearchableSelect = ({
 
     // Normalize options to handle both strings and objects
     const normalizedOptions = options.map(opt =>
-        typeof opt === 'object' ? { id: opt.id, name: opt.name } : { id: opt, name: opt }
+        typeof opt === 'object' ? { id: opt.id, name: opt.name, disabled: opt.disabled } : { id: opt, name: opt, disabled: false }
     );
 
     // Sync search term with value when value changes or options load
@@ -68,6 +68,7 @@ const SearchableSelect = ({
     };
 
     const handleSelect = (option) => {
+        if (option.disabled) return;
         onChange({ target: { name, value: option.id } });
         setSearchTerm(option.name);
         setIsOpen(false);
@@ -139,10 +140,15 @@ const SearchableSelect = ({
                                 <div
                                     key={index}
                                     className={`
-                    px-4 py-2.5 text-sm cursor-pointer transition-colors
-                    ${String(option.id) === String(value) ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}
+                    px-4 py-2.5 text-sm transition-colors
+                    ${option.disabled
+                                            ? 'text-gray-600 bg-gray-50 cursor-not-allowed opacity-60'
+                                            : String(option.id) === String(value)
+                                                ? 'bg-blue-50 text-blue-700 font-medium cursor-pointer'
+                                                : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        }
                   `}
-                                    onMouseDown={() => handleSelect(option)}
+                                    onMouseDown={() => !option.disabled && handleSelect(option)}
                                 >
                                     {option.name}
                                 </div>

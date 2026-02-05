@@ -16,7 +16,6 @@ export default function RiderAccessoriesUsagePage() {
     const [loading, setLoading] = useState(false);
     const [accessories, setAccessories] = useState([]);
     const [riders, setRiders] = useState([]);
-    const [riderSearch, setRiderSearch] = useState('');
     const [alert, setAlert] = useState(null);
 
     // Array to hold multiple usage entries
@@ -50,24 +49,15 @@ export default function RiderAccessoriesUsagePage() {
         }
     };
 
-    const filteredRiders = riders.filter(rider => {
-        if (!riderSearch) return true;
-        const search = riderSearch.toLowerCase();
-        return (
-            rider.nameAR?.toLowerCase().includes(search) ||
-            rider.nameEN?.toLowerCase().includes(search) ||
-            rider.iqamaNo?.toString().includes(search) ||
-            rider.workingId?.toLowerCase().includes(search) ||
-            rider.phoneNumber?.toLowerCase().includes(search)
-        );
-    });
 
-    const handleRiderSelect = (rider, index) => {
-        const updatedEntries = [...usageEntries];
-        updatedEntries[index].selectedRider = rider;
-        updatedEntries[index].riderId = rider.riderId;
-        setUsageEntries(updatedEntries);
-        setRiderSearch(''); // Clear search after selection
+    const handleRiderSelect = (riderId, index) => {
+        const rider = riders.find(r => r.riderId === parseInt(riderId));
+        if (rider) {
+            const updatedEntries = [...usageEntries];
+            updatedEntries[index].selectedRider = rider;
+            updatedEntries[index].riderId = rider.riderId;
+            setUsageEntries(updatedEntries);
+        }
     };
 
     const handleAccessoryChange = (value, index) => {
@@ -126,7 +116,6 @@ export default function RiderAccessoriesUsagePage() {
             setUsageEntries([
                 { accessoryId: '', riderId: '', selectedRider: null }
             ]);
-            setRiderSearch('');
         } catch (error) {
             console.error('Error recording usage:', error);
             showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
@@ -174,64 +163,6 @@ export default function RiderAccessoriesUsagePage() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Rider Search - Shared for all entries */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            البحث عن السائقين
-                        </label>
-                        <Input
-                            placeholder="ابحث عن السائق (الاسم، رقم الهوية، ID العمل، رقم الهاتف...)"
-                            value={riderSearch}
-                            onChange={(e) => setRiderSearch(e.target.value)}
-                            icon={Search}
-                        />
-                    </div>
-
-                    {/* Riders Grid - Only show when searching */}
-                    {riderSearch && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 border-2 border-gray-200 rounded-lg">
-                            {filteredRiders.map((rider, riderIdx) => (
-                                <div
-                                    key={rider.riderId || `rider-${riderIdx}`}
-                                    className="p-4 border-2 rounded-lg cursor-pointer transition-all border-gray-200 hover:border-purple-300 hover:bg-gray-50"
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <User className="text-gray-400" size={24} />
-                                        <div className="flex-1">
-                                            <div className="font-bold text-gray-900">
-                                                {rider.nameAR}
-                                            </div>
-                                            <div className="text-sm text-gray-600 mt-1">
-                                                هوية: {rider.iqamaNo}
-                                            </div>
-                                            {/* Add selection buttons for each entry */}
-                                            <div className="flex flex-wrap gap-1 mt-2">
-                                                {usageEntries.map((entry, entryIdx) => (
-                                                    <button
-                                                        key={`select-btn-${rider.riderId || riderIdx}-${entryIdx}`}
-                                                        type="button"
-                                                        onClick={() => handleRiderSelect(rider, entryIdx)}
-                                                        className={`text-xs px-2 py-1 rounded ${entry.selectedRider?.riderId === rider.riderId
-                                                            ? 'bg-purple-500 text-white'
-                                                            : 'bg-gray-200 text-gray-700 hover:bg-purple-100'
-                                                            }`}
-                                                    >
-                                                        إدخال {entryIdx + 1}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {filteredRiders.length === 0 && (
-                                <div className="col-span-full text-center py-8 text-gray-500">
-                                    لا توجد سائقين يطابقون البحث
-                                </div>
-                            )}
-                        </div>
-                    )}
 
                     {/* Usage Entries */}
                     <div className="space-y-4">
@@ -248,8 +179,8 @@ export default function RiderAccessoriesUsagePage() {
                         </div>
 
                         {usageEntries.map((entry, index) => (
-                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg space-y-4">
-                                <div className="flex items-center justify-between mb-2">
+                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                                <div className="flex items-center justify-between mb-4">
                                     <h4 className="font-medium text-gray-900">إدخال رقم {index + 1}</h4>
                                     {usageEntries.length > 1 && (
                                         <button
@@ -262,33 +193,34 @@ export default function RiderAccessoriesUsagePage() {
                                     )}
                                 </div>
 
-                                {/* Accessory Selection */}
-                                <SearchableSelect
-                                    label="معدات السائق"
-                                    value={entry.accessoryId}
-                                    onChange={(e) => handleAccessoryChange(e.target.value, index)}
-                                    options={accessories.map(accessory => ({
-                                        id: accessory.id,
-                                        name: `${accessory.name} - الكمية المتاحة: ${accessory.quantity}`
-                                    }))}
-                                    placeholder="اختر معدات السائق"
-                                    required
-                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                    {/* Accessory Selection */}
+                                    <SearchableSelect
+                                        label="معدات السائق"
+                                        value={entry.accessoryId}
+                                        onChange={(e) => handleAccessoryChange(e.target.value, index)}
+                                        options={accessories.map(accessory => ({
+                                            id: accessory.id,
+                                            name: `${accessory.name} - ${accessory.quantity > 0 ? `الكمية المتاحة: ${accessory.quantity}` : 'نفدت الكمية'}`,
+                                            disabled: accessory.quantity <= 0
+                                        }))}
+                                        placeholder="اختر معدات السائق"
+                                        required
+                                    />
 
-                                {/* Selected Rider Display */}
-                                {entry.selectedRider ? (
-                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <h5 className="font-medium text-blue-900 mb-2">السائق المختار:</h5>
-                                        <div className="grid grid-cols-2 gap-2 text-sm">
-                                            <div><span className="font-medium">الاسم:</span> {entry.selectedRider.nameAR}</div>
-                                            <div><span className="font-medium">رقم الهوية:</span> {entry.selectedRider.iqamaNo}</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500">
-                                        الرجاء اختيار سائق من نتائج البحث أعلاه
-                                    </div>
-                                )}
+                                    {/* Rider Selection */}
+                                    <SearchableSelect
+                                        label="السائق"
+                                        value={entry.riderId}
+                                        onChange={(e) => handleRiderSelect(e.target.value, index)}
+                                        options={riders.map(rider => ({
+                                            id: rider.riderId,
+                                            name: `${rider.nameAR} - ${rider.iqamaNo || ''}`
+                                        }))}
+                                        placeholder="ابحث عن السائق (الاسم، الهوية...)"
+                                        required
+                                    />
+                                </div>
                             </div>
                         ))}
                     </div>

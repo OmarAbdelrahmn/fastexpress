@@ -16,7 +16,6 @@ export default function MemberSparePartsPage() {
     const [loading, setLoading] = useState(false);
     const [spareParts, setSpareParts] = useState([]);
     const [vehicles, setVehicles] = useState([]);
-    const [vehicleSearch, setVehicleSearch] = useState('');
     const [alert, setAlert] = useState(null);
 
     // Array to hold multiple usage entries
@@ -52,26 +51,15 @@ export default function MemberSparePartsPage() {
         }
     };
 
-    const filteredVehicles = vehicles.filter(vehicle => {
-        if (!vehicleSearch) return true;
-        const search = vehicleSearch.toLowerCase();
-        return (
-            vehicle.plateNumberA?.toLowerCase().includes(search) ||
-            vehicle.plateNumberE?.toLowerCase().includes(search) ||
-            vehicle.vehicleNumber?.toLowerCase().includes(search) ||
-            String(vehicle.serialNumber || '')?.toLowerCase().includes(search) ||
-            vehicle.vehicleType?.toLowerCase().includes(search) ||
-            vehicle.manufacturer?.toLowerCase().includes(search) ||
-            vehicle.ownerName?.toLowerCase().includes(search)
-        );
-    });
 
-    const handleVehicleSelect = (vehicle, index) => {
-        const updatedEntries = [...usageEntries];
-        updatedEntries[index].selectedVehicle = vehicle;
-        updatedEntries[index].vehicleNumber = vehicle.vehicleNumber;
-        setUsageEntries(updatedEntries);
-        setVehicleSearch(''); // Clear search after selection
+    const handleVehicleSelect = (vehicleId, index) => {
+        const vehicle = vehicles.find(v => v.vehicleNumber === vehicleId);
+        if (vehicle) {
+            const updatedEntries = [...usageEntries];
+            updatedEntries[index].selectedVehicle = vehicle;
+            updatedEntries[index].vehicleNumber = vehicle.vehicleNumber;
+            setUsageEntries(updatedEntries);
+        }
     };
 
     const handleSparePartChange = (value, index) => {
@@ -143,7 +131,6 @@ export default function MemberSparePartsPage() {
             setUsageEntries([
                 { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
             ]);
-            setVehicleSearch('');
         } catch (error) {
             console.error('Error recording usage:', error);
             showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
@@ -194,69 +181,6 @@ export default function MemberSparePartsPage() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Vehicle Search - Shared for all entries */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            البحث عن المركبات
-                        </label>
-                        <Input
-                            placeholder="ابحث عن المركبة (رقم اللوحة، رقم الشاسيه، رقم التسلسل، الموديل، اللون...)"
-                            value={vehicleSearch}
-                            onChange={(e) => setVehicleSearch(e.target.value)}
-                            icon={Search}
-                        />
-                    </div>
-
-                    {/* Vehicles Grid - Only show when searching */}
-                    {vehicleSearch && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 border-2 border-gray-200 rounded-lg">
-                            {filteredVehicles.map((vehicle) => (
-                                <div
-                                    key={vehicle.plateNumberA || vehicle.vehicleNumber}
-                                    className="p-4 border-2 rounded-lg cursor-pointer transition-all border-gray-200 hover:border-orange-300 hover:bg-gray-50"
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <Truck className="text-gray-400" size={24} />
-                                        <div className="flex-1">
-                                            <div className="font-bold text-gray-900">
-                                                {formatPlateNumber(vehicle.plateNumberA) || vehicle.vehicleNumber}
-                                            </div>
-                                            <div className="text-sm text-gray-600 mt-1">
-                                                {vehicle.vehicleType} - {vehicle.manufacturer}
-                                            </div>
-                                            {vehicle.vehicleNumber && (
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    رقم المركبة: {vehicle.vehicleNumber}
-                                                </div>
-                                            )}
-                                            {/* Add selection buttons for each entry */}
-                                            <div className="flex flex-wrap gap-1 mt-2">
-                                                {usageEntries.map((entry, index) => (
-                                                    <button
-                                                        key={index}
-                                                        type="button"
-                                                        onClick={() => handleVehicleSelect(vehicle, index)}
-                                                        className={`text-xs px-2 py-1 rounded ${entry.selectedVehicle?.vehicleNumber === vehicle.vehicleNumber
-                                                            ? 'bg-orange-500 text-white'
-                                                            : 'bg-gray-200 text-gray-700 hover:bg-orange-100'
-                                                            }`}
-                                                    >
-                                                        إدخال {index + 1}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {filteredVehicles.length === 0 && (
-                                <div className="col-span-full text-center py-8 text-gray-500">
-                                    لا توجد مركبات تطابق البحث
-                                </div>
-                            )}
-                        </div>
-                    )}
 
                     {/* Usage Entries */}
                     <div className="space-y-4">
@@ -273,8 +197,8 @@ export default function MemberSparePartsPage() {
                         </div>
 
                         {usageEntries.map((entry, index) => (
-                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg space-y-4">
-                                <div className="flex items-center justify-between mb-2">
+                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                                <div className="flex items-center justify-between mb-4">
                                     <h4 className="font-medium text-gray-900">إدخال رقم {index + 1}</h4>
                                     {usageEntries.length > 1 && (
                                         <button
@@ -287,47 +211,48 @@ export default function MemberSparePartsPage() {
                                     )}
                                 </div>
 
-                                {/* Spare Part Selection */}
-                                <SearchableSelect
-                                    label="قطعة الغيار"
-                                    value={entry.sparePartId}
-                                    onChange={(e) => handleSparePartChange(e.target.value, index)}
-                                    options={spareParts.map(part => ({
-                                        id: part.id,
-                                        name: `${part.name} - ${part.quantity > 0 ? `الكمية المتاحة: ${part.quantity}` : 'نفدت الكمية'}`
-                                    }))}
-                                    placeholder="اختر قطعة الغيار"
-                                    required
-                                />
-
-                                {/* Selected Vehicle Display */}
-                                {entry.selectedVehicle ? (
-                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <h5 className="font-medium text-blue-900 mb-2">المركبة المختارة:</h5>
-                                        <div className="grid grid-cols-2 gap-2 text-sm">
-                                            <div><span className="font-medium">رقم اللوحة (عربي):</span> {formatPlateNumber(entry.selectedVehicle.plateNumberA) || 'غير متوفر'}</div>
-                                            <div><span className="font-medium">رقم اللوحة (إنجليزي):</span> {entry.selectedVehicle.plateNumberE || 'غير متوفر'}</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500">
-                                        الرجاء اختيار مركبة من نتائج البحث أعلاه
-                                    </div>
-                                )}
-
-                                {/* Quantity */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        الكمية المستخدمة <span className="text-red-500">*</span>
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        placeholder="أدخل الكمية المستخدمة"
-                                        value={entry.quantityUsed}
-                                        onChange={(e) => handleQuantityChange(e.target.value, index)}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                    {/* Spare Part Selection */}
+                                    <SearchableSelect
+                                        label="قطعة الغيار"
+                                        value={entry.sparePartId}
+                                        onChange={(e) => handleSparePartChange(e.target.value, index)}
+                                        options={spareParts.map(part => ({
+                                            id: part.id,
+                                            name: `${part.name} - ${part.quantity > 0 ? `الكمية المتاحة: ${part.quantity}` : 'نفدت الكمية'}`,
+                                            disabled: part.quantity <= 0
+                                        }))}
+                                        placeholder="اختر قطعة الغيار"
                                         required
                                     />
+
+                                    {/* Vehicle Selection */}
+                                    <SearchableSelect
+                                        label="المركبة"
+                                        value={entry.vehicleNumber}
+                                        onChange={(e) => handleVehicleSelect(e.target.value, index)}
+                                        options={vehicles.map(vehicle => ({
+                                            id: vehicle.vehicleNumber,
+                                            name: `[${vehicle.plateNumberE}] -- ${formatPlateNumber(vehicle.plateNumberA)}`
+                                        }))}
+                                        placeholder="ابحث عن المركبة (رقم اللوحة، الموديل...)"
+                                        required
+                                    />
+
+                                    {/* Quantity */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            الكمية المستخدمة <span className="text-red-500">*</span>
+                                        </label>
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            placeholder="أدخل الكمية المستخدمة"
+                                            value={entry.quantityUsed}
+                                            onChange={(e) => handleQuantityChange(e.target.value, index)}
+                                            required
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         ))}
