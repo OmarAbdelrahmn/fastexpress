@@ -6,13 +6,8 @@ import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import {
-    ArrowRight,
     Search,
     User,
-    Calendar,
-    FileText,
-    Clock,
-    Activity,
     AlertCircle,
     ChevronDown,
     History,

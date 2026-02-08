@@ -23,6 +23,8 @@ export default function ShiftsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [importResult, setImportResult] = useState(null);
   const [showImportDetails, setShowImportDetails] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
 
 
   const normalizeServerDate = (value) => {
@@ -79,6 +81,15 @@ export default function ShiftsPage() {
     }
   }, [selectedDate]);
 
+  const loadCompanies = async () => {
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
+      setCompanies(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error loading companies:', error);
+    }
+  };
+
   const loadShifts = async () => {
     setLoading(true);
     try {
@@ -94,6 +105,10 @@ export default function ShiftsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCompanies();
+  }, []);
 
   useEffect(() => {
     if (selectedDate) loadShifts();
@@ -180,12 +195,21 @@ export default function ShiftsPage() {
   };
 
   const handleDeleteDate = async () => {
-    if (!confirm(t('shifts.confirmDelete'))) return;
+    if (!selectedCompanyId) {
+      setMessage({ type: 'error', text: t('riders.selectCompany') || 'Please select a company' });
+      return;
+    }
+
+    const company = companies.find(c => String(c.id) === String(selectedCompanyId));
+    const confirmMsg = `${t('shifts.confirmDelete')} (${company?.name || selectedCompanyId})`;
+
+    if (!confirm(confirmMsg)) return;
 
     setLoading(true);
     try {
       const result = await ApiService.delete(API_ENDPOINTS.SHIFT.DELETE_BY_DATE, {
-        shiftDate: selectedDate
+        shiftDate: selectedDate,
+        companyId: selectedCompanyId
       });
       const totalDeleted = result.totalDeleted || 0;
       setMessage({
@@ -354,6 +378,22 @@ export default function ShiftsPage() {
         {/* Controls */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('riders.company')}</label>
+              <select
+                value={selectedCompanyId}
+                onChange={(e) => setSelectedCompanyId(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{t('riders.selectCompany')}</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Date Picker */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t('shifts.date')}</label>
