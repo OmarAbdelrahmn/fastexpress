@@ -377,8 +377,9 @@ export default function ShiftsPage() {
 
         {/* Controls */}
         <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
+          <div className="flex flex-wrap items-end gap-4">
+            {/* Company Selection */}
+            <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-medium text-gray-700 mb-2">{t('riders.company')}</label>
               <select
                 value={selectedCompanyId}
@@ -395,7 +396,7 @@ export default function ShiftsPage() {
             </div>
 
             {/* Date Picker */}
-            <div>
+            <div className="flex-1 min-w-[150px]">
               <label className="block text-sm font-medium text-gray-700 mb-2">{t('shifts.date')}</label>
               <input
                 type="date"
@@ -406,7 +407,7 @@ export default function ShiftsPage() {
             </div>
 
             {/* File Upload */}
-            <div>
+            <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-medium text-gray-700 mb-2">{t('shifts.excelFile')}</label>
               <input
                 type="file"
@@ -417,11 +418,11 @@ export default function ShiftsPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleImport}
                 disabled={loading || !uploadFile}
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center gap-2 font-medium whitespace-nowrap"
               >
                 <Upload size={18} />
                 {t('shifts.import')}
@@ -429,14 +430,16 @@ export default function ShiftsPage() {
               <button
                 onClick={loadShifts}
                 disabled={loading}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                title={t('common.refresh') || 'Refresh'}
               >
                 <RefreshCw size={18} />
               </button>
               <button
                 onClick={handleDeleteDate}
                 disabled={loading}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50"
+                className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
+                title={t('common.delete') || 'Delete'}
               >
                 <Trash2 size={18} />
               </button>
