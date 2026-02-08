@@ -235,6 +235,13 @@ export default function ShiftsPage() {
     return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
+  const filteredShifts = selectedCompanyId
+    ? shifts.filter(shift => {
+      const company = companies.find(c => String(c.id) === String(selectedCompanyId));
+      return shift.companyName === company?.name;
+    })
+    : shifts;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100">
       <PageHeader
@@ -451,7 +458,7 @@ export default function ShiftsPage() {
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="bg-blue-600 px-6 py-4">
             <h3 className="text-lg font-bold text-white">
-              {t('shifts.shiftsForDate')} - {selectedDate} ({shifts.length} {t('shifts.shift')})
+              {t('shifts.shiftsForDate')} - {selectedDate} ({filteredShifts.length} {t('shifts.shift')})
             </h3>
           </div>
 
@@ -480,7 +487,7 @@ export default function ShiftsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {shifts.map((shift, index) => (
+                  {filteredShifts.map((shift, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-blue-600">{safeRender(shift.workingId)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{safeRender(shift.riderName)}</td>
