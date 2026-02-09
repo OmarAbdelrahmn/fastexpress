@@ -224,26 +224,26 @@ export default function WorkingIdHistoryPage() {
                     </Card>
 
                     {/* Statistics */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-gray-500 text-sm mb-1">{t('riders.totalCompanyChanges')}</p>
-                                    <h3 className="text-3xl font-bold text-blue-600">{data.totalCompanyChanges}</h3>
+                                    <p className="text-gray-500 text-xs mb-0.5">{t('riders.totalCompanyChanges')}</p>
+                                    <h3 className="text-2xl font-bold text-blue-600">{data.totalCompanyChanges}</h3>
                                 </div>
-                                <div className="p-3 bg-blue-50 rounded-lg">
-                                    <Building className="text-blue-600 w-8 h-8" />
+                                <div className="p-2 bg-blue-50 rounded-lg">
+                                    <Building className="text-blue-600 w-6 h-6" />
                                 </div>
                             </div>
                         </Card>
                         <Card>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-gray-500 text-sm mb-1">{t('riders.totalWorkingIdChanges')}</p>
-                                    <h3 className="text-3xl font-bold text-purple-600">{data.totalWorkingIdChanges}</h3>
+                                    <p className="text-gray-500 text-xs mb-0.5">{t('riders.totalWorkingIdChanges')}</p>
+                                    <h3 className="text-2xl font-bold text-purple-600">{data.totalWorkingIdChanges}</h3>
                                 </div>
-                                <div className="p-3 bg-purple-50 rounded-lg">
-                                    <History className="text-purple-600 w-8 h-8" />
+                                <div className="p-2 bg-purple-50 rounded-lg">
+                                    <History className="text-purple-600 w-6 h-6" />
                                 </div>
                             </div>
                         </Card>
@@ -310,13 +310,6 @@ export default function WorkingIdHistoryPage() {
                                                         </p>
                                                     </div>
                                                 </div>
-
-                                                {record.notes && (
-                                                    <div className="mt-3 p-2 bg-white rounded border border-gray-200">
-                                                        <p className="text-xs text-gray-500 mb-1">{t('riders.historyNotes')}</p>
-                                                        <p className="text-sm text-gray-700">{record.notes}</p>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     </div>
