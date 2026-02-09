@@ -213,6 +213,13 @@ export default function RidersPage() {
             <Edit size={18} />
           </button>
           <button
+            onClick={() => router.push(`/admin/riders/working-id-history?iqamaNo=${row.iqamaNo}`)}
+            className="text-orange-600 hover:text-orange-800 p-1 cursor-pointer"
+            title={t('riders.workingIdHistory')}
+          >
+            <History size={18} />
+          </button>
+          <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1 cursor-pointer"
             title={t('riders.delete')}
@@ -415,6 +422,14 @@ export default function RidersPage() {
               onClick={() => router.push('/admin/riders/change-role')}
               color="#2563eb" // blue-600
               bgClass="bg-blue-50"
+            />
+            <MiniStatRow
+              icon={History}
+              title={t('riders.workingIdHistory')}
+              description={t('riders.viewWorkingIdHistoryDesc')}
+              onClick={() => router.push('/admin/riders/working-id-history')}
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
             />
           </div>
         </div>

@@ -214,6 +214,8 @@ export const API_ENDPOINTS = {
       IMPORT: "/api/KetaFreeLancer",
       BY_MONTH: (month) => `/api/KetaFreeLancer?month=${month}`,
     },
+    WORKING_ID_HISTORY: (iqamaNo) => `/api/History/report/${iqamaNo}`,
+    SUGGEST_WORKING_ID: (iqamaNo, companyId) => `/api/History/suggest-working-id?riderIqamaNo=${iqamaNo}&companyId=${companyId}`,
   },
 
   // Member

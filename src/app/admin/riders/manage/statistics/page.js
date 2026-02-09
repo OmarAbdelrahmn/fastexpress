@@ -276,6 +276,14 @@ export default function StatisticsPage() {
                         <TrendingUp size={18} className="ml-2" />
                         {t('employees.manageEmployees')}
                     </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => router.push('/admin/riders/working-id-history')}
+                        className="w-full"
+                    >
+                        <History size={18} className="ml-2" />
+                        {t('riders.workingIdHistory')}
+                    </Button>
                 </div>
             </Card>
         </div>

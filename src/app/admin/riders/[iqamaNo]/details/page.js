@@ -522,6 +522,13 @@ export default function RiderDetailsPage() {
             <FileText size={18} className="ml-2" />
             {t('reports.title')}
           </Button>
+          <Button
+            onClick={() => router.push(`/admin/riders/working-id-history?iqama=${iqamaNo}`)}
+            variant="secondary"
+          >
+            <FileText size={18} className="ml-2" />
+            {t('riders.workingIdHistory')}
+          </Button>
         </div>
       </Card>
     </div>

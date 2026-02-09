@@ -23,6 +23,8 @@ export default function EditRiderPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [companies, setCompanies] = useState([]);
   const [originalData, setOriginalData] = useState(null);
+  const [workingIdSuggestions, setWorkingIdSuggestions] = useState(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const [formData, setFormData] = useState({
     iqamaEndM: '',
@@ -54,6 +56,35 @@ export default function EditRiderPage() {
       loadCompanies();
     }
   }, [iqamaNo]);
+
+  // Fetch working ID suggestions when company changes
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!formData.companyName || !originalData || formData.companyName === originalData.companyName) {
+        setWorkingIdSuggestions(null);
+        return;
+      }
+
+      // Find company ID from company name
+      const selectedCompany = companies.find(c => c.name === formData.companyName);
+      if (!selectedCompany) return;
+
+      setLoadingSuggestions(true);
+      try {
+        const suggestions = await ApiService.get(
+          API_ENDPOINTS.REPORTS.SUGGEST_WORKING_ID(iqamaNo, selectedCompany.id)
+        );
+        setWorkingIdSuggestions(suggestions);
+      } catch (err) {
+        console.error('Error fetching working ID suggestions:', err);
+        setWorkingIdSuggestions(null);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [formData.companyName, companies, originalData, iqamaNo]);
 
   const loadCompanies = async () => {
     try {
@@ -114,6 +145,13 @@ export default function EditRiderPage() {
     });
   };
 
+  const useSuggestedWorkingId = (workingId) => {
+    setFormData({
+      ...formData,
+      workingId: workingId,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -169,7 +207,7 @@ export default function EditRiderPage() {
         requestData.inksa = formData.inksa;
       }
       if (formData.workingId && formData.workingId !== originalData?.workingId) {
-              requestData.workingId = formData.workingId;
+        requestData.workingId = formData.workingId;
       }
       if (formData.tshirtSize !== originalData?.tshirtSize) {
         requestData.tshirtSize = formData.tshirtSize;
@@ -410,15 +448,91 @@ export default function EditRiderPage() {
         <Card>
           <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('riders.company')}
+              </label>
+              <select
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">{t('riders.selectCompany')}</option>
+                {companies.map((company) => (
+                  <option key={company.name} value={company.name}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <Input
-              label={t('riders.workingId')}
-              type="text"
-              name="workingId"
-              value={formData.workingId}
-              onChange={handleInputChange}
-              placeholder={t('riders.enterWorkingId')}
-            />
+            <div className="md:col-span-2">
+              <Input
+                label={t('riders.workingId')}
+                type="text"
+                name="workingId"
+                value={formData.workingId}
+                onChange={handleInputChange}
+                placeholder={t('riders.enterWorkingId')}
+              />
+
+              {/* Working ID Suggestions */}
+              {loadingSuggestions && (
+                <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-600">{t('common.loading')}...</p>
+                </div>
+              )}
+
+              {workingIdSuggestions && !loadingSuggestions && workingIdSuggestions.hasPreviousHistory && (
+                <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm font-medium text-green-800 mb-2">
+                    {t('riders.suggestedWorkingId')}
+                  </p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg font-bold text-green-900">
+                      {workingIdSuggestions.suggestedWorkingId}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => useSuggestedWorkingId(workingIdSuggestions.suggestedWorkingId)}
+                      className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      {t('riders.useSuggested')}
+                    </button>
+                  </div>
+ 
+                  {workingIdSuggestions.allPreviousIds && workingIdSuggestions.allPreviousIds.length > 1 && (
+                    <div className="mt-3 pt-3 border-t border-green-200">
+                      <p className="text-xs font-medium text-green-800 mb-2">
+                        {t('riders.allPreviousIds')}:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {workingIdSuggestions.allPreviousIds.map((item, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => useSuggestedWorkingId(item.workingId)}
+                            className="px-2 py-1 bg-white border border-green-300 text-green-800 text-xs rounded hover:bg-green-100 transition-colors"
+                          >
+                            {item.workingId} ({item.daysUsed} {t('common.day')})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {workingIdSuggestions && !loadingSuggestions && !workingIdSuggestions.hasPreviousHistory && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    {t('riders.noPreviousWorkingIds')}
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('riders.tshirtSize')}
@@ -436,26 +550,6 @@ export default function EditRiderPage() {
                 <option value="XL">XL</option>
                 <option value="XXL">XXL</option>
                 <option value="XXXL">XXXL</option>
-              </select>
-            </div>
-
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.company')}
-              </label>
-              <select
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">{t('riders.selectCompany')}</option>
-                {companies.map((company) => (
-                  <option key={company.name} value={company.name}>
-                    {company.name}
-                  </option>
-                ))}
               </select>
             </div>
           </div>
