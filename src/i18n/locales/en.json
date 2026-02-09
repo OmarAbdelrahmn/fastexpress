@@ -155,7 +155,11 @@
       "subtitle": "Cumulative performance report for riders up to a specific date",
       "endDate": "End Date",
       "expectedDays": "Expected Working Days",
-      "totalOrders": "Total Orders"
+      "totalOrders": "Total Orders",
+      "targetOrders": "Target Orders",
+      "status": "Status",
+      "newRider": "New Rider",
+      "startDate": "Start Date"
     },
     "rejectionReport": "Rejection Report (Keta)",
     "rejectionReportDesc": "Detailed rejection report for Keta",

@@ -84,7 +84,7 @@
     "rank": "الترتيب",
     "housingGroup": "المجموعة السكنية",
     "deficitSurplus": "العجز/الفائض",
-    "averageOrdersPerDay": "متوسط الطلبات/يوم",
+    "averageOrdersPerDay": "الطلبات/يوم",
     "startDate": "تاريخ البداية",
     "endDate": "تاريخ النهاية"
   },
@@ -158,8 +158,12 @@
       "title": "إحصائيات كيتا التراكمية",
       "subtitle": "تقرير الأداء التراكمي للمناديب حتى تاريخ محدد",
       "endDate": "تاريخ النهاية",
-      "expectedDays": "أيام العمل المتوقعة",
-      "totalOrders": "إجمالي الطلبات"
+      "expectedDays": "أيام العمل ",
+      "totalOrders": "إجمالي الطلبات",
+      "targetOrders": "التارجيت",
+      "status": "الحالة",
+      "newRider": "مندوب جديد",
+      "startDate": "تاريخ البداية"
     },
     "rejectionReport": "تقرير رفض الطلبات (كيتا)",
     "rejectionReportDesc": "تقرير تفصيلي لرفض الطلبات لشركة كيتا",

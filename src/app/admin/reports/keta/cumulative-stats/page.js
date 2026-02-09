@@ -64,10 +64,14 @@ export default function KetaCumulativeStatsPage() {
             [t('employees.name')]: language === 'ar' ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR,
             [t('employees.iqamaNumber')]: rider.iqamaNo,
             [t('employees.rider')]: rider.workingId,
+            [t('keta.cumulative.expectedDays')]: rider.expectedDays,
+            [t('keta.cumulative.targetOrders')]: rider.targetOrders,
             [t('keta.cumulative.totalOrders')]: rider.totalOrders,
             [t('common.averageOrdersPerDay')]: rider.averageOrdersPerDay?.toFixed(2),
             [t('common.deficitSurplus')]: rider.deficitOrSurplus,
             [t('common.housingGroup')]: rider.housingGroup,
+            [t('keta.cumulative.isNewRider')]: rider.isNewRider ? t('common.yes') : t('common.no'),
+            [t('keta.cumulative.startDate')]: rider.startDate,
         }));
 
         const totalOrders = filteredStats.reduce((sum, rider) => sum + (rider.totalOrders || 0), 0);
@@ -79,10 +83,14 @@ export default function KetaCumulativeStatsPage() {
             [t('employees.name')]: `${t('keta.daily.totalRiders')}: ${filteredStats.length}`,
             [t('employees.iqamaNumber')]: "",
             [t('employees.rider')]: "",
+            [t('keta.cumulative.expectedDays')]: "",
+            [t('keta.cumulative.targetOrders')]: "",
             [t('keta.cumulative.totalOrders')]: totalOrders,
             [t('common.averageOrdersPerDay')]: "",
             [t('common.deficitSurplus')]: totalDeficitSurplus,
             [t('common.housingGroup')]: "",
+            [t('keta.cumulative.isNewRider')]: "",
+            [t('keta.cumulative.startDate')]: "",
         });
 
         const workbook = XLSX.utils.book_new();
@@ -113,7 +121,7 @@ export default function KetaCumulativeStatsPage() {
                     icon={BarChart3}
                 />
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 space-y-6 mt-5">
                     {/* Filters & Controls */}
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
                         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -219,9 +227,12 @@ export default function KetaCumulativeStatsPage() {
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.rank')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('employees.rider')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.housingGroup')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.expectedDays')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.targetOrders')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.totalOrders')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.averageOrdersPerDay')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.deficitSurplus')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.status')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
@@ -231,10 +242,13 @@ export default function KetaCumulativeStatsPage() {
                                                         {rider.rank}
                                                     </td>
                                                     <td className="px-6 py-4 text-start">
-                                                        <div className="flex flex-col">
+                                                        <div className="flex flex-col gap-1">
                                                             <span className="font-bold text-gray-900">{language === 'ar' ? rider.riderNameAR : rider.riderNameEN || rider.riderNameAR}</span>
                                                             <span className="text-xs text-gray-500 font-mono">
-                                                                {t('employees.rider')}: {rider.workingId} | {t('employees.iqamaNumber')}: {rider.iqamaNo}
+                                                                {t('employees.rider')}: {rider.workingId}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500 font-mono">
+                                                                {t('employees.iqamaNumber')}: {rider.iqamaNo}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -242,6 +256,12 @@ export default function KetaCumulativeStatsPage() {
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             {rider.housingGroup}
                                                         </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 font-bold text-gray-700 text-start">
+                                                        {rider.expectedDays}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-bold text-blue-600 text-start">
+                                                        {rider.targetOrders}
                                                     </td>
                                                     <td className="px-6 py-4 font-bold text-gray-900 text-start">
                                                         {rider.totalOrders}
@@ -253,6 +273,18 @@ export default function KetaCumulativeStatsPage() {
                                                         <span className="bg-gray-50 px-2 py-1 rounded">
                                                             {rider.deficitOrSurplus > 0 ? '+' : ''}{rider.deficitOrSurplus}
                                                         </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-start">
+                                                        <div className="flex flex-col gap-1">
+                                                            {rider.isNewRider && (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                                                    NEW
+                                                                </span>
+                                                            )}
+                                                            <span className="text-xs text-gray-500">
+                                                                {t('keta.cumulative.startDate')}: {rider.startDate}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}
