@@ -6,19 +6,15 @@ import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
-import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   CheckCircle,
   Search,
-  Car,
   MapPin,
-  Calendar,
-  Info,
   Eye,
 } from "lucide-react";
-import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
+import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function AvailableVehiclesPage() {
   const { t } = useLanguage();

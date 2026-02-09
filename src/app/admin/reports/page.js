@@ -9,7 +9,6 @@ import {
   Home,
   Calendar,
   Award,
-  Building,
   Clock,
   History,
   LayoutList,

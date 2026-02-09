@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "export": "next export --turbopack",
-    "start": "next start --turbopack",
-    "lint": "eslint"
+    "start": "next start --turbopack"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.2",
@@ -25,8 +24,6 @@
     "@tailwindcss/postcss": "^4",
     "babel-plugin-react-compiler": "1.0.0",
     "baseline-browser-mapping": "^2.9.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.3",
     "tailwindcss": "^4"
   }
 }

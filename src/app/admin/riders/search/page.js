@@ -11,7 +11,7 @@ import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Plus, Search, Edit, Trash2, Eye, Filter, Download, Building } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Filter, Download } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 import * as XLSX from 'xlsx';
 

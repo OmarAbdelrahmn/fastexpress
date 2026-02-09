@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Wrench, Calendar, History, FileText, AlertCircle, CheckCircle, Clock, TrendingUp, Package, BadgeDollarSign } from 'lucide-react';
+import { Wrench, History, FileText, AlertCircle, Package, BadgeDollarSign } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 
 export default function MaintenancePage() {

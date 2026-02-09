@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Building2, Search, TrendingUp, TrendingDown, Users, Package, AlertTriangle, CheckCircle, Clock, Award, DollarSign, AlertCircle } from 'lucide-react';
+import { Building2, Search, TrendingUp, TrendingDown, Users, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';

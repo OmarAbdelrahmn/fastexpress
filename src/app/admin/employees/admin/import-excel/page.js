@@ -7,7 +7,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { FileSpreadsheet, Upload, AlertCircle, CheckCircle, Download } from 'lucide-react';
+import { FileSpreadsheet, Upload, AlertCircle, CheckCircle } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 
 export default function ImportEmployeeExcelPage() {

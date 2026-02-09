@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trophy, Award, Medal, TrendingUp, Clock, CheckCircle, XCircle, Users, Calendar } from 'lucide-react';
+import { Trophy, Award, Medal, TrendingUp, CheckCircle, Users, Calendar } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';

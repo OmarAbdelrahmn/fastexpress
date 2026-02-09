@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Search, RotateCcw, Filter, List, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RotateCcw, Eye } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';

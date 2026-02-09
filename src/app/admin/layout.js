@@ -3,8 +3,6 @@
 import { AuthProvider, useAuth } from '@/lib/auth/authContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TokenManager } from '@/lib/auth/tokenManager';
 

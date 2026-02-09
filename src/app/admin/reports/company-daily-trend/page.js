@@ -11,7 +11,7 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts';
-import { Calendar, Search, Filter } from 'lucide-react';
+import { Calendar, Search } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';

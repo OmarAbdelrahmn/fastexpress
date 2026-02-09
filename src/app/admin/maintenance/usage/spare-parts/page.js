@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Search, History, ArrowRight, Truck, Plus, Trash2 } from 'lucide-react';
+import { Package, History, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { formatPlateNumber } from '@/lib/utils/formatters';

@@ -7,10 +7,8 @@ import { useLanguage } from "@/lib/context/LanguageContext";
 import {
     Users,
     Clock,
-    CheckCircle,
     XCircle,
     History,
-    TrendingDown,
     Search
 } from "lucide-react";
 

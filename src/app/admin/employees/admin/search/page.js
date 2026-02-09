@@ -10,7 +10,7 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
-import { Search, User, Eye, Edit, Building, MapPin, Phone } from 'lucide-react';
+import { Search, Eye, Edit } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function EmployeeSmartSearchPage() {

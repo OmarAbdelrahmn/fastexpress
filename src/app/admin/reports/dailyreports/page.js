@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { BarChart3, TrendingUp, Users, Calendar, Printer } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from '@/lib/context/LanguageContext';
-import Card from '@/components/Ui/Card';
 import Input from '@/components/Ui/Input';
 import Button from '@/components/Ui/Button';
 import dynamic from 'next/dynamic';

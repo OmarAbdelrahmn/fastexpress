@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Building, ArrowRight, Edit, Trash2, Mail, Phone, MapPin, FileText, Users } from 'lucide-react';
+import { Building, ArrowRight, Edit, Trash2, Mail, Phone, MapPin, FileText } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';

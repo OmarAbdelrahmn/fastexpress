@@ -6,7 +6,6 @@ import {
     LayoutList,
     Users,
     BarChart3,
-    ArrowRight,
     FileCheck,
     XCircle,
     AlertCircle

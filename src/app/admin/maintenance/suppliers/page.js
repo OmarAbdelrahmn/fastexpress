@@ -9,9 +9,8 @@ import Card from '@/components/Ui/Card';
 import Table from '@/components/Ui/Table';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import MiniStatRow from '@/components/Ui/MiniStatRow';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Plus, Search, Edit, Trash2, Eye, Package, Phone, MapPin, Building, User, Mail, FileText, Power } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Package, Phone, Mail, FileText, Power } from 'lucide-react';
 
 export default function SuppliersPage() {
     const router = useRouter();

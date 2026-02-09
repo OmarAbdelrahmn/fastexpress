@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building, Users, Package, Award, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, AlertTriangle, BarChart3, Calendar, Printer } from 'lucide-react';
+import { Building, Users, Package, Award, Clock, CheckCircle, XCircle, AlertTriangle, BarChart3, Calendar, Printer } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';

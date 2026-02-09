@@ -17,7 +17,6 @@ import {
   MapPin,
   Phone,
   CreditCard,
-  Building,
   FileText,
   Shield,
   Briefcase

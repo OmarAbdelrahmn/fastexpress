@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Package, ClipboardList, History, FileSpreadsheet, MapPin } from 'lucide-react';
+import { Plus, Edit, Search, Package, History, FileSpreadsheet, MapPin } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';

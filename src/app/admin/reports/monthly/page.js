@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Calendar, Search, FileText, TrendingUp, FileSpreadsheet, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Search, FileText, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';

@@ -9,7 +9,6 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
-import StatusBadge from '@/components/Ui/StatusBadge';
 import { Home, Plus, Search, Edit, Trash2, Users, MapPin } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
