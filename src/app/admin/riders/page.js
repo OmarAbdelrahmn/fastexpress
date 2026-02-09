@@ -213,13 +213,6 @@ export default function RidersPage() {
             <Edit size={18} />
           </button>
           <button
-            onClick={() => router.push(`/admin/riders/working-id-history?iqamaNo=${row.iqamaNo}`)}
-            className="text-orange-600 hover:text-orange-800 p-1 cursor-pointer"
-            title={t('riders.workingIdHistory')}
-          >
-            <History size={18} />
-          </button>
-          <button
             onClick={() => handleDelete(row.iqamaNo)}
             className="text-red-600 hover:text-red-800 p-1 cursor-pointer"
             title={t('riders.delete')}
