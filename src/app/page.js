@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
-  Menu, X, Phone, Mail, MapPin, ChevronLeft, ArrowLeft,
-  Truck, Globe, BarChart3, ShieldCheck, Clock, Layers,
-  Package, Users, Building2, Zap, Search, Send, Star, UserCheck
+  Menu, X, Phone, Mail, MapPin, ArrowLeft,
+  Truck, Globe, BarChart3, ShieldCheck, Clock,
+  Users, Building2, Zap, Search, Send, UserCheck
 } from 'lucide-react';
 
 export default function ComprehensiveLandingPage() {

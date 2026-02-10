@@ -22,6 +22,8 @@ export default function EditRiderPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [companies, setCompanies] = useState([]);
+  const [housings, setHousings] = useState([]);
+  const [loadingHousings, setLoadingHousings] = useState(false);
   const [originalData, setOriginalData] = useState(null);
   const [workingIdSuggestions, setWorkingIdSuggestions] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
@@ -47,13 +49,15 @@ export default function EditRiderPage() {
     licenseNumber: '',
     licenseNumber: '',
     companyName: '',
-    isEmployee: false
+    isEmployee: false,
+    housingId: ''
   });
 
   useEffect(() => {
     if (iqamaNo) {
       loadRiderData();
       loadCompanies();
+      loadHousings();
     }
   }, [iqamaNo]);
 
@@ -95,6 +99,18 @@ export default function EditRiderPage() {
     }
   };
 
+  const loadHousings = async () => {
+    setLoadingHousings(true);
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.HOUSING.LIST);
+      setHousings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error loading housings:', err);
+    } finally {
+      setLoadingHousings(false);
+    }
+  };
+
   const loadRiderData = async () => {
     setLoadingData(true);
     setErrorMessage('');
@@ -126,7 +142,8 @@ export default function EditRiderPage() {
           licenseNumber: rider.licenseNumber || '',
           licenseNumber: rider.licenseNumber || '',
           companyName: rider.companyName || '',
-          isEmployee: rider.isEmployee || false
+          isEmployee: rider.isEmployee || false,
+          housingId: rider.housingId || ''
         });
       }
     } catch (err) {
@@ -217,6 +234,9 @@ export default function EditRiderPage() {
       }
       if (formData.companyName !== originalData?.companyName) {
         requestData.companyName = formData.companyName;
+      }
+      if (formData.housingId && formData.housingId !== originalData?.housingId) {
+        requestData.housingId = formData.housingId;
       }
 
       await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
@@ -501,7 +521,7 @@ export default function EditRiderPage() {
                       {t('riders.useSuggested')}
                     </button>
                   </div>
- 
+
                   {workingIdSuggestions.allPreviousIds && workingIdSuggestions.allPreviousIds.length > 1 && (
                     <div className="mt-3 pt-3 border-t border-green-200">
                       <p className="text-xs font-medium text-green-800 mb-2">
@@ -550,6 +570,26 @@ export default function EditRiderPage() {
                 <option value="XL">XL</option>
                 <option value="XXL">XXL</option>
                 <option value="XXXL">XXXL</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('riders.housing')}
+              </label>
+              <select
+                name="housingId"
+                value={formData.housingId}
+                onChange={handleInputChange}
+                disabled={loadingHousings}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">{loadingHousings ? t('common.loading') : t('riders.selectHousing')}</option>
+                {housings.map((housing) => (
+                  <option key={housing.id} value={housing.id}>
+                    {housing.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
