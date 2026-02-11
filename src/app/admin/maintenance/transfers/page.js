@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -27,6 +26,11 @@ export default function TransfersPage() {
     const [editingItem, setEditingItem] = useState(null);
     const [alert, setAlert] = useState(null);
     const [filterHousing, setFilterHousing] = useState('');
+
+    // Delete Modal State
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteItem, setDeleteItem] = useState(null);
+    const [deletePassword, setDeletePassword] = useState('');
 
     useEffect(() => {
         loadData();
@@ -66,15 +70,26 @@ export default function TransfersPage() {
         return matchesSearch && matchesHousing;
     });
 
-    const handleDelete = async (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذا التحويل؟')) return;
+    const handleDeleteClick = (item) => {
+        setDeleteItem(item);
+        setDeletePassword('');
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (deletePassword !== '1111') {
+            showAlert('error', 'كلمة المرور غير صحيحة');
+            return;
+        }
 
         try {
             // Check if DELETE endpoint exists in endpoints.js or use generic approach if implicit
             // Assuming DELETE is supported similar to Bill
-            await ApiService.delete(API_ENDPOINTS.TRANSFER.BY_ID(id));
+            await ApiService.delete(API_ENDPOINTS.TRANSFER.BY_ID(deleteItem.id));
             showAlert('success', 'تم حذف التحويل بنجاح');
             loadData();
+            setIsDeleteModalOpen(false);
+            setDeleteItem(null);
         } catch (error) {
             console.error('Error deleting:', error);
             showAlert('error', 'حدث خطأ أثناء الحذف');
@@ -204,7 +219,7 @@ export default function TransfersPage() {
                         <Edit size={18} />
                     </button>
                     <button
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => handleDeleteClick(row)}
                         className="text-red-600 hover:text-red-800 cursor-pointer"
                         title="حذف"
                     >
@@ -296,6 +311,48 @@ export default function TransfersPage() {
                         setEditingItem(null);
                     }}
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteItem(null);
+                }}
+                title="تأكيد الحذف"
+                size="sm"
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-600">
+                        هل أنت متأكد من حذف هذا التحويل؟ لا يمكن التراجع عن هذا الإجراء.
+                    </p>
+                    <div>
+                        <Input
+                            type="password"
+                            label="كلمة المرور"
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            placeholder="أدخل كلمة المرور لتأكيد الحذف"
+                        />
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setIsDeleteModalOpen(false);
+                                setDeleteItem(null);
+                            }}
+                        >
+                            إلغاء
+                        </Button>
+                        <Button
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            onClick={confirmDelete}
+                        >
+                            تأكيد الحذف
+                        </Button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );
