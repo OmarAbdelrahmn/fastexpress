@@ -738,7 +738,7 @@ export default function EnhancedDashboard() {
             icon={CheckCircle}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
           <StatCard
             title={t("dashboard.totalActiveRiders")}
@@ -747,7 +747,7 @@ export default function EnhancedDashboard() {
             icon={Activity}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
           />
           <StatCard
             title={t("dashboard.totalMonthOrders")}
@@ -756,7 +756,7 @@ export default function EnhancedDashboard() {
             icon={BarChart3}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
           <StatCard
             title={t("dashboard.hungerYesterdayOrders")}
@@ -765,7 +765,7 @@ export default function EnhancedDashboard() {
             icon={ShoppingBag}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
           />
           <StatCard
             title={t("dashboard.ketaYesterdayOrders")}
@@ -774,7 +774,7 @@ export default function EnhancedDashboard() {
             icon={ShoppingBag}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
           />
           <StatCard
             title={t("dashboard.activeYesterdayHunger")}
@@ -783,7 +783,7 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
           <StatCard
             title={t("dashboard.ketaActiveRiders")}
@@ -792,7 +792,7 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
           />
           <StatCard
             title={t("dashboard.totalOrderYesterday")}
@@ -801,7 +801,7 @@ export default function EnhancedDashboard() {
             icon={Package}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
 
 

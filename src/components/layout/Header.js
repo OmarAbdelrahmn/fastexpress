@@ -61,7 +61,10 @@ export default function Header() {
 
   return (
     <header
-      className={`relative text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-[#144CD5] via-[#0B3CB3] to-[#00288A] transition-transform duration-300 rounded-b-[60px] ${isVisible ? 'translate-y-0' : '-translate-y-full'
+      className={`relative text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r
+from-[#2563EB] 
+via-[#1D4ED8] 
+to-[#1E3A8A] transition-transform duration-300 rounded-b-[60px] ${isVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
     >
       {/* Animated Flowing Waves - Hidden on mobile/tablet - Behind all content */}
