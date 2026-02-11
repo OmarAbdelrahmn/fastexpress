@@ -6,6 +6,7 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { Plus, Trash2 } from 'lucide-react';
 import SearchableSelect from '@/components/Ui/SearchableSelect';
+import Alert from '@/components/Ui/Alert';
 
 export default function TransferForm({ initialData, onSubmit, onCancel, isLoading }) {
     const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
     const [spareParts, setSpareParts] = useState([]);
     const [riderAccessories, setRiderAccessories] = useState([]);
     const [housings, setHousings] = useState([]);
+    const [validationError, setValidationError] = useState(null);
 
     useEffect(() => {
         loadSpareParts();
@@ -51,6 +53,36 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
             }));
         }
     }, [initialData]);
+
+    useEffect(() => {
+        validateItems(formData.items);
+    }, [formData.items, spareParts, riderAccessories]);
+
+    const validateItems = (items) => {
+        let error = null;
+        for (const item of items) {
+            if (!item.itemId) continue;
+
+            const collection = parseInt(item.itemType) === 1 ? spareParts : riderAccessories;
+            const selectedItem = collection.find(i => String(i.id) === String(item.itemId));
+
+            if (selectedItem) {
+                const qty = parseInt(item.quantity);
+                const available = selectedItem.quantity !== undefined && selectedItem.quantity !== null ? selectedItem.quantity : 0;
+
+                if (isNaN(qty) || qty <= 0) {
+                    error = 'الكمية يجب أن تكون أكبر من 0';
+                    break;
+                }
+
+                if (qty > available) {
+                    error = `الكمية المطلوبة (${qty}) تتجاوز الكمية المتوفرة (${available}) للصنف ${selectedItem.name}`;
+                    break;
+                }
+            }
+        }
+        setValidationError(error);
+    };
 
     const loadSpareParts = async () => {
         try {
@@ -112,6 +144,10 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        if (validationError) {
+            return;
+        }
+
         // Convert local date to UTC
         const localDate = new Date(formData.transferDate);
         const utcDate = new Date(Date.UTC(
@@ -138,10 +174,16 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
         onSubmit(formattedData);
     };
 
-
-
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            {validationError && (
+                <Alert
+                    type="error"
+                    message={validationError}
+                    onClose={() => setValidationError(null)}
+                />
+            )}
+
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <SearchableSelect
@@ -200,7 +242,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
                                 label="الصنف"
                                 value={item.itemId}
                                 onChange={(e) => handleItemChange(index, 'itemId', e.target.value)}
-                                options={item.itemType === 1 ? spareParts : riderAccessories}
+                                options={item.itemType === 1 || item.itemType === '1' ? spareParts : riderAccessories}
                                 placeholder="اختر الصنف"
                                 required
                             />
@@ -216,7 +258,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
                                 value={item.quantity}
                                 onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
                                 required
-                                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className={`w-full px-2 py-1.5 text-sm border ${validationError ? 'border-red-300' : 'border-gray-300'} rounded focus:outline-none focus:ring-2 focus:ring-blue-500`}
                             />
                         </div>
 
@@ -262,7 +304,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
                 </Button>
                 <Button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || !!validationError}
                 >
                     {isLoading ? 'جاري الحفظ...' : (initialData ? 'تحديث' : 'إنشاء تحويل')}
                 </Button>
