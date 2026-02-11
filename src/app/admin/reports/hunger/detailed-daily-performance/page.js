@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Building, Users, Calendar, BarChart3, FileSpreadsheet, TrendingUp, Clock, Target, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Building, Users, Calendar, BarChart3, FileSpreadsheet, TrendingUp, Clock, Target, CheckCircle, XCircle, Search } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -21,6 +21,32 @@ export default function DetailedDailyPerformanceReport() {
         startDate: '',
         endDate: '',
     });
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredHousings = useMemo(() => {
+        if (!reportData?.housingDetails) return [];
+
+        if (!searchQuery.trim()) return reportData.housingDetails;
+
+        const query = searchQuery.toLowerCase();
+
+        return reportData.housingDetails.map(housing => {
+            const matchingRiders = housing.riders.filter(rider =>
+                rider.riderNameAR?.toLowerCase().includes(query) ||
+                rider.riderNameEN?.toLowerCase().includes(query) ||
+                String(rider.workingId || '').includes(query) ||
+                String(rider.iqamaNo || '').includes(query)
+            );
+
+            if (matchingRiders.length > 0) {
+                return {
+                    ...housing,
+                    riders: matchingRiders
+                };
+            }
+            return null;
+        }).filter(Boolean);
+    }, [reportData, searchQuery]);
 
     const handleExcelExport = () => {
         if (!reportData) return;
@@ -366,185 +392,211 @@ export default function DetailedDailyPerformanceReport() {
                             </div>
                         </div>
 
+                        {/* Search Bar */}
+                        <div className="bg-white rounded-xl shadow-lg p-4 flex items-center gap-4">
+                            <Search className="text-gray-400" size={24} />
+                            <input
+                                type="text"
+                                placeholder="ابحث بالاسم، رقم العمل، أو رقم الإقامة..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="flex-1 w-full border-none outline-none text-lg text-gray-700 placeholder-gray-400"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="text-gray-400 hover:text-gray-600 font-bold"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+
                         {/* Housing Groups Detail */}
                         <div className="space-y-4">
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                تفاصيل مجموعات السكن ({reportData.housingDetails?.length || 0})
+                                تفاصيل مجموعات السكن ({filteredHousings.length || 0})
                             </h2>
 
-                            {reportData.housingDetails?.map((housing, hIndex) => (
-                                <div key={hIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                                    {/* Housing Header */}
-                                    <div
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-all"
-                                        onClick={() => toggleHousing(housing.housingId)}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-4">
-                                                <Building className="text-white" size={28} />
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
-                                                    <p className="text-blue-100 text-sm">
-                                                        {housing.riders?.length || 0} مندوب
-                                                    </p>
+                            {filteredHousings.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow p-8 text-center">
+                                    <p className="text-gray-500 text-lg">لا توجد نتائج مطابقة للبحث</p>
+                                </div>
+                            ) : (
+                                filteredHousings.map((housing, hIndex) => (
+                                    <div key={hIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                        {/* Housing Header */}
+                                        <div
+                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 cursor-pointer hover:from-blue-700 hover:to-indigo-700 transition-all"
+                                            onClick={() => toggleHousing(housing.housingId)}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <Building className="text-white" size={28} />
+                                                    <div>
+                                                        <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
+                                                        <p className="text-blue-100 text-sm">
+                                                            {housing.riders?.length || 0} مندوب
+                                                        </p>
+                                                    </div>
                                                 </div>
+                                                <span className="text-white text-2xl">{expandedHousing[housing.housingId] ? '▼' : '◀'}</span>
                                             </div>
-                                            <span className="text-white text-2xl">{expandedHousing[housing.housingId] ? '▼' : '◀'}</span>
                                         </div>
-                                    </div>
 
-                                    {/* Riders List */}
-                                    {expandedHousing[housing.housingId] && housing.riders && (
-                                        <div className="p-6 space-y-4">
-                                            {housing.riders.map((rider, rIndex) => (
-                                                <div key={rIndex} className="border-2 border-gray-200 rounded-lg overflow-hidden">
-                                                    {/* Rider Header */}
-                                                    <div
-                                                        className="bg-gray-50 px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
-                                                        onClick={() => toggleRider(`${housing.housingId}-${rider.riderId}`)}
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex items-center gap-3">
-                                                                <Users className="text-indigo-600" size={20} />
-                                                                <div>
-                                                                    <p className="font-bold text-gray-800">{rider.riderNameAR}</p>
-                                                                    <p className="text-sm text-gray-500">{rider.riderNameEN}</p>
+                                        {/* Riders List */}
+                                        {expandedHousing[housing.housingId] && housing.riders && (
+                                            <div className="p-6 space-y-4">
+                                                {housing.riders.map((rider, rIndex) => (
+                                                    <div key={rIndex} className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                                                        {/* Rider Header */}
+                                                        <div
+                                                            className="bg-gray-50 px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                                                            onClick={() => toggleRider(`${housing.housingId}-${rider.riderId}`)}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <Users className="text-indigo-600" size={20} />
+                                                                    <div>
+                                                                        <p className="font-bold text-gray-800">{rider.riderNameAR}</p>
+                                                                        <p className="text-sm text-gray-500">{rider.riderNameEN}</p>
+                                                                    </div>
+                                                                    <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-mono font-bold">
+                                                                        {rider.workingId}
+                                                                    </span>
+                                                                    <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-mono">
+                                                                        {rider.iqamaNo}
+                                                                    </span>
                                                                 </div>
-                                                                <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-mono font-bold">
-                                                                    {rider.workingId}
-                                                                </span>
-                                                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-mono">
-                                                                    {rider.iqamaNo}
-                                                                </span>
+                                                                <div className="flex items-center gap-4">
+                                                                    {rider.periodSummary && (
+                                                                        <div className="text-left text-sm">
+                                                                            <span className="text-gray-500">إجمالي: </span>
+                                                                            <span className="font-bold text-blue-600">{rider.periodSummary.totalAcceptedOrders} طلب</span>
+                                                                            <span className="text-gray-500 mx-2">•</span>
+                                                                            <span className="font-bold text-orange-600">{rider.periodSummary.totalWorkingHours?.toFixed(1)} ساعة</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-gray-600 text-xl">{expandedRider[`${housing.housingId}-${rider.riderId}`] ? '▲' : '▼'}</span>
+                                                                </div>
                                                             </div>
-                                                            <div className="flex items-center gap-4">
+                                                        </div>
+
+                                                        {/* Daily Entries */}
+                                                        {expandedRider[`${housing.housingId}-${rider.riderId}`] && rider.dailyEntries && (
+                                                            <div className="p-4">
+                                                                <div className="overflow-x-auto">
+                                                                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                                                        <thead className="bg-gray-100">
+                                                                            <tr>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">التاريخ</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">الحضور</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">ساعات العمل</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">تارجيت ساعات</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">فرق ساعات</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">طلبات مقبولة</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">طلبات مرفوضة</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">تارجيت طلبات</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">فرق طلبات</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">حالة الشيفت</th>
+                                                                                <th className="px-3 py-2 text-right font-semibold text-gray-700">مستوى الأداء</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody className="bg-white divide-y divide-gray-200">
+                                                                            {rider.dailyEntries.map((day, dIndex) => (
+                                                                                <tr key={dIndex} className="hover:bg-gray-50">
+                                                                                    <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-800">{day.date}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap">
+                                                                                        {day.isPresent ? (
+                                                                                            <span className="text-green-600 font-bold">✓</span>
+                                                                                        ) : (
+                                                                                            <span className="text-red-600 font-bold">✗</span>
+                                                                                        )}
+                                                                                    </td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-blue-600">{day.workingHours?.toFixed(2)}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap text-gray-500">{day.targetHours}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap">
+                                                                                        <span className={`font-bold ${day.hoursDifference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                            {day.hoursDifference >= 0 ? '+' : ''}{day.hoursDifference?.toFixed(2)}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-green-600">{day.acceptedOrders}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap font-semibold text-red-600">{day.rejectedOrders}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap text-gray-500">{day.targetOrders}</td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap">
+                                                                                        <span className={`font-bold ${day.ordersDifference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                            {day.ordersDifference >= 0 ? '+' : ''}{day.ordersDifference}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td className={`px-3 py-2 whitespace-nowrap font-medium ${getShiftStatusColor(day.shiftStatus)}`}>
+                                                                                        {translateShiftStatus(day.shiftStatus)}
+                                                                                    </td>
+                                                                                    <td className="px-3 py-2 whitespace-nowrap">
+                                                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${getPerformanceLevelColor(day.performanceLevel)}`}>
+                                                                                            {translatePerformanceLevel(day.performanceLevel)}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            ))}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+
+                                                                {/* Period Summary for Rider */}
                                                                 {rider.periodSummary && (
-                                                                    <div className="text-left text-sm">
-                                                                        <span className="text-gray-500">إجمالي: </span>
-                                                                        <span className="font-bold text-blue-600">{rider.periodSummary.totalAcceptedOrders} طلب</span>
-                                                                        <span className="text-gray-500 mx-2">•</span>
-                                                                        <span className="font-bold text-orange-600">{rider.periodSummary.totalWorkingHours?.toFixed(1)} ساعة</span>
+                                                                    <div className="mt-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border-2 border-purple-200">
+                                                                        <h4 className="text-lg font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                                                            <BarChart3 size={20} />
+                                                                            ملخص الفترة
+                                                                        </h4>
+                                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                                                            <div>
+                                                                                <p className="text-gray-600">أيام العمل</p>
+                                                                                <p className="text-xl font-bold text-green-600">{rider.periodSummary.totalWorkingDays}</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">أيام الغياب</p>
+                                                                                <p className="text-xl font-bold text-red-600">{rider.periodSummary.totalAbsentDays}</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">إجمالي الساعات</p>
+                                                                                <p className="text-xl font-bold text-blue-600">{rider.periodSummary.totalWorkingHours?.toFixed(1)}</p>
+                                                                                <p className="text-xs text-gray-500">من {rider.periodSummary.totalTargetHours}</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">إجمالي الطلبات</p>
+                                                                                <p className="text-xl font-bold text-purple-600">{rider.periodSummary.totalAcceptedOrders}</p>
+                                                                                <p className="text-xs text-gray-500">من {rider.periodSummary.totalTargetOrders}</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">معدل الحضور</p>
+                                                                                <p className="text-xl font-bold text-teal-600">{rider.periodSummary.attendanceRate?.toFixed(1)}%</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">معدل إنجاز الساعات</p>
+                                                                                <p className="text-xl font-bold text-orange-600">{rider.periodSummary.hoursCompletionRate?.toFixed(1)}%</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">معدل إنجاز الطلبات</p>
+                                                                                <p className="text-xl font-bold text-pink-600">{rider.periodSummary.ordersCompletionRate?.toFixed(1)}%</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-gray-600">الأداء الإجمالي</p>
+                                                                                <p className="text-xl font-bold text-indigo-600">{rider.periodSummary.overallPerformanceScore?.toFixed(1)}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 )}
-                                                                <span className="text-gray-600 text-xl">{expandedRider[`${housing.housingId}-${rider.riderId}`] ? '▲' : '▼'}</span>
                                                             </div>
-                                                        </div>
+                                                        )}
                                                     </div>
-
-                                                    {/* Daily Entries */}
-                                                    {expandedRider[`${housing.housingId}-${rider.riderId}`] && rider.dailyEntries && (
-                                                        <div className="p-4">
-                                                            <div className="overflow-x-auto">
-                                                                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                                                    <thead className="bg-gray-100">
-                                                                        <tr>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">التاريخ</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">الحضور</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">ساعات العمل</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">تارجيت ساعات</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">فرق ساعات</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">طلبات مقبولة</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">طلبات مرفوضة</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">تارجيت طلبات</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">فرق طلبات</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">حالة الشيفت</th>
-                                                                            <th className="px-3 py-2 text-right font-semibold text-gray-700">مستوى الأداء</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                                        {rider.dailyEntries.map((day, dIndex) => (
-                                                                            <tr key={dIndex} className="hover:bg-gray-50">
-                                                                                <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-800">{day.date}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap">
-                                                                                    {day.isPresent ? (
-                                                                                        <span className="text-green-600 font-bold">✓</span>
-                                                                                    ) : (
-                                                                                        <span className="text-red-600 font-bold">✗</span>
-                                                                                    )}
-                                                                                </td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap font-semibold text-blue-600">{day.workingHours?.toFixed(2)}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap text-gray-500">{day.targetHours}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap">
-                                                                                    <span className={`font-bold ${day.hoursDifference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                                        {day.hoursDifference >= 0 ? '+' : ''}{day.hoursDifference?.toFixed(2)}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap font-semibold text-green-600">{day.acceptedOrders}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap font-semibold text-red-600">{day.rejectedOrders}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap text-gray-500">{day.targetOrders}</td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap">
-                                                                                    <span className={`font-bold ${day.ordersDifference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                                        {day.ordersDifference >= 0 ? '+' : ''}{day.ordersDifference}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td className={`px-3 py-2 whitespace-nowrap font-medium ${getShiftStatusColor(day.shiftStatus)}`}>
-                                                                                    {translateShiftStatus(day.shiftStatus)}
-                                                                                </td>
-                                                                                <td className="px-3 py-2 whitespace-nowrap">
-                                                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${getPerformanceLevelColor(day.performanceLevel)}`}>
-                                                                                        {translatePerformanceLevel(day.performanceLevel)}
-                                                                                    </span>
-                                                                                </td>
-                                                                            </tr>
-                                                                        ))}
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-
-                                                            {/* Period Summary for Rider */}
-                                                            {rider.periodSummary && (
-                                                                <div className="mt-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border-2 border-purple-200">
-                                                                    <h4 className="text-lg font-bold text-purple-800 mb-3 flex items-center gap-2">
-                                                                        <BarChart3 size={20} />
-                                                                        ملخص الفترة
-                                                                    </h4>
-                                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                                                        <div>
-                                                                            <p className="text-gray-600">أيام العمل</p>
-                                                                            <p className="text-xl font-bold text-green-600">{rider.periodSummary.totalWorkingDays}</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">أيام الغياب</p>
-                                                                            <p className="text-xl font-bold text-red-600">{rider.periodSummary.totalAbsentDays}</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">إجمالي الساعات</p>
-                                                                            <p className="text-xl font-bold text-blue-600">{rider.periodSummary.totalWorkingHours?.toFixed(1)}</p>
-                                                                            <p className="text-xs text-gray-500">من {rider.periodSummary.totalTargetHours}</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">إجمالي الطلبات</p>
-                                                                            <p className="text-xl font-bold text-purple-600">{rider.periodSummary.totalAcceptedOrders}</p>
-                                                                            <p className="text-xs text-gray-500">من {rider.periodSummary.totalTargetOrders}</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">معدل الحضور</p>
-                                                                            <p className="text-xl font-bold text-teal-600">{rider.periodSummary.attendanceRate?.toFixed(1)}%</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">معدل إنجاز الساعات</p>
-                                                                            <p className="text-xl font-bold text-orange-600">{rider.periodSummary.hoursCompletionRate?.toFixed(1)}%</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">معدل إنجاز الطلبات</p>
-                                                                            <p className="text-xl font-bold text-pink-600">{rider.periodSummary.ordersCompletionRate?.toFixed(1)}%</p>
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-gray-600">الأداء الإجمالي</p>
-                                                                            <p className="text-xl font-bold text-indigo-600">{rider.periodSummary.overallPerformanceScore?.toFixed(1)}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 )}

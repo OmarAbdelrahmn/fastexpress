@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, FileText, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Upload, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';

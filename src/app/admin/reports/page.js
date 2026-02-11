@@ -21,7 +21,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function ReportsPage() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
 

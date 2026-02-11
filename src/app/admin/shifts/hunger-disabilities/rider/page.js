@@ -9,7 +9,7 @@ import { getHungerReportColumns } from '../reportColumns';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function RiderPage() {
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
     const [workingId, setWorkingId] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');

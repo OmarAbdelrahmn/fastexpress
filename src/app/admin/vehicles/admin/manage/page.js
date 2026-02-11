@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import Card from '@/components/Ui/Card';
 import Table from '@/components/Ui/Table';
@@ -10,13 +9,12 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
-import { Plus, Search, Edit, Trash2, Car, Eye, Settings } from 'lucide-react';
+import { Search, Edit, Trash2, Car, Eye, Settings } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber, formatLicenseExpiry } from "@/lib/utils/formatters";
 
 export default function VehicleManagePage() {
   const { t } = useLanguage();
-  const router = useRouter();
   const [vehicles, setVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);

@@ -10,19 +10,15 @@ import {
     RefreshCcw,
     Download,
     Info,
-    ChevronRight,
-    ChevronLeft,
-    Filter
 } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
-import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 
 
 export default function SubstitutionImportPage() {
-    const { t, locale } = useLanguage();
+    const { t } = useLanguage();
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);

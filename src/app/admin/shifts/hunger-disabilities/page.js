@@ -3,15 +3,10 @@ import PageHeader from '@/components/layout/pageheader';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import {
-    Utensils,
     File,
     ChartBar,
     Calendar,
     User,
-    ArrowUp,
-    ArrowDown,
-    UserCheck,
-    UserX,
     Home
 } from 'lucide-react';
 

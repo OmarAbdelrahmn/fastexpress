@@ -11,7 +11,7 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
-import { Plus, Search, Edit, UserX, UserCheck, Shield, User } from 'lucide-react';
+import { Search, Edit, UserX, UserCheck, Shield, User } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function AdminUsersPage() {

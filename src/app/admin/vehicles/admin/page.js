@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import MiniStatRow from "@/components/Ui/MiniStatRow";
-import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
 import PageHeader from "@/components/layout/pageheader";
-import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   Car,
@@ -21,9 +19,7 @@ import {
   Wrench,
   RefreshCw,
   BarChart3,
-  ArrowRight,
   TrendingUp,
-  Calendar,
   FileText,
 } from "lucide-react";
 

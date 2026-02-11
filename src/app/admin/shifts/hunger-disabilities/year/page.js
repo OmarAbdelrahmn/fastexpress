@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function YearPage() {
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
     const [year, setYear] = useState(new Date().getFullYear());
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);

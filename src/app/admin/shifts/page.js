@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Upload, FileSpreadsheet, Trash2, Search, AlertCircle, CheckCircle, XCircle, FileText, Download, RefreshCw } from 'lucide-react';
+import { Calendar, Upload, FileSpreadsheet, Trash2, AlertCircle, CheckCircle, XCircle, FileText, RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -11,7 +11,7 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 const API_BASE = 'https://fastexpress.tryasp.net/api';
 
 export default function ShiftsPage() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [shifts, setShifts] = useState([]);
 
   // FIX: Initialize with empty string to match server/client

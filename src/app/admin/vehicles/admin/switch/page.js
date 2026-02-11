@@ -13,7 +13,6 @@ import {
     Car,
     Search,
     CheckCircle,
-    Package,
     MapPin,
     User,
     AlertTriangle,

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
@@ -13,7 +12,6 @@ import { PackageX, Search, Car, Clock, MapPin, AlertCircle, Plus } from 'lucide-
 import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function BreakUpVehiclesPage() {
-  const router = useRouter();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);

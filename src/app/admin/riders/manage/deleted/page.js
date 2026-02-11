@@ -6,12 +6,10 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import Table from '@/components/Ui/Table';
-import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import { Archive, Search, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import StatusBadge from '@/components/Ui/StatusBadge';
 
 export default function DeletedEmployeesPage() {
   const router = useRouter();

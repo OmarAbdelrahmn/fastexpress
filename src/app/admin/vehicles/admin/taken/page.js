@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
-import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import {
@@ -14,13 +12,9 @@ import {
   Search,
   Car,
   MapPin,
-  Calendar,
   User,
   Clock,
-  Eye,
-  AlertTriangle,
-  Shield,
-  PackageX,
+  Eye
 } from "lucide-react";
 import {
   VehicleStatusType,
@@ -31,7 +25,6 @@ import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function TakenVehiclesPage() {
   const { t } = useLanguage();
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

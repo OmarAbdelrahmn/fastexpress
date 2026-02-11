@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import Button from "@/components/Ui/Button";
@@ -21,14 +20,12 @@ import {
 import { useLanguage } from "@/lib/context/LanguageContext";
 import {
   VehicleStatusType,
-  getVehicleStatusAttributes,
-  normalizeVehicleStatus
+  getVehicleStatusAttributes
 } from "@/lib/constants/vehicleStatus";
 import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function StolenVehiclesPage() {
   const { t } = useLanguage();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");

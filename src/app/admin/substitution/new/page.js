@@ -9,7 +9,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 const AddSubstitutionPage = () => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });

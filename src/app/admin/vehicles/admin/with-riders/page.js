@@ -15,7 +15,6 @@ import {
   Eye,
   Package,
   MapPin,
-  User,
   Calendar,
   CheckCircle,
   AlertTriangle,
@@ -40,9 +39,7 @@ export default function VehiclesWithRidersPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [vehicles, setVehicles] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
+  
   useEffect(() => {
     loadVehicles();
   }, []);

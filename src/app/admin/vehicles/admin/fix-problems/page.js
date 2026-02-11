@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import Button from "@/components/Ui/Button";
 import Alert from "@/components/Ui/Alert";
-import Input from "@/components/Ui/Input";
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import {
@@ -20,7 +18,6 @@ import {
 import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function FixProblemsPage() {
-  const router = useRouter();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [loadingVehicles, setLoadingVehicles] = useState(true);

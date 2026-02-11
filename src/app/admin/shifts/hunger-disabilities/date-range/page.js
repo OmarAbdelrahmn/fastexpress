@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function DateRangePage() {
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [data, setData] = useState([]);

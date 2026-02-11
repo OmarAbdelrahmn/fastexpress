@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
 import Button from "@/components/Ui/Button";
@@ -22,7 +21,6 @@ import {
 import { formatPlateNumber } from "@/lib/utils/formatters";
 
 export default function ReturnVehiclePage() {
-  const router = useRouter();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
