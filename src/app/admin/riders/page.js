@@ -186,7 +186,10 @@ export default function RidersPage() {
       header: t('riders.workingId'),
       accessor: 'workingId',
       render: (row) => (
-        <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
+        <div className="flex flex-col">
+          <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
+          <span className="text-xs text-gray-500">{row.companyName || ''}</span>
+        </div>
       )
     },
     {
