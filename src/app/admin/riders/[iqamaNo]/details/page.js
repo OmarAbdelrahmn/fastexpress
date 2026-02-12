@@ -451,7 +451,7 @@ export default function RiderDetailsPage() {
           </div>
           <div>
             <p className="text-sm text-gray-600 mb-1">{t('riders.sponsorNumber')}</p>
-            <p className="font-medium text-gray-800">{rider.sponserNo || t('profile.notSpecified')}</p>
+            <p className="font-medium text-gray-800">{rider.sponsorNo || t('profile.notSpecified')}</p>
           </div>
         </div>
       </Card>

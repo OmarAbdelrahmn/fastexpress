@@ -8,7 +8,6 @@ export default function SettingsPage() {
     const [privacyMode, setPrivacyMode] = useState(false);
 
     useEffect(() => {
-        // Load initial state from localStorage
         const storedPrivacy = localStorage.getItem("dashboard_privacy_mode");
         if (storedPrivacy) {
             setPrivacyMode(JSON.parse(storedPrivacy));
@@ -28,7 +27,6 @@ export default function SettingsPage() {
                 subtitle="تخصيص إعدادات لوحة التحكم"
                 icon={Settings}
             />
-
             <div className="max-w-3xl mx-auto px-4 sm:px-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-100">

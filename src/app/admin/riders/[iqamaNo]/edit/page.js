@@ -272,7 +272,7 @@ export default function EditRiderPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <PageHeader
         title={`${formData.nameAR}`}
         subtitle={formData.isEmployee
@@ -306,11 +306,11 @@ export default function EditRiderPage() {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Personal Information */}
+      <form onSubmit={handleSubmit} className="space-y-2">
+        {/* Personal Information & Iqama Details */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.personalInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h3 className="text-base font-bold text-gray-800 mb-2">{t('riders.personalInfo')} & {t('riders.iqamaPassportDetails')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Input
               label={t('riders.nameArabic')}
               type="text"
@@ -365,14 +365,14 @@ export default function EditRiderPage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('riders.status')}
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="enable">{t('riders.active')}</option>
                 <option value="disable">{t('riders.inactive')}</option>
@@ -382,13 +382,7 @@ export default function EditRiderPage() {
                 <option value="sick">{t('riders.sick')}</option>
               </select>
             </div>
-          </div>
-        </Card>
 
-        {/* Iqama & Passport Details */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.iqamaPassportDetails')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label={t('riders.iqamaEndDateGregorian')}
               type="date"
@@ -415,10 +409,10 @@ export default function EditRiderPage() {
           </div>
         </Card>
 
-        {/* Sponsor Information */}
+        {/* Sponsor, Banking & Rider Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.sponsorInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h3 className="text-base font-bold text-gray-800 mb-2">{t('riders.sponsorInfo')}, {t('riders.bankingInfo')} & {t('riders.riderInfo')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Input
               label={t('riders.sponsorNumber')}
               type="text"
@@ -445,13 +439,7 @@ export default function EditRiderPage() {
               onChange={handleInputChange}
               placeholder={t('riders.jobTitleExample')}
             />
-          </div>
-        </Card>
 
-        {/* Banking Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.bankingInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label={t('riders.ibanNumber')}
               type="text"
@@ -461,22 +449,15 @@ export default function EditRiderPage() {
               placeholder="SA..."
             />
 
-          </div>
-        </Card>
-
-        {/* Rider Specific Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('riders.company')}
               </label>
               <select
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="">{t('riders.selectCompany')}</option>
                 {companies.map((company) => (
@@ -499,43 +480,43 @@ export default function EditRiderPage() {
 
               {/* Working ID Suggestions */}
               {loadingSuggestions && (
-                <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-600">{t('common.loading')}...</p>
+                <div className="mt-1 p-2 bg-blue-50 rounded border border-blue-200">
+                  <p className="text-xs text-blue-600">{t('common.loading')}...</p>
                 </div>
               )}
 
               {workingIdSuggestions && !loadingSuggestions && workingIdSuggestions.hasPreviousHistory && (
-                <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm font-medium text-green-800 mb-2">
+                <div className="mt-1 p-2 bg-green-50 rounded border border-green-200">
+                  <p className="text-xs font-medium text-green-800 mb-1">
                     {t('riders.suggestedWorkingId')}
                   </p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg font-bold text-green-900">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-bold text-green-900">
                       {workingIdSuggestions.suggestedWorkingId}
                     </span>
                     <button
                       type="button"
                       onClick={() => useSuggestedWorkingId(workingIdSuggestions.suggestedWorkingId)}
-                      className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
+                      className="px-2 py-0.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
                     >
                       {t('riders.useSuggested')}
                     </button>
                   </div>
 
                   {workingIdSuggestions.allPreviousIds && workingIdSuggestions.allPreviousIds.length > 1 && (
-                    <div className="mt-3 pt-3 border-t border-green-200">
-                      <p className="text-xs font-medium text-green-800 mb-2">
+                    <div className="mt-2 pt-2 border-t border-green-200">
+                      <p className="text-xs font-medium text-green-800 mb-1">
                         {t('riders.allPreviousIds')}:
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1">
                         {workingIdSuggestions.allPreviousIds.map((item, index) => (
                           <button
                             key={index}
                             type="button"
                             onClick={() => useSuggestedWorkingId(item.workingId)}
-                            className="px-2 py-1 bg-white border border-green-300 text-green-800 text-xs rounded hover:bg-green-100 transition-colors"
+                            className="px-1.5 py-0.5 bg-white border border-green-300 text-green-800 text-xs rounded hover:bg-green-100 transition-colors"
                           >
-                            {item.workingId} ({item.daysUsed} {t('common.day')})
+                            {item.workingId} ({item.daysUsed}d)
                           </button>
                         ))}
                       </div>
@@ -545,8 +526,8 @@ export default function EditRiderPage() {
               )}
 
               {workingIdSuggestions && !loadingSuggestions && !workingIdSuggestions.hasPreviousHistory && (
-                <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-600">
+                <div className="mt-1 p-2 bg-gray-50 rounded border border-gray-200">
+                  <p className="text-xs text-gray-600">
                     {t('riders.noPreviousWorkingIds')}
                   </p>
                 </div>
@@ -554,14 +535,14 @@ export default function EditRiderPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('riders.tshirtSize')}
               </label>
               <select
                 name="tshirtSize"
                 value={formData.tshirtSize}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               >
                 <option value="">{t('riders.selectSize')}</option>
                 <option value="S">S</option>
@@ -574,7 +555,7 @@ export default function EditRiderPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('riders.housing')}
               </label>
               <select
@@ -582,7 +563,7 @@ export default function EditRiderPage() {
                 value={formData.housingId}
                 onChange={handleInputChange}
                 disabled={loadingHousings}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">{loadingHousings ? t('common.loading') : t('riders.selectHousing')}</option>
                 {housings.map((housing) => (
