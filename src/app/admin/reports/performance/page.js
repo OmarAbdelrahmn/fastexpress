@@ -19,9 +19,23 @@ export default function HousingPerformanceReport() {
     const [expandedHousing, setExpandedHousing] = useState(null);
     const [selectedCompany, setSelectedCompany] = useState('hunger'); // 'hunger' or 'keta'
 
-    const [form, setForm] = useState({
-        startDate: '',
-        endDate: '',
+    const [form, setForm] = useState(() => {
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const formatDate = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
+        return {
+            startDate: formatDate(startOfMonth),
+            endDate: formatDate(yesterday)
+        };
     });
 
     const handleExcelExport = () => {
