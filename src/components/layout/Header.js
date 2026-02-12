@@ -1,4 +1,3 @@
-// File: src/components/layout/Header.js
 'use client';
 
 import { useEffect, useState } from 'react';

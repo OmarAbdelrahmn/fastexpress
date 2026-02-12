@@ -6,7 +6,6 @@ import { Plus, Edit, Trash2, Search, FileText, Eye, History, FileSpreadsheet } f
 import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { useLanguage } from '@/lib/context/LanguageContext';
 import PageHeader from '@/components/layout/pageheader';
 import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
@@ -17,7 +16,6 @@ import TransferForm from './components/TransferForm';
 
 export default function TransfersPage() {
     const router = useRouter();
-    const { t } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [housings, setHousings] = useState([]);
@@ -26,8 +24,6 @@ export default function TransfersPage() {
     const [editingItem, setEditingItem] = useState(null);
     const [alert, setAlert] = useState(null);
     const [filterHousing, setFilterHousing] = useState('');
-
-    // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteItem, setDeleteItem] = useState(null);
     const [deletePassword, setDeletePassword] = useState('');
@@ -312,7 +308,6 @@ export default function TransfersPage() {
                     }}
                 />
             </Modal>
-
             <Modal
                 isOpen={isDeleteModalOpen}
                 onClose={() => {
