@@ -208,7 +208,7 @@ export default function Breadcrumb() {
     </div>
 
     {/* Desktop View: Full Breadcrumbs */}
-    <div className="hidden md:flex items-center gap-2 text-sm flex-row-reverse overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
+    <div className="hidden s:flex items-center gap-2 text-sm flex-row-reverse overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
       {breadcrumbs.map((crumb, index) => {
         const isLast = index === breadcrumbs.length - 1;
         const Icon = crumb.icon;
