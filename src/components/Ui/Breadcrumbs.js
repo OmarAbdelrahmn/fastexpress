@@ -193,11 +193,22 @@ export default function Breadcrumb() {
 
   const breadcrumbs = generateBreadcrumbs();
 
-  return (
-    <nav
-      className="flex items-center gap-2 text-sm flex-row-reverse"
-      aria-label="Breadcrumb"
-    >
+  <nav aria-label="Breadcrumb">
+    {/* Mobile View: Back Button */}
+    <div className="md:hidden flex justify-end">
+      {breadcrumbs.length > 1 && (
+        <Link
+          href={breadcrumbs[breadcrumbs.length - 2].path}
+          className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors flex-row-reverse"
+        >
+          <ChevronLeft size={20} className="rotate-180" /> {/* Rotated for RTL check or use Right */}
+          <span className="font-medium">عودة</span>
+        </Link>
+      )}
+    </div>
+
+    {/* Desktop View: Full Breadcrumbs */}
+    <div className="hidden md:flex items-center gap-2 text-sm flex-row-reverse overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
       {breadcrumbs.map((crumb, index) => {
         const isLast = index === breadcrumbs.length - 1;
         const Icon = crumb.icon;
@@ -226,7 +237,7 @@ export default function Breadcrumb() {
           </div>
         );
       })}
-    </nav>
-  );
+    </div>
+  </nav>
 }
 
