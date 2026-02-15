@@ -10,15 +10,13 @@ import {
     Car,
     Phone,
     IdCard,
-    Briefcase,
     AlertTriangle,
     CheckCircle,
     XCircle,
     Building2,
     Search,
     Download,
-    Edit,
-    loading
+    Edit
 } from "lucide-react";
 import EditCompanyModal from "./EditCompanyModal";
 
