@@ -9,11 +9,9 @@ import Link from "next/link";
 import {
     Bike,
     Calendar,
-    MapPin,
     User,
     CheckCircle,
     AlertTriangle,
-    Package,
     History,
     Search,
     Download,
@@ -31,8 +29,6 @@ export default function MemberVehiclesPage() {
         const fetchVehicles = async () => {
             try {
                 const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
-
-
                 setVehicles(Array.isArray(response) ? response : []);
             } catch (err) {
                 setError(err.message || "حدث خطأ أثناء تحميل البيانات");

@@ -16,8 +16,11 @@ import {
     XCircle,
     Building2,
     Search,
-    Download
+    Download,
+    Edit,
+    loading
 } from "lucide-react";
+import EditCompanyModal from "./EditCompanyModal";
 
 export default function MemberRiders() {
     const [riders, setRiders] = useState([]);
@@ -25,6 +28,7 @@ export default function MemberRiders() {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [selectedRiderForEdit, setSelectedRiderForEdit] = useState(null);
 
     useEffect(() => {
         const fetchRiders = async () => {
@@ -40,6 +44,15 @@ export default function MemberRiders() {
 
         fetchRiders();
     }, []);
+
+    const refreshRiders = async () => {
+        try {
+            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDERS);
+            setRiders(response);
+        } catch (err) {
+            console.error("Failed to refresh riders:", err);
+        }
+    };
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-[400px]">
@@ -327,6 +340,9 @@ export default function MemberRiders() {
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     الحالة
                                 </th>
+                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    إجراءات
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
@@ -385,12 +401,21 @@ export default function MemberRiders() {
                                                 </p>
                                             )}
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <button
+                                                onClick={() => setSelectedRiderForEdit(rider)}
+                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                                title="تعديل الشركة"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                                        {searchTerm ? 'لا توجد نتائج تطا البحث' : 'لا يوجد مناديب'}
+                                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                                        {searchTerm ? 'لا توجد نتائج تطابق البحث' : 'لا يوجد مناديب'}
                                     </td>
                                 </tr>
                             )}
@@ -398,6 +423,14 @@ export default function MemberRiders() {
                     </table>
                 </div>
             </div>
+
+            {/* Edit Company Modal */}
+            <EditCompanyModal
+                isOpen={!!selectedRiderForEdit}
+                onClose={() => setSelectedRiderForEdit(null)}
+                rider={selectedRiderForEdit}
+                onSuccess={refreshRiders}
+            />
         </div>
     );
 }

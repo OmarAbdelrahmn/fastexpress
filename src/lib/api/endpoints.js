@@ -268,6 +268,7 @@ export const API_ENDPOINTS = {
       CREATE: "/api/member/transfers",
       LIST: "/api/member/transfers",
     },
+    EDIT_RIDER_COMPANY: "/api/Member/edit-rider-company",
   },
 
   // RiderAccessory
