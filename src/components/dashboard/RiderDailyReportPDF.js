@@ -235,8 +235,8 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
         <Document>
             {chunks.map((chunk, pageIndex) => (
                 <Page key={pageIndex} size="A4" style={styles.page}>
-                    {/* Header */}
-                    {pageIndex === 0 ? (
+                    {/* Header - Only on first page */}
+                    {pageIndex === 0 && (
                         <View style={styles.header}>
                             <View style={styles.headerContent}>
                                 <Text style={styles.headerTitle}>تفاصيل المندوب اليومية</Text>
@@ -247,12 +247,7 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
                                 <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
                             </View>
                         </View>
-                    ) : (
-                        <View style={[styles.header, { marginBottom: 10, padding: 6 }]}>
-                            <Text style={[styles.headerSubtitle, { fontSize: 12 }]}>من: {startDate} إلى: {endDate}</Text>
-                        </View>
                     )}
-
                     {/* First Page Summary Info */}
                     {pageIndex === 0 && (
                         <>
