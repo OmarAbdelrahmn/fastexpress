@@ -17,16 +17,19 @@ Font.register({
 // Styles
 const styles = StyleSheet.create({
     page: {
-        padding: 30,
+        paddingRight: 10,
+        paddingLeft: 10,
+        paddingTop: 5,
+        paddingBottom: 5,
         fontFamily: 'Cairo',
         fontSize: 11,
     },
     // Header
     header: {
-        marginBottom: 15,
+        marginBottom: 5,
         padding: 10,
         backgroundColor: '#2563eb', // Blue
-        borderRadius: 6,
+        borderRadius: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -35,8 +38,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     headerLogo: {
-        width: 50,
-        height: 50,
+        width: 30,
+        height: 30,
     },
     logoContainer: {
         alignItems: 'center',
@@ -48,14 +51,14 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     headerTitle: {
-        fontSize: 17,
+        fontSize: 12,
         fontWeight: 'bold',
         color: '#ffffff',
         textAlign: 'center',
-        marginBottom: 4,
+        marginBottom: 3,
     },
     headerSubtitle: {
-        fontSize: 15,
+        fontSize: 12,
         color: '#dbeafe',
         textAlign: 'center',
     },
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
         padding: 10,
         borderRadius: 4,
-        marginBottom: 10,
+        marginBottom: 7,
         borderWidth: 1,
         borderColor: '#e2e8f0',
     },
@@ -87,10 +90,10 @@ const styles = StyleSheet.create({
     summaryGrid: {
         flexDirection: 'row-reverse',
         flexWrap: 'wrap',
-        gap: 10,
-        marginBottom: 20,
+        gap: 8,
+        marginBottom: 8,
         justifyContent: 'space-between',
-        margin: 10,
+        margin: 5,
     },
     summaryCard: {
         width: '23%',
@@ -106,19 +109,19 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
     },
     summaryLabel: {
-        fontSize: 12,
+        fontSize: 10,
         color: '#64748b',
         textAlign: 'right',
         marginBottom: 4,
     },
     summaryValue: {
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: 'bold',
         color: '#0f172a',
         textAlign: 'right',
     },
     summarySubValue: {
-        fontSize: 12,
+        fontSize: 10,
         color: '#64748b',
         textAlign: 'right',
         marginTop: 2,
@@ -159,15 +162,15 @@ const styles = StyleSheet.create({
 
     headerText: {
         color: '#ffffff',
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: 'bold',
     },
     cellText: {
-        fontSize: 11,
+        fontSize: 9,
         color: '#334155',
     },
     cellTextBold: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: 'bold',
         color: '#0f172a',
     },
@@ -203,8 +206,8 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
 
     // Variable pagination logic
     // Page 1 has rider info + summary stats
-    const firstPageLimit = 6;
-    const otherPageLimit = 10;
+    const firstPageLimit = 16;
+    const otherPageLimit = 22;
     const chunks = [];
 
     if (dailyDetails && dailyDetails.length > 0) {
@@ -231,18 +234,24 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
     return (
         <Document>
             {chunks.map((chunk, pageIndex) => (
-                <Page key={pageIndex} size="A4" style={styles.page} orientation="landscape">
+                <Page key={pageIndex} size="A4" style={styles.page}>
                     {/* Header */}
-                    <View style={styles.header}>
-                        <View style={styles.headerContent}>
-                            <Text style={styles.headerTitle}>تفاصيل المندوب اليومية</Text>
-                            <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                    {pageIndex === 0 ? (
+                        <View style={styles.header}>
+                            <View style={styles.headerContent}>
+                                <Text style={styles.headerTitle}>تفاصيل المندوب اليومية</Text>
+                                <Text style={styles.headerSubtitle}>من: {startDate} إلى: {endDate}</Text>
+                            </View>
+                            <View style={styles.logoContainer}>
+                                <Image src="/2.png" style={styles.headerLogo} />
+                                <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                            </View>
                         </View>
-                        <View style={styles.logoContainer}>
-                            <Image src="/2.png" style={styles.headerLogo} />
-                            <Text style={styles.companyName}>شركة الخدمة السريعة{"\n"}express service</Text>
+                    ) : (
+                        <View style={[styles.header, { marginBottom: 10, padding: 6 }]}>
+                            <Text style={[styles.headerSubtitle, { fontSize: 12 }]}>من: {startDate} إلى: {endDate}</Text>
                         </View>
-                    </View>
+                    )}
 
                     {/* First Page Summary Info */}
                     {pageIndex === 0 && (
