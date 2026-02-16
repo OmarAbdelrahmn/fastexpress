@@ -17,7 +17,6 @@ export default function EditCompanyPage() {
   const params = useParams();
   const companyName = decodeURIComponent(params?.name || '');
   const { t } = useLanguage();
-
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -29,7 +28,6 @@ export default function EditCompanyPage() {
     phone: '',
     email: ''
   });
-
 
   useEffect(() => {
     if (companyName) {

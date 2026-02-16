@@ -532,7 +532,7 @@ export default function ComprehensiveLandingPage() {
               { name: "Hunger Station", color: "from-yellow-400 to-amber-500", shadow: "shadow-amber-300/20", icon: "🍔", stats: "2K+ طلب يومياً" },
               { name: "Keta", color: "from-red-500 to-red-600", shadow: "shadow-red-300/20", icon: "🍱", stats: "تغطية شاملة" },
               { name: "Amazon", color: "from-slate-700 to-slate-900", shadow: "shadow-slate-400/20", icon: "🛒", stats: "شريك لوجستي" },
-              { name: "ToYou", color: "from-purple-500 to-indigo-600", shadow: "shadow-indigo-300/20", icon: "🚗", stats: "توصيل فوري" },
+              { name: "Ninja", color: "from-green-500 to-emerald-600", shadow: "shadow-green-300/20", icon: "🥷", stats: "توصيل سريع" },
             ].map((partner, idx) => (
               <div key={idx} className="group relative bg-white rounded-[2rem] p-6 text-center hover:-translate-y-2 transition-all duration-500 hover:shadow-xl border border-slate-100 reveal-on-scroll" style={{ transitionDelay: `${idx * 100}ms` }}>
                 <div className={`absolute inset-0 rounded-[2rem] bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl`}></div>
