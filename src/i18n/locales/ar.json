@@ -1,5 +1,6 @@
 {
   "common": {
+    "successLoad": "تم التحميل بنجاح",
     "location": "الموقع",
     "password": "كلمة المرور",
     "passwordPlaceholder": "أدخل كلمة المرور",
