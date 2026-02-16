@@ -207,7 +207,7 @@ const RiderDailyReportPDF = ({ data, startDate, endDate }) => {
     // Variable pagination logic
     // Page 1 has rider info + summary stats
     const firstPageLimit = 16;
-    const otherPageLimit = 22;
+    const otherPageLimit = 23;
     const chunks = [];
 
     if (dailyDetails && dailyDetails.length > 0) {
