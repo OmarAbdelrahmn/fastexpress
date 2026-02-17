@@ -217,9 +217,6 @@ to-[#1E3A8A] transition-transform duration-300 rounded-b-[60px] ${isVisible ? 't
             {t("auth.fullCompanyName")}
           </h1>
         </div>
-
-
-
         <div className="flex items-center gap-4">
 
           {/* User Info */}
