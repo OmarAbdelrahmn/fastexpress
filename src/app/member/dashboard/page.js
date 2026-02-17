@@ -58,7 +58,7 @@ export default function MemberDashboard() {
     const totalPeople = (stats?.totalEmployees || 0) + (stats?.activeRiders || 0) + (stats?.inactiveRiders || 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-4 md:p-14 space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br p-1 md:p-6 space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
             {/* Header Info */}
             <div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
