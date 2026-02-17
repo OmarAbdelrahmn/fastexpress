@@ -2,6 +2,10 @@ import { LanguageProvider } from '@/lib/context/LanguageContext';
 import './globals.css';
 import localFont from 'next/font/local';
 
+export const viewport = {
+  themeColor: '#000000',
+};
+
 const customFont = localFont({
   src: '../../public/fonts/7.ttf',
   variable: '--font-custom',
@@ -14,6 +18,7 @@ export const metadata = {
   icons: {
     icon: '/5.png',
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: 'Express Service - Smart Logistics Solution',
     description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
