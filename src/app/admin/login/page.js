@@ -84,17 +84,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b428e] via-[#2555a8] to-[#ebb62b]">
-      <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-[#ebb62b]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b428e] via-[#2555a8] to-[#ebb62b] p-4">
+      <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-[#ebb62b]">
         {/* Logo/Header */}
-        <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-[#ebb62b] to-[#e08911] w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-            <Truck className="text-white" size={48} />
+        <div className="text-center mb-6 md:mb-8">
+          <div className="bg-gradient-to-br from-[#ebb62b] to-[#e08911] w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+            <Truck className="text-white w-10 h-10 md:w-12 md:h-12" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#1b428e] to-[#e08911] bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#1b428e] to-[#e08911] bg-clip-text text-transparent mb-2">
             {t('auth.loginTitle')}
           </h1>
-          <p className="text-gray-600 font-medium">{t('auth.companyName')}</p>
+          <p className="text-gray-600 font-medium text-sm md:text-base">{t('auth.companyName')}</p>
         </div>
 
         {/* Error Alert */}
@@ -110,7 +110,7 @@ export default function LoginPage() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5" noValidate>
           <Input
             label={t('auth.username')}
             type="text"
@@ -150,7 +150,7 @@ export default function LoginPage() {
             type="submit"
             loading={loading}
             disabled={loading || !formData.username || !formData.password}
-            className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg"
+            className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {loading ? t('auth.loggingIn') : t('auth.login')}
           </Button>

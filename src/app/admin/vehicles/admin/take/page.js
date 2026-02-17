@@ -171,7 +171,7 @@ export default function TakeVehiclePage() {
         }}
       />
 
-      <div className="px-6 space-y-6">
+      <div className="px-4 md:px-6 space-y-6">
         {errorMessage && (
           <Alert
             type="error"

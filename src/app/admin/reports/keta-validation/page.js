@@ -207,33 +207,35 @@ export default function KetaValidationPage() {
                 {/* Filters & Controls */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
 
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                            <Calendar className="text-gray-400 w-5 h-5 mx-2" />
-                            <select
-                                value={year}
-                                onChange={(e) => setYear(Number(e.target.value))}
-                                className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 cursor-pointer"
-                            >
-                                {years.map(y => (
-                                    <option key={y} value={y}>{y}</option>
-                                ))}
-                            </select>
-                            <div className="w-px h-6 bg-gray-300"></div>
-                            <select
-                                value={month}
-                                onChange={(e) => setMonth(Number(e.target.value))}
-                                className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 cursor-pointer"
-                            >
-                                {months.map(m => (
-                                    <option key={m.value} value={m.value}>{m.label}</option>
-                                ))}
-                            </select>
+                    <div className="flex items-center gap-4 w-full md:w-auto flex-col md:flex-row">
+                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200 w-full md:w-auto justify-between md:justify-start">
+                            <div className="flex items-center">
+                                <Calendar className="text-gray-400 w-5 h-5 mx-2" />
+                                <select
+                                    value={year}
+                                    onChange={(e) => setYear(Number(e.target.value))}
+                                    className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 cursor-pointer"
+                                >
+                                    {years.map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                    ))}
+                                </select>
+                                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                                <select
+                                    value={month}
+                                    onChange={(e) => setMonth(Number(e.target.value))}
+                                    className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 cursor-pointer"
+                                >
+                                    {months.map(m => (
+                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         <button
                             onClick={fetchReport}
-                            className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
+                            className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors w-full md:w-auto flex justify-center"
                             title={t('common.refresh')}
                         >
                             <Filter className="w-5 h-5" />

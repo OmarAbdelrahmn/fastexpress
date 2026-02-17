@@ -182,7 +182,7 @@ export default function HousingPerformanceReport() {
                 icon={Clock}
             />
 
-            <div className="m-6">
+            <div className="m-4 md:m-6">
                 {/* Alerts */}
                 {successMessage && <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
                 {error && <Alert type="error" message={error} onClose={() => setError('')} />}

@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Ui/Breadcrumbs';
 
-export default function PageHeader({ 
-  title, 
-  subtitle, 
+export default function PageHeader({
+  title,
+  subtitle,
   actions,
   icon: Icon,
   stats
@@ -15,7 +15,7 @@ export default function PageHeader({
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       if (currentScrollY < 10) {
         setIsVisible(true);
       } else if (currentScrollY > lastScrollY) {
@@ -23,7 +23,7 @@ export default function PageHeader({
       } else {
         setIsVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -32,10 +32,9 @@ export default function PageHeader({
   }, [lastScrollY]);
 
   return (
-    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 transition-transform duration-300 ${
-      isVisible ? 'translate-y-0' : '-translate-y-full'
-    }`}>
-      
+    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
+
       <div className="flex justify-end">
         <Breadcrumb />
       </div>
@@ -47,7 +46,7 @@ export default function PageHeader({
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-bold mb-1">{title}</h1>
+            <h1 className="text-lg md:text-3xl font-bold mb-1">{title}</h1>
             {subtitle && (
               <p className="text-orange-100 text-sm">{subtitle}</p>
             )}
@@ -59,7 +58,7 @@ export default function PageHeader({
           </div>
         )}
       </div>
-      
+
       {stats && stats.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-orange-400/30">
           {stats.map((stat, index) => (

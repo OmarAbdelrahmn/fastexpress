@@ -34,8 +34,8 @@ export default function ComprehensiveLandingPage() {
     { name: 'كيف نعمل', href: '#process' },
     { name: 'شركاؤنا', href: '#partners' },
     { name: 'تواصل معنا', href: '#contact' },
-    { name: 'دخول المشرف', href: '/admin/login' },
-    { name: 'دخول الأعضاء', href: '/member/login' }
+    { name: 'دخول الادمن', href: '/admin/login' },
+    { name: 'دخول المشرفين', href: '/member/login' }
   ];
 
   const services = [

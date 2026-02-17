@@ -22,15 +22,9 @@ export default function MemberLoginPage() {
     const [error, setError] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Check if already logged in (optional, might want to differentiate member token)
     useEffect(() => {
-        // For now, assuming same token storage. If Members need different token handling, 
-        // we might need to adjust TokenManager.
         const token = TokenManager.getToken();
         if (token) {
-            // Ideally we verify if it is a member token vs admin token, 
-            // but for now redirecting to member dashboard if token exists.
-            // Ensuring we don't redirect if we are on login intended to switch users
             router.push("/member/dashboard");
         }
     }, [router]);
@@ -51,10 +45,8 @@ export default function MemberLoginPage() {
         setError(null);
 
         try {
-            // API expects { iqamaNo, password }
-            // Using API_ENDPOINTS.MEMBER.LOGIN
             const response = await ApiService.post(API_ENDPOINTS.MEMBER.LOGIN, {
-                iqamaNo: parseInt(formData.iqamaNo) || 0, // Ensure integer if required
+                iqamaNo: parseInt(formData.iqamaNo) || 0,
                 password: formData.password
             });
 
@@ -79,16 +71,16 @@ export default function MemberLoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600">
-            <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-blue-500">
-                <div className="text-center mb-8">
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
-                        <Users className="text-white" size={48} />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 p-4">
+            <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-blue-500">
+                <div className="text-center mb-6 md:mb-8">
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+                        <Users className="text-white w-10 h-10 md:w-12 md:h-12" />
                     </div>
-                    <h1 className="text-3xl font-bold text-blue-900 mb-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
                         {t("member.loginTitle")}
                     </h1>
-                    <p className="text-gray-600 font-medium">Fast Express</p>
+                    <p className="text-gray-600 font-medium text-sm md:text-base">Fast Express</p>
                 </div>
 
                 {error && (
@@ -102,7 +94,7 @@ export default function MemberLoginPage() {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5" noValidate>
                     <Input
                         label={t("auth.enterIqama")}
                         type="number"
@@ -112,6 +104,7 @@ export default function MemberLoginPage() {
                         required
                         placeholder={t("auth.enterIqama")}
                         disabled={loading}
+                        className="text-right"
                     />
 
                     <div className="relative">
@@ -139,7 +132,7 @@ export default function MemberLoginPage() {
                         type="submit"
                         loading={loading}
                         disabled={loading || !formData.iqamaNo || !formData.password}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-lg"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {loading ? t("auth.loggingIn") : t("auth.login")}
                     </Button>

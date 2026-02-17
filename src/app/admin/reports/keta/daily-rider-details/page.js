@@ -110,20 +110,20 @@ export default function KetaDailyRiderDetailsPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
                     {/* Filters & Controls */}
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="flex items-center gap-4 w-full md:w-auto">
-                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+                        <div className="flex items-center gap-4 w-full md:w-auto flex-col md:flex-row">
+                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200 w-full md:w-auto">
                                 <Calendar className="text-gray-400 w-5 h-5 mx-2" />
                                 <input
                                     type="date"
                                     value={reportDate}
                                     onChange={(e) => setReportDate(e.target.value)}
-                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-bold"
+                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-bold w-full"
                                 />
                             </div>
 
                             <button
                                 onClick={fetchReport}
-                                className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"
+                                className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors w-full md:w-auto flex justify-center"
                                 title={t('common.refresh')}
                             >
                                 <Filter className="w-5 h-5" />

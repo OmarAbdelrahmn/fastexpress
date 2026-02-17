@@ -2110,7 +2110,7 @@
     "stackedDeliveriesRiderDesc": "تقارير التوصيلات المكدسة لمندوب معين",
     "totalCompanies": "إجمالي الشركات",
     "totalRiders": "إجمالي المناديب",
-    "totalOrders": "إجمالي الطلبات",
+    "totalOrders": "إجمالي الطلبات الشهر الماضي ",
     "performanceRate": "معدل الأداء",
     "month": "الشهر",
     "workingIdOptional": "المعرف (اختياري)",

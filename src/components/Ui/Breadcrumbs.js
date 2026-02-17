@@ -192,13 +192,14 @@ export default function Breadcrumb() {
   };
 
   const breadcrumbs = generateBreadcrumbs();
+  const visibleBreadcrumbs = breadcrumbs.length > 3 ? breadcrumbs.slice(0, 3) : breadcrumbs;
 
   return (
     <nav
       className="flex items-center gap-2 text-sm flex-row-reverse"
       aria-label="Breadcrumb"
     >
-      {breadcrumbs.map((crumb, index) => {
+      {visibleBreadcrumbs.map((crumb, index) => {
         const isLast = index === breadcrumbs.length - 1;
         const Icon = crumb.icon;
 

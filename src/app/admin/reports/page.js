@@ -182,7 +182,7 @@ export default function ReportsPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100"
+      className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 pb-8"
     >
       <PageHeader
         title={t('reports.reportsCenter')}
@@ -192,141 +192,141 @@ export default function ReportsPage() {
 
       {/* Dashboard Summary */}
       {dashboardData && (
-        <div className="m-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="mx-4 my-6 md:m-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl shadow-md p-5 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{t('reports.totalCompanies')}</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-gray-500 text-xs md:text-sm">{t('reports.totalCompanies')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-blue-600">
                   {dashboardData.companies?.totalCompanies || 0}
                 </p>
               </div>
-              <Package className="text-blue-500" size={40} />
+              <Package className="text-blue-500 w-8 h-8 md:w-10 md:h-10" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-5 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{t('reports.totalRiders')}</p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-gray-500 text-xs md:text-sm">{t('reports.totalRiders')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-green-600">
                   {dashboardData.riders?.totalRiders || 0}
                 </p>
               </div>
-              <Users className="text-green-500" size={40} />
+              <Users className="text-green-500 w-8 h-8 md:w-10 md:h-10" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-5 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{t('reports.totalOrders')}</p>
-                <p className="text-3xl font-bold text-purple-600">
+                <p className="text-gray-500 text-xs md:text-sm">{t('reports.totalOrders')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-purple-600">
                   {dashboardData.orders?.totalAcceptedOrders || 0}
                 </p>
               </div>
-              <TrendingUp className="text-purple-500" size={40} />
+              <TrendingUp className="text-purple-500 w-8 h-8 md:w-10 md:h-10" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md p-5 md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm">{t('reports.performanceRate')}</p>
-                <p className="text-3xl font-bold text-orange-600">
+                <p className="text-gray-500 text-xs md:text-sm">{t('reports.performanceRate')}</p>
+                <p className="text-2xl md:text-3xl font-bold text-orange-600">
                   {dashboardData.performance?.overallPerformanceScore?.toFixed(
                     1
                   ) || 0}
                   %
                 </p>
               </div>
-              <Award className="text-orange-500" size={40} />
+              <Award className="text-orange-500 w-8 h-8 md:w-10 md:h-10" />
             </div>
           </div>
         </div>
       )}
 
       {/* Important Reports Section */}
-      <div className="m-6">
+      <div className="mx-4 my-6 md:m-6">
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border-2 border-indigo-200">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 flex items-center gap-4">
-            <Award className="text-white" size={36} />
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-4 md:px-8 md:py-6 flex items-center gap-3 md:gap-4">
+            <Award className="text-white w-8 h-8 md:w-9 md:h-9" />
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-xl md:text-2xl font-bold text-white">
                 {t('reports.importantReports')}
               </h2>
-              <p className="text-indigo-100 text-sm mt-1">
+              <p className="text-indigo-100 text-xs md:text-sm mt-1">
                 {t('reports.importantReportsDesc')}
               </p>
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link
                 href="/admin/reports/performance"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Clock className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Clock className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {t('reports.ridersPerformance')}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {t('reports.ridersPerformancedesc')}
                 </p>
               </Link>
 
               <Link
                 href="/admin/reports/rider-performance"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <History className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {t('reports.riderPerformanceTitle')}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {t('reports.riderPerformanceDesc')}
                 </p>
               </Link>
 
               <Link
                 href="/admin/reports/all-riders-history"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <History className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {'سجل كل المناديب'}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {'عرض سجل الأداء لجميع المناديب'}
                 </p>
               </Link>
 
               <Link
                 href="/admin/reports/company-daily-trend"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <History className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <History className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {'سجل كل الشركات'}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {'عرض سجل الأداء لجميع الشركات'}
                 </p>
               </Link>
@@ -334,34 +334,34 @@ export default function ReportsPage() {
 
               <Link
                 href="/admin/reports/keta"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <LayoutList className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <LayoutList className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {t('keta.reportsTitle')}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {t('keta.reportsSubtitle')}
                 </p>
               </Link>
 
               <Link
                 href="/admin/reports/hunger"
-                className="group block p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Target className="text-indigo-600" size={24} />
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Target className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
                     {t('hunger.reportsTitle') || "تقارير هنقرستيشن"}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs md:text-sm text-gray-600">
                   {t('hunger.reportsSubtitle') || "عرض تقارير هنقرستيشن، الرفض وسجل المناديب"}
                 </p>
               </Link>
@@ -372,9 +372,9 @@ export default function ReportsPage() {
       </div>
 
       {/* Other Reports Link */}
-      <div className="m-6 flex justify-start">
-        <Link href="/admin/reports/other">
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group">
+      <div className="mx-4 my-6 md:m-6 flex justify-start">
+        <Link href="/admin/reports/other" className="w-full md:w-auto">
+          <button className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group">
             <BarChart3 size={20} />
             <span className="font-semibold">{t('reports.otherReportsButton')}</span>
             <svg
