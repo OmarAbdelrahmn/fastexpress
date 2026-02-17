@@ -1,4 +1,3 @@
-// File: src/components/layout/Sidebar.js
 'use client';
 
 import { useState } from 'react';
@@ -14,7 +13,6 @@ export default function Sidebar() {
   const [openSections, setOpenSections] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Determine which navigation config to use
   const isMemberPath = pathname.startsWith('/member');
   const currentConfig = isMemberPath ? userNavigationConfig : adminNavigationConfig;
 
@@ -34,11 +32,9 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <nav className="p-4">
       <div className="mb-8 px-4 flex items-center justify-center">
-        {/* Optional: Add Logo Here */}
         <h2 className="text-2xl font-extrabold text-[#2563eb] tracking-tight">Express Service</h2>
       </div>
       <ul className="space-y-2">
-        {/* Dashboard Home */}
         <li>
           <Link
             href={currentConfig.dashboard.path}
@@ -53,7 +49,6 @@ export default function Sidebar() {
           </Link>
         </li>
 
-        {/* Dynamic Sections */}
         {Object.entries(currentConfig)
           .filter(([key]) => key !== 'dashboard')
           .map(([key, section]) => (
@@ -141,7 +136,7 @@ export default function Sidebar() {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`lg:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`lg:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <button

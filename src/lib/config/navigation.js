@@ -226,6 +226,7 @@ export const adminNavigationConfig = {
     icon: "⚙️",
     routes: [
       { path: "/admin/settings", label: "navigation.generalSettings" },
+      { path: "/admin/settings/theme", label: "navigation.themeSettings" },
       { path: "/language", label: "navigation.languages" },
     ],
   }
