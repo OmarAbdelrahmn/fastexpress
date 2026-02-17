@@ -33,7 +33,9 @@ export default function ComprehensiveLandingPage() {
     { name: 'خدماتنا', href: '#services' },
     { name: 'كيف نعمل', href: '#process' },
     { name: 'شركاؤنا', href: '#partners' },
-    { name: 'تواصل معنا', href: '#contact' }
+    { name: 'تواصل معنا', href: '#contact' },
+    { name: 'دخول المشرف', href: '/admin/login' },
+    { name: 'دخول الأعضاء', href: '/member/login' }
   ];
 
   const services = [
