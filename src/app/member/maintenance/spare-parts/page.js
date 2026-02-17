@@ -145,12 +145,12 @@ export default function MemberSparePartsPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-7">
             {alert && (
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex flex-row items-center justify-center gap-4 px-4 md:px-6">
+            <div className="flex flex-row items-center justify-center gap-4 px-2 md:px-4">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/maintenance/spare-parts/history')}
@@ -170,7 +170,7 @@ export default function MemberSparePartsPage() {
                 </Button>
             </div>
 
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-4">
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {/* Usage Entries */}

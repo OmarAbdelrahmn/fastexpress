@@ -149,7 +149,7 @@ export default function MemberCostSummaryPage() {
             </div>
 
             {/* Filter Section */}
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm mx-2 md:mx-4">
                 <form onSubmit={handleFilter} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div>
                         <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
@@ -192,7 +192,7 @@ export default function MemberCostSummaryPage() {
             </div>
 
             {/* Summary Information Grid */}
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6 border-t-4 border-orange-500">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-4 border-t-4 border-orange-500">
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-md md:text-2xl font-bold text-gray-900">{summary?.housingName || 'جاري التحميل...'}</h2>
@@ -207,22 +207,22 @@ export default function MemberCostSummaryPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-2 text-blue-600 mb-1 font-semibold text-xs md:text-base">
                             <Truck size={16} />
                             <span>المركبات</span>
                         </div>
                         <div className="text-lg md:text-2xl font-bold">{summary?.totalVehicles || 0}</div>
                     </div>
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-2 text-purple-600 mb-1 font-semibold text-xs md:text-base">
                             <User size={16} />
                             <span>المناديب</span>
                         </div>
                         <div className="text-lg md:text-2xl font-bold">{summary?.totalRiders || 0}</div>
                     </div>
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-2 text-blue-800 mb-1 font-semibold text-xs md:text-base">
                             <Hash size={16} />
                             <span>قطع الغيار</span>
@@ -231,7 +231,7 @@ export default function MemberCostSummaryPage() {
                             {summary?.totalSparePartsCost?.toFixed(2) || '0.00'} <span className="text-xs">ر.س</span>
                         </div>
                     </div>
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-2 text-purple-800 mb-1 font-semibold text-xs md:text-base">
                             <Hash size={16} />
                             <span>المعدات</span>
@@ -244,7 +244,7 @@ export default function MemberCostSummaryPage() {
             </div>
 
             {/* Detail Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mx-4 md:mx-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mx-2 md:mx-4">
                 {/* Vehicle Costs Table */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
                     <div className="flex justify-between items-center mb-4 border-b pb-4">

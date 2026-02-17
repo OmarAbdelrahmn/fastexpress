@@ -82,7 +82,7 @@ export default function MemberSparePartsStockPage() {
                 </Button>
             </div>
 
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-4">
                 <div className="mb-6">
                     <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                         بحث

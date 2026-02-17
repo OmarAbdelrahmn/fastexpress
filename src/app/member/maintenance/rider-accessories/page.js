@@ -152,7 +152,7 @@ export default function MemberRiderAccessoriesPage() {
                 </Button>
             </div>
 
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-4">
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {/* Riders Grid - Only show when searching */}

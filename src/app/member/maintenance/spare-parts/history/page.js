@@ -155,7 +155,7 @@ export default function MemberSparePartsHistoryPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex flex-col md:flex-row gap-4 px-4 md:px-6">
+            <div className="flex flex-col md:flex-row gap-4 px-3 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/maintenance/spare-parts')}
@@ -175,7 +175,7 @@ export default function MemberSparePartsHistoryPage() {
                 </Button>
             </div>
 
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-6">
                 {/* Vehicle Search */}
                 <div className="mb-6">
                     <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
@@ -191,24 +191,24 @@ export default function MemberSparePartsHistoryPage() {
 
                 {/* Vehicles Grid */}
                 {!selectedVehicle && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 max-h-96 overflow-y-auto p-1 mb-6">
                         {filteredVehicles.map((vehicle) => (
                             <div
                                 key={vehicle.plateNumberA || vehicle.vehicleNumber}
                                 onClick={() => handleVehicleSelect(vehicle)}
-                                className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-orange-300 hover:bg-gray-50"
+                                className="p-2 md:p-3 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-orange-300 hover:bg-gray-50"
                             >
-                                <div className="flex items-start gap-3">
-                                    <Truck className="text-gray-400" size={24} />
-                                    <div className="flex-1">
-                                        <div className="font-bold text-gray-900">
+                                <div className="flex items-start gap-2">
+                                    <Truck className="text-gray-400 flex-shrink-0" size={18} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-sm md:text-base text-gray-900 truncate">
                                             {formatPlateNumber(vehicle.plateNumberA) || vehicle.vehicleNumber}
                                         </div>
-                                        <div className="text-sm text-gray-600 mt-1">
+                                        <div className="text-xs md:text-sm text-gray-600 mt-0.5">
                                             {vehicle.vehicleType} - {vehicle.manufacturer}
                                         </div>
                                         {vehicle.vehicleNumber && (
-                                            <div className="text-xs text-gray-500 mt-1">
+                                            <div className="text-xs text-gray-500 mt-0.5">
                                                 رقم المركبة: {vehicle.vehicleNumber}
                                             </div>
                                         )}

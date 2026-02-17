@@ -228,7 +228,7 @@ export default function MemberTransfersPage() {
             </div>
 
             {activeTab === 'new' ? (
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+                <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm mx-2 md:mx-4">
                     <h2 className="text-base md:text-xl font-bold text-gray-800 mb-6 border-b pb-4">تحويل مواد</h2>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
@@ -365,21 +365,21 @@ export default function MemberTransfersPage() {
                     </form>
                 </div>
             ) : (
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+                <div className="bg-white p-2 md:p-4 rounded-lg shadow-sm mx-2 md:mx-4">
                     <div className="flex justify-between items-center mb-6 border-b pb-4">
-                        <h2 className="text-base md:text-xl font-bold text-gray-800">سجل التحويلات السابقة</h2>
+                        <h2 className="text-xs md:text-base font-bold text-gray-800">سجل التحويلات السابقة</h2>
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={handleExcelExport}
-                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                className="text-green-600 border-green-600 hover:bg-green-50 text-xs"
                                 disabled={loading || transfers.length === 0}
                             >
-                                <FileSpreadsheet size={16} className="ml-2" />
+                                <FileSpreadsheet size={16} className="ml-0" />
                                 تصدير Excel
                             </Button>
-                            <Button variant="outline" onClick={loadTransfers} className="text-sm">
+                            <Button variant="outline" onClick={loadTransfers} className="text-xs">
                                 تحديث
                             </Button>
                         </div>
