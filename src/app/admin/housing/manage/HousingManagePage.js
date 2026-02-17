@@ -24,6 +24,10 @@ export default function HousingManagePage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Delete Password State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [housingToDelete, setHousingToDelete] = useState(null);
 
   useEffect(() => {
     try {
@@ -61,18 +65,29 @@ export default function HousingManagePage() {
     }
   };
 
-  const handleDelete = async (housingName) => {
-    if (confirm(t('housing.confirmDelete'))) {
-      try {
-        await ApiService.delete(`/api/Housing/${housingName}`);
-        setSuccessMessage(t('housing.deleteSuccess'));
-        loadHousings();
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } catch (err) {
-        console.error('Error deleting housing:', err);
-        setErrorMessage(t('housing.deleteError'));
-        setTimeout(() => setErrorMessage(''), 5000);
-      }
+  const handleDeleteClick = (housing) => {
+    setHousingToDelete(housing);
+    setDeletePassword('');
+    setIsDeleteModalOpen(true);
+  };
+
+  const verifyAndDelete = async () => {
+    if (deletePassword !== '4444') {
+      setErrorMessage(t('common.wrongPassword') || 'Wrong Password');
+      return;
+    }
+
+    try {
+      await ApiService.delete(`/api/Housing/${housingToDelete.name}`);
+      setSuccessMessage(t('housing.deleteSuccess'));
+      loadHousings();
+      setIsDeleteModalOpen(false);
+      setHousingToDelete(null);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error deleting housing:', err);
+      setErrorMessage(t('housing.deleteError'));
+      setTimeout(() => setErrorMessage(''), 5000);
     }
   };
 
@@ -155,7 +170,7 @@ export default function HousingManagePage() {
             <Edit size={18} />
           </button>
           <button
-            onClick={() => handleDelete(row.name)}
+            onClick={() => handleDeleteClick(row)}
             className="text-red-600 hover:text-red-800 p-1"
             title={t('common.delete')}
           >
@@ -353,6 +368,56 @@ export default function HousingManagePage() {
           </div>
         )}
       </Modal>
+
+      {/* Delete Password Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setHousingToDelete(null);
+          setDeletePassword('');
+        }}
+        title={t('common.confirmDelete') || 'Confirm Delete'}
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            {t('common.enterPasswordToDelete') || 'Please enter the password to confirm deletion.'}
+          </p>
+
+          <div>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder={t('common.password') || 'Password'}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setHousingToDelete(null);
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={verifyAndDelete}
+            >
+              {t('common.delete')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }

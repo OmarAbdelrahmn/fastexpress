@@ -65,20 +65,20 @@ export default function MemberRiderAccessoriesStockPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex gap-4 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/maintenance/rider-accessories')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                    <ArrowRight size={20} className="ml-2" />
-                    رجوع للتسجيل
+                    <ArrowRight size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">رجوع للتسجيل</span>
                 </Button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                         بحث
                     </label>
                     <Input
@@ -90,7 +90,7 @@ export default function MemberRiderAccessoriesStockPage() {
                 </div>
 
                 <Table
-                    columns={columns}
+                    columns={columns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
                     data={filteredData}
                     loading={loading}
                 />

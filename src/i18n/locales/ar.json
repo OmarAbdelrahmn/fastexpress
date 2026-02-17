@@ -1,5 +1,14 @@
 {
   "common": {
+    "wrongPassword": "كلمة المرور خاطئة",
+    "accessProtected": "وصول محمي",
+    "enterPasswordToAccess": "أدخل كلمة المرور للوصول",
+    "passwordIncorrect": "كلمة المرور غير صحيحة",
+    "passwordCorrect": "كلمة المرور صحيحة",
+    "enterAccessPassword": "أدخل كلمة المرور للوصول",
+    "verify": "تحقق",
+    "enterPassword": "أدخل كلمة المرور",
+    "incorrectPassword": "كلمة المرور غير صحيحة",
     "successLoad": "تم التحميل بنجاح",
     "location": "الموقع",
     "password": "كلمة المرور",
@@ -202,6 +211,7 @@
     "ketaUniqueRiders": "مناديب كيتا"
   },
   "navigation": {
+    "backToDashboard": "العودة للوحة التحكم",
     "themeSettings": "اللوان الواجهة",
     "manageRiders": "إدارة المناديب",
     "home": "الرئيسية",
@@ -1632,6 +1642,8 @@
     "hourLabel": "ساعة"
   },
   "shifts": {
+    "confirmDelete": "تأكيد حذف الوردية",
+    "confirmDeleteMessage": "هل أنت متأكد من رغبتك في حذف هذه الوردية؟",
     "title": "الاداء",
     "todayShifts": "ورديات اليوم",
     "scheduleShift": "جدولة وردية",
@@ -1686,7 +1698,6 @@
     "workingHours": "ساعات العمل",
     "actual": "حقيقي",
     "penalty": "غرامة",
-    "confirmDelete": "هل أنت متأكد من حذف جميع ورديات هذا التاريخ؟",
     "deleteSuccess": "تم حذف الاداء بنجاح",
     "deleteError": "فشل حذف الاداء",
     "importSuccess": "تم الاستيراد بنجاح",
@@ -1761,6 +1772,7 @@
     "updateError": "فشل التحديث"
   },
   "companies": {
+    "confirmDeleteMessage": "الرجاء إدخال كلمة المرور لتأكيد الحذف.",
     "totalCompanies": "إجمالي الشركات",
     "withPhone": "مع رقم هاتف",
     "withAddress": "مع عنوان",
@@ -2562,6 +2574,11 @@
     "stopped": "موقوف"
   },
   "auth": {
+    "accessProtected": "وصول محمي",
+    "enterPasswordToAccess": "أدخل كلمة المرور للوصول",
+    "passwordIncorrect": "كلمة المرور غير صحيحة",
+    "passwordCorrect": "كلمة المرور صحيحة",
+    "enterAccessPassword": "أدخل كلمة المرور للوصول",
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
     "username": "اسم المستخدم",

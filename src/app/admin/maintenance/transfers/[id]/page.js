@@ -89,23 +89,23 @@ export default function TransferDetailsPage() {
                 {/* Main Details Card */}
                 <div className="md:col-span-2 space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <div className="p-3 md:p-4 bg-gray-50 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-sm md:text-base">
                                 <Box size={18} className="text-blue-600" />
                                 الأصناف المنقولة
                             </h3>
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm text-gray-500">
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <span className="text-xs md:text-sm text-gray-500">
                                     {transfer.items?.length || 0} صنف
                                 </span>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={handleExcelExport}
-                                    className="border-green-600 text-green-600 hover:bg-green-50 flex items-center gap-1 py-1 h-8"
+                                    className="border-green-600 text-green-600 hover:bg-green-50 flex items-center gap-1 py-1 h-8 text-xs md:text-sm"
                                     disabled={!transfer.items || transfer.items.length === 0}
                                 >
-                                    <FileSpreadsheet size={16} />
+                                    <FileSpreadsheet size={14} />
                                     تصدير إكسل
                                 </Button>
                             </div>

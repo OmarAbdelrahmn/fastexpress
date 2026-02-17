@@ -137,6 +137,16 @@ export default function MemberLoginPage() {
                         {loading ? t("auth.loggingIn") : t("auth.login")}
                     </Button>
                 </form>
+
+                {/* Footer */}
+                <div className="mt-6 text-center text-sm text-gray-600">
+                    <button
+                        onClick={() => router.push('/admin/login')}
+                        className="text-blue-600 hover:text-blue-800 font-semibold underline transition-colors"
+                    >
+                        تسجيل دخول كادمن
+                    </button>
+                </div>
             </div>
         </div>
     );

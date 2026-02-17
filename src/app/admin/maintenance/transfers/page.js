@@ -238,16 +238,16 @@ export default function TransfersPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer m-5" onClick={() => {
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer mx-4 md:mx-6 text-sm md:text-base" onClick={() => {
                 setEditingItem(null);
                 setIsModalOpen(true);
             }}>
-                <Plus size={20} className="ml-2" />
+                <Plus size={18} className="ml-2" />
                 إنشاء تحويل جديد
             </Button>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex gap-4 mb-4">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <div className="flex-1">
                         <Input
                             placeholder="بحث عن تحويل (رقم التحويل أو السكن)..."
@@ -256,9 +256,9 @@ export default function TransfersPage() {
                             icon={Search}
                         />
                     </div>
-                    <div className="w-64">
+                    <div className="w-full md:w-64">
                         <select
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                             value={filterHousing}
                             onChange={(e) => setFilterHousing(e.target.value)}
                         >
@@ -270,14 +270,14 @@ export default function TransfersPage() {
                             ))}
                         </select>
                     </div>
-                    <div>
+                    <div className="w-full md:w-auto">
                         <Button
                             variant="outline"
                             onClick={handleExcelExport}
-                            className="text-green-600 border-green-600 hover:bg-green-50 h-full"
+                            className="text-green-600 border-green-600 hover:bg-green-50 h-full w-full md:w-auto text-sm md:text-base"
                             disabled={loading || filteredData.length === 0}
                         >
-                            <FileSpreadsheet size={20} className="ml-2" />
+                            <FileSpreadsheet size={18} className="ml-2" />
                             تصدير Excel
                         </Button>
                     </div>

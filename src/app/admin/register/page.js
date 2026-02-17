@@ -25,6 +25,12 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Access Password State
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [accessPassword, setAccessPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [attemptCount, setAttemptCount] = useState(0);
+
   // Check if user is authenticated (required for registration)
   useEffect(() => {
     const token = TokenManager.getToken();
@@ -32,6 +38,19 @@ export default function RegisterPage() {
       router.push('/admin/login');
     }
   }, [router]);
+
+  const handlePasswordVerify = () => {
+    if (accessPassword === '0123456789') {
+      setIsPasswordVerified(true);
+      setPasswordError('');
+    } else {
+      setPasswordError(t('common.wrongPassword') || 'Wrong Password');
+      setAttemptCount(prev => prev + 1);
+      if (attemptCount >= 2) {
+        router.push('/admin/dashboard');
+      }
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -62,6 +81,60 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  // Show password verification modal first
+  if (!isPasswordVerified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b428e] via-[#2555a8] to-[#ebb62b] p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-[#ebb62b]">
+          <div className="text-center mb-6">
+            <div className="bg-gradient-to-br from-[#ebb62b] to-[#e08911] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <UserPlus className="text-white" size={40} />
+            </div>
+            <h2 className="text-2xl font-bold text-[#1b428e] mb-2">
+              {t('auth.accessProtected') || 'Access Protected'}
+            </h2>
+            <p className="text-gray-600">
+              {t('auth.enterAccessPassword') || 'Enter password to access registration'}
+            </p>
+          </div>
+
+          {passwordError && (
+            <Alert
+              type="error"
+              title={t('common.error')}
+              message={passwordError}
+              onClose={() => setPasswordError('')}
+            />
+          )}
+
+          <div className="space-y-4">
+            <Input
+              label={t('common.password') || 'Password'}
+              type="password"
+              value={accessPassword}
+              onChange={(e) => setAccessPassword(e.target.value)}
+              placeholder={t('auth.enterPassword')}
+              onKeyPress={(e) => e.key === 'Enter' && handlePasswordVerify()}
+              autoFocus
+            />
+            <Button
+              onClick={handlePasswordVerify}
+              className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3"
+            >
+              {t('common.verify') || 'Verify'}
+            </Button>
+            <Link
+              href="/admin/dashboard"
+              className="block text-center text-[#1b428e] hover:text-[#e08911] font-medium transition-colors"
+            >
+              {t('navigation.backToDashboard')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b428e] via-[#2555a8] to-[#ebb62b] p-4">

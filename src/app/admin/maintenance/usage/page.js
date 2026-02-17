@@ -16,11 +16,11 @@ export default function UsagePage() {
                 icon={History}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4 md:px-6">
                 {/* Spare Parts Usage Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
-                        <Wrench className="text-orange-600" size={24} />
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
+                        <Wrench className="text-orange-600" size={20} />
                         قطع الغيار
                     </h3>
                     <div className="flex flex-col gap-3">
@@ -44,9 +44,9 @@ export default function UsagePage() {
                 </div>
 
                 {/* Rider Accessories Usage Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
-                        <Package className="text-purple-600" size={24} />
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
+                        <Package className="text-purple-600" size={20} />
                         معدات السائقين
                     </h3>
                     <div className="flex flex-col gap-3">

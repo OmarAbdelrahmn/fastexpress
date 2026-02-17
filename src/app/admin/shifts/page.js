@@ -26,6 +26,10 @@ export default function ShiftsPage() {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
 
+  // Password Modal State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+
 
   const normalizeServerDate = (value) => {
     // null/undefined
@@ -203,7 +207,17 @@ export default function ShiftsPage() {
     const company = companies.find(c => String(c.id) === String(selectedCompanyId));
     const confirmMsg = `${t('shifts.confirmDelete')} (${company?.name || selectedCompanyId})`;
 
-    if (!confirm(confirmMsg)) return;
+    setShowPasswordModal(true);
+    setDeletePassword(''); // Reset password field
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deletePassword !== '2222') {
+      alert(t('common.incorrectPassword') || 'Incorrect Password');
+      return;
+    }
+
+    setShowPasswordModal(false);
 
     setLoading(true);
     try {
@@ -521,6 +535,39 @@ export default function ShiftsPage() {
           </div>
         </div>
       </div>
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-[90%]">
+            <h3 className="text-xl font-bold mb-4">{t('common.enterPassword') || 'Enter Password'}</h3>
+            <p className="text-gray-600 mb-4">
+              {t('shifts.confirmDeleteMessage') || 'Please enter the password to confirm deletion.'}
+            </p>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder={t('common.password') || 'Password'}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                {t('common.confirm') || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

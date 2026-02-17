@@ -109,8 +109,8 @@ export default function BillDetailsPage() {
             />
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-8">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 md:px-6">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 md:p-6 rounded-xl shadow-lg">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <p className="text-blue-100 text-sm mb-1">عدد الأصناف</p>

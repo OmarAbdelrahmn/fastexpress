@@ -132,23 +132,14 @@ export default function MemberRiderAccessoriesPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
-                <Button
-                    variant="outline"
-                    onClick={() => router.push('/member/dashboard')}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                    <ArrowRight size={20} className="ml-2" />
-                    رجوع
-                </Button>
-
+            <div className="flex flex-row items-center justify-center gap-4 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/maintenance/rider-accessories/history')}
                     className="border-purple-600 text-purple-600 hover:bg-purple-50"
                 >
-                    <History size={20} className="ml-2" />
-                    عرض السجل
+                    <History size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">عرض السجل</span>
                 </Button>
 
                 <Button
@@ -156,12 +147,12 @@ export default function MemberRiderAccessoriesPage() {
                     onClick={() => router.push('/member/maintenance/rider-accessories/stock')}
                     className="border-blue-600 text-blue-600 hover:bg-blue-50"
                 >
-                    <Package size={20} className="ml-2" />
-                    عرض المخزون
+                    <Package size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">عرض المخزون</span>
                 </Button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {/* Riders Grid - Only show when searching */}
@@ -169,28 +160,28 @@ export default function MemberRiderAccessoriesPage() {
                     {/* Usage Entries */}
                     <div className="space-y-4">
                         <div key="usage-header" className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
+                            <h3 className="text-base md:text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
                             <Button
                                 type="button"
                                 onClick={addUsageEntry}
-                                className="bg-green-600 hover:bg-green-700 text-white"
+                                className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm"
                             >
-                                <Plus size={20} className="ml-2" />
+                                <Plus size={16} className="ml-2" />
                                 إضافة إدخال
                             </Button>
                         </div>
 
                         {usageEntries.map((entry, index) => (
-                            <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                            <div key={index} className="p-3 md:p-4 border-2 border-gray-200 rounded-lg">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h4 className="font-medium text-gray-900">إدخال رقم {index + 1}</h4>
+                                    <h4 className="font-medium text-sm md:text-base text-gray-900">إدخال رقم {index + 1}</h4>
                                     {usageEntries.length > 1 && (
                                         <button
                                             type="button"
                                             onClick={() => removeUsageEntry(index)}
                                             className="text-red-600 hover:text-red-700"
                                         >
-                                            <Trash2 size={20} />
+                                            <Trash2 size={18} />
                                         </button>
                                     )}
                                 </div>
@@ -208,6 +199,7 @@ export default function MemberRiderAccessoriesPage() {
                                         }))}
                                         placeholder="اختر معدات السائق"
                                         required
+                                        labelClassName="text-xs md:text-sm"
                                     />
 
                                     {/* Rider Selection */}
@@ -221,6 +213,7 @@ export default function MemberRiderAccessoriesPage() {
                                         }))}
                                         placeholder="ابحث عن السائق (الاسم، الهوية...)"
                                         required
+                                        labelClassName="text-xs md:text-sm"
                                     />
                                 </div>
 
@@ -229,7 +222,7 @@ export default function MemberRiderAccessoriesPage() {
                     </div>
 
                     {/* Submit Button */}
-                    <div className="flex gap-3">
+                    <div className="flex flex-col-reverse md:flex-row gap-3">
                         <Button
                             type="submit"
                             className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"

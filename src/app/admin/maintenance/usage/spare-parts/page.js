@@ -153,27 +153,27 @@ export default function SparePartsUsagePage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex flex-col md:flex-row gap-3 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/admin/maintenance/usage')}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full md:w-auto text-sm md:text-base"
                 >
-                    <ArrowRight size={20} className="ml-2" />
+                    <ArrowRight size={18} className="ml-2" />
                     رجوع
                 </Button>
 
                 <Button
                     variant="outline"
                     onClick={() => router.push('/admin/maintenance/usage/spare-parts/history')}
-                    className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-50 w-full md:w-auto text-sm md:text-base"
                 >
-                    <History size={20} className="ml-2" />
+                    <History size={18} className="ml-2" />
                     عرض السجل
                 </Button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
 
                     {/* Usage Entries */}

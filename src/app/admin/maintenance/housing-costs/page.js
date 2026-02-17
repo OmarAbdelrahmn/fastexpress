@@ -147,19 +147,18 @@ export default function HousingCostsPage() {
                 subtitle="عرض تكاليف قطع الغيار لكل سكن خلال فترة محددة"
                 icon={BadgeDollarSign}
             />
-
-            <div className="mx-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mx-4 md:mx-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Summary Cards */}
-                <div className="bg-white p-4 rounded-lg shadow-sm border-r-4 border-blue-500">
+                <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm border-r-4 border-blue-500">
                     <div className="flex justify-between items-center">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">إجمالي التكلفة</p>
-                            <h3 className="text-2xl font-bold text-gray-800">
+                            <p className="text-xs md:text-sm text-gray-500 mb-1">إجمالي التكلفة</p>
+                            <h3 className="text-lg md:text-2xl font-bold text-gray-800">
                                 {summary ? `${Number(summary.grandTotalCost).toFixed(2)} ر.س` : '-'}
                             </h3>
                         </div>
-                        <div className="p-3 bg-blue-50 rounded-full text-blue-600">
-                            <DollarSign size={24} />
+                        <div className="p-2 md:p-3 bg-blue-50 rounded-full text-blue-600">
+                            <DollarSign size={20} />
                         </div>
                     </div>
                 </div>
@@ -193,7 +192,7 @@ export default function HousingCostsPage() {
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label>

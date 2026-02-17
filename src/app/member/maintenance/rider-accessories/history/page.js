@@ -137,14 +137,14 @@ export default function MemberRiderAccessoriesHistoryPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex flex-col md:flex-row gap-4 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/maintenance/rider-accessories')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                    <ArrowRight size={20} className="ml-2" />
-                    رجوع
+                    <ArrowRight size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">رجوع</span>
                 </Button>
 
                 <Button
@@ -152,15 +152,15 @@ export default function MemberRiderAccessoriesHistoryPage() {
                     onClick={() => router.push('/member/maintenance/rider-accessories')}
                     className="border-purple-600 text-purple-600 hover:bg-purple-50"
                 >
-                    <Package size={20} className="ml-2" />
-                    تسجيل استخدام جديد
+                    <Package size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">تسجيل استخدام جديد</span>
                 </Button>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 {/* Rider Search */}
                 <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                         ابحث عن السائق
                     </label>
                     <Input
@@ -210,8 +210,8 @@ export default function MemberRiderAccessoriesHistoryPage() {
                     <>
                         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex justify-between items-start mb-3">
-                                <h4 className="font-medium text-blue-900 flex items-center gap-2">
-                                    <User size={20} />
+                                <h4 className="font-medium text-sm md:text-base text-blue-900 flex items-center gap-2">
+                                    <User size={18} />
                                     تفاصيل السائق
                                 </h4>
                                 <Button
@@ -226,7 +226,7 @@ export default function MemberRiderAccessoriesHistoryPage() {
                                     اختيار سائق آخر
                                 </Button>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs md:text-sm">
                                 <div>
                                     <span className="font-medium text-gray-700">الاسم (عربي):</span>
                                     <span className="mr-2 text-gray-900">{selectedRider.nameAR}</span>
@@ -239,15 +239,15 @@ export default function MemberRiderAccessoriesHistoryPage() {
                                     <span className="font-medium text-gray-700">معرف العمل:</span>
                                     <span className="mr-2 text-gray-900">{selectedRider.workingId}</span>
                                 </div>
-                                <div className="col-span-full mt-4 pt-4 border-t border-blue-200 grid grid-cols-2 gap-4">
+                                <div className="col-span-full mt-4 pt-4 border-t border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-white p-3 rounded shadow-sm">
                                         <span className="block text-gray-600 text-xs mb-1">إجمالي الطلبات</span>
-                                        <span className="text-xl font-bold text-blue-600">{historyData.length}</span>
+                                        <span className="text-lg md:text-xl font-bold text-blue-600">{historyData.length}</span>
                                     </div>
                                     <div className="bg-white p-3 rounded shadow-sm">
                                         <span className="block text-gray-600 text-xs mb-1">إجمالي التكلفة</span>
                                         <span className="text-xl font-bold text-green-600">
-                                            {historyData.reduce((sum, item) => sum + (item.totalCost || item.cost || (item.unitPrice * item.quantity) || 0), 0).toFixed(2)} ر.س
+                                            {historyData.reduce((sum, item) => sum + (item.totalCost || item.cost || (item.unitPrice * item.quantity) || 0), 0).toFixed(2)} <span className="text-xs">ر.س</span>
                                         </span>
                                     </div>
                                 </div>
@@ -256,9 +256,9 @@ export default function MemberRiderAccessoriesHistoryPage() {
 
                         {/* History Table */}
                         <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                                    <History size={20} />
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                                <h4 className="font-medium text-sm md:text-base text-gray-900 flex items-center gap-2">
+                                    <History size={18} />
                                     سجل الاستخدام
                                 </h4>
                                 <Button
@@ -273,7 +273,7 @@ export default function MemberRiderAccessoriesHistoryPage() {
                                 </Button>
                             </div>
                             <Table
-                                columns={columns}
+                                columns={columns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
                                 data={historyData}
                                 loading={loading}
                             />

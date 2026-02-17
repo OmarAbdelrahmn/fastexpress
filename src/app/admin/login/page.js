@@ -159,6 +159,12 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p className="font-medium">{t('auth.adminsOnly')}</p>
+          <button
+            onClick={() => router.push('/member/login')}
+            className="mt-3 text-[#e08911] hover:text-[#ebb62b] font-semibold underline transition-colors"
+          >
+            تسجيل دخول كمشرف
+          </button>
           <p className="mt-2 text-xs text-gray-500">
             {t('auth.copyright')}
           </p>

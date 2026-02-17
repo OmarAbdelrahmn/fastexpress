@@ -114,19 +114,19 @@ export default function SupplierDetailsPage() {
             />
 
             {/* Status Badge */}
-            <div className="flex items-center gap-3">
-                <span className={`px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 ${supplier.isActive
+            <div className="flex items-center gap-3 px-4 md:px-6">
+                <span className={`px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm flex items-center gap-2 ${supplier.isActive
                     ? 'bg-green-100 text-green-700'
                     : 'bg-red-100 text-red-700'
                     }`}>
-                    {supplier.isActive ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                    {supplier.isActive ? <CheckCircle size={16} /> : <XCircle size={16} />}
                     {supplier.isActive ? 'مورد نشط' : 'مورد غير نشط'}
                 </span>
             </div>
 
             {/* Financial Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg m-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-6">
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 md:p-6 rounded-xl shadow-lg">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <p className="text-purple-100 text-sm mb-1">إجمالي الفواتير</p>
@@ -244,9 +244,9 @@ export default function SupplierDetailsPage() {
 
             {/* Action Buttons */}
             <Card>
-                <div className="p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">الإجراءات</h2>
-                    <div className="flex flex-wrap gap-3">
+                <div className="p-4 md:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4">الإجراءات</h2>
+                    <div className="flex flex-col md:flex-row flex-wrap gap-3">
                         <Button
                             onClick={() => router.push(`/admin/maintenance/suppliers/${params.id}/edit`)}
                             className="bg-blue-600 hover:bg-blue-700 text-white"

@@ -142,7 +142,7 @@ export default function VehicleSwitchRequestPage() {
         <div className="space-y-6 animate-fade-in">
             {/* Page Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">طلب استبدال مركبة</h1>
+                <h3 className="text-lg md:text-2xl font-bold text-gray-900">طلب استبدال مركبة</h3>
                 <p className="text-gray-500">اختر مركبة جديدة متاحة وأرسل طلب استبدال للمركبة الحالية</p>
             </div>
 
@@ -166,13 +166,13 @@ export default function VehicleSwitchRequestPage() {
             {/* Available Vehicles Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <h4 className="text-md font-bold text-gray-900 flex items-center gap-2">
                         <RefreshCw className="text-blue-600" size={20} />
                         المركبات المتاحة للاستبدال
                         <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
                             {filteredVehicles.length}
                         </span>
-                    </h2>
+                    </h4>
                 </div>
 
                 <div className="p-6">
@@ -195,21 +195,21 @@ export default function VehicleSwitchRequestPage() {
                             <Loader2 className="animate-spin text-blue-600" size={32} />
                         </div>
                     ) : filteredVehicles.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 max-h-96 overflow-y-auto">
                             {filteredVehicles.map((vehicle) => (
                                 <div
                                     key={vehicle.plateNumberA || vehicle.vehicleNumber}
                                     onClick={() => handleVehicleSelect(vehicle)}
-                                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
+                                    className={`p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
                                         ? "border-blue-500 bg-blue-50"
                                         : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <Car className="text-blue-600" size={16} />
-                                        <span className="font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
+                                        <span className="text-sm md:text-base font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
                                     </div>
-                                    <div className="text-sm text-gray-600 space-y-1">
+                                    <div className="text-xs md:text-sm text-gray-600 space-y-1">
                                         <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
                                         <p>الموقع: {vehicle.location || '-'}</p>
                                         {vehicle.vehicleType && <p>النوع: {vehicle.vehicleType}</p>}
@@ -229,7 +229,7 @@ export default function VehicleSwitchRequestPage() {
             {/* Request Form */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <h2 className="text-md font-bold text-gray-900 flex items-center gap-2">
                         <Send className="text-blue-600" size={20} />
                         نموذج طلب الاستبدال
                     </h2>

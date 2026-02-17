@@ -213,7 +213,7 @@ to-[#1E3A8A] transition-transform duration-300 rounded-b-[60px] ${isVisible ? 't
           <div className="w-13 h-13 bg-white/100 rounded-full flex items-center justify-center p-1 backdrop-blur-sm shadow-inner">
             <img src="/5.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-base md:text-xl font-bold text-white tracking-wide drop-shadow-sm">
+          <h1 className="text-base md:text-lg font-bold text-white tracking-wide drop-shadow-sm">
             {t("auth.fullCompanyName")}
           </h1>
         </div>

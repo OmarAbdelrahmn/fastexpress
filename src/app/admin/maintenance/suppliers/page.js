@@ -197,13 +197,13 @@ export default function SuppliersPage() {
 
             {/* Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-                <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
+                <div className="bg-blue-50 border-r-4 border-blue-500 p-3 md:p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-blue-600 mb-1">إجمالي الموردين</p>
-                            <p className="text-3xl font-bold text-blue-700">{suppliers.length}</p>
+                            <p className="text-xs md:text-sm text-blue-600 mb-1">إجمالي الموردين</p>
+                            <p className="text-xl md:text-3xl font-bold text-blue-700">{suppliers.length}</p>
                         </div>
-                        <Package className="text-blue-500" size={40} />
+                        <Package className="text-blue-500" size={32} />
                     </div>
                 </div>
 
@@ -245,17 +245,17 @@ export default function SuppliersPage() {
             </div>
 
             {/* Add New Supplier Button */}
-            <div className="flex justify-end m-5">
+            <div className="flex justify-end mx-4 md:mx-6">
                 <button
                     onClick={() => router.push('/admin/maintenance/suppliers/create')}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg text-sm md:text-base"
                 >
-                    <Plus size={20} />
+                    <Plus size={18} />
                     <span className="font-medium">إضافة مورد جديد</span>
                 </button>
             </div>
 
-    
+
             {successMessage && (
                 <Alert
                     type="success"
@@ -266,7 +266,7 @@ export default function SuppliersPage() {
             )}
 
             {errorMessage && (
-                <Alert  
+                <Alert
                     type="error"
                     title="خطأ"
                     message={errorMessage}
@@ -278,13 +278,13 @@ export default function SuppliersPage() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
                         <div className="relative flex-1">
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                             <input
                                 type="text"
                                 placeholder="البحث بالاسم، المسؤول، الهاتف، البريد، أو الرقم الضريبي..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"
                             />
                         </div>
                     </div>

@@ -195,20 +195,20 @@ export default function MemberTransfersPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex flex-col md:flex-row gap-4 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/dashboard')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                    <ArrowRight size={20} className="ml-2" />
-                    رجوع
+                    <ArrowRight size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">رجوع</span>
                 </Button>
 
-                <div className="flex bg-gray-100 p-1 rounded-lg">
+                <div className="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto">
                     <button
                         onClick={() => setActiveTab('new')}
-                        className={`px-4 py-2 rounded-md transition-all ${activeTab === 'new'
+                        className={`flex-1 md:flex-none px-4 py-2 rounded-md transition-all ${activeTab === 'new'
                             ? 'bg-white shadow text-blue-600 font-medium'
                             : 'text-gray-600 hover:text-gray-900'
                             }`}
@@ -217,26 +217,26 @@ export default function MemberTransfersPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('history')}
-                        className={`px-4 py-2 rounded-md transition-all ${activeTab === 'history'
+                        className={`flex-1 md:flex-none px-4 py-2 rounded-md transition-all ${activeTab === 'history'
                             ? 'bg-white shadow text-blue-600 font-medium'
                             : 'text-gray-600 hover:text-gray-900'
                             }`}
                     >
-                        سجل التحويلات
+                        <span className="text-xs md:text-base">سجل التحويلات</span>
                     </button>
                 </div>
             </div>
 
             {activeTab === 'new' ? (
-                <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
-                    <h2 className="text-xl font-bold text-gray-800 mb-6 border-b pb-4">تحويل مواد</h2>
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
+                    <h2 className="text-base md:text-xl font-bold text-gray-800 mb-6 border-b pb-4">تحويل مواد</h2>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Destination Selection */}
                         <div className="space-y-4">
                             <label className="block text-sm font-medium text-gray-700">تحويل إلى:</label>
-                            <div className="flex gap-6">
-                                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all w-64 ${transferType === 'MAIN_COMPANY'
+                            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all w-full md:w-64 ${transferType === 'MAIN_COMPANY'
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 hover:border-blue-200'
                                     }`}>
@@ -255,7 +255,7 @@ export default function MemberTransfersPage() {
                                     </div>
                                 </label>
 
-                                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all w-64 ${transferType === 'HOUSING'
+                                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all w-full md:w-64 ${transferType === 'HOUSING'
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 hover:border-blue-200'
                                     }`}>
@@ -292,8 +292,8 @@ export default function MemberTransfersPage() {
                         {/* Items Section */}
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-lg font-semibold text-gray-800">العناصر المراد تحويلها</h3>
-                                <Button type="button" onClick={addItem} className="bg-green-600 hover:bg-green-700 text-white text-sm">
+                                <h3 className="text-base md:text-lg font-semibold text-gray-800">العناصر المراد تحويلها</h3>
+                                <Button type="button" onClick={addItem} className="bg-green-600 hover:bg-green-700 text-white text-xs md:text-sm">
                                     <Plus size={16} className="ml-1" /> إضافة عنصر
                                 </Button>
                             </div>
@@ -365,9 +365,9 @@ export default function MemberTransfersPage() {
                     </form>
                 </div>
             ) : (
-                <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                     <div className="flex justify-between items-center mb-6 border-b pb-4">
-                        <h2 className="text-xl font-bold text-gray-800">سجل التحويلات السابقة</h2>
+                        <h2 className="text-base md:text-xl font-bold text-gray-800">سجل التحويلات السابقة</h2>
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"
@@ -389,11 +389,11 @@ export default function MemberTransfersPage() {
                         <table className="w-full text-right">
                             <thead className="bg-gray-50 text-gray-600 font-medium border-y">
                                 <tr>
-                                    <th className="py-3 px-4">رقم التحويل</th>
-                                    <th className="py-3 px-4">الوجهة</th>
-                                    <th className="py-3 px-4">تاريخ التحويل</th>
-                                    <th className="py-3 px-4">العناصر</th>
-                                    <th className="py-3 px-4">الحالة</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">رقم التحويل</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">الوجهة</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">تاريخ التحويل</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">العناصر</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">الحالة</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">

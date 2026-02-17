@@ -18,6 +18,11 @@ export default function CompaniesPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Password Modal State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [companyToDelete, setCompanyToDelete] = useState(null);
+
 
   useEffect(() => {
     loadCompanies();
@@ -36,11 +41,22 @@ export default function CompaniesPage() {
     }
   };
 
-  const handleDelete = async (companyName) => {
-    if (!confirm(t('companies.confirmDelete'))) return;
+  const handleDelete = (companyName) => {
+    setCompanyToDelete(companyName);
+    setShowPasswordModal(true);
+    setDeletePassword('');
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deletePassword !== '3333') {
+      alert(t('common.incorrectPassword') || 'Incorrect Password');
+      return;
+    }
+
+    setShowPasswordModal(false);
 
     try {
-      await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyName));
+      await ApiService.delete(API_ENDPOINTS.COMPANY.DELETE(companyToDelete));
 
       setMessage({ type: 'success', text: t('companies.deleteSuccess') });
       loadCompanies();
@@ -247,6 +263,41 @@ export default function CompaniesPage() {
           </div>
         )}
       </div>
-    </div>
+
+      {
+        showPasswordModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-[90%]">
+              <h3 className="text-xl font-bold mb-4">{t('common.enterPassword') || 'Enter Password'}</h3>
+              <p className="text-gray-600 mb-4">
+                {t('companies.confirmDeleteMessage') || 'Please enter the password to confirm deletion.'}
+              </p>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder={t('common.password') || 'Password'}
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                  {t('common.cancel') || 'Cancel'}
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  {t('common.confirm') || 'Confirm'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }

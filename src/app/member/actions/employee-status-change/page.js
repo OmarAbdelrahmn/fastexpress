@@ -144,30 +144,11 @@ export default function EmployeeStatusChangePage() {
         <div className="space-y-6 animate-fade-in">
             {/* Page Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">طلب تغيير حالة موظف</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900">طلب تغيير حالة موظف</h1>
                 <p className="text-gray-500">إرسال طلب لتغيير حالة موظف في النظام</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Column: List (On Desktop, it's on the left, but we want it second in DOM visually if RTL? No, standard grid.) 
-                   Standard RTL: First col is Right. Second col is Left.
-                   grid-cols-2.
-                   Col 1: List. Col 2: Form.
-                   If RTL, Col 1 is Right.
-                   Let's assume standard behavior. On RTL, Col 1 is Right.
-                   The user is likely using RTL interface (Arabic).
-                   So if I want List on one side and Form on the other. 
-                   "lg:order-2" in previous code put List 2nd. 
-                   If RTL:
-                   Col 1 (Right) -> Form
-                   Col 2 (Left) -> List
-                   This seems fine. Form is important. List is helper. 
-                   Or maybe List is important to Find?
-                   The user said "filter them ... then auto fill".
-                   So List first conceptually.
-                   I will put List in Col 1 (Right in RTL) and Form in Col 2 (Left in RTL).
-                */}
-
                 {/* Search & List Section */}
                 <div className="space-y-4">
                     {/* Search Bar */}
@@ -187,9 +168,9 @@ export default function EmployeeStatusChangePage() {
                     </div>
 
                     {/* List */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[600px] flex flex-col">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[400px] flex flex-col">
                         <div className="p-4 border-b border-gray-100 bg-gray-50">
-                            <h2 className="text-sm font-bold text-gray-900 flex items-center justify-between">
+                            <h2 className="text-xs md:text-sm font-bold text-gray-900 flex items-center justify-between">
                                 <span>قائمة الموظفين</span>
                                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{filteredEmployees.length}</span>
                             </h2>
@@ -206,13 +187,13 @@ export default function EmployeeStatusChangePage() {
                                             <div
                                                 key={employee.id || employee.employeeIqamaNo}
                                                 onClick={() => handleSelectEmployee(employee.employeeIqamaNo)}
-                                                className={`p-4 hover:bg-blue-50 cursor-pointer transition-colors ${formData.employeeIqamaNo == employee.employeeIqamaNo ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
+                                                className={`p-3 md:p-4 hover:bg-blue-50 cursor-pointer transition-colors ${formData.employeeIqamaNo == employee.employeeIqamaNo ? 'bg-blue-50 border-r-4 border-blue-500' : ''}`}
                                             >
                                                 <div className="flex justify-between items-start">
                                                     <div>
-                                                        <p className="font-medium text-gray-900">{employee.nameAR || employee.nameEN || 'بدون اسم'}</p>
-                                                        <p className="text-xs text-gray-500">{employee.nameEN}</p>
-                                                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                                        <p className="text-sm md:text-base font-medium text-gray-900">{employee.nameAR || employee.nameEN || 'بدون اسم'}</p>
+                                                        <p className="text-[10px] md:text-xs text-gray-500">{employee.nameEN}</p>
+                                                        <div className="flex items-center gap-2 mt-1 text-[10px] md:text-xs text-gray-500">
                                                             <span className="flex items-center gap-1">
                                                                 <IdCard size={12} />
                                                                 {employee.employeeIqamaNo}
@@ -248,7 +229,7 @@ export default function EmployeeStatusChangePage() {
                 <div>
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
                         <div className="p-6 border-b border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <h2 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <UserCheck className="text-blue-600" size={20} />
                                 نموذج طلب تغيير الحالة
                             </h2>

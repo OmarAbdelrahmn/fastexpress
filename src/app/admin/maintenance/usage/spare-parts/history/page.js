@@ -117,22 +117,22 @@ export default function SparePartsHistoryPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex flex-col md:flex-row gap-3 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/admin/maintenance/usage')}
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full md:w-auto text-sm md:text-base"
                 >
-                    <ArrowRight size={20} className="ml-2" />
+                    <ArrowRight size={18} className="ml-2" />
                     رجوع
                 </Button>
 
                 <Button
                     variant="outline"
                     onClick={() => router.push('/admin/maintenance/usage/spare-parts')}
-                    className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                    className="border-orange-600 text-orange-600 hover:bg-orange-50 w-full md:w-auto text-sm md:text-base"
                 >
-                    <Package size={20} className="ml-2" />
+                    <Package size={18} className="ml-2" />
                     تسجيل استخدام جديد
                 </Button>
             </div>

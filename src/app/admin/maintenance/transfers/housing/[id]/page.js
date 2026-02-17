@@ -107,7 +107,7 @@ export default function LastTransferByHousingPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div className="bg-white p-4 md:p-6 rounded-lgxl shadow-sm border border-gray-100">
                 <Table
                     columns={columns}
                     data={transfers}

@@ -59,52 +59,52 @@ export default function MaintenancePage() {
 
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-                <div className="bg-blue-50 border-r-4 border-blue-500 p-5 rounded-lg">
+                <div className="bg-blue-50 border-r-4 border-blue-500 p-3 md:p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-blue-600 mb-1">الموردين</p>
-                            <p className="text-3xl font-bold text-blue-700">{loading ? '...' : stats.suppliersCount}</p>
+                            <p className="text-xs md:text-sm text-blue-600 mb-1">الموردين</p>
+                            <p className="text-xl md:text-3xl font-bold text-blue-700">{loading ? '...' : stats.suppliersCount}</p>
                         </div>
-                        <Package className="text-blue-500" size={40} />
+                        <Package className="text-blue-500" size={32} />
                     </div>
                 </div>
 
-                <div className="bg-orange-50 border-r-4 border-orange-500 p-5 rounded-lg">
+                <div className="bg-orange-50 border-r-4 border-orange-500 p-3 md:p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-orange-600 mb-1">قطع الغيار</p>
-                            <p className="text-3xl font-bold text-orange-700">{loading ? '...' : stats.sparePartsCount}</p>
+                            <p className="text-xs md:text-sm text-orange-600 mb-1">قطع الغيار</p>
+                            <p className="text-xl md:text-3xl font-bold text-orange-700">{loading ? '...' : stats.sparePartsCount}</p>
                         </div>
-                        <Wrench className="text-orange-500" size={40} />
+                        <Wrench className="text-orange-500" size={32} />
                     </div>
                 </div>
 
-                <div className="bg-purple-50 border-r-4 border-purple-500 p-5 rounded-lg">
+                <div className="bg-purple-50 border-r-4 border-purple-500 p-3 md:p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-purple-600 mb-1"> معدات السائقين</p>
-                            <p className="text-3xl font-bold text-purple-700">{loading ? '...' : stats.riderAccessoriesCount}</p>
+                            <p className="text-xs md:text-sm text-purple-600 mb-1"> معدات السائقين</p>
+                            <p className="text-xl md:text-3xl font-bold text-purple-700">{loading ? '...' : stats.riderAccessoriesCount}</p>
                         </div>
-                        <Package className="text-purple-500" size={40} />
+                        <Package className="text-purple-500" size={32} />
                     </div>
                 </div>
 
-                <div className="bg-teal-50 border-r-4 border-teal-500 p-5 rounded-lg">
+                <div className="bg-teal-50 border-r-4 border-teal-500 p-3 md:p-5 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-teal-600 mb-1">الفواتير</p>
-                            <p className="text-3xl font-bold text-teal-700">{loading ? '...' : stats.billsCount}</p>
+                            <p className="text-xs md:text-sm text-teal-600 mb-1">الفواتير</p>
+                            <p className="text-xl md:text-3xl font-bold text-teal-700">{loading ? '...' : stats.billsCount}</p>
                         </div>
-                        <FileText className="text-teal-500" size={40} />
+                        <FileText className="text-teal-500" size={32} />
                     </div>
                 </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
                 {/* Maintenance Management Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
                         إدارة الصيانة
                     </h3>
                     <div className="flex flex-col gap-3">
@@ -144,8 +144,8 @@ export default function MaintenancePage() {
                 </div>
 
                 {/* Reports Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
                         التقارير والسجلات
                     </h3>
                     <div className="flex flex-col gap-3">
@@ -187,8 +187,8 @@ export default function MaintenancePage() {
 
             {/* Recent Maintenance Activity */}
             <Card>
-                <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="p-4 md:p-6">
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <History size={20} />
                         آخر أنشطة الصيانة
                     </h3>

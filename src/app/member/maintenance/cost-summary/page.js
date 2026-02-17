@@ -137,22 +137,22 @@ export default function MemberCostSummaryPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex gap-4 px-5">
+            <div className="flex gap-4 px-4 md:px-6">
                 <Button
                     variant="outline"
                     onClick={() => router.push('/member/dashboard')}
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                    <ArrowRight size={20} className="ml-2" />
-                    رجوع
+                    <ArrowRight size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">رجوع</span>
                 </Button>
             </div>
 
             {/* Filter Section */}
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <form onSubmit={handleFilter} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                             من تاريخ
                         </label>
                         <Input
@@ -162,7 +162,7 @@ export default function MemberCostSummaryPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                             إلى تاريخ
                         </label>
                         <Input
@@ -171,7 +171,7 @@ export default function MemberCostSummaryPage() {
                             onChange={(e) => setToDate(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col md:flex-row gap-2">
                         <Button
                             type="submit"
                             className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
@@ -192,104 +192,104 @@ export default function MemberCostSummaryPage() {
             </div>
 
             {/* Summary Information Grid */}
-            <div className="bg-white p-6 rounded-lg shadow-sm mx-5 border-t-4 border-orange-500">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6 border-t-4 border-orange-500">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">{summary?.housingName || 'جاري التحميل...'}</h2>
-                        <p className="text-gray-500 mt-1">ملخص تكاليف السكن والصيانة</p>
+                        <h2 className="text-md md:text-2xl font-bold text-gray-900">{summary?.housingName || 'جاري التحميل...'}</h2>
+                        <p className="text-xs md:text-base text-gray-500 mt-1">ملخص تكاليف السكن والصيانة</p>
                     </div>
                     <div className="text-left">
-                        <div className="text-sm text-gray-500">إجمالي التكلفة العام</div>
-                        <div className="text-3xl font-black text-orange-600">
+                        <div className="text-xs md:text-sm text-gray-500">إجمالي التكلفة العام</div>
+                        <div className="text-xl md:text-3xl font-black text-orange-600">
                             {loading ? '...' : summary?.grandTotal?.toFixed(2) || '0.00'}
-                            <span className="text-lg font-normal text-gray-500 mr-1">ر.س</span>
+                            <span className="text-base md:text-lg font-normal text-gray-500 mr-1">ر.س</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-blue-600 mb-1 font-semibold">
-                            <Truck size={18} />
+                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2 text-blue-600 mb-1 font-semibold text-xs md:text-base">
+                            <Truck size={16} />
                             <span>المركبات</span>
                         </div>
-                        <div className="text-2xl font-bold">{summary?.totalVehicles || 0}</div>
+                        <div className="text-lg md:text-2xl font-bold">{summary?.totalVehicles || 0}</div>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-purple-600 mb-1 font-semibold">
-                            <User size={18} />
+                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2 text-purple-600 mb-1 font-semibold text-xs md:text-base">
+                            <User size={16} />
                             <span>المناديب</span>
                         </div>
-                        <div className="text-2xl font-bold">{summary?.totalRiders || 0}</div>
+                        <div className="text-lg md:text-2xl font-bold">{summary?.totalRiders || 0}</div>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-blue-800 mb-1 font-semibold">
-                            <Hash size={18} />
+                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2 text-blue-800 mb-1 font-semibold text-xs md:text-base">
+                            <Hash size={16} />
                             <span>قطع الغيار</span>
                         </div>
-                        <div className="text-xl font-bold text-blue-900">
-                            {summary?.totalSparePartsCost?.toFixed(2) || '0.00'} ر.س
+                        <div className="text-base md:text-xl font-bold text-blue-900">
+                            {summary?.totalSparePartsCost?.toFixed(2) || '0.00'} <span className="text-xs">ر.س</span>
                         </div>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-purple-800 mb-1 font-semibold">
-                            <Hash size={18} />
+                    <div className="p-3 md:p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2 text-purple-800 mb-1 font-semibold text-xs md:text-base">
+                            <Hash size={16} />
                             <span>المعدات</span>
                         </div>
-                        <div className="text-xl font-bold text-purple-900">
-                            {summary?.totalAccessoriesCost?.toFixed(2) || '0.00'} ر.س
+                        <div className="text-base md:text-xl font-bold text-purple-900">
+                            {summary?.totalAccessoriesCost?.toFixed(2) || '0.00'} <span className="text-xs">ر.س</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Detail Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mx-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mx-4 md:mx-6">
                 {/* Vehicle Costs Table */}
-                <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
                     <div className="flex justify-between items-center mb-4 border-b pb-4">
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Truck className="text-blue-600" size={20} />
+                        <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <Truck className="text-blue-600" size={18} />
                             تكاليف المركبات
                         </h3>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={handleVehicleExport}
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
                             disabled={loading || !summary?.vehicleCosts?.length}
                         >
-                            <FileSpreadsheet size={16} className="ml-2" />
+                            <FileSpreadsheet size={14} className="ml-1" />
                             تصدير Excel
                         </Button>
                     </div>
                     <Table
-                        columns={vehicleColumns}
+                        columns={vehicleColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
                         data={summary?.vehicleCosts || []}
                         loading={loading}
                     />
                 </div>
 
                 {/* Rider Costs Table */}
-                <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
                     <div className="flex justify-between items-center mb-4 border-b pb-4">
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <User className="text-purple-600" size={20} />
+                        <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <User className="text-purple-600" size={18} />
                             تكاليف المناديب
                         </h3>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={handleRiderExport}
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
                             disabled={loading || !summary?.riderCosts?.length}
                         >
-                            <FileSpreadsheet size={16} className="ml-2" />
+                            <FileSpreadsheet size={14} className="ml-1" />
                             تصدير Excel
                         </Button>
                     </div>
                     <Table
-                        columns={riderColumns}
+                        columns={riderColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
                         data={summary?.riderCosts || []}
                         loading={loading}
                     />

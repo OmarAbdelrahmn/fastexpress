@@ -465,7 +465,7 @@ const FilterButton = ({ label, active, onClick, count, color = 'blue' }) => {
         <button
             onClick={onClick}
             className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm font-medium
+                flex items-center justify-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-lg border transition-all text-xs md:text-sm font-medium
                 ${active
                     ? activeClasses[color] || activeClasses.blue
                     : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
@@ -475,7 +475,7 @@ const FilterButton = ({ label, active, onClick, count, color = 'blue' }) => {
             <span>{label}</span>
             {count !== undefined && (
                 <span className={`
-                    px-2 py-0.5 rounded-full text-xs
+                    px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-full text-[10px] md:text-xs
                     ${active ? "bg-white/20" : "bg-gray-100 text-gray-600"}
                 `}>
                     {count}

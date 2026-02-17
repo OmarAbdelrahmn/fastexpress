@@ -219,27 +219,27 @@ export default function RiderAccessoriesPage() {
                 <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
             )}
 
-            <div className="flex justify-between items-center px-5">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer" onClick={() => {
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 px-4 md:px-6">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer w-full md:w-auto text-sm md:text-base" onClick={() => {
                     setEditingItem(null);
                     setIsModalOpen(true);
                 }}>
-                    <Plus size={20} className="ml-2" />
+                    <Plus size={18} className="ml-2" />
                     إضافة إكسسوار معدات جديد
                 </Button>
 
                 <Button
                     variant="outline"
-                    className="border-green-600 text-green-600 hover:bg-green-50"
+                    className="border-green-600 text-green-600 hover:bg-green-50 w-full md:w-auto text-sm md:text-base"
                     onClick={handleExcelExport}
                     disabled={filteredData.length === 0}
                 >
-                    <FileSpreadsheet size={20} className="ml-2" />
+                    <FileSpreadsheet size={18} className="ml-2" />
                     تصدير إكسل
                 </Button>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm mx-5">
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <div className="flex-1">
                         <Input

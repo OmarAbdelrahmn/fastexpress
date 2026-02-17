@@ -11,7 +11,6 @@ import {
     Activity,
     AlertTriangle,
     ArrowUp,
-    Building2,
     CheckCircle,
     XCircle,
     ShoppingBag,
@@ -59,12 +58,12 @@ export default function MemberDashboard() {
     const totalPeople = (stats?.totalEmployees || 0) + (stats?.activeRiders || 0) + (stats?.inactiveRiders || 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6 md:p-14 space-y-8 animate-fade-in" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br p-4 md:p-14 space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
             {/* Header Info */}
             <div>
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-gray-900">{t("dashboard.member.title")}</h1>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-sm border border-blue-100">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t("dashboard.member.title")}</h1>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-sm border border-blue-100 w-fit">
                         <Clock size={16} color={COLORS.blue} />
                         <span>{new Date().toLocaleDateString('ar-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
@@ -73,7 +72,7 @@ export default function MemberDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4">
                 {/* Row 1: Employee/Rider Stats */}
                 <StatCard
                     title={t("dashboard.member.totalEmployees")}
@@ -154,8 +153,8 @@ export default function MemberDashboard() {
             </div>
 
             {/* Housing Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-6">
+            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <Home className="text-blue-600" size={20} />
                         {t("dashboard.member.housingStatus")}
@@ -169,17 +168,17 @@ export default function MemberDashboard() {
 
                 {housing ? (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div className="p-4 bg-gray-50 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">{t("dashboard.member.capacity")}</p>
-                            <p className="text-2xl font-bold text-gray-900">{housing.capacity}</p>
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-xl">
+                            <p className="text-xs md:text-sm text-gray-500 mb-1">{t("dashboard.member.capacity")}</p>
+                            <p className="text-xl md:text-2xl font-bold text-gray-900">{housing.capacity}</p>
                         </div>
-                        <div className="p-4 bg-blue-50 rounded-xl">
-                            <p className="text-sm text-blue-600 mb-1">{t("dashboard.member.currentOccupancy")}</p>
-                            <p className="text-2xl font-bold text-blue-700">{housing.currentOccupancy}</p>
+                        <div className="p-3 md:p-4 bg-blue-50 rounded-xl">
+                            <p className="text-xs md:text-sm text-blue-600 mb-1">{t("dashboard.member.currentOccupancy")}</p>
+                            <p className="text-xl md:text-2xl font-bold text-blue-700">{housing.currentOccupancy}</p>
                         </div>
-                        <div className="p-4 bg-green-50 rounded-xl">
-                            <p className="text-sm text-green-600 mb-1">{t("dashboard.member.availableSpace")}</p>
-                            <p className="text-2xl font-bold text-green-700">{housing.availableSpace}</p>
+                        <div className="p-3 md:p-4 bg-green-50 rounded-xl">
+                            <p className="text-xs md:text-sm text-green-600 mb-1">{t("dashboard.member.availableSpace")}</p>
+                            <p className="text-xl md:text-2xl font-bold text-green-700">{housing.availableSpace}</p>
                         </div>
                     </div>
                 ) : (
@@ -188,9 +187,9 @@ export default function MemberDashboard() {
             </div>
 
             {/* Vehicles & Requests Section */}
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {/* Vehicles Breakdown */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <Car size={20} color={COLORS.blue} />
                         {t("dashboard.member.vehiclesBreakdown")}
@@ -224,7 +223,7 @@ export default function MemberDashboard() {
                 </div>
 
                 {/* Employees & Riders Breakdown */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <Users size={20} color={COLORS.blue} />
                         {t("navigation.employees")} & {t("navigation.riders")}
@@ -301,7 +300,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background,
 
     return (
         <Link href={link} className="block group">
-            <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
+            <div className={`rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
                 <div className="flex justify-between items-start mb-2">
                     <div className={`p-2 rounded-lg transition-colors ${iconColors[color] || iconColors.gray}`}>
                         <Icon size={20} />
@@ -312,7 +311,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background,
                 </div>
 
                 <div className="relative z-10 ">
-                    <h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{value}</h3>
                     <p className="font-medium text-white text-sm mb-1">{title}</p>
                     {subtitle && <p className="text-[10px] text-white">{subtitle}</p>}
                 </div>
