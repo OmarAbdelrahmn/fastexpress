@@ -156,7 +156,6 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p className="font-medium">{t('auth.adminsOnly')}</p>
           <button
