@@ -113,11 +113,15 @@ export default function AllRidersHistoryPage() {
     };
 
     const exportDetailedToExcel = () => {
+        const monthNamesOrder = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
         // 1. Collect all unique months across all filtered riders to create headers
         const allMonths = new Set();
         filteredData.forEach(rider => {
             rider.activeMonths?.forEach(month => {
-                // Formatting as "YYYY-MM" for sorting, then we'll display as "Month Year"
                 const monthKey = `${month.year}-${month.monthName}`;
                 allMonths.add(monthKey);
             });
@@ -125,14 +129,11 @@ export default function AllRidersHistoryPage() {
 
         // 2. Sort months chronologically
         const sortedMonths = Array.from(allMonths).sort((a, b) => {
-            const [yearA, monthA] = a.split('-');
-            const [yearB, monthB] = b.split('-');
-            if (yearA !== yearB) return yearA - yearB;
+            const [yearA, nameA] = a.split('-');
+            const [yearB, nameB] = b.split('-');
 
-            // Map month names to numbers for sorting if needed, but usually they come in order
-            // or we can rely on the data coming from the API being somewhat ordered.
-            // For now, simple sort or just use them as they appear if they are always in order.
-            return a.localeCompare(b);
+            if (yearA !== yearB) return parseInt(yearA) - parseInt(yearB);
+            return monthNamesOrder.indexOf(nameA) - monthNamesOrder.indexOf(nameB);
         });
 
         // 3. Prepare export data
@@ -147,15 +148,17 @@ export default function AllRidersHistoryPage() {
 
             // Initialize all month columns with 0
             sortedMonths.forEach(monthKey => {
-                const displayLabel = monthKey.split('-')[1] + ' ' + monthKey.split('-')[0];
+                const [year, name] = monthKey.split('-');
+                const displayLabel = `${name} ${year}`;
                 row[displayLabel] = 0;
             });
 
             // Fill in actual values
             rider.activeMonths?.forEach(month => {
-                const monthKey = `${month.year}-${month.monthName}`;
-                const displayLabel = month.monthName + ' ' + month.year;
-                row[displayLabel] = month.totalAcceptedOrders + month.totalRejectedOrders;
+                const displayLabel = `${month.monthName} ${month.year}`;
+                if (row.hasOwnProperty(displayLabel)) {
+                    row[displayLabel] = (month.totalAcceptedOrders || 0) + (month.totalRejectedOrders || 0);
+                }
             });
 
             return row;

@@ -91,7 +91,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
                     padding: 20px;
                     background: white !important;
                     z-index: 9999;
-                    direction: ${language === 'ar' ? 'rtl' : 'ltr'} !important;
+                    direction: rtl !important;
                   }
                    @page {
                     margin: 10mm;
