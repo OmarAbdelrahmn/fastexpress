@@ -28,26 +28,26 @@ export default function StatusRequestsPage() {
 
 
   useEffect(() => {
-      const userData = TokenManager.getUserFromToken();
-      setUser(userData);
-  
-      const updateTimer = () => {
-        const remaining = TokenManager.getRemainingTime();
-        if (remaining <= 0) {
-          logout();
-          return;
-        }
-  
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        setRemainingTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-      };
-  
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-  
-      return () => clearInterval(interval);
-    }, [logout]);
+    const userData = TokenManager.getUserFromToken();
+    setUser(userData);
+
+    const updateTimer = () => {
+      const remaining = TokenManager.getRemainingTime();
+      if (remaining <= 0) {
+        logout();
+        return;
+      }
+
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      setRemainingTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [logout]);
 
 
   useEffect(() => {
@@ -161,35 +161,36 @@ export default function StatusRequestsPage() {
         <div className="space-y-4">
           {pendingRequests.map((request) => (
             <Card key={request.id}>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className={`p-3 rounded-lg ${request.action === 'enable' ? 'bg-green-100' : 'bg-red-100'
-                    }`}>
-                    <User className={request.action === 'enable' ? 'text-green-600' : 'text-red-600'} size={28} />
+              <div className="flex flex-col gap-4">
+                {/* Top row: icon + info */}
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg flex-shrink-0 ${request.action === 'enable' ? 'bg-green-100' : 'bg-red-100'}`}>
+                    <User className={request.action === 'enable' ? 'text-green-600' : 'text-red-600'} size={22} />
                   </div>
 
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-bold text-gray-800 text-lg">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h3 className="font-bold text-gray-800 text-base">
                         {request.employeeNameAR}
                       </h3>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
                         {t('employees.statusChangeRequest')}
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 mb-2">
                       {request.employeeNameEN}
                     </p>
 
-                    <div className="flex items-center gap-4 mb-3">
+                    {/* Status change arrow */}
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
                       <div>
                         <span className="text-xs text-gray-600">{t('employees.fromStatus')}</span>
                         <div className="mt-1">
                           <StatusBadge status={request.currentStatus} />
                         </div>
                       </div>
-                      <div className="text-gray-400">←</div>
+                      <div className="text-gray-400 text-lg">←</div>
                       <div>
                         <span className="text-xs text-gray-600">{t('employees.toStatus')}</span>
                         <div className="mt-1">
@@ -198,51 +199,52 @@ export default function StatusRequestsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-600 mb-1">{t('employees.iqamaNumber')}</p>
-                        <p className="font-bold text-gray-800">{request.employeeIqamaNo}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                      <div className="bg-gray-50 p-2 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-0.5">{t('employees.iqamaNumber')}</p>
+                        <p className="font-bold text-gray-800 text-sm">{request.employeeIqamaNo}</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-600 mb-1">{t('employees.requestDate')}</p>
-                        <p className="font-medium text-gray-800 flex items-center gap-2">
-                          <Clock size={14} />
+                      <div className="bg-gray-50 p-2 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-0.5">{t('employees.requestDate')}</p>
+                        <p className="font-medium text-gray-800 text-xs flex items-center gap-1">
+                          <Clock size={12} />
                           {new Date(request.requestedAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'ar-SA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
 
                     {request.reason && (
-                      <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-3">
-                        <p className="text-sm font-bold text-blue-800 mb-1">{t('employees.requestReason')}</p>
-                        <p className="text-sm text-blue-700">{request.reason}</p>
+                      <div className="bg-blue-50 border border-blue-200 p-2 rounded-lg mb-2">
+                        <p className="text-xs font-bold text-blue-800 mb-1">{t('employees.requestReason')}</p>
+                        <p className="text-xs text-blue-700">{request.reason}</p>
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <User size={14} />
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <User size={12} />
                       <span>{t('employees.requestedBy')}: {request.requestedBy}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 mr-4">
+                {/* Action buttons — full width on mobile */}
+                <div className="flex flex-row gap-2">
                   <Button
                     onClick={() => handleResolve(request.employeeIqamaNo, 'Approved')}
                     disabled={processingId === request.employeeIqamaNo}
                     loading={processingId === request.employeeIqamaNo}
-                    className="whitespace-nowrap"
+                    className="flex-1"
                   >
-                    <CheckCircle size={18} className="ml-2" />
+                    <CheckCircle size={16} className="ml-1" />
                     {t('employees.approve')}
                   </Button>
                   <Button
                     onClick={() => handleResolve(request.employeeIqamaNo, 'Rejected')}
                     variant="secondary"
                     disabled={processingId === request.employeeIqamaNo}
-                    className="whitespace-nowrap"
+                    className="flex-1"
                   >
-                    <XCircle size={18} className="ml-2" />
+                    <XCircle size={16} className="ml-1" />
                     {t('employees.reject')}
                   </Button>
                 </div>

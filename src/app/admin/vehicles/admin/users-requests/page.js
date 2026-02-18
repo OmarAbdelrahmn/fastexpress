@@ -244,7 +244,7 @@ export default function PendingVehicleRequestsPage() {
         }}
       />
 
-      <div className="px-6 space-y-6">
+      <div className="px-2 sm:px-6 space-y-6">
         {errorMessage && (
           <Alert
             type="error"
@@ -264,54 +264,54 @@ export default function PendingVehicleRequestsPage() {
         )}
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 p-4">
-          <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 p-2 sm:p-4">
+          <div className="bg-purple-50 border-r-4 border-purple-500 p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-purple-600 mb-1">{t('vehicles.totalRequests')}</p>
-                <p className="text-2xl font-bold text-purple-700">{stats.total}</p>
+                <p className="text-xl font-bold text-purple-700">{stats.total}</p>
               </div>
-              <ClipboardList className="text-purple-500" size={32} />
+              <ClipboardList className="text-purple-500" size={24} />
             </div>
           </div>
 
-          <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
+          <div className="bg-green-50 border-r-4 border-green-500 p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-green-600 mb-1">{t('vehicles.takeRequests')}</p>
-                <p className="text-2xl font-bold text-green-700">{stats.take}</p>
+                <p className="text-xl font-bold text-green-700">{stats.take}</p>
               </div>
-              <Car className="text-green-500" size={32} />
+              <Car className="text-green-500" size={24} />
             </div>
           </div>
 
-          <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
+          <div className="bg-blue-50 border-r-4 border-blue-500 p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-blue-600 mb-1">{t('vehicles.returnRequests')}</p>
-                <p className="text-2xl font-bold text-blue-700">{stats.return}</p>
+                <p className="text-xl font-bold text-blue-700">{stats.return}</p>
               </div>
-              <RefreshCw className="text-blue-500" size={32} />
+              <RefreshCw className="text-blue-500" size={24} />
             </div>
           </div>
 
-          <div className="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
+          <div className="bg-orange-50 border-r-4 border-orange-500 p-3 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-orange-600 mb-1">{t('vehicles.problemReports')}</p>
-                <p className="text-2xl font-bold text-orange-700">{stats.problem}</p>
+                <p className="text-xl font-bold text-orange-700">{stats.problem}</p>
               </div>
-              <AlertTriangle className="text-orange-500" size={32} />
+              <AlertTriangle className="text-orange-500" size={24} />
             </div>
           </div>
 
-          <div className="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
+          <div className="bg-purple-50 border-r-4 border-purple-500 p-3 rounded-lg col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-purple-600 mb-1">{t('vehicles.switchVehicle')}</p>
-                <p className="text-2xl font-bold text-purple-700">{stats.switched}</p>
+                <p className="text-xl font-bold text-purple-700">{stats.switched}</p>
               </div>
-              <RefreshCw className="text-purple-500" size={32} />
+              <RefreshCw className="text-purple-500" size={24} />
             </div>
           </div>
         </div>
@@ -483,14 +483,14 @@ export default function PendingVehicleRequestsPage() {
         {/* Resolve Modal */}
         {/* Resolve Modal - Visual Overhaul */}
         {showResolveModal && selectedRequest && (
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden overflow-y-auto max-h-[95dvh] animate-in zoom-in-95 duration-200">
 
               {/* Header */}
-              <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <div className="bg-gray-50 px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">{t('vehicles.reviewRequestTitle')}</h2>
-                  <p className="text-gray-500 text-sm mt-1">Review the details below and take action</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-800">{t('vehicles.reviewRequestTitle')}</h2>
+                  <p className="text-gray-500 text-xs sm:text-sm mt-1">Review the details below and take action</p>
                 </div>
                 <button
                   onClick={() => {
@@ -500,88 +500,86 @@ export default function PendingVehicleRequestsPage() {
                   }}
                   className="p-2 bg-white rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all shadow-sm border border-gray-100"
                 >
-                  <XCircle size={24} />
+                  <XCircle size={22} />
                 </button>
               </div>
 
-              <div className="p-8">
-                {/* Vehicle & Rider Info Block */}
-                <div className="flex gap-6 mb-8 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+              <div className="p-4 sm:p-8">
+                {/* Vehicle & Rider Info Block — stacks on mobile */}
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-sm">
                   <div className="flex-1">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('vehicles.requestDetails')}</p>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
 
                       {selectedRequest.operationType?.toLowerCase() === 'switched' ? (
                         <>
                           <div className="flex justify-between items-center bg-red-50 p-2 rounded">
                             <span className="text-gray-600 text-xs">{t('vehicles.returnRequestLabel')}</span>
-                            <span className="font-bold text-gray-800 font-mono text-base line-through opacity-70">
+                            <span className="font-bold text-gray-800 font-mono text-sm line-through opacity-70">
                               {formatPlateNumber(selectedRequest.newVehiclePlate)}
                             </span>
                           </div>
                           <div className="flex justify-between items-center bg-green-50 p-2 rounded">
                             <span className="text-gray-600 text-xs">{t('vehicles.takeRequestLabel')}</span>
-                            <span className="font-bold text-gray-800 font-mono text-lg">
+                            <span className="font-bold text-gray-800 font-mono text-base">
                               {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
                             </span>
                           </div>
                         </>
                       ) : (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">{t('vehicles.plateNumber')}</span>
-                          <span className="font-bold text-gray-800 font-mono text-lg bg-gray-50 px-2 py-1 rounded">
-                              {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
+                          <span className="text-gray-600 text-sm">{t('vehicles.plateNumber')}</span>
+                          <span className="font-bold text-gray-800 font-mono text-base bg-gray-50 px-2 py-1 rounded">
+                            {formatPlateNumber(selectedRequest.vehiclePlateNumber)}
                           </span>
                         </div>
                       )}
 
-
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">{t('vehicles.employeeIqama')}</span>
-                        <span className="font-bold text-gray-800 font-mono">{selectedRequest.riderIqamaNo}</span>
+                        <span className="text-gray-600 text-sm">{t('vehicles.employeeIqama')}</span>
+                        <span className="font-bold text-gray-800 font-mono text-sm">{selectedRequest.riderIqamaNo}</span>
                       </div>
                       {selectedRequest.requestedBy && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">{t('vehicles.requester')}</span>
-                          <span className="font-bold text-gray-800 font-mono">{selectedRequest.requestedBy}</span>
+                          <span className="text-gray-600 text-sm">{t('vehicles.requester')}</span>
+                          <span className="font-bold text-gray-800 font-mono text-sm">{selectedRequest.requestedBy}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">{t('vehicles.operationType')}</span>
-                        <span className={`font-semibold px-3 py-1 rounded-full text-xs ${getOperationTypeColor(selectedRequest.operationType).bg} ${getOperationTypeColor(selectedRequest.operationType).text}`}>
+                        <span className="text-gray-600 text-sm">{t('vehicles.operationType')}</span>
+                        <span className={`font-semibold px-2 py-1 rounded-full text-xs ${getOperationTypeColor(selectedRequest.operationType).bg} ${getOperationTypeColor(selectedRequest.operationType).text}`}>
                           {getOperationTypeLabel(selectedRequest.operationType)}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Vertical Separator */}
-                  <div className="w-px bg-gray-100"></div>
+                  {/* Separator: horizontal on mobile, vertical on sm+ */}
+                  <div className="h-px sm:h-auto sm:w-px bg-gray-100"></div>
 
                   <div className="flex-1 flex flex-col justify-center items-center text-center">
                     {selectedRequest.reason ? (
                       <>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('common.reason')}</p>
-                        <p className="text-gray-700 italic">"{selectedRequest.reason}"</p>
+                        <p className="text-gray-700 italic text-sm">"{selectedRequest.reason}"</p>
                       </>
                     ) : (
-                      <div className="text-gray-300 flex flex-col items-center justify-center h-full">
-                        <Package size={48} className="mb-2 opacity-20" />
-                        <span className="text-sm">No additional notes provided</span>
+                      <div className="text-gray-300 flex flex-col items-center justify-center py-4">
+                        <Package size={36} className="mb-2 opacity-20" />
+                        <span className="text-xs">No additional notes provided</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-
                 {/* Action Form */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {(selectedRequest.operationType?.toLowerCase() === 'taken' || selectedRequest.operationType?.toLowerCase() === 'switched') && (
-                    <div className="bg-purple-50/50 border border-purple-100 p-6 rounded-2xl">
-                      <h3 className="text-purple-800 font-bold mb-4 flex items-center gap-2">
-                        <CheckCircle size={18} /> {t('vehicles.approvalRequirements')}
+                    <div className="bg-purple-50/50 border border-purple-100 p-4 sm:p-6 rounded-2xl">
+                      <h3 className="text-purple-800 font-bold mb-3 flex items-center gap-2 text-sm sm:text-base">
+                        <CheckCircle size={16} /> {t('vehicles.approvalRequirements')}
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                             {t('vehicles.permission')} <span className="text-red-500">*</span>
@@ -593,7 +591,7 @@ export default function PendingVehicleRequestsPage() {
                               setPermission(e.target.value);
                               if (fieldErrors.permission) setFieldErrors({ ...fieldErrors, permission: null });
                             }}
-                            className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permission ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
+                            className={`w-full px-3 py-2 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none text-sm ${fieldErrors.permission ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
                             placeholder="e.g. Monthly Delivery Authorization"
                           />
                           {fieldErrors.permission && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permission}</p>}
@@ -609,7 +607,7 @@ export default function PendingVehicleRequestsPage() {
                               setPermissionEndDate(e.target.value);
                               if (fieldErrors.permissionEndDate) setFieldErrors({ ...fieldErrors, permissionEndDate: null });
                             }}
-                            className={`w-full px-4 py-3 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none ${fieldErrors.permissionEndDate ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
+                            className={`w-full px-3 py-2 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none text-sm ${fieldErrors.permissionEndDate ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
                           />
                           {fieldErrors.permissionEndDate && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permissionEndDate}</p>}
                         </div>
@@ -626,30 +624,30 @@ export default function PendingVehicleRequestsPage() {
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
                       placeholder={t('vehicles.notesPlaceholder')}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all outline-none resize-none"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all outline-none resize-none text-sm"
                     />
                   </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="flex gap-4 justify-end pt-8 mt-4 border-t border-gray-100">
+                {/* Footer Actions — stack on mobile */}
+                <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end pt-6 mt-4 border-t border-gray-100">
                   <Button
                     onClick={() => handleResolve(selectedRequest, false)}
                     loading={resolving}
                     disabled={resolving}
                     variant="secondary"
-                    className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-transparent px-8 py-3 h-auto text-base rounded-xl"
+                    className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-transparent w-full sm:w-auto rounded-xl"
                   >
-                    <XCircle size={20} className="mr-2" />
+                    <XCircle size={18} className="mr-2" />
                     {t('vehicles.rejectRequest')}
                   </Button>
                   <Button
                     onClick={() => handleResolve(selectedRequest, true)}
                     loading={resolving}
                     disabled={resolving}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 h-auto text-base rounded-xl shadow-lg shadow-purple-200"
+                    className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto rounded-xl shadow-lg shadow-purple-200"
                   >
-                    <CheckCircle size={20} className="mr-2" />
+                    <CheckCircle size={18} className="mr-2" />
                     {t('vehicles.approveRequest')}
                   </Button>
                 </div>
