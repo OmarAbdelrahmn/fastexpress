@@ -68,7 +68,7 @@ export default function AllRidersHistoryPage() {
         if (companyFilter) {
             const workingIdLength = rider.workingId?.toString().length || 0;
             if (companyFilter === 'hunger') {
-                matchesCompany = workingIdLength === 7;
+                matchesCompany = workingIdLength <= 7;
             } else if (companyFilter === 'keta') {
                 matchesCompany = workingIdLength > 7;
             }
@@ -110,6 +110,61 @@ export default function AllRidersHistoryPage() {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "سجل المناديب");
         XLSX.writeFile(wb, "riders_history.xlsx");
+    };
+
+    const exportDetailedToExcel = () => {
+        // 1. Collect all unique months across all filtered riders to create headers
+        const allMonths = new Set();
+        filteredData.forEach(rider => {
+            rider.activeMonths?.forEach(month => {
+                // Formatting as "YYYY-MM" for sorting, then we'll display as "Month Year"
+                const monthKey = `${month.year}-${month.monthName}`;
+                allMonths.add(monthKey);
+            });
+        });
+
+        // 2. Sort months chronologically
+        const sortedMonths = Array.from(allMonths).sort((a, b) => {
+            const [yearA, monthA] = a.split('-');
+            const [yearB, monthB] = b.split('-');
+            if (yearA !== yearB) return yearA - yearB;
+
+            // Map month names to numbers for sorting if needed, but usually they come in order
+            // or we can rely on the data coming from the API being somewhat ordered.
+            // For now, simple sort or just use them as they appear if they are always in order.
+            return a.localeCompare(b);
+        });
+
+        // 3. Prepare export data
+        const exportData = filteredData.map(rider => {
+            const row = {
+                "الاسم": rider.riderName,
+                "الرقم الوظيفي": rider.workingId,
+                "الإقامة": rider.iqamaNo,
+                "السكن": rider.housingName || '-',
+                "إجمالي الطلبات (الفترة)": rider.totalOrders,
+            };
+
+            // Initialize all month columns with 0
+            sortedMonths.forEach(monthKey => {
+                const displayLabel = monthKey.split('-')[1] + ' ' + monthKey.split('-')[0];
+                row[displayLabel] = 0;
+            });
+
+            // Fill in actual values
+            rider.activeMonths?.forEach(month => {
+                const monthKey = `${month.year}-${month.monthName}`;
+                const displayLabel = month.monthName + ' ' + month.year;
+                row[displayLabel] = month.totalAcceptedOrders + month.totalRejectedOrders;
+            });
+
+            return row;
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "تقرير المناديب الشهري");
+        XLSX.writeFile(wb, "riders_monthly_pivot_report.xlsx");
     };
 
     const stats = filteredData.reduce((acc, rider) => {
@@ -183,14 +238,25 @@ export default function AllRidersHistoryPage() {
                         onClick={exportToExcel}
                         disabled={filteredData.length === 0}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+                        title="تصدير ملخص"
                     >
                         <Download size={18} />
                         {"تصدير"}
                     </button>
+
+                    <button
+                        onClick={exportDetailedToExcel}
+                        disabled={filteredData.length === 0}
+                        className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 disabled:opacity-50 flex items-center gap-2"
+                        title="تصدير تفصيلي (شهري)"
+                    >
+                        <Download size={18} />
+                        {"تصدير تفصيلي"}
+                    </button>
                 </div>
             </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <p className="text-sm text-gray-500 mb-1">الطلبات المقبولة</p>
