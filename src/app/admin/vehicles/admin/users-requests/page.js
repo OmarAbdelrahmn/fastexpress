@@ -24,6 +24,7 @@ import {
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber } from "@/lib/utils/formatters";
 
+
 export default function PendingVehicleRequestsPage() {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
