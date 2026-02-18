@@ -29,18 +29,28 @@ generateSW({
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
-    runtimeCaching: [
-        {
-            urlPattern: /^https?.*/,
-            handler: 'NetworkFirst',
-            options: {
-                cacheName: 'offlineCache',
-                expiration: {
-                    maxEntries: 200,
-                },
-            },
-        },
-    ],
+runtimeCaching: [
+  {
+    urlPattern: /^\/_next\/static\//,
+    handler: 'CacheFirst',
+    options: {
+      cacheName: 'next-static',
+      expiration: {
+        maxEntries: 100,
+      },
+    },
+  },
+  {
+    urlPattern: /\.(?:png|jpg|jpeg|svg|ico|webp)$/,
+    handler: 'CacheFirst',
+    options: {
+      cacheName: 'images',
+      expiration: {
+        maxEntries: 100,
+      },
+    },
+  },
+],
 }).then(({ count, size }) => {
     console.log(`Generated ${swDest}, which will precache ${count} files, totaling ${size} bytes.`);
 }).catch(console.error);
