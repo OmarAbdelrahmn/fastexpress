@@ -56,8 +56,6 @@ export default function PendingVehicleRequestsPage() {
       const enhancedRequests = await Promise.all(requests.map(async (req) => {
         if (req.operationType?.toLowerCase() === 'switched' && req.vehicleNumber) {
           try {
-            // New vehicle info is stored in vehicleNumber for switched requests
-            // We need to fetch the plate number for the NEW vehicle
             const newVehicleData = await ApiService.get(API_ENDPOINTS.VEHICLES.BY_CHASE(req.vehicleNumber));
             return {
               ...req,

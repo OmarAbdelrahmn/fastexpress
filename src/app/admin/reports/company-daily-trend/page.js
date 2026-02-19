@@ -122,11 +122,8 @@ export default function CompanyDailyTrendPage() {
             ...item,
             hungerUniqueRiders: item.count > 0 ? Math.round(item.hungerUniqueRiders / (item.count / 2)) : 0, // Approx count of days
             ketaUniqueRiders: item.count > 0 ? Math.round(item.ketaUniqueRiders / (item.count / 2)) : 0,
-            // Actually, since we have companyId 1 and 2, each day might have 2 records. 
-            // If we group by date, we might have 1 record for Hunger and 1 for Keta.
-            // Let's refine: item.count is total records. If each day has both companies, item.count / 2 is day count.
         }));
-    }, [rawData, zoomLevel, startDate, endDate]);
+    }, [rawData, zoomLevel, startDate, endDate]); // `zoomLevel` here is the aggregation zoom
 
     // Calculate statistics for the filtered data
     const statistics = useMemo(() => {
@@ -343,43 +340,48 @@ export default function CompanyDailyTrendPage() {
                         </div>
 
                         {/* Bottom Row: Zoom Levels & Refresh */}
-                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-t pt-4">
-                            <div className="flex gap-2">
-                                <span className="text-sm text-gray-500 self-center mr-2">{t('companyDailyTrend.zoomLevel')}:</span>
-                                <Button
-                                    variant={zoomLevel === 'day' ? 'primary' : 'outline'}
-                                    onClick={() => setZoomLevel('day')}
-                                    size="sm"
-                                >
-                                    {t('companyDailyTrend.days')}
-                                </Button>
-                                <Button
-                                    variant={zoomLevel === 'week' ? 'primary' : 'outline'}
-                                    onClick={() => setZoomLevel('week')}
-                                    size="sm"
-                                >
-                                    {t('companyDailyTrend.weeks')}
-                                </Button>
-                                <Button
-                                    variant={zoomLevel === 'month' ? 'primary' : 'outline'}
-                                    onClick={() => setZoomLevel('month')}
-                                    size="sm"
-                                >
-                                    {t('companyDailyTrend.months')}
-                                </Button>
-                                <Button
-                                    variant={zoomLevel === 'year' ? 'primary' : 'outline'}
-                                    onClick={() => setZoomLevel('year')}
-                                    size="sm"
-                                >
-                                    {t('companyDailyTrend.years')}
-                                </Button>
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    {t('dailyTrendAnalysis')}
+                                </h2>
+                                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
+                                    {chartData.length} {t('days')}
+                                </span>
                             </div>
 
-                            <Button onClick={handleLoadData} disabled={loading} variant="outline" size="sm">
-                                <Search size={16} className="mr-2" />
-                                {t('common.refresh')}
-                            </Button>
+                            <div className="flex flex-wrap items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                                <button
+                                    onClick={() => setZoomLevel(prev => Math.max(prev - 1, 0))}
+                                    disabled={zoomLevel === 0}
+                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md disabled:opacity-50 transition-all text-gray-600"
+                                    title="تصغير"
+                                >
+                                    <ZoomOut size={18} />
+                                </button>
+                                <span className="text-xs font-mono font-bold text-gray-500 w-8 text-center">
+                                    {parseInt(100 + (zoomLevel * 10))}%
+                                </span>
+                                <button
+                                    onClick={() => setZoomLevel(prev => Math.min(prev + 1, 5))}
+                                    disabled={zoomLevel === 5}
+                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md disabled:opacity-50 transition-all text-gray-600"
+                                    title="تكبير"
+                                >
+                                    <ZoomIn size={18} />
+                                </button>
+                                <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                                <button
+                                    onClick={() => {
+                                        setZoomLevel(0);
+                                        setReferenceLine(null);
+                                    }}
+                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md text-gray-600 transition-all"
+                                    title="إعادة تعيين"
+                                >
+                                    <RefreshCcw size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </Card>
@@ -512,7 +514,7 @@ export default function CompanyDailyTrendPage() {
             {/* Chart Area */}
             <div className="mx-8 my-5">
                 <Card>
-                    <div className="h-[500px] w-full p-4">
+                    <div className="h-[300px] md:h-[400px] w-full" style={{ direction: 'ltr' }}>
                         {loading ? (
                             <div className="h-full flex items-center justify-center">{t('common.loading')}</div>
                         ) : (

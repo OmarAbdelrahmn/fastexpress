@@ -192,46 +192,50 @@ export default function AllRidersHistoryPage() {
 
 
             {/* Filters */}
-            <div className="bg-white p-4  rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end m-6">
-                <div className="flex-1 w-full">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{"بحث"}</label>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder={"بحث بالاسم أو الرقم..."}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-4 m-4 md:m-6">
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                    <div className="flex-1 w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{"بحث"}</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder={"بحث بالاسم أو الرقم..."}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{"تاريخ البداية"}</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{"تاريخ النهاية"}</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{"تاريخ البداية"}</label>
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{"تاريخ النهاية"}</label>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div className="flex gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:flex gap-2 w-full">
                     <button
                         onClick={fetchData}
                         disabled={loading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? '...' : <Search size={18} />}
                         {"بحث"}
@@ -240,7 +244,7 @@ export default function AllRidersHistoryPage() {
                     <button
                         onClick={exportToExcel}
                         disabled={filteredData.length === 0}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
                         title="تصدير ملخص"
                     >
                         <Download size={18} />
@@ -250,7 +254,7 @@ export default function AllRidersHistoryPage() {
                     <button
                         onClick={exportDetailedToExcel}
                         disabled={filteredData.length === 0}
-                        className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 disabled:opacity-50 flex items-center gap-2"
+                        className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 disabled:opacity-50 flex items-center justify-center gap-2"
                         title="تصدير تفصيلي (شهري)"
                     >
                         <Download size={18} />
@@ -259,7 +263,7 @@ export default function AllRidersHistoryPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 m-4 md:m-6">
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <p className="text-sm text-gray-500 mb-1">الطلبات المقبولة</p>
@@ -281,9 +285,8 @@ export default function AllRidersHistoryPage() {
                 </div>
             </div>
 
-            {/* Data Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden m-6">
-                <div className="overflow-x-auto">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden m-4 md:m-6">
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm text-right">
                         <thead className="bg-gray-50 text-gray-700 font-bold uppercase text-xs">
                             <tr>
@@ -440,6 +443,108 @@ export default function AllRidersHistoryPage() {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4 p-4">
+                    {/* Data Loading/Empty States */}
+                    {loading ? (
+                        <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+                    ) : filteredData.length === 0 ? (
+                        <div className="text-center text-gray-500 py-8">لا توجد بيانات</div>
+                    ) : (
+                        filteredData.map((rider, index) => (
+                            <div key={rider.workingId} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                <div
+                                    className="p-4 flex flex-col gap-3 cursor-pointer"
+                                    onClick={() => toggleRow(rider.workingId)}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                                {index + 1}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">{rider.riderName}</h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono text-gray-600">
+                                                        {rider.workingId}
+                                                    </span>
+                                                    <span className="text-xs text-gray-500">
+                                                        {rider.housingName || '-'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {rider.status ? <StatusBadge status={rider.status} /> : '-'}
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 p-2 rounded-lg">
+                                        <div>
+                                            <span className="text-[10px] text-gray-500 block">إجمالي الطلبات</span>
+                                            <span className="text-sm font-bold text-blue-600">{rider.totalOrders}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] text-gray-500 block">الورديات</span>
+                                            <span className="text-sm font-bold text-gray-800">{rider.totalShifts}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] text-gray-500 block">الشهور</span>
+                                            <span className="text-sm font-bold text-gray-800">{rider.totalMonthsWorked}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-center mt-1">
+                                        {expandedRows[rider.workingId] ? (
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <span>إخفاء التفاصيل</span>
+                                                <ChevronUp size={16} />
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <span>عرض التفاصيل الشهرية</span>
+                                                <ChevronDown size={16} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {expandedRows[rider.workingId] && (
+                                    <div className="border-t border-gray-100 bg-gray-50 p-3">
+                                        <div className="space-y-3">
+                                            {rider.activeMonths?.map((month, idx) => (
+                                                <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-bold text-sm text-gray-800">
+                                                            {month.monthName} {month.year}
+                                                        </span>
+                                                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                                            {month.totalShifts} يوم
+                                                        </span>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                                                        <div>
+                                                            <span className="text-gray-400 block mb-0.5">الطلبات</span>
+                                                            <span className="font-bold">{month.totalAcceptedOrders + month.totalRejectedOrders}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-400 block mb-0.5">المقبولة</span>
+                                                            <span className="font-bold text-green-600">{month.totalAcceptedOrders}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-400 block mb-0.5">الساعات</span>
+                                                            <span>{month.totalWorkingHours}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

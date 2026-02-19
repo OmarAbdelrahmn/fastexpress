@@ -315,31 +315,33 @@ export default function RiderPerformancePage() {
                             )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                                <label className="text-sm font-medium text-gray-700 px-2">من:</label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
-                                />
-                            </div>
+                        <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto mt-2 md:mt-0">
+                            <div className="flex w-full md:w-auto gap-2">
+                                <div className="flex-1 items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200 flex">
+                                    <label className="text-sm font-medium text-gray-700 px-2">من:</label>
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm w-full"
+                                    />
+                                </div>
 
-                            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                                <label className="text-sm font-medium text-gray-700 px-2">إلى:</label>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm"
-                                />
+                                <div className="flex-1 items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200 flex">
+                                    <label className="text-sm font-medium text-gray-700 px-2">إلى:</label>
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="bg-transparent border-none focus:ring-0 text-gray-700 font-medium text-sm w-full"
+                                    />
+                                </div>
                             </div>
 
                             <button
                                 onClick={fetchReport}
                                 disabled={loading}
-                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                                className="w-full md:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                             >
                                 {loading ? '...' : (
                                     <>
@@ -378,22 +380,22 @@ export default function RiderPerformancePage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex gap-4">
+                            <div className="flex flex-wrap gap-4 w-full md:w-auto justify-start md:justify-end">
                                 {reportData.isAboveTarget ? (
-                                    <div className="bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2">
+                                    <div className="bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2 text-sm md:text-base">
                                         <CheckCircle size={20} />
                                         <span>فوق المستهدف</span>
                                     </div>
                                 ) : (
-                                    <div className="bg-red-100 text-red-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2">
+                                    <div className="bg-red-100 text-red-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2 text-sm md:text-base">
                                         <XCircle size={20} />
                                         <span>لم يحقق التارجت</span>
                                     </div>
                                 )}
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-1 md:flex-none">
                                     <button
-                                        className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors "
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors "
                                         title="تصدير Excel"
                                         onClick={handleExportExcel}
                                     >
@@ -405,7 +407,7 @@ export default function RiderPerformancePage() {
                                         key={reportData.workingId + startDate + endDate}
                                         document={<RiderDailyReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
                                         fileName={`Rider_Performance_${reportData.riderNameAR || 'Report'}_${startDate}_${endDate}.pdf`}
-                                        className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {({ loading: pdfLoading }) => (
                                             <>
@@ -465,7 +467,7 @@ export default function RiderPerformancePage() {
                                     </span>
                                 </div>
 
-                                <div className="overflow-x-auto">
+                                <div className="hidden md:block overflow-x-auto">
                                     <table className="w-full text-right">
                                         <thead className="bg-gray-50 text-gray-500 text-sm">
                                             <tr>
@@ -511,6 +513,47 @@ export default function RiderPerformancePage() {
                                             })}
                                         </tbody>
                                     </table>
+                                </div>
+
+                                {/* Mobile Card View for Daily Details */}
+                                <div className="md:hidden space-y-4 p-4">
+                                    {reportData.dailyDetails.map((day, index) => {
+                                        const statusConfig = getShiftStatusConfig(day.hasShift, day.shiftStatus);
+                                        return (
+                                            <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                                <div className="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                                                    <span className="font-mono text-gray-700 font-bold">{day.date}</span>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${statusConfig.className}`}>
+                                                        {statusConfig.text}
+                                                    </span>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                                    <div className="bg-white p-2 rounded-lg border border-gray-100">
+                                                        <span className="text-gray-500 text-xs block mb-1">الطلبات</span>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="font-bold text-gray-800">{day.acceptedOrders}</span>
+                                                            {day.rejectedOrders > 0 && (
+                                                                <span className="text-red-600 text-xs font-bold">
+                                                                    {day.rejectedOrders} مرفوض
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-white p-2 rounded-lg border border-gray-100">
+                                                        <span className="text-gray-500 text-xs block mb-1">الساعات</span>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="font-bold text-gray-800">{day.workingHours?.toFixed(1)}</span>
+                                                            <span className={`px-1 rounded text-[10px] font-bold ${day.hoursDifference >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
+                                                                {day.hoursDifference?.toFixed(1)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

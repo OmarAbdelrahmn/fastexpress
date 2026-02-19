@@ -89,7 +89,6 @@ export default function HousingPerformanceReport() {
         setReportData(null);
 
         try {
-            // Append "2" to the endpoint if Keta is selected
             const endpoint = selectedCompany === 'keta'
                 ? API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY + '2'
                 : API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY;
@@ -99,7 +98,6 @@ export default function HousingPerformanceReport() {
                 endDate: form.endDate
             });
 
-            // The API might return the array directly or wrapped. Based on previous implementation, assuming array.
             if (data && data.length > 0) {
                 setReportData(data);
                 setSuccessMessage(t('common.successLoad'));
@@ -189,17 +187,17 @@ export default function HousingPerformanceReport() {
 
                 {/* Filter Form */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center gap-3 self-start md:self-center">
                             <Calendar className="text-blue-600" size={24} />
                             <h2 className="text-xl font-bold text-gray-800">اختر الفترة الزمنية</h2>
                         </div>
 
                         {/* Company Toggle Switch */}
-                        <div className="flex items-center gap-3 bg-gray-100 p-1 rounded-xl">
+                        <div className="flex items-center gap-3 bg-gray-100 p-1 rounded-xl w-full md:w-auto overflow-x-auto">
                             <button
                                 onClick={() => setSelectedCompany('hunger')}
-                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'hunger'
+                                className={`flex-1 md:flex-none px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'hunger'
                                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                                     : 'text-gray-600 hover:text-gray-800'
                                     }`}
@@ -208,7 +206,7 @@ export default function HousingPerformanceReport() {
                             </button>
                             <button
                                 onClick={() => setSelectedCompany('keta')}
-                                className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'keta'
+                                className={`flex-1 md:flex-none px-6 py-2 rounded-lg font-bold transition-all duration-300 ${selectedCompany === 'keta'
                                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
                                     : 'text-gray-600 hover:text-gray-800'
                                     }`}
@@ -240,11 +238,11 @@ export default function HousingPerformanceReport() {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 pt-2">
+                        <div className="flex flex-col md:flex-row items-center gap-4 pt-2">
                             <button
                                 onClick={handleSubmit}
                                 disabled={loading}
-                                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-bold transition-all"
+                                className="w-full md:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-bold transition-all"
                             >
                                 {loading ? (
                                     <>
@@ -263,26 +261,28 @@ export default function HousingPerformanceReport() {
                                 <>
                                     <button
                                         onClick={handleExcelExport}
-                                        className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
+                                        className="w-full md:w-auto bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
                                     >
                                         <FileSpreadsheet size={20} />
                                         {"تصدير اكسل"}
                                     </button>
 
-                                    <PDFDownloadLink
-                                        document={<HousingPerformanceReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('ridersPerformance')} language={language} t={t} selectedCompany={selectedCompany} />}
-                                        fileName={`housing_performance_report_${form.startDate}_${form.endDate}.pdf`}
-                                        className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
-                                    >
-                                        {({ blob, url, loading, error }) =>
-                                            loading ? t('common.loading') : (
-                                                <>
-                                                    <Printer size={20} />
-                                                    {"طباعة"}
-                                                </>
-                                            )
-                                        }
-                                    </PDFDownloadLink>
+                                    <div className="w-full md:w-auto">
+                                        <PDFDownloadLink
+                                            document={<HousingPerformanceReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('ridersPerformance')} language={language} t={t} selectedCompany={selectedCompany} />}
+                                            fileName={`housing_performance_report_${form.startDate}_${form.endDate}.pdf`}
+                                            className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all w-full md:w-auto"
+                                        >
+                                            {({ blob, url, loading, error }) =>
+                                                loading ? t('common.loading') : (
+                                                    <>
+                                                        <Printer size={20} />
+                                                        {"طباعة"}
+                                                    </>
+                                                )
+                                            }
+                                        </PDFDownloadLink>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -357,7 +357,8 @@ export default function HousingPerformanceReport() {
                                                 {t('riderDetails')} ({housing.summaryReport.riderSummaries.length})
                                             </h4>
 
-                                            <div className="overflow-x-auto">
+                                            {/* Desktop Table */}
+                                            <div className="hidden md:block overflow-x-auto">
                                                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                                                     <thead className="bg-gray-50">
                                                         <tr>
@@ -434,6 +435,81 @@ export default function HousingPerformanceReport() {
                                                         })}
                                                     </tbody>
                                                 </table>
+                                            </div>
+
+                                            {/* Mobile Card View */}
+                                            <div className="md:hidden space-y-4">
+                                                {housing.summaryReport.riderSummaries.map((rider, idx) => {
+                                                    const hoursDiff = rider.hoursDifference;
+                                                    const hoursPositive = hoursDiff >= 0;
+
+                                                    // Recalculate target orders and difference based on company
+                                                    const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
+                                                    const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
+                                                    const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
+                                                    const ordersPositive = recalculatedOrdersDiff >= 0;
+
+                                                    const missingDays = Math.abs(rider.missingDays || 0);
+
+                                                    return (
+                                                        <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                                            <div className="flex justify-between items-start mb-3 border-b border-gray-200 pb-2">
+                                                                <div>
+                                                                    <div className="font-bold text-gray-900">{rider.riderNameAR}</div>
+                                                                    <div className="text-xs text-gray-500">{rider.riderNameEN}</div>
+                                                                </div>
+                                                                <span className="font-mono bg-white px-2 py-1 rounded text-xs border border-gray-200 text-gray-600">
+                                                                    {rider.workingId}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                                <div>
+                                                                    <span className="text-gray-500 block text-xs">{"ايام العمل"}</span>
+                                                                    <span className="font-medium">{rider.actualWorkingDays}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-500 block text-xs text-red-500">{"ايام الغياب"}</span>
+                                                                    <span className="font-bold text-red-600">{missingDays > 0 ? missingDays : '-'}</span>
+                                                                </div>
+
+                                                                <div className="col-span-2 grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border border-gray-200">
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الساعات"}</span>
+                                                                        <span className="font-bold text-gray-800 block text-xs">{rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(1) : "0"}</span>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الهدف"}</span>
+                                                                        <span className="text-gray-500 block text-xs">{rider.targetWorkingHours}</span>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الفرق"}</span>
+                                                                        <span className={`block text-xs font-bold ${hoursPositive ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {hoursPositive ? '+' : ''}{hoursDiff ? Number(hoursDiff).toFixed(1) : "0"}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="col-span-2 grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border border-gray-200">
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الطلبات"}</span>
+                                                                        <span className="font-bold text-blue-600 block text-xs">{rider.totalOrders}</span>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الهدف"}</span>
+                                                                        <span className="text-gray-500 block text-xs">{recalculatedTargetOrders}</span>
+                                                                    </div>
+                                                                    <div className="text-center">
+                                                                        <span className="text-gray-400 block text-[10px]">{"الفرق"}</span>
+                                                                        <span className={`block text-xs font-bold ${ordersPositive ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {ordersPositive ? '+' : ''}{recalculatedOrdersDiff}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
