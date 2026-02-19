@@ -237,18 +237,18 @@ export default function VehiclesWithRidersPage() {
 
         <Card>
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-3">
+            <div className="hidden md:flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Filter size={20} className="text-gray-600" />
                 <h3 className="text-lg font-bold text-gray-800">{t('vehicles.filterResults')}</h3>
               </div>
             </div>
 
-            <div className="hidden md:flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-4">
+              <div className="hidden md:flex flex-wrap gap-2 overflow-x-auto pb-2">
                 <button
                   onClick={() => setStatusFilter("all")}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
+                  className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "all"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
@@ -268,7 +268,7 @@ export default function VehiclesWithRidersPage() {
                     <button
                       key={item.key}
                       onClick={() => setStatusFilter(item.key)}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === item.key
+                      className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === item.key
                         ? `${attrs.styles.badge} text-white`
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
@@ -279,13 +279,15 @@ export default function VehiclesWithRidersPage() {
                 })}
               </div>
 
-              <Button
-                onClick={handleExportExcel}
-                className="!bg-green-600 hover:!bg-green-700 text-white !py-1.5 text-sm h-auto shadow-sm p-2"
-              >
-                <Download size={16} className="ml-2" />
-                {t('common.exportExcel')}
-              </Button>
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleExportExcel}
+                  className="!bg-green-600 hover:!bg-green-700 text-white !py-1.5 text-sm h-auto shadow-sm p-2 w-full md:w-auto justify-center"
+                >
+                  <Download size={16} className="ml-2" />
+                  {t('common.exportExcel')}
+                </Button>
+              </div>
             </div>
 
             <div className="relative">
@@ -320,112 +322,181 @@ export default function VehiclesWithRidersPage() {
               <p className="text-gray-600">{t('common.noResults')}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="w-full text-start border-collapse">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.vehicle')}</th>
-                    <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.details')}</th>
-                    <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('employees.rider')}</th>
-                    <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('vehicles.statuss')}</th>
-                    <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[10%]">{t('common.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredVehicles.map((vehicle) => {
-                    const effectiveStatus = getEffectiveStatus(vehicle);
+            <div className="w-full">
+              <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200">
+                <table className="w-full text-start border-collapse">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.vehicle')}</th>
+                      <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('vehicles.details')}</th>
+                      <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[25%]">{t('employees.rider')}</th>
+                      <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[15%]">{t('vehicles.statuss')}</th>
+                      <th className="p-2 text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider text-start w-[10%]">{t('common.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredVehicles.map((vehicle) => {
+                      const effectiveStatus = getEffectiveStatus(vehicle);
 
-                    const attrs = getVehicleStatusAttributes(effectiveStatus, t);
+                      const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 
-                    return (
-                      <tr key={vehicle.vehicleNumber} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-2 align-top">
-                          <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
-                              <attrs.icon size={20} />
-                            </div>
-                            <div>
-                              <div className="text-xs md:text-sm font-bold text-gray-900">
-                                {formatPlateNumber(vehicle.plateNumberA)}
+                      return (
+                        <tr key={vehicle.vehicleNumber} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-2 align-top">
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
+                                <attrs.icon size={20} />
                               </div>
-                              <div className="space-y-0.5 mt-1">
-                                <div className="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
-                                  <Package size={12} />
-                                  <span>{vehicle.serialNumber}</span>
+                              <div>
+                                <div className="text-xs md:text-sm font-bold text-gray-900">
+                                  {formatPlateNumber(vehicle.plateNumberA)}
                                 </div>
-                                <div className="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
-                                  <Car size={12} />
-                                  <span>{vehicle.vehicleNumber}</span>
+                                <div className="space-y-0.5 mt-1">
+                                  <div className="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
+                                    <Package size={12} />
+                                    <span>{vehicle.serialNumber}</span>
+                                  </div>
+                                  <div className="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
+                                    <Car size={12} />
+                                    <span>{vehicle.vehicleNumber}</span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="p-2 align-top">
-                          <div className="text-[10px] md:text-sm font-medium text-gray-900">{vehicle.vehicleType}</div>
-                          <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
-                            {vehicle.manufacturer} {vehicle.manufactureYear ? `(${vehicle.manufactureYear})` : ''}
-                          </div>
-                          {vehicle.location && (
-                            <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-1">
-                              <MapPin size={12} />
-                              {vehicle.location}
+                          </td>
+                          <td className="p-2 align-top">
+                            <div className="text-[10px] md:text-sm font-medium text-gray-900">{vehicle.vehicleType}</div>
+                            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
+                              {vehicle.manufacturer} {vehicle.manufactureYear ? `(${vehicle.manufactureYear})` : ''}
                             </div>
-                          )}
-                        </td>
-
-                        <td className="p-2 align-top">
-                          {vehicle.currentRider ? (
-                            <div className="space-y-1">
-                              <div className="text-sm md:text-base font-bold text-gray-900">
-                                {vehicle.currentRider.riderName || '-'}
-                              </div>
-                              <div className="text-xs md:text-sm text-gray-600">
-                                {vehicle.currentRider.riderNameE || '-'}
-                              </div>
-                              <div className="text-xs md:text-sm text-gray-500 flex flex-col gap-0.5 mt-1">
-                                {vehicle.currentRider.employeeIqamaNo && (
-                                  <span className="font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded w-fit text-[10px] md:text-xs font-medium">
-                                    {t('employees.iqamaNumber')}: {vehicle.currentRider.employeeIqamaNo}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400 text-[10px] md:text-sm italic">-</span>
-                          )}
-                        </td>
-
-                        <td className="p-2 align-top">
-                          <div className="flex flex-col items-start gap-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${attrs.styles.badge} text-white`}>
-                              {attrs.label}
-                            </span>
-                            {vehicle.statusSince && (
-                              <div className="text-[10px] md:text-xs text-gray-400 flex items-center gap-1 px-1">
-                                <Calendar size={12} />
-                                {new Date(vehicle.statusSince).toLocaleDateString("en-US")}
+                            {vehicle.location && (
+                              <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-1">
+                                <MapPin size={12} />
+                                {vehicle.location}
                               </div>
                             )}
+                          </td>
+
+                          <td className="p-2 align-top">
+                            {vehicle.currentRider ? (
+                              <div className="space-y-1">
+                                <div className="text-sm md:text-base font-bold text-gray-900">
+                                  {vehicle.currentRider.riderName || '-'}
+                                </div>
+                                <div className="text-xs md:text-sm text-gray-600">
+                                  {vehicle.currentRider.riderNameE || '-'}
+                                </div>
+                                <div className="text-xs md:text-sm text-gray-500 flex flex-col gap-0.5 mt-1">
+                                  {vehicle.currentRider.employeeIqamaNo && (
+                                    <span className="font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded w-fit text-[10px] md:text-xs font-medium">
+                                      {t('employees.iqamaNumber')}: {vehicle.currentRider.employeeIqamaNo}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-[10px] md:text-sm italic">-</span>
+                            )}
+                          </td>
+
+                          <td className="p-2 align-top">
+                            <div className="flex flex-col items-start gap-1">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${attrs.styles.badge} text-white`}>
+                                {attrs.label}
+                              </span>
+                              {vehicle.statusSince && (
+                                <div className="text-[10px] md:text-xs text-gray-400 flex items-center gap-1 px-1">
+                                  <Calendar size={12} />
+                                  {new Date(vehicle.statusSince).toLocaleDateString("en-US")}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-2 align-top text-center">
+                            <Button
+                              onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                              variant="secondary"
+                              className="!py-1 !px-2 text-[10px] h-auto"
+                            >
+                              <Eye size={16} className="hidden md:inline-block mr-1.5" />
+                              {t('vehicles.viewDetails')}
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {filteredVehicles.map((vehicle) => {
+                  const effectiveStatus = getEffectiveStatus(vehicle);
+                  const attrs = getVehicleStatusAttributes(effectiveStatus, t);
+
+                  return (
+                    <div key={vehicle.vehicleNumber} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
+                            <attrs.icon size={20} />
                           </div>
-                        </td>
-                        <td className="p-2 align-top text-center">
-                          <Button
-                            onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
-                            variant="secondary"
-                            className="!py-1 !px-2 text-[10px] h-auto"
-                          >
-                            <Eye size={16} className="hidden md:inline-block mr-1.5" />
-                            {t('vehicles.viewDetails')}
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                          <div>
+                            <h3 className="font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</h3>
+                            <span className="text-xs text-gray-500 font-mono">{vehicle.vehicleNumber}</span>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${attrs.styles.badge} text-white`}>
+                          {attrs.label}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100 mb-3">
+                        <div>
+                          <span className="text-gray-500 text-xs block">{t('vehicles.type')}</span>
+                          <span className="font-medium text-gray-800">{vehicle.vehicleType}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 text-xs block">{t('vehicles.currentLocation')}</span>
+                          <div className="flex items-center gap-1 text-gray-800">
+                            <MapPin size={12} className="text-gray-400" />
+                            <span className="truncate">{vehicle.location || '-'}</span>
+                          </div>
+                        </div>
+                        <div className="col-span-2 border-t border-gray-200 pt-2 mt-1">
+                          <span className="text-gray-500 text-xs block mb-1">{t('employees.rider')}</span>
+                          {vehicle.currentRider ? (
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-bold text-gray-900">{vehicle.currentRider.riderName}</div>
+                                <div className="text-xs text-gray-500">{vehicle.currentRider.riderNameE}</div>
+                              </div>
+                              {vehicle.currentRider.employeeIqamaNo && (
+                                <span className="font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                                  {vehicle.currentRider.employeeIqamaNo}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 italic">-</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                        variant="secondary"
+                        className="w-full justify-center !py-2"
+                      >
+                        <Eye size={16} className="mr-2" />
+                        {t('vehicles.viewDetails')}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>)}
         </Card>
       </div>
     </div>

@@ -158,7 +158,7 @@ export default function MemberMonthlyReportPage() {
     };
 
     return (
-        <div className="p-6 space-y-6 bg-gray-50/50 min-h-screen">
+        <div className="p-4 space-y-4 bg-gray-50/50 min-h-screen">
             <Breadcrumbs items={breadcrumbs} />
 
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -218,11 +218,62 @@ export default function MemberMonthlyReportPage() {
             </div>
 
             <Card title={t("navigation.ridersReports")}>
-                <Table
-                    columns={columns}
-                    data={data.riderPerformances || []}
-                    loading={loading}
-                />
+                <div className="hidden md:block overflow-x-auto">
+                    <Table
+                        columns={columns}
+                        data={data.riderPerformances || []}
+                        loading={loading}
+                    />
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                    {data.riderPerformances?.map((row, index) => (
+                        <div key={index} className="bg-white border border-gray-100 rounded-xl p-2 shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-gray-100 p-2 rounded-full">
+                                        <Users size={16} className="text-gray-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900">{row.riderName}</h3>
+                                        <p className="text-xs text-gray-500">{row.workingId}</p>
+                                    </div>
+                                </div>
+                                <div className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-lg">
+                                    {row.shiftCount} {t("navigation.shifts")}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                <div className="bg-green-50 p-2 rounded-lg text-center">
+                                    <span className="block text-xs text-green-600 mb-1">{t("dashboard.member.hungerAcceptedMonth")}</span>
+                                    <span className="font-bold text-green-700">{row.totalAcceptedOrders}</span>
+                                </div>
+                                <div className="bg-red-50 p-2 rounded-lg text-center">
+                                    <span className="block text-xs text-red-600 mb-1">{t("dashboard.totalMonthOrders")}</span>
+                                    <span className="font-bold text-red-700">{row.totalRejectedOrders}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center text-sm border-t border-gray-100 pt-3">
+                                <div className="flex items-center gap-1 text-gray-600">
+                                    <Clock size={14} />
+                                    <span>{row.totalWorkingHours?.toFixed(2)} hrs</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-gray-600">
+                                    <TrendingUp size={14} />
+                                    <span>{row.averageOrdersPerShift?.toFixed(2)} avg</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {!data.riderPerformances?.length && (
+                        <div className="text-center py-8 text-gray-500">
+                            No riders found for this month.
+                        </div>
+                    )}
+                </div>
             </Card>
         </div>
     );

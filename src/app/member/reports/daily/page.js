@@ -259,7 +259,7 @@ export default function DailyReportPage() {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
@@ -313,6 +313,49 @@ export default function DailyReportPage() {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden space-y-4 p-4">
+                            {housing.riders?.map((rider, index) => (
+                                <div key={`${rider.riderId}-${index}`} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-blue-50 p-2 rounded-full">
+                                                <User size={16} className="text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">{rider.riderName}</h3>
+                                                <div className="flex gap-2 text-xs text-gray-500 font-mono">
+                                                    <span className="bg-gray-100 px-1.5 py-0.5 rounded">ID: {rider.workingId}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${rider.acceptedOrders < 14
+                                            ? 'bg-red-100 text-red-800 border-red-200'
+                                            : 'bg-green-100 text-green-800 border-green-200'
+                                            }`}>
+                                            {rider.acceptedOrders} طلب
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+                                        <div>
+                                            <span className="block text-xs text-gray-400 mb-0.5">رقم الجوال</span>
+                                            <span className="font-medium font-mono">{rider.phoneNumber || '-'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-xs text-gray-400 mb-0.5">تاريخ المناوبة</span>
+                                            <span className="font-medium">{rider.shiftDate}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {(!housing.riders || housing.riders.length === 0) && (
+                                <div className="text-center py-8 text-gray-500">
+                                    لا يوجد مناديب في هذا السكن لهذا التاريخ
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))

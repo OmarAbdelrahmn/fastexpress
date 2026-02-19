@@ -287,8 +287,8 @@ export default function RiderHistoryPage() {
                             </span>
                         </div>
 
-                        <div className="p-6 overflow-x-auto">
-                            <div className="flex gap-6 min-w-full">
+                        <div className="p-6 md:overflow-x-auto">
+                            <div className="flex flex-col md:flex-row gap-6 md:min-w-full">
                                 {Object.entries(
                                     reportData.monthlyData?.reduce((acc, month) => {
                                         const year = month.year;

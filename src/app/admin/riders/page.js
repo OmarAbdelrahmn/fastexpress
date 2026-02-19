@@ -434,131 +434,220 @@ export default function RidersPage() {
       </div>
       <Card>
         <div className="space-y-4">
-          <div className="hidden md:flex items-center gap-2 mb-3">
-            <Filter size={20} className="text-gray-600" />
-            <h3 className="text-lg font-bold text-gray-800">{t('common.filter')}</h3>
-          </div>
-
-          <div className="hidden md:flex flex-wrap gap-2">
-            <button
-              onClick={() => setStatusFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('common.all')} ({stats.total})
-            </button>
-            <button
-              onClick={() => setStatusFilter("active")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "active"
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('common.active')} ({stats.active})
-            </button>
-            <button
-              onClick={() => setStatusFilter("inactive")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactive"
-                ? "bg-red-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('common.inactive')} ({stats.inactive})
-            </button>
-            <button
-              onClick={() => setStatusFilter("fleeing")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "fleeing"
-                ? "bg-rose-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('status.fleeing')} ({stats.fleeing})
-            </button>
-            <button
-              onClick={() => setStatusFilter("vacation")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "vacation"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('status.vacation')} ({stats.vacation})
-            </button>
-            <button
-              onClick={() => setStatusFilter("sick")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "sick"
-                ? "bg-yellow-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('status.sick')} ({stats.sick})
-            </button>
-            <button
-              onClick={() => setStatusFilter("accident")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "accident"
-                ? "bg-orange-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('status.accident')} ({stats.accident})
-            </button>
-            <button
-              onClick={() => setStatusFilter("other")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "other"
-                ? "bg-gray-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              جميع الغير نشيط ({stats.other})
-            </button>
-            <button
-              onClick={() => setStatusFilter("employees")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "employees"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('employees.title')} ({stats.employees})
-            </button>
-            <button
-              onClick={() => setStatusFilter("inactiveEmployees")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${statusFilter === "inactiveEmployees"
-                ? "bg-slate-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {t('employees.title')} {t('employees.inactiveEmployees')}  ({stats.inactiveEmployees})
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder={t('riders.searchPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="hidden md:flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Filter size={20} className="text-gray-600" />
+                <h3 className="text-lg font-bold text-gray-800">{t('common.filter')}</h3>
+              </div>
             </div>
-            <Button
-              onClick={handleExportExcel}
-              className="!bg-green-600 hover:!bg-green-700 text-white !py-2 text-sm h-auto shadow-sm whitespace-nowrap"
-            >
-              <Download size={16} className="ml-2" />
-              {t('common.exportExcel')}
-            </Button>
+
+            <div className="hidden md:flex flex-wrap gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => setStatusFilter("all")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('common.all')} ({stats.total})
+              </button>
+              <button
+                onClick={() => setStatusFilter("active")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "active"
+                  ? "bg-green-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('common.active')} ({stats.active})
+              </button>
+              <button
+                onClick={() => setStatusFilter("inactive")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "inactive"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('common.inactive')} ({stats.inactive})
+              </button>
+              <button
+                onClick={() => setStatusFilter("fleeing")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "fleeing"
+                  ? "bg-rose-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('status.fleeing')} ({stats.fleeing})
+              </button>
+              <button
+                onClick={() => setStatusFilter("vacation")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "vacation"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('status.vacation')} ({stats.vacation})
+              </button>
+              <button
+                onClick={() => setStatusFilter("sick")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "sick"
+                  ? "bg-yellow-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('status.sick')} ({stats.sick})
+              </button>
+              <button
+                onClick={() => setStatusFilter("accident")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "accident"
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('status.accident')} ({stats.accident})
+              </button>
+              <button
+                onClick={() => setStatusFilter("other")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "other"
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                جميع الغير نشيط ({stats.other})
+              </button>
+              <button
+                onClick={() => setStatusFilter("employees")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "employees"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('employees.title')} ({stats.employees})
+              </button>
+              <button
+                onClick={() => setStatusFilter("inactiveEmployees")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "inactiveEmployees"
+                  ? "bg-slate-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                {t('employees.title')} {t('employees.inactiveEmployees')}  ({stats.inactiveEmployees})
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder={t('riders.searchPlaceholder')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              <Button
+                onClick={handleExportExcel}
+                className="!bg-green-600 hover:!bg-green-700 text-white !py-2 text-sm h-auto shadow-sm whitespace-nowrap"
+              >
+                <Download size={16} className="ml-2" />
+                {t('common.exportExcel')}
+              </Button>
+            </div>
           </div>
         </div>
 
 
-        <Table
-          columns={columns}
-          data={filteredRiders}
-          loading={loading}
-        />
+        <div className="hidden md:block">
+          <Table
+            columns={columns}
+            data={filteredRiders}
+            loading={loading}
+          />
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4 p-4">
+          {loading ? (
+            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+          ) : filteredRiders.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">لا توجد بيانات</div>
+          ) : (
+            filteredRiders.map((rider, idx) => (
+              <div key={rider.iqamaNo} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">{rider.nameAR}</h3>
+                        <div className="text-xs text-gray-500">{rider.nameEN}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono text-gray-600">
+                            {rider.workingId}
+                          </span>
+                          {rider.companyName && (
+                            <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
+                              {rider.companyName}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <StatusBadge status={rider.status} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.iqamaNumber')}</span>
+                      <span className="font-mono text-gray-700">{rider.iqamaNo}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.phoneNumber')}</span>
+                      <span className="font-mono text-gray-700" dir="ltr">{rider.phone || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.sponsorInfo')}</span>
+                      <span className="text-gray-700 truncate block">{rider.sponsor || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.housing')}</span>
+                      <span className="text-gray-700 truncate block">{rider.housingAddress || '-'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <button
+                      onClick={() => handleViewDetails(rider.iqamaNo)}
+                      className="p-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                      title={t('riders.viewDetails')}
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(rider.iqamaNo)}
+                      className="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      title={t('riders.edit')}
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(rider.iqamaNo)}
+                      className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      title={t('riders.delete')}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </Card>
 
       {/* Quick Actions */}

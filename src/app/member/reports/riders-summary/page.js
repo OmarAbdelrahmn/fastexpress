@@ -376,6 +376,44 @@ export default function RidersSummaryReportPage() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4 p-4">
+                        {finalData.riderSummaries.map((rider, index) => (
+                            <div key={rider.riderId} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="bg-blue-50 p-2 rounded-full">
+                                            <Users size={16} className="text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-gray-900">{rider.riderNameAR}</h3>
+                                            <p className="text-xs text-gray-500">{rider.workingId}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs font-medium bg-gray-100 text-gray-700 px-2 py-1 rounded-lg">
+                                        {rider.actualWorkingDays || 0} أيام
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                    <div className="bg-green-50 p-2 rounded-lg text-center">
+                                        <span className="block text-xs text-green-600 mb-1">إجمالي الطلبات</span>
+                                        <span className="font-bold text-green-700">{rider.totalOrders || 0}</span>
+                                    </div>
+                                    <div className="bg-purple-50 p-2 rounded-lg text-center">
+                                        <span className="block text-xs text-purple-600 mb-1">متوسط الطلبات اليومي</span>
+                                        <span className="font-bold text-purple-700">{(rider.totalOrders / rider.actualWorkingDays)?.toFixed(1) || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {!finalData.riderSummaries.length && (
+                            <div className="text-center py-8 text-gray-500">
+                                No rider summary data available.
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 

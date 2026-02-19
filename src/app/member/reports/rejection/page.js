@@ -16,7 +16,9 @@ import {
     Target,
     Percent,
     Download,
-    Printer
+    Printer,
+    XCircle,
+    Clock
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import RejectionReportPDF from "@/components/dashboard/RejectionReportPDF";
@@ -344,7 +346,7 @@ export default function RejectionReportPage() {
                             </span>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-right">
                                 <thead className="bg-gray-50 text-gray-500 text-sm">
                                     <tr>
@@ -383,6 +385,45 @@ export default function RejectionReportPage() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card View for Rider Details */}
+                        <div className="md:hidden space-y-4 p-4">
+                            {finalData.riderDetails?.map((rider, index) => (
+                                <div key={index} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-red-50 p-2 rounded-full">
+                                                <XCircle size={16} className="text-red-600" /> {/* Assuming XCircle is imported */}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">{rider.riderNameAR}</h3>
+                                                <p className="text-xs text-gray-500">{rider.workingId}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-xs font-mono bg-gray-50 text-gray-600 px-2 py-1 rounded-lg">
+                                            #{rider.totalOrders} {/* Assuming totalOrders is the order number for this context */}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                                        <span className="block text-xs text-gray-500 mb-1">سبب الرفض (مثال)</span> {/* Placeholder for rejection reason */}
+                                        <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                                            {rider.totalRejections > 0 ? `تم رفض ${rider.totalRejections} طلب` : 'لا يوجد رفض'}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                        <Clock size={14} /> {/* Assuming Clock is imported */}
+                                        <span>{new Date().toLocaleString('ar-SA')}</span> {/* Placeholder for time */}
+                                    </div>
+                                </div>
+                            ))}
+                            {!finalData.riderDetails?.length && (
+                                <div className="text-center py-8 text-gray-500">
+                                    لا توجد سجلات رفض.
+                                </div>
+                            )}
                         </div>
                     </div>
                 )
