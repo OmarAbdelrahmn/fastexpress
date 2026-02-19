@@ -578,16 +578,17 @@ export default function EditRiderPage() {
 
         {/* Submit Buttons */}
         <Card>
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
             <Button
               type="button"
               variant="secondary"
               onClick={() => router.push('/admin/riders')}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               {t('common.cancel')}
             </Button>
-            <Button type="submit" loading={loading} disabled={loading}>
+            <Button type="submit" loading={loading} disabled={loading} className="w-full sm:w-auto">
               <Save size={18} className="ml-2" />
               {t('riders.saveChanges')}
             </Button>

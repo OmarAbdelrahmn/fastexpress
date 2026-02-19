@@ -159,24 +159,24 @@ export default function RiderDetailsPage() {
       />
 
       {/* Status Banner */}
-      <div className={`p-6 rounded-lg ${rider.status === 'enable'
+      <div className={`p-4 rounded-lg ${rider.status === 'enable'
         ? 'bg-green-50 border-r-4 border-green-500'
         : 'bg-red-50 border-r-4 border-red-500'
         }`}>
-        <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${rider.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-xl flex-shrink-0 ${rider.status === 'enable' ? 'bg-green-100' : 'bg-red-100'
             }`}>
-            <Shield className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={32} />
+            <Shield className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={24} />
           </div>
           <div>
-            <h2 className={`text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
+            <h2 className={`text-lg sm:text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
               }`}>
               {rider.status === 'enable'
                 ? (rider.isEmployee ? t('riders.activeEmployee') : t('riders.activeRider'))
                 : (rider.isEmployee ? t('riders.inactiveEmployee') : t('riders.inactiveStatus'))
               }
             </h2>
-            <p className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'}>
+            <p className={`text-sm ${rider.status === 'enable' ? 'text-green-600' : 'text-red-600'}`}>
               {rider.isEmployee ? t('riders.employeeCurrentStatus') : t('riders.currentStatus')}
             </p>
           </div>
@@ -191,21 +191,21 @@ export default function RiderDetailsPage() {
             {t('riders.personalInfo')}
           </h3>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.nameArabic')}</p>
-                <p className="font-bold text-gray-800 text-lg">{rider.nameAR}</p>
+                <p className="font-bold text-gray-800 text-base sm:text-lg">{rider.nameAR}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.nameEnglish')}</p>
-                <p className="font-bold text-gray-800 text-lg">{rider.nameEN}</p>
+                <p className="font-bold text-gray-800 text-base sm:text-lg">{rider.nameEN}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.iqamaNumber')}</p>
-                <p className="font-medium text-gray-800">{rider.iqamaNo}</p>
+                <p className="font-medium text-gray-800 break-all">{rider.iqamaNo}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.passportNumber')}</p>
@@ -213,7 +213,7 @@ export default function RiderDetailsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600 mb-1">{t('riders.country')}</p>
                 <p className="font-medium text-gray-800 flex items-center gap-2">
@@ -247,7 +247,7 @@ export default function RiderDetailsPage() {
             {t('riders.workInfo')}
           </h3>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {!rider.isEmployee && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{t('riders.workingId')}</p>
@@ -260,7 +260,7 @@ export default function RiderDetailsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {!rider.isEmployee && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{t('riders.company')}</p>
@@ -281,7 +281,7 @@ export default function RiderDetailsPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {!rider.isEmployee && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{t('riders.tshirtSize')}</p>
@@ -493,7 +493,7 @@ export default function RiderDetailsPage() {
       {/* Action Buttons */}
       <Card>
         <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.quickActions')}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <Button
             onClick={() => router.push(`/admin/riders/${iqamaNo}/edit`)}
             variant="secondary"
