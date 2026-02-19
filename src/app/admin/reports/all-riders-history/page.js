@@ -35,6 +35,7 @@ export default function AllRidersHistoryPage() {
             }
 
             const response = await ApiService.get(url);
+            console.log(response);
             setData(response || []);
         } catch (error) {
             console.error("Failed to fetch history:", error);
@@ -64,14 +65,10 @@ export default function AllRidersHistoryPage() {
         const matchesStatus = !statusFilter || rider.status?.toLowerCase() === statusFilter.toLowerCase();
 
         // Company filter (based on working ID length)
+        // Company filter
         let matchesCompany = true;
         if (companyFilter) {
-            const workingIdLength = rider.workingId?.toString().length || 0;
-            if (companyFilter === 'hunger') {
-                matchesCompany = workingIdLength <= 7;
-            } else if (companyFilter === 'keta') {
-                matchesCompany = workingIdLength > 7;
-            }
+            matchesCompany = rider.companyName === companyFilter;
         }
 
         return matchesSearch && matchesStatus && matchesCompany;
@@ -311,11 +308,12 @@ export default function AllRidersHistoryPage() {
                                                             setShowCompanyFilter(false);
                                                         }}
                                                         className="w-full px-2 py-1 text-xs border-0 focus:ring-0"
-                                                        size={3}
+                                                        size={5}
                                                     >
                                                         <option value="">الكل</option>
-                                                        <option value="hunger">هنقرستيشن</option>
-                                                        <option value="keta">كيتا</option>
+                                                        {Array.from(new Set(data.map(r => r.companyName).filter(Boolean))).map((company, idx) => (
+                                                            <option key={idx} value={company}>{company}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                             )}
