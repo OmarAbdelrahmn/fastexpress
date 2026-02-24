@@ -576,7 +576,6 @@ export default function EditRiderPage() {
           </div>
         </Card>
 
-        {/* Submit Buttons */}
         <Card>
           <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
             <Button
