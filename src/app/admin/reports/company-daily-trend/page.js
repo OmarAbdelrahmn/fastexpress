@@ -11,7 +11,7 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts';
-import { Calendar, Search } from 'lucide-react';
+import { Calendar, Search, ZoomOut, ZoomIn, RefreshCcw } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
@@ -290,7 +290,7 @@ export default function CompanyDailyTrendPage() {
             />
 
             {/* Filters & Controls */}
-            <div className="mx-8 my-5">
+            <div className="mx-3 md:mx-8 my-5">
                 <Card>
                     <div className="flex flex-col gap-6">
                         {/* Top Row: Filters */}
@@ -340,47 +340,42 @@ export default function CompanyDailyTrendPage() {
                         </div>
 
                         {/* Bottom Row: Zoom Levels & Refresh */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-xl font-bold text-gray-800">
-                                    {t('dailyTrendAnalysis')}
-                                </h2>
-                                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
-                                    {chartData.length} {t('days')}
-                                </span>
-                            </div>
 
-                            <div className="flex flex-wrap items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
-                                <button
-                                    onClick={() => setZoomLevel(prev => Math.max(prev - 1, 0))}
-                                    disabled={zoomLevel === 0}
-                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md disabled:opacity-50 transition-all text-gray-600"
-                                    title="تصغير"
+                        <div className="flex flex-col gap-3 border-t pt-4">
+                            <span className="text-sm text-gray-500">{t('companyDailyTrend.zoomLevel')}:</span>
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    variant={zoomLevel === 'day' ? 'primary' : 'outline'}
+                                    onClick={() => setZoomLevel('day')}
+                                    size="sm"
                                 >
-                                    <ZoomOut size={18} />
-                                </button>
-                                <span className="text-xs font-mono font-bold text-gray-500 w-8 text-center">
-                                    {parseInt(100 + (zoomLevel * 10))}%
-                                </span>
-                                <button
-                                    onClick={() => setZoomLevel(prev => Math.min(prev + 1, 5))}
-                                    disabled={zoomLevel === 5}
-                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md disabled:opacity-50 transition-all text-gray-600"
-                                    title="تكبير"
+                                    {t('companyDailyTrend.days')}
+                                </Button>
+                                <Button
+                                    variant={zoomLevel === 'week' ? 'primary' : 'outline'}
+                                    onClick={() => setZoomLevel('week')}
+                                    size="sm"
                                 >
-                                    <ZoomIn size={18} />
-                                </button>
-                                <div className="w-px h-6 bg-gray-300 mx-1"></div>
-                                <button
-                                    onClick={() => {
-                                        setZoomLevel(0);
-                                        setReferenceLine(null);
-                                    }}
-                                    className="p-2 hover:bg-white hover:shadow-sm rounded-md text-gray-600 transition-all"
-                                    title="إعادة تعيين"
+                                    {t('companyDailyTrend.weeks')}
+                                </Button>
+                                <Button
+                                    variant={zoomLevel === 'month' ? 'primary' : 'outline'}
+                                    onClick={() => setZoomLevel('month')}
+                                    size="sm"
                                 >
-                                    <RefreshCcw size={18} />
-                                </button>
+                                    {t('companyDailyTrend.months')}
+                                </Button>
+                                <Button
+                                    variant={zoomLevel === 'year' ? 'primary' : 'outline'}
+                                    onClick={() => setZoomLevel('year')}
+                                    size="sm"
+                                >
+                                    {t('companyDailyTrend.years')}
+                                </Button>
+                                <Button onClick={handleLoadData} disabled={loading} variant="outline" size="sm">
+                                    <Search size={16} className="mr-2" />
+                                    {t('common.refresh')}
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -389,15 +384,15 @@ export default function CompanyDailyTrendPage() {
 
             {/* Statistics Cards */}
             {statistics && (
-                <div className="mx-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="mx-3 md:mx-8">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                         {/* Total Accepted Orders Card */}
                         <Card>
-                            <div className="p-3">
+                            <div className="p-2 md:p-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.totalAccepted')}</p>
-                                        <p className="text-3xl font-bold text-blue-600 mt-2">
+                                        <p className="text-xs md:text-sm font-medium text-gray-600">{t('companyDailyTrend.totalAccepted')}</p>
+                                        <p className="text-xl md:text-3xl font-bold text-blue-600 mt-1 md:mt-2">
                                             {statistics.totalAccepted.toLocaleString()}
                                         </p>
                                         {statistics.hasPreviousData && (
@@ -422,11 +417,11 @@ export default function CompanyDailyTrendPage() {
 
                         {/* Total Rejected Orders Card */}
                         <Card>
-                            <div className="p-3">
+                            <div className="p-2 md:p-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.totalRejected')}</p>
-                                        <p className="text-3xl font-bold text-red-600 mt-2">
+                                        <p className="text-xs md:text-sm font-medium text-gray-600">{t('companyDailyTrend.totalRejected')}</p>
+                                        <p className="text-xl md:text-3xl font-bold text-red-600 mt-1 md:mt-2">
                                             {statistics.totalRejected.toLocaleString()}
                                         </p>
                                         {statistics.hasPreviousData && (
@@ -451,11 +446,11 @@ export default function CompanyDailyTrendPage() {
 
                         {/* Hunger Company Card */}
                         <Card>
-                            <div className="p-3">
+                            <div className="p-2 md:p-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.hungerOrders')}</p>
-                                        <p className="text-3xl font-bold text-purple-600 mt-2">
+                                        <p className="text-xs md:text-sm font-medium text-gray-600">{t('companyDailyTrend.hungerOrders')}</p>
+                                        <p className="text-xl md:text-3xl font-bold text-purple-600 mt-1 md:mt-2">
                                             {statistics.hungerAccepted.toLocaleString()}
                                         </p>
                                         {statistics.hasPreviousData && (
@@ -480,11 +475,11 @@ export default function CompanyDailyTrendPage() {
 
                         {/* Keta Company Card */}
                         <Card>
-                            <div className="p-3">
+                            <div className="p-2 md:p-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-600">{t('companyDailyTrend.ketaOrders')}</p>
-                                        <p className="text-3xl font-bold text-orange-600 mt-2">
+                                        <p className="text-xs md:text-sm font-medium text-gray-600">{t('companyDailyTrend.ketaOrders')}</p>
+                                        <p className="text-xl md:text-3xl font-bold text-orange-600 mt-1 md:mt-2">
                                             {statistics.ketaAccepted.toLocaleString()}
                                         </p>
                                         {statistics.hasPreviousData && (
@@ -512,7 +507,7 @@ export default function CompanyDailyTrendPage() {
             )}
 
             {/* Chart Area */}
-            <div className="mx-8 my-5">
+            <div className="mx-3 md:mx-8 my-5">
                 <Card>
                     <div className="h-[300px] md:h-[400px] w-full" style={{ direction: 'ltr' }}>
                         {loading ? (
