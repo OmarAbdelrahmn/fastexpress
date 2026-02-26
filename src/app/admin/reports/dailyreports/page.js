@@ -19,6 +19,7 @@ const PDFDownloadLink = dynamic(
 import HousingDetailedReportPDF from "@/components/dashboard/HousingDetailedReportPDF";
 import SpecialReportPDF from "@/components/dashboard/SpecialReportPDF";
 import HousingSummaryReportPDF from "@/components/dashboard/HousingSummaryReportPDF";
+import Special7ReportPDF from "@/components/dashboard/Special7ReportPDF";
 
 export default function DailyReportsPage() {
     const { t } = useLanguage();
@@ -37,10 +38,15 @@ export default function DailyReportsPage() {
     const [date3, setDate3] = useState('');
     const [reportData3, setReportData3] = useState(null);
 
+    // Report 4 State (Special 7)
+    const [dateRange4, setDateRange4] = useState({ start: '', end: '' });
+    const [reportData4, setReportData4] = useState(null);
+
     const resetReports = () => {
         setReportData1(null);
         setReportData2(null);
         setReportData3(null);
+        setReportData4(null);
     };
 
     const generateReport1 = async () => {
@@ -116,6 +122,30 @@ export default function DailyReportsPage() {
         }
     };
 
+    const generateReport4 = async () => {
+        if (!dateRange4.start || !dateRange4.end) {
+            alert(t('common.fillAllFields') || 'Please select both dates');
+            return;
+        }
+        setLoading(true);
+        try {
+            resetReports();
+            const response = await ApiService.get(`/api/report/special7?companyId=1&startDate=${dateRange4.start}&endDate=${dateRange4.end}`);
+            const data = response || {
+                companyName: "شركة الخدمة السريعة"
+            };
+            if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
+
+            setReportData4(data);
+            setIsPrinting(true);
+        } catch (error) {
+            console.error(error);
+            alert(t('common.error') || 'Error generating report');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 pb-12">
 
@@ -173,6 +203,18 @@ export default function DailyReportsPage() {
                                 }
                             </PDFDownloadLink>
                         )}
+
+                        {reportData4 && (
+                            <PDFDownloadLink
+                                document={<Special7ReportPDF data={reportData4} />}
+                                fileName={`تقرير مجموعات خلال فترة ${reportData4.startDate} - ${reportData4.endDate}.pdf`}
+                                className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                            >
+                                {({ blob, url, loading, error }) =>
+                                    loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                                }
+                            </PDFDownloadLink>
+                        )}
                     </div>
                 </div>
             )}
@@ -183,7 +225,7 @@ export default function DailyReportsPage() {
                 icon={BarChart3}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mt-6">
 
                 {/* Report 1 Card */}
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
@@ -294,6 +336,50 @@ export default function DailyReportsPage() {
                             onClick={generateReport3}
                             disabled={loading}
                             className="w-full justify-center py-3 bg-purple-600 hover:bg-purple-700 shadow-md hover:shadow-lg transform transition-all active:scale-95"
+                        >
+                            {loading ? (
+                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <Printer size={18} className="mr-2" />
+                                    {t('common.print') || "Print Report"}
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Report 4 Card */}
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-6 text-white">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Calendar className="w-8 h-8 opacity-80" />
+                            <h3 className="text-xl font-bold">{t('dashboard.periodHousingReport') || "إجمالي المجموعات (فترة)"}</h3>
+                        </div>
+                        <p className="text-teal-100 text-sm opacity-90">تقرير المجموعات خلال فترة محددة</p>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                        <Input
+                            type="date"
+                            label={t('reports.dashboardPage.fromDate') || "من تاريخ"}
+                            value={dateRange4.start}
+                            onChange={(e) => setDateRange4(prev => ({ ...prev, start: e.target.value }))}
+                            className="w-full"
+                        />
+                        <Input
+                            type="date"
+                            label={t('reports.dashboardPage.toDate') || "إلى تاريخ"}
+                            value={dateRange4.end}
+                            onChange={(e) => setDateRange4(prev => ({ ...prev, end: e.target.value }))}
+                            className="w-full"
+                        />
+
+                        <Button
+                            variant="primary"
+                            onClick={generateReport4}
+                            disabled={loading}
+                            className="w-full justify-center py-3 bg-teal-500 hover:bg-teal-600 shadow-md hover:shadow-lg transform transition-all active:scale-95"
                         >
                             {loading ? (
                                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
