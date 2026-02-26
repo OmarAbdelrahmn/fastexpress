@@ -310,6 +310,7 @@
     "returnsManagement": "Returns Management"
   },
   "dashboard": {
+    "periodHousingReport": "Total Housing Report for Period",
     "riders": "Riders",
     "title": "Main Dashboard",
     "subtitle": "Integrated Logistics Management System",
