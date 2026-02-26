@@ -1,5 +1,6 @@
 {
   "common": {
+    "searchPlaceholder": "بحث",
     "wrongPassword": "كلمة المرور خاطئة",
     "accessProtected": "وصول محمي",
     "enterPasswordToAccess": "أدخل كلمة المرور للوصول",
@@ -115,6 +116,14 @@
     "riderDetailsDesc": "قائمة تفصيلية بأداء المناديب اليومي مع إمكانية التصدير",
     "cumulativeStats": "إحصائيات كيتا التراكمية",
     "cumulativeStatsDesc": "تقرير الأداء التراكمي للمناديب والعجز/الفائض",
+    "yearlyValidation": {
+      "unclassified": "غير مصنف",
+      "freelancers": "فري لانسر",
+      "valid": "صالح",
+      "invalid": "غير صالح",
+      "title": "التحقق السنوي",
+      "subtitle": "نظرة عامة على حالات التحقق السنوية للمناديب"
+    },
     "validation": {
       "title": "تقرير التحقق (كيتا)",
       "subtitle": "مراجعة أداء المناديب والتحقق من المستهدفات الشهرية",
@@ -861,6 +870,7 @@
   },
   "employees": {
     "title": "الموظفين",
+    "riderDetails": "تفاصيل المندوب",
     "excelColumns": {
       "iqamaNumber": "رقم الاقامة",
       "nameArabic": "الاسم بالغة العربيه",

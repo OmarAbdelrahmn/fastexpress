@@ -1,5 +1,6 @@
 {
   "common": {
+    "searchPlaceholder": "Search",
     "results": "Results",
     "search": "Search",
     "add": "Add",
@@ -101,6 +102,10 @@
     "riderDetailsDesc": "Detailed daily riders performance list with export option",
     "cumulativeStats": "Keta Cumulative Statistics",
     "cumulativeStatsDesc": "Cumulative performance report for riders and deficit/surplus",
+    "yearlyValidation": {
+      "title": "Yearly Validation",
+      "subtitle": "Overview of yearly validation statuses for riders"
+    },
     "validation": {
       "title": "Validation Report (Keta)",
       "subtitle": "Review riders performance and monthly target validation",
