@@ -1,5 +1,6 @@
 {
   "common": {
+    "settings": "Settings",
     "searchPlaceholder": "Search",
     "results": "Results",
     "search": "Search",
@@ -129,10 +130,37 @@
       "avgHours": "Avg Hours",
       "validationErrors": "Validation Errors",
       "conditionsMet": "All validation conditions met",
-      "hasShift": "Has Shift",
       "dailyStats": "Daily Status",
       "dailyOrders": "Daily Orders",
-      "dailyHours": "Daily Working Hours"
+      "dailyHours": "Daily Working Hours",
+      "settings": {
+        "title": "Keta Validation Settings",
+        "primaryTargets": "Primary Targets",
+        "targetOrdersPerDay": "Target Orders Per Day",
+        "targetHoursPerDay": "Target Hours Per Day",
+        "minWorkingHoursPerDay": "Min Working Hours Per Day",
+        "fullMonthTargetOrders": "Full Month Target Orders",
+        "allowedMissingDays": "Allowed Missing Days (by month length)",
+        "daysMonth28": "28 Days Month",
+        "daysMonth29": "29 Days Month",
+        "daysMonth30": "30 Days Month",
+        "daysMonth31": "31 Days Month",
+        "advancedSettings": "Advanced Settings",
+        "firstCriticalDaysCount": "Important Days at Start of Month Count",
+        "lastCriticalDaysCount": "Important Days at End of Month Count",
+        "maxStartDayForExistingRiders": "Max Start Day For Existing Riders",
+        "specialDays": "Special Days (requires fewer working hours)",
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "thursdayIsCriticalDay": "Thursday is an Important Day",
+        "criticalDaysOfMonth": "Important Days of Month (comma separated)",
+        "criticalDaysOfMonthPlaceholder": "e.g., 1, 15, 30"
+      }
     },
     "daily": {
       "title": "Keta Daily Summary",

@@ -63,7 +63,7 @@ export default function HousingPerformanceReport() {
                         [t('totalHours')]: rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00",
                         [t('targetHours')]: rider.targetWorkingHours,
                         [t('hoursDifference')]: hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00",
-                        [t('reports.totalOrders')]: rider.totalOrders,
+                        [t('reports.orders')]: rider.totalOrders,
                         [t('targetOrders')]: recalculatedTargetOrders,
                         [t('ordersDifference')]: recalculatedOrdersDiff
                     });

@@ -16,10 +16,12 @@ import {
     LayoutList,
     LayoutGrid,
     Search,
-    FileSpreadsheet
+    FileSpreadsheet,
+    Settings
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import ConfigModal from "./ConfigModal";
 
 export default function KetaValidationPage() {
     const { t, language } = useLanguage();
@@ -36,6 +38,7 @@ export default function KetaValidationPage() {
     const [expandedRiders, setExpandedRiders] = useState({});
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
     useEffect(() => {
         fetchReport();
@@ -245,6 +248,14 @@ export default function KetaValidationPage() {
                     <div className="flex flex-col md:flex-row gap-2 items-center">
 
                         <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsConfigModalOpen(true)}
+                                className="flex items-center gap-2 px-3 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium border border-gray-200 shadow-sm"
+                                title={t('common.settings') || "Settings"}
+                            >
+                                <Settings className="w-4 h-4" />
+                                <span className="hidden sm:inline">{t('common.settings') || "Settings"}</span>
+                            </button>
                             <button
                                 onClick={handleExportSummary}
                                 disabled={loading || filteredRiderValidations.length === 0}
@@ -497,6 +508,11 @@ export default function KetaValidationPage() {
                     </>
                 )}
             </div>
+
+            <ConfigModal
+                isOpen={isConfigModalOpen}
+                onClose={() => setIsConfigModalOpen(false)}
+            />
         </div>
     );
 }

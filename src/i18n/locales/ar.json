@@ -1,5 +1,6 @@
 {
   "common": {
+    "settings": "الاعدادات",
     "searchPlaceholder": "بحث",
     "wrongPassword": "كلمة المرور خاطئة",
     "accessProtected": "وصول محمي",
@@ -147,10 +148,37 @@
       "avgHours": "متوسط الساعات",
       "validationErrors": "أخطاء التحقق",
       "conditionsMet": "جميع شروط التحقق مستوفاة",
-      "hasShift": "يوجد شفت",
       "dailyStats": "الحالة اليومية",
       "dailyOrders": "الطلبات اليومية",
-      "dailyHours": "ساعات العمل اليومية"
+      "dailyHours": "ساعات العمل اليومية",
+      "settings": {
+        "title": "إعدادات التحقق (Keta)",
+        "primaryTargets": "الأهداف الأساسية",
+        "targetOrdersPerDay": "الطلبات المستهدفة باليوم",
+        "targetHoursPerDay": "ساعات العمل المستهدفة باليوم",
+        "minWorkingHoursPerDay": "الحد الأدنى لساعات العمل باليوم",
+        "fullMonthTargetOrders": "الطلبات المستهدفة بالشهر كامل",
+        "allowedMissingDays": "أيام الغياب المسموحة (حسب طول الشهر)",
+        "daysMonth28": "شهر 28 يوم",
+        "daysMonth29": "شهر 29 يوم",
+        "daysMonth30": "شهر 30 يوم",
+        "daysMonth31": "شهر 31 يوم",
+        "advancedSettings": "إعدادات متقدمة",
+        "firstCriticalDaysCount": "أيام هامة في بداية الشهر",
+        "lastCriticalDaysCount": "أيام هامة في نهاية الشهر",
+        "maxStartDayForExistingRiders": "أقصى يوم لبدء العمل للموظف المستمر",
+        "specialDays": "الأيام المميزة (يتطلب ساعات عمل أقل)",
+        "sunday": "الأحد",
+        "monday": "الإثنين",
+        "tuesday": "الثلاثاء",
+        "wednesday": "الأربعاء",
+        "thursday": "الخميس",
+        "friday": "الجمعة",
+        "saturday": "السبت",
+        "thursdayIsCriticalDay": "الخميس يوم هام (يوم تأكيد)",
+        "criticalDaysOfMonth": "أيام هامة في الشهر (أيام تأكيد مفصولة بفاصلة)",
+        "criticalDaysOfMonthPlaceholder": "مثال: 1, 15, 30"
+      }
     },
     "daily": {
       "title": "ملخص كيتا اليومي",
