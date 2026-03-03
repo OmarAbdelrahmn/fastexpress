@@ -56,6 +56,7 @@ export default function HousingPerformanceReport() {
                     excelData.push({
                         [t('housingName')]: housing.housingName,
                         [t('workingNumber')]: rider.workingId,
+                        ['رقم الاقامة']: rider.iqamaNo || '',
                         [t('employees.name') + ' (AR)']: rider.riderNameAR,
                         [t('employees.name') + ' (EN)']: rider.riderNameEN,
                         [t('actualWorkingDays')]: rider.actualWorkingDays,
