@@ -157,7 +157,9 @@
         "thursday": "Thursday",
         "friday": "Friday",
         "saturday": "Saturday",
-        "thursdayIsCriticalDay": "Thursday is an Important Day",
+        "isThursdayCritical": "Thursday is an Important Day",
+        "isFridayCritical": "Friday is an Important Day",
+        "isSaturdayCritical": "Saturday is an Important Day",
         "criticalDaysOfMonth": "Important Days of Month (comma separated)",
         "criticalDaysOfMonthPlaceholder": "e.g., 1, 15, 30"
       }

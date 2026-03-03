@@ -175,7 +175,9 @@
         "thursday": "الخميس",
         "friday": "الجمعة",
         "saturday": "السبت",
-        "thursdayIsCriticalDay": "الخميس يوم هام (يوم تأكيد)",
+        "isThursdayCritical": "الخميس يوم هام (يوم تأكيد)",
+        "isFridayCritical": "الجمعة يوم هام (يوم تأكيد)",
+        "isSaturdayCritical": "السبت يوم هام (يوم تأكيد)",
         "criticalDaysOfMonth": "أيام هامة في الشهر (أيام تأكيد مفصولة بفاصلة)",
         "criticalDaysOfMonthPlaceholder": "مثال: 1, 15, 30"
       }

@@ -26,15 +26,10 @@ export default function ConfigModal({ isOpen, onClose }) {
         allowedMissingDays29: 0,
         allowedMissingDays30: 0,
         allowedMissingDays31: 0,
-        sundayIsSpecialDay: false,
-        mondayIsSpecialDay: false,
-        tuesdayIsSpecialDay: false,
-        wednesdayIsSpecialDay: false,
-        thursdayIsSpecialDay: false,
-        fridayIsSpecialDay: false,
-        saturdayIsSpecialDay: false,
-        thursdayIsCriticalDay: false,
-        criticalDaysOfMonth: []
+        isFridayCritical: false,
+        isSaturdayCritical: false,
+        isThursdayCritical: false,
+        criticalDaysOfMonth: ""
     });
 
     useEffect(() => {
@@ -64,24 +59,10 @@ export default function ConfigModal({ isOpen, onClose }) {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
-        if (name === 'criticalDaysOfMonth') {
-            // Convert comma-separated string to array of numbers
-            const daysArray = value
-                .split(',')
-                .map(day => day.trim())
-                .filter(day => day !== '' && !isNaN(day))
-                .map(Number);
-
-            setFormData(prev => ({
-                ...prev,
-                [name]: daysArray
-            }));
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                [name]: type === 'checkbox' ? checked : (type === 'number' ? Number(value) : value)
-            }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : (type === 'number' ? Number(value) : value)
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -189,15 +170,17 @@ export default function ConfigModal({ isOpen, onClose }) {
                             <NumberInput label={t('keta.validation.settings.maxStartDayForExistingRiders')} name="maxStartDayForExistingRiders" />
 
                             <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <CheckboxInput label={t('keta.validation.settings.thursdayIsCriticalDay')} name="thursdayIsCriticalDay" />
+                                <div className="space-y-2">
+                                    <CheckboxInput label={t('keta.validation.settings.isThursdayCritical')} name="isThursdayCritical" />
+                                    <CheckboxInput label={t('keta.validation.settings.isFridayCritical')} name="isFridayCritical" />
+                                    <CheckboxInput label={t('keta.validation.settings.isSaturdayCritical')} name="isSaturdayCritical" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-sm font-medium text-gray-700">{t('keta.validation.settings.criticalDaysOfMonth')}</label>
                                     <input
                                         type="text"
                                         name="criticalDaysOfMonth"
-                                        value={formData.criticalDaysOfMonth?.join(', ') || ''}
+                                        value={formData.criticalDaysOfMonth || ''}
                                         onChange={handleChange}
                                         placeholder={t('keta.validation.settings.criticalDaysOfMonthPlaceholder')}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
