@@ -28,6 +28,11 @@ import PageHeader from "@/components/layout/pageheader";
 
 export default function VehicleHistory() {
   const { t } = useLanguage();
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState("vehicle"); // "vehicle" | "rider"
+
+  // --- Vehicle History State ---
   const [allVehicles, setAllVehicles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicleHistory, setSelectedVehicleHistory] = useState(null);
@@ -35,14 +40,24 @@ export default function VehicleHistory() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [error, setError] = useState(null);
 
+  // --- Rider History State ---
+  const [allRiders, setAllRiders] = useState([]);
+  const [riderSearchTerm, setRiderSearchTerm] = useState("");
+  const [selectedRider, setSelectedRider] = useState(null);
+  const [riderHistory, setRiderHistory] = useState(null);
+  const [loadingRiders, setLoadingRiders] = useState(false);
+  const [loadingRiderHistory, setLoadingRiderHistory] = useState(false);
+  const [riderError, setRiderError] = useState(null);
+
   useEffect(() => {
     loadAllVehicles();
+    loadAllRiders();
   }, []);
 
 
   const VehicleStatusType = {
     Taken: 1,
-    Returned: 2, // Equivalent to Available
+    Returned: 2,
     Problem: 3,
     Stolen: 4,
     BreakUp: 5,
@@ -50,7 +65,7 @@ export default function VehicleHistory() {
 
   const normalizeVehicleStatus = (status) => {
     if (typeof status === "number") return status;
-    if (!status) return VehicleStatusType.Returned; // Default to Available/Returned if undefined logic allows
+    if (!status) return VehicleStatusType.Returned;
 
     const lowerStatus = String(status).toLowerCase().trim();
 
@@ -60,7 +75,6 @@ export default function VehicleHistory() {
     if (lowerStatus === "stolen") return VehicleStatusType.Stolen;
     if (lowerStatus === "breakup" || lowerStatus === "break-up") return VehicleStatusType.BreakUp;
 
-    // Attempt to parse if it's a string number "1"
     const parsed = parseInt(status, 10);
     return isNaN(parsed) ? null : parsed;
   };
@@ -73,7 +87,7 @@ export default function VehicleHistory() {
       case VehicleStatusType.Taken:
         return {
           key: "taken",
-          label: t ? "استلام" : "Taken", // Fallback if t not provided
+          label: t ? "استلام" : "Taken",
           color: "indigo",
           icon: Users,
           styles: {
@@ -83,7 +97,7 @@ export default function VehicleHistory() {
             badge: "bg-indigo-600",
           },
         };
-      case VehicleStatusType.Returned: // Available
+      case VehicleStatusType.Returned:
         return {
           key: "available",
           label: t ? "ايقاف" : "Available",
@@ -151,6 +165,7 @@ export default function VehicleHistory() {
     }
   }
 
+  // ---- Vehicle History Handlers ----
   const loadAllVehicles = async () => {
     setLoading(true);
     setError(null);
@@ -197,8 +212,6 @@ export default function VehicleHistory() {
       v.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Removed getStatusColor as we use shared helpers now
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
@@ -214,10 +227,8 @@ export default function VehicleHistory() {
     if (!selectedVehicleHistory || selectedVehicleHistory.length === 0) return;
 
     const data = selectedVehicleHistory.map(record => {
-      // Map 'Available' to 'Returned' for consistency if needed, or rely on normalize
       let status = normalizeVehicleStatus(record.statusTypeDisplay);
       if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
-
       const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
 
       return {
@@ -243,6 +254,248 @@ export default function VehicleHistory() {
     XLSX.writeFile(wb, `History_${plate}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  // ---- Rider History Handlers ----
+  const loadAllRiders = async () => {
+    setLoadingRiders(true);
+    try {
+      const data = await ApiService.get("/api/rider");
+      console.log(data);
+      setAllRiders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error loading riders:", err);
+    } finally {
+      setLoadingRiders(false);
+    }
+  };
+
+  const loadRiderHistory = async (iqamaNo) => {
+    setLoadingRiderHistory(true);
+    setRiderError(null);
+    setRiderHistory(null);
+    try {
+      const response = await ApiService.get(
+        `/api/vehicles/rider-history/${iqamaNo}`
+      );
+      setRiderHistory(Array.isArray(response) ? response : [response]);
+    } catch (err) {
+      setRiderError(err.message || t('common.loadError'));
+    } finally {
+      setLoadingRiderHistory(false);
+    }
+  };
+
+  const handleRiderClick = (rider) => {
+    setSelectedRider(rider);
+    loadRiderHistory(rider.iqamaNo);
+  };
+
+  const filteredRiders = allRiders.filter((r) => {
+    const term = riderSearchTerm.toLowerCase();
+    return (
+      r.nameAR?.toLowerCase().includes(term) ||
+      r.nameEN?.toLowerCase().includes(term) ||
+      r.iqamaNo?.toString().includes(term) ||
+      r.workingId?.toString().includes(term)
+    );
+  });
+
+  const handleExportRiderHistory = () => {
+    if (!riderHistory || riderHistory.length === 0) return;
+    const iqamaNo = selectedRider?.iqamaNo || '';
+
+    const data = riderHistory.map(record => {
+      let status = normalizeVehicleStatus(record.statusTypeDisplay);
+      if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+      const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+
+      return {
+        [t('employees.iqamaNumber')]: record.employeeIqamaNo || iqamaNo,
+        [t('vehicles.riderName')]: record.riderName || '-',
+        [t('vehicles.riderNameE')]: record.riderNameE || '-',
+        [t('vehicles.plateNumber')]: formatPlateNumber(record.plateNumberA),
+        [t('vehicles.vehicleNumber')]: record.vehicleNumber,
+        [t('vehicles.status')]: attrs.label,
+        [t('common.date')]: formatDate(record.timestamp),
+        [t('common.reason')]: record.reason || '-',
+        [t('vehicles.location')]: record.location || '-',
+        [t('common.active')]: record.isActive ? t('common.yes') : t('common.no'),
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rider History");
+    XLSX.writeFile(wb, `RiderHistory_${iqamaNo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // ---- Shared History Record Renderer ----
+  const renderHistoryRecord = (record, index) => {
+    let status = normalizeVehicleStatus(record.statusTypeDisplay);
+    if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+    const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+
+    return (
+      <div
+        key={record.id || index}
+        className={`${attrs.styles.bg} border-2 ${attrs.styles.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white rounded-lg shadow-sm">
+              <Activity className={attrs.styles.text} size={20} />
+            </div>
+            <div>
+              <span
+                className={`px-4 py-1.5 ${attrs.styles.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}
+              >
+                {attrs.label}
+              </span>
+              <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                <Clock size={12} />
+                {formatDate(record.timestamp)}
+              </p>
+            </div>
+          </div>
+
+          <span
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${record.isActive
+              ? "bg-green-600 text-white"
+              : "bg-red-600 text-white"
+              }`}
+          >
+            <CheckCircle size={14} />
+            {record.isActive ? t('common.active') : t('common.inactive')}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {record.plateNumberA && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Car size={14} className="text-gray-500" />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.plateNumber')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {formatPlateNumber(record.plateNumberA)}
+              </p>
+            </div>
+          )}
+
+          {record.vehicleNumber && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Package size={14} className="text-gray-500" />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.vehicleNumber')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.vehicleNumber}
+              </p>
+            </div>
+          )}
+
+          {record.riderName && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <User size={14} className="text-gray-500" />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.riderName')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.riderName}
+              </p>
+            </div>
+          )}
+
+          {record.riderNameE && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <User size={14} className="text-gray-500" />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.riderNameE')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.riderNameE}
+              </p>
+            </div>
+          )}
+
+          {record.employeeIqamaNo && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <FileText
+                  size={14}
+                  className="text-gray-500"
+                />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.employeeIqama')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.employeeIqamaNo}
+              </p>
+            </div>
+          )}
+
+          {record.reason && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <FileText
+                  size={14}
+                  className="text-gray-500"
+                />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('common.reason')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.reason}
+              </p>
+            </div>
+          )}
+
+          {record.location && (
+            <div className="bg-white p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin size={14} className="text-gray-500" />
+                <span className="text-xs text-gray-500 font-semibold">
+                  {t('vehicles.location')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.location}
+              </p>
+            </div>
+          )}
+
+          {record.permission && (
+            <div className="bg-white p-3 rounded-lg border-l-4 border-blue-400">
+              <div className="flex items-center gap-2 mb-1">
+                <Shield size={14} className="text-blue-500" />
+                <span className="text-xs text-blue-500 font-semibold">
+                  {t('vehicles.permission')}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">
+                {record.permission}
+              </p>
+              {record.permissionEndDate && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('vehicles.permissionEndDate')}: {new Date(record.permissionEndDate).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -251,484 +504,589 @@ export default function VehicleHistory() {
         icon={Car}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Side - Search and List */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Alert Messages */}
-            {error && (
-              <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-xl shadow-lg animate-pulse">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="text-red-600" size={24} />
-                  <div>
-                    <h3 className="font-bold text-red-800 text-lg">{t('common.error')}</h3>
-                    <p className="text-red-600 text-sm mt-1">{error}</p>
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Tab Navigation */}
+        <div className="flex gap-2 mb-6 bg-white rounded-xl shadow border border-gray-100 p-1.5 w-fit">
+          <button
+            onClick={() => setActiveTab("vehicle")}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 ${activeTab === "vehicle"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+              }`}
+          >
+            <Car size={16} />
+            {t('vehicles.vehicleHistory') || 'Vehicle History'}
+          </button>
+          <button
+            onClick={() => setActiveTab("rider")}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 ${activeTab === "rider"
+              ? "bg-purple-600 text-white shadow-md"
+              : "text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+              }`}
+          >
+            <User size={16} />
+            {t('vehicles.riderHistory') || 'Rider History'}
+          </button>
+        </div>
+
+        {/* ===== Vehicle History Tab ===== */}
+        {activeTab === "vehicle" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Side - Search and List */}
+            <div className="lg:col-span-1 space-y-6">
+              {error && (
+                <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-xl shadow-lg animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="text-red-600" size={24} />
+                    <div>
+                      <h3 className="font-bold text-red-800 text-lg">{t('common.error')}</h3>
+                      <p className="text-red-600 text-sm mt-1">{error}</p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Search Box */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Filter size={20} className="text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800">{t('vehicles.searchAndFilter')}</h3>
-              </div>
-
-              <div className="relative">
-                <Search
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={t('vehicles.searchPlaceholderHistory')}
-                  className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-
-              {searchTerm && (
-                <div className="mt-3 flex items-center justify-between text-sm bg-blue-50 p-3 rounded-lg">
-                  <span className="text-blue-700 font-medium">
-                    {t('common.results')}: {filteredVehicles.length} {t('common.of')} {allVehicles.length}
-                  </span>
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="text-blue-600 hover:text-blue-700 font-bold hover:underline"
-                  >
-                    {t('common.clear')}
-                  </button>
                 </div>
               )}
-            </div>
 
-            {/* Vehicles List */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-              <div className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                  <Activity size={20} className="text-blue-600" />
-                  {t('vehicles.vehiclesList')}
-                </h3>
-              </div>
-
-              <div className="max-h-[650px] overflow-y-auto">
-                {loading ? (
-                  <div className="text-center py-16">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                    <p className="mt-4 text-gray-600 font-medium">
-                      {t('vehicles.loadingVehicles')}
-                    </p>
+              {/* Search Box */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Filter size={20} className="text-blue-600" />
                   </div>
-                ) : filteredVehicles.length === 0 ? (
-                  <div className="text-center py-16">
-                    <Car className="mx-auto text-gray-300 mb-4" size={64} />
-                    <p className="text-gray-600 font-medium">{t('common.noResults')}</p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      {t('common.tryDifferentSearch')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-100">
-                    {filteredVehicles.map((vehicle) => {
-                      let status = normalizeVehicleStatus(vehicle.statusTypeDisplay);
-                      if (vehicle.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
-                      const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+                  <h3 className="text-xl font-bold text-gray-800">{t('vehicles.searchAndFilter')}</h3>
+                </div>
 
-                      const isSelected =
-                        selectedVehicleHistory?.[0]?.plateNumberA ===
-                        vehicle.plateNumberA;
+                <div className="relative">
+                  <Search
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder={t('vehicles.searchPlaceholderHistory')}
+                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
 
-                      return (
-                        <button
-                          key={vehicle.id || formatPlateNumber(vehicle.plateNumberA)}
-                          onClick={() => handleVehicleClick(vehicle)}
-                          className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${isSelected
-                            ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
-                            : ""
-                            }`}
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <Car size={18} className={attrs.styles.text} />
-                              <span className="font-bold text-gray-900 text-lg">
-                                {formatPlateNumber(vehicle.plateNumberA)}
-                              </span>
-                            </div>
-                            {vehicle.statusTypeDisplay && (
-                              <span
-                                className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${attrs.styles.badge} text-white`}
-                              >
-                                {attrs.label}
-                              </span>
-                            )}
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-700 font-medium">
-                              {vehicle.vehicleNumber || t('vehicles.notSpecified')}
-                            </p>
-                            {vehicle.manufacturer && (
-                              <p className="text-xs text-gray-500">
-                                {vehicle.manufacturer}
-                              </p>
-                            )}
-                            {vehicle.location && (
-                              <p className="text-xs text-gray-500 flex items-center gap-1">
-                                <MapPin size={12} />
-                                {vehicle.location}
-                              </p>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
+                {searchTerm && (
+                  <div className="mt-3 flex items-center justify-between text-sm bg-blue-50 p-3 rounded-lg">
+                    <span className="text-blue-700 font-medium">
+                      {t('common.results')}: {filteredVehicles.length} {t('common.of')} {allVehicles.length}
+                    </span>
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="text-blue-600 hover:text-blue-700 font-bold hover:underline"
+                    >
+                      {t('common.clear')}
+                    </button>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Right Side - History Details */}
-          <div className="lg:col-span-2">
-            {loadingDetails ? (
-              <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
-                <div className="text-center">
-                  <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
-                  <p className="mt-6 text-gray-600 font-medium text-lg">
-                    {t('vehicles.loadingVehicleHistory')}
-                  </p>
+              {/* Vehicles List */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                <div className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                  <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    <Activity size={20} className="text-blue-600" />
+                    {t('vehicles.vehiclesList')}
+                  </h3>
+                </div>
+
+                <div className="max-h-[650px] overflow-y-auto">
+                  {loading ? (
+                    <div className="text-center py-16">
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                      <p className="mt-4 text-gray-600 font-medium">
+                        {t('vehicles.loadingVehicles')}
+                      </p>
+                    </div>
+                  ) : filteredVehicles.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Car className="mx-auto text-gray-300 mb-4" size={64} />
+                      <p className="text-gray-600 font-medium">{t('common.noResults')}</p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        {t('common.tryDifferentSearch')}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {filteredVehicles.map((vehicle) => {
+                        let status = normalizeVehicleStatus(vehicle.statusTypeDisplay);
+                        if (vehicle.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
+                        const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
+
+                        const isSelected =
+                          selectedVehicleHistory?.[0]?.plateNumberA ===
+                          vehicle.plateNumberA;
+
+                        return (
+                          <button
+                            key={vehicle.id || formatPlateNumber(vehicle.plateNumberA)}
+                            onClick={() => handleVehicleClick(vehicle)}
+                            className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 ${isSelected
+                              ? "bg-gradient-to-r from-blue-100 to-blue-50 border-r-4 border-blue-600 shadow-md"
+                              : ""
+                              }`}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Car size={18} className={attrs.styles.text} />
+                                <span className="font-bold text-gray-900 text-lg">
+                                  {formatPlateNumber(vehicle.plateNumberA)}
+                                </span>
+                              </div>
+                              {vehicle.statusTypeDisplay && (
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${attrs.styles.badge} text-white`}
+                                >
+                                  {attrs.label}
+                                </span>
+                              )}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-700 font-medium">
+                                {vehicle.vehicleNumber || t('vehicles.notSpecified')}
+                              </p>
+                              {vehicle.manufacturer && (
+                                <p className="text-xs text-gray-500">
+                                  {vehicle.manufacturer}
+                                </p>
+                              )}
+                              {vehicle.location && (
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                  <MapPin size={12} />
+                                  {vehicle.location}
+                                </p>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : selectedVehicleHistory && selectedVehicleHistory.length > 0 ? (
-              <div className="space-y-6">
-                {/* Vehicle Information - Shown Once */}
-                {(() => {
-                  const firstRecord = selectedVehicleHistory[0];
-                  // Use same logic for details header
-                  let status = normalizeVehicleStatus(firstRecord.statusTypeDisplay);
-                  if (firstRecord.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
-                  // We don't really use colors here in the title block except usually generic blue, 
-                  // but if we want to bubble up status, we can. The original code didn't use status color for the big header.
+            </div>
 
-                  return (
-                    <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
-                      {/* Vehicle Header */}
-                      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-8 py-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                              <Car size={32} />
+            {/* Right Side - History Details */}
+            <div className="lg:col-span-2">
+              {loadingDetails ? (
+                <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+                    <p className="mt-6 text-gray-600 font-medium text-lg">
+                      {t('vehicles.loadingVehicleHistory')}
+                    </p>
+                  </div>
+                </div>
+              ) : selectedVehicleHistory && selectedVehicleHistory.length > 0 ? (
+                <div className="space-y-6">
+                  {/* Vehicle Information - Shown Once */}
+                  {(() => {
+                    const firstRecord = selectedVehicleHistory[0];
+                    return (
+                      <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
+                        {/* Vehicle Header */}
+                        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white px-8 py-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                                <Car size={32} />
+                              </div>
+                              <div>
+                                <h2 className="text-3xl font-bold">
+                                  {formatPlateNumber(firstRecord.plateNumberA)}
+                                </h2>
+                                <p className="text-blue-100 mt-1 font-medium">
+                                  {t('vehicles.vehicleNumber')}: {firstRecord.vehicleNumber}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h2 className="text-3xl font-bold">
-                                {formatPlateNumber(firstRecord.plateNumberA)}
-                              </h2>
-                              <p className="text-blue-100 mt-1 font-medium">
-                                {t('vehicles.vehicleNumber')}: {firstRecord.vehicleNumber}
+                            <div className="text-right">
+                              <p className="text-blue-100 text-sm">
+                                {t('vehicles.totalRecords')}
+                              </p>
+                              <p className="text-3xl font-bold">
+                                {selectedVehicleHistory.length}
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-blue-100 text-sm">
-                              {t('vehicles.totalRecords')}
-                            </p>
-                            <p className="text-3xl font-bold">
-                              {selectedVehicleHistory.length}
-                            </p>
+                        </div>
+
+                        <div className="p-8">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {firstRecord.vehicleNumber && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Package size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.vehicleNumber')}
+                                  </span>
+                                </div>
+                                <p className="text-sm font-bold text-gray-900 ">
+                                  {firstRecord.vehicleNumber}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.serialNumber && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <FileText size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.serialNumber')}
+                                  </span>
+                                </div>
+                                <p className="text-sm font-bold text-gray-900 break-all">
+                                  {firstRecord.serialNumber}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.plateNumberE && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Car size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.plateNumberEnglish')}
+                                  </span>
+                                </div>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {firstRecord.plateNumberE}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.manufacturer && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Car size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.manufacturer')}
+                                  </span>
+                                </div>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {firstRecord.manufacturer}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.manufactureYear && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Calendar size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.manufactureYear')}
+                                  </span>
+                                </div>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {firstRecord.manufactureYear}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.location && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <MapPin size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.location')}
+                                  </span>
+                                </div>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {firstRecord.location}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.ownerName && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <User size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.ownerName')}
+                                  </span>
+                                </div>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {firstRecord.ownerName}
+                                </p>
+                              </div>
+                            )}
+
+                            {firstRecord.ownerId && (
+                              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Package size={16} className="text-blue-600" />
+                                  <span className="text-xs text-blue-600 font-semibold uppercase">
+                                    {t('vehicles.ownerId')}
+                                  </span>
+                                </div>
+                                <p className="text-sm font-bold text-gray-900 break-all">
+                                  {firstRecord.ownerId}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
+                    );
+                  })()}
 
-                      <div className="p-8">
-                        {/* Vehicle Information Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                          {firstRecord.vehicleNumber && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Package size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.vehicleNumber')}
-                                </span>
-                              </div>
-                              <p className="text-sm font-bold text-gray-900 ">
-                                {firstRecord.vehicleNumber}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.serialNumber && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <FileText size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.serialNumber')}
-                                </span>
-                              </div>
-                              <p className="text-sm font-bold text-gray-900 break-all">
-                                {firstRecord.serialNumber}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.plateNumberE && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Car size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.plateNumberEnglish')}
-                                </span>
-                              </div>
-                              <p className="text-lg font-bold text-gray-900">
-                                {firstRecord.plateNumberE}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.manufacturer && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Car size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.manufacturer')}
-                                </span>
-                              </div>
-                              <p className="text-lg font-bold text-gray-900">
-                                {firstRecord.manufacturer}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.manufactureYear && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Calendar size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.manufactureYear')}
-                                </span>
-                              </div>
-                              <p className="text-lg font-bold text-gray-900">
-                                {firstRecord.manufactureYear}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.location && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <MapPin size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.location')}
-                                </span>
-                              </div>
-                              <p className="text-lg font-bold text-gray-900">
-                                {firstRecord.location}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.ownerName && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <User size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.ownerName')}
-                                </span>
-                              </div>
-                              <p className="text-lg font-bold text-gray-900">
-                                {firstRecord.ownerName}
-                              </p>
-                            </div>
-                          )}
-
-                          {firstRecord.ownerId && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Package size={16} className="text-blue-600" />
-                                <span className="text-xs text-blue-600 font-semibold uppercase">
-                                  {t('vehicles.ownerId')}
-                                </span>
-                              </div>
-                              <p className="text-sm font-bold text-gray-900 break-all">
-                                {firstRecord.ownerId}
-                              </p>
-                            </div>
-                          )}
+                  {/* History Records Timeline */}
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
+                    <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-8 py-5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                          <Clock size={24} />
                         </div>
+                        <h3 className="text-2xl font-bold">
+                          {t('vehicles.movementHistory')}
+                        </h3>
                       </div>
+                      <button
+                        onClick={handleExportHistory}
+                        className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                      >
+                        <Download size={16} />
+                        {t('common.exportExcel')}
+                      </button>
                     </div>
-                  );
-                })()}
 
-                {/* History Records Timeline */}
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
-                  <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-8 py-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <Clock size={24} />
+                    <div className="p-8">
+                      <div className="space-y-4">
+                        {selectedVehicleHistory.map((record, index) =>
+                          renderHistoryRecord(record, index)
+                        )}
                       </div>
-                      <h3 className="text-2xl font-bold">
-                        {t('vehicles.movementHistory')}
-                      </h3>
                     </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
+                  <div className="text-center">
+                    <div className="mx-auto mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-32 h-32 flex items-center justify-center">
+                      <Eye className="text-blue-400" size={64} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      {t('vehicles.selectVehicleToViewHistory')}
+                    </h3>
+                    <p className="text-gray-600 text-lg">
+                      {t('vehicles.selectVehicleToViewHistoryDesc')}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ===== Rider History Tab ===== */}
+        {activeTab === "rider" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Side – Rider Search & List */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Search Box */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Filter size={20} className="text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">{t('vehicles.searchAndFilter')}</h3>
+                </div>
+
+                <div className="relative">
+                  <Search
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    value={riderSearchTerm}
+                    onChange={(e) => setRiderSearchTerm(e.target.value)}
+                    placeholder={t('vehicles.searchPlaceholderRider') || 'Search by name or iqama…'}
+                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                {riderSearchTerm && (
+                  <div className="mt-3 flex items-center justify-between text-sm bg-purple-50 p-3 rounded-lg">
+                    <span className="text-purple-700 font-medium">
+                      {t('common.results')}: {filteredRiders.length} {t('common.of')} {allRiders.length}
+                    </span>
                     <button
-                      onClick={handleExportHistory}
-                      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                      onClick={() => setRiderSearchTerm("")}
+                      className="text-purple-600 hover:text-purple-700 font-bold hover:underline"
                     >
-                      <Download size={16} />
-                      {t('common.exportExcel')}
+                      {t('common.clear')}
                     </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Riders List */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                <div className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                  <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    <Activity size={20} className="text-purple-600" />
+                    {t('riders.ridersList') || 'Riders List'}
+                  </h3>
+                </div>
+
+                <div className="max-h-[650px] overflow-y-auto">
+                  {loadingRiders ? (
+                    <div className="text-center py-16">
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+                      <p className="mt-4 text-gray-600 font-medium">{t('common.loading')}</p>
+                    </div>
+                  ) : filteredRiders.length === 0 ? (
+                    <div className="text-center py-16">
+                      <User className="mx-auto text-gray-300 mb-4" size={64} />
+                      <p className="text-gray-600 font-medium">{t('common.noResults')}</p>
+                      <p className="text-gray-400 text-sm mt-1">{t('common.tryDifferentSearch')}</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {filteredRiders.map((rider) => {
+                        const iqama = rider.employee?.iqamaNo || rider.iqamaNo;
+                        const nameAR = rider.employee?.nameAR || rider.nameAR;
+                        const nameEN = rider.employee?.nameEN || rider.nameEN;
+                        const isSelected = selectedRider &&
+                          (selectedRider.employee?.iqamaNo || selectedRider.iqamaNo) === iqama;
+
+                        return (
+                          <button
+                            key={iqama}
+                            onClick={() => handleRiderClick(rider)}
+                            className={`w-full text-right p-5 hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent transition-all duration-200 ${isSelected
+                              ? "bg-gradient-to-r from-purple-100 to-purple-50 border-r-4 border-purple-600 shadow-md"
+                              : ""
+                              }`}
+                          >
+                            <div className="flex items-start justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <User size={16} className="text-purple-500" />
+                                <span className="font-bold text-gray-900">{nameAR || nameEN || iqama}</span>
+                              </div>
+                              {rider.workingId && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                  #{rider.workingId}
+                                </span>
+                              )}
+                            </div>
+                            <div className="space-y-0.5">
+                              {nameEN && nameAR && (
+                                <p className="text-xs text-gray-500">{nameEN}</p>
+                              )}
+                              <p className="text-xs text-gray-400 flex items-center gap-1">
+                                <FileText size={11} />
+                                {iqama}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side – Rider History Details */}
+            <div className="lg:col-span-2">
+              {/* Error */}
+              {riderError && (
+                <div className="bg-red-50 border-r-4 border-red-500 p-5 rounded-xl shadow-lg mb-4">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="text-red-600" size={24} />
+                    <div>
+                      <h3 className="font-bold text-red-800 text-lg">{t('common.error')}</h3>
+                      <p className="text-red-600 text-sm mt-1">{riderError}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {loadingRiderHistory ? (
+                <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+                    <p className="mt-6 text-gray-600 font-medium text-lg">{t('common.loading')}</p>
+                  </div>
+                </div>
+              ) : riderHistory && riderHistory.length > 0 ? (
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100">
+                  {/* Rider Header */}
+                  <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 text-white px-8 py-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                          <User size={32} />
+                        </div>
+                        <div>
+                          <h2 className="text-3xl font-bold">
+                            {riderHistory[0]?.riderName ||
+                              selectedRider?.nameAR ||
+                              riderHistory[0]?.riderNameE ||
+                              selectedRider?.nameEN}
+                          </h2>
+                          <p className="text-purple-100 mt-1 font-medium">
+                            {t('employees.iqamaNumber') || 'Iqama'}:{' '}
+                            {riderHistory[0]?.employeeIqamaNo ||
+                              selectedRider?.iqamaNo}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-purple-100 text-sm">{t('vehicles.totalRecords')}</p>
+                          <p className="text-3xl font-bold">{riderHistory.length}</p>
+                        </div>
+                        <button
+                          onClick={handleExportRiderHistory}
+                          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                        >
+                          <Download size={16} />
+                          {t('common.exportExcel')}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="p-8">
                     <div className="space-y-4">
-                      {selectedVehicleHistory.map((record, index) => {
-                        let status = normalizeVehicleStatus(record.statusTypeDisplay);
-                        if (record.statusTypeDisplay?.toLowerCase() === 'available') status = VehicleStatusType.Returned;
-                        const attrs = getVehicleStatusAttributes(status || VehicleStatusType.Returned, t);
-
-                        return (
-                          <div
-                            key={record.id || index}
-                            className={`${attrs.styles.bg} border-2 ${attrs.styles.border} rounded-xl p-2 shadow-md hover:shadow-xl transition-all duration-300`}
-                          >
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-lg shadow-sm">
-                                  <Activity className={attrs.styles.text} size={20} />
-                                </div>
-                                <div>
-                                  <span
-                                    className={`px-4 py-1.5 ${attrs.styles.badge} text-white rounded-full text-sm font-bold shadow-md inline-block`}
-                                  >
-                                    {attrs.label}
-                                  </span>
-                                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                                    <Clock size={12} />
-                                    {formatDate(record.timestamp)}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <span
-                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${record.isActive
-                                  ? "bg-green-600 text-white"
-                                  : "bg-red-600 text-white"
-                                  }`}
-                              >
-                                <CheckCircle size={14} />
-                                {record.isActive ? t('common.active') : t('common.inactive')}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              {record.riderName && (
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <User size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">
-                                      {t('vehicles.riderName')}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm font-bold text-gray-900">
-                                    {record.riderName}
-                                  </p>
-                                </div>
-                              )}
-
-                              {record.riderNameE && (
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <User size={14} className="text-gray-500" />
-                                    <span className="text-xs text-gray-500 font-semibold">
-                                      {t('vehicles.riderNameE')}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm font-bold text-gray-900">
-                                    {record.riderNameE}
-                                  </p>
-                                </div>
-                              )}
-
-                              {record.employeeIqamaNo && (
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <FileText
-                                      size={14}
-                                      className="text-gray-500"
-                                    />
-                                    <span className="text-xs text-gray-500 font-semibold">
-                                      {t('vehicles.employeeIqama')}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm font-bold text-gray-900">
-                                    {record.employeeIqamaNo}
-                                  </p>
-                                </div>
-                              )}
-
-                              {record.reason && (
-                                <div className="bg-white p-3 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <FileText
-                                      size={14}
-                                      className="text-gray-500"
-                                    />
-                                    <span className="text-xs text-gray-500 font-semibold">
-                                      {t('common.reason')}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm font-bold text-gray-900">
-                                    {record.reason}
-                                  </p>
-                                </div>
-                              )}
-
-                              {record.permission && (
-                                <div className="bg-white p-3 rounded-lg border-l-4 border-blue-400">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Shield size={14} className="text-blue-500" />
-                                    <span className="text-xs text-blue-500 font-semibold">
-                                      {t('vehicles.permission')}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm font-bold text-gray-900">
-                                    {record.permission}
-                                  </p>
-                                  {record.permissionEndDate && (
-                                    <p className="text-xs text-gray-500 mt-1">
-                                      {t('vehicles.permissionEndDate')}: {new Date(record.permissionEndDate).toLocaleDateString()}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {riderHistory.map((record, index) => renderHistoryRecord(record, index))}
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
-                <div className="text-center">
-                  <div className="mx-auto mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-32 h-32 flex items-center justify-center">
-                    <Eye className="text-blue-400" size={64} />
+              ) : riderHistory && riderHistory.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
+                  <div className="text-center">
+                    <div className="mx-auto mb-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full w-32 h-32 flex items-center justify-center">
+                      <PackageX className="text-gray-400" size={64} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{t('common.noResults')}</h3>
+                    <p className="text-gray-600 text-lg">{t('common.tryDifferentSearch')}</p>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                    {t('vehicles.selectVehicleToViewHistory')}
-                  </h3>
-                  <p className="text-gray-600 text-lg">
-                    {t('vehicles.selectVehicleToViewHistoryDesc')}
-                  </p>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="bg-white rounded-xl shadow-lg p-16 border border-gray-100">
+                  <div className="text-center">
+                    <div className="mx-auto mb-6 p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-full w-32 h-32 flex items-center justify-center">
+                      <User className="text-purple-400" size={64} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      {t('vehicles.selectRiderToViewHistory') || 'Select a Rider'}
+                    </h3>
+                    <p className="text-gray-600 text-lg">
+                      {t('vehicles.selectRiderToViewHistoryDesc') || 'Click a rider from the list to view their vehicle history.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

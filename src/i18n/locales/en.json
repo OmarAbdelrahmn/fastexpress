@@ -845,7 +845,11 @@
     "switchReason": "Switch Reason",
     "switchVehicleDesc": "Switch vehicle for a rider",
     "switchRequestSent": "Switch request sent successfully",
-    "submitSwitchRequest": "Approve Switch"
+    "submitSwitchRequest": "Approve Switch",
+    "selectRiderToViewHistory": "Select a rider to view history",
+    "selectRiderToViewHistoryDesc": "Click on a rider from the list to view their full history details",
+    "riderHistory": "Rider History",
+    "riderHistoryDesc": "Rider History"
   },
   "employees": {
     "title": "Employees",
@@ -1240,6 +1244,7 @@
     "disableInstructions4": "Send the request and wait for admin approval"
   },
   "riders": {
+    "ridersList": "Riders List",
     "accountStatus": "Account Status",
     "target": "Target",
     "title1": "Riders",

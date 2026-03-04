@@ -897,7 +897,11 @@
     "switchReason": "سبب التبديل",
     "switchVehicleDesc": "تبديل مركبة لمندوب",
     "switchRequestSent": "تم إرسال طلب التبديل بنجاح",
-    "submitSwitchRequest": "اعتماد التبديل"
+    "submitSwitchRequest": "اعتماد التبديل",
+    "selectRiderToViewHistory": "اختر المندوب لعرض سجله",
+    "selectRiderToViewHistoryDesc": "اضغط على المندوب لعرض تفاصيل سجله بالكامل",
+    "riderHistory": "سجل المندوب",
+    "riderHistoryDesc": "سجل المندوب"
   },
   "employees": {
     "title": "الموظفين",
@@ -1294,6 +1298,7 @@
     "disableInstructions4": "أرسل الطلب وانتظر موافقة المسؤول"
   },
   "riders": {
+    "ridersList": "قائمة المناديب",
     "selectHousing": "اختر السكن",
     "manageRiders": "إدارة المناديب",
     "accountStatus": "حالة الحساب",
