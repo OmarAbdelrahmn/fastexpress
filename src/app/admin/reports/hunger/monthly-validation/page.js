@@ -346,6 +346,28 @@ export default function HungerMonthlyValidationReport() {
                             />
                         </div>
 
+                        {/* Averages Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <StatCard
+                                icon={Target}
+                                title="متوسط نسبة الطلبات"
+                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.ordersPercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
+                                color="#8b5cf6"
+                            />
+                            <StatCard
+                                icon={Calendar}
+                                title="متوسط نسبة أيام العمل"
+                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.daysPercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
+                                color="#f59e0b"
+                            />
+                            <StatCard
+                                icon={BarChart3}
+                                title="متوسط نسبة الأداء الكلية"
+                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.performancePercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
+                                color="#f97316"
+                            />
+                        </div>
+
                         {/* Riders Table */}
                         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">

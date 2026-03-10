@@ -101,11 +101,11 @@ export default function HungerReportsPage() {
                                 <Target className="text-indigo-600" size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                                {t('hunger.monthlyValidationReport') || "تقرير صلاحية الشهر"}
+                                تقرير صلاحية الشهر
                             </h3>
                         </div>
                         <p className="text-sm text-gray-600">
-                            {t('hunger.monthlyValidationReportDesc') || "عرض نتيجة تقييم المناديب بناءً على الأداء الشهري"}
+                            عرض نتيجة تقييم المناديب بناءً على الأداء الشهري
                         </p>
                     </Link>
 
