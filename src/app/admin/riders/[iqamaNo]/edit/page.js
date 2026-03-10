@@ -471,7 +471,7 @@ export default function EditRiderPage() {
             <div className="md:col-span-2">
               <Input
                 label={t('riders.workingId')}
-                type="text"
+                type="number"
                 name="workingId"
                 value={formData.workingId}
                 onChange={handleInputChange}

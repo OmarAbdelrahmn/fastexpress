@@ -54,19 +54,19 @@ export default function HousingPerformanceReport() {
                     const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
 
                     excelData.push({
-                        [t('housingName')]: housing.housingName,
-                        [t('workingNumber')]: rider.workingId,
+                        ['اسم السكن']: housing.housingName,
+                        ['المعرف']: rider.workingId,
                         ['رقم الاقامة']: rider.iqamaNo || '',
-                        [t('employees.name') + ' (AR)']: rider.riderNameAR,
-                        [t('employees.name') + ' (EN)']: rider.riderNameEN,
-                        [t('actualWorkingDays')]: rider.actualWorkingDays,
-                        [t('absentDays')]: Math.abs(rider.missingDays || 0),
-                        [t('totalHours')]: rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00",
-                        [t('targetHours')]: rider.targetWorkingHours,
-                        [t('hoursDifference')]: hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00",
-                        [t('reports.orders')]: rider.totalOrders,
-                        [t('targetOrders')]: recalculatedTargetOrders,
-                        [t('ordersDifference')]: recalculatedOrdersDiff
+                        ['اسم المندوب (AR)']: rider.riderNameAR,
+                        ['اسم المندوب (EN)']: rider.riderNameEN,
+                        ['ايام العمل']: rider.actualWorkingDays,
+                        ['ايام الغياب']: Math.abs(rider.missingDays || 0),
+                        ['ساعات العمل']: rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00",
+                        ['ساعات العمل المستهدفة']: rider.targetWorkingHours,
+                        ['فرق الساعات']: hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00",
+                        ['اجمالي الطلبات']: rider.totalOrders,
+                        ['الطلبات المستهدفة']: recalculatedTargetOrders,
+                        ['فرق الطلبات']: recalculatedOrdersDiff
                     });
                 });
             }

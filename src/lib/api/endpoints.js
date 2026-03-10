@@ -208,6 +208,7 @@ export const API_ENDPOINTS = {
     ALL_RIDERS_HISTORY: "/api/Report/all-riders-history",
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
     HUNGER_SUMMARY: "/api/Report/hunger/summary",
+    HUNGER_MONTHLY_VALIDATION: "/api/HungerReports/monthly-validation",
     FROM_START: "/api/report/from-start",
     KETA_FREELANCER: {
       IMPORT: "/api/KetaFreeLancer",
