@@ -85,6 +85,7 @@
     "averageOrdersPerDay": "Average Orders/Day",
     "startDate": "Start Date",
     "endDate": "End Date"
+    
   },
   "hunger": {
     "reportsTitle": "Hungerstation Reports",
@@ -1761,7 +1762,10 @@
     "oldOrders": "Old Orders",
     "newOrders": "New Orders",
     "updateSuccess": "Updated successfully",
-    "updateError": "Update failed"
+    "updateError": "Update failed",
+    "actualRejected": "Actual Rejected Orders",
+    "editShift": "Edit Shift",
+    "editShiftSubtitle": "Edit Shift"
   },
   "companies": {
     "totalCompanies": "Total Companies",
