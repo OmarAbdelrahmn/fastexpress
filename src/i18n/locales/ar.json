@@ -1816,7 +1816,9 @@
     "newOrders": "الطلبات الجديدة",
     "updateSuccess": "تم التحديث بنجاح",
     "updateError": "فشل التحديث",
-    "actualRejected": "الطلبات المرفوضة فعليا"
+    "actualRejected": "الطلبات المرفوضة فعليا",
+    "editShift": "تعديل الاداء",
+    "editShiftSubtitle": "تعديل الاداء"
   },
   "companies": {
     "confirmDeleteMessage": "الرجاء إدخال كلمة المرور لتأكيد الحذف.",
