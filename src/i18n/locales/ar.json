@@ -1815,7 +1815,8 @@
     "oldOrders": "الطلبات القديمة",
     "newOrders": "الطلبات الجديدة",
     "updateSuccess": "تم التحديث بنجاح",
-    "updateError": "فشل التحديث"
+    "updateError": "فشل التحديث",
+    "actualRejected": "الطلبات المرفوضة فعليا"
   },
   "companies": {
     "confirmDeleteMessage": "الرجاء إدخال كلمة المرور لتأكيد الحذف.",

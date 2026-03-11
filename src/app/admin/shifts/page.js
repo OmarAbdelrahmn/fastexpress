@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Upload, FileSpreadsheet, Trash2, AlertCircle, CheckCircle, XCircle, FileText, RefreshCw } from 'lucide-react';
+import { Calendar, Upload, FileSpreadsheet, Trash2, AlertCircle, CheckCircle, XCircle, FileText, RefreshCw, Edit } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -25,11 +25,27 @@ export default function ShiftsPage() {
   const [showImportDetails, setShowImportDetails] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [housings, setHousings] = useState([]);
 
   // Password Modal State
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
 
+  // Single shift update/delete state
+  const [editingShift, setEditingShift] = useState(null);
+  const [editForm, setEditForm] = useState({
+    workingId: '',
+    shiftDate: '',
+    acceptedDailyOrders: 0,
+    rejectedDailyOrders: 0,
+    stackedDeliveries: 0,
+    realRejectedDailyOrders: 0,
+    workingHours: 0,
+    companyId: '',
+    housingId: ''
+  });
+  const [showDeleteShiftModal, setShowDeleteShiftModal] = useState(false);
+  const [shiftToDelete, setShiftToDelete] = useState(null);
 
   const normalizeServerDate = (value) => {
     // null/undefined
@@ -94,6 +110,15 @@ export default function ShiftsPage() {
     }
   };
 
+  const loadHousings = async () => {
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.HOUSING.LIST);
+      setHousings(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error loading housings:', error);
+    }
+  };
+
   const loadShifts = async () => {
     setLoading(true);
     try {
@@ -112,6 +137,7 @@ export default function ShiftsPage() {
 
   useEffect(() => {
     loadCompanies();
+    loadHousings();
   }, []);
 
   useEffect(() => {
@@ -238,6 +264,80 @@ export default function ShiftsPage() {
       loadShifts();
     } catch (error) {
       setMessage({ type: 'error', text: error.message || t('shifts.deleteError') });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditClick = (shift) => {
+    setEditingShift(shift);
+    const shiftDateStr = shift.shiftDate ? String(shift.shiftDate).split('T')[0] : String(selectedDate).split('T')[0];
+    setEditForm({
+      workingId: shift.workingId,
+      shiftDate: shiftDateStr,
+      acceptedDailyOrders: shift.acceptedDailyOrders || 0,
+      rejectedDailyOrders: shift.rejectedDailyOrders || 0,
+      stackedDeliveries: shift.stackedDeliveries || 0,
+      realRejectedDailyOrders: shift.realRejectedDailyOrders || 0,
+      workingHours: shift.workingHours || 0,
+      companyId: shift.companyId || '',
+      housingId: shift.housingId || '',
+    });
+  };
+
+  const handleUpdateShift = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        workingId: editForm.workingId,
+        shiftDate: editForm.shiftDate,
+        acceptedDailyOrders: Number(editForm.acceptedDailyOrders),
+        rejectedDailyOrders: Number(editForm.rejectedDailyOrders),
+        stackedDeliveries: Number(editForm.stackedDeliveries),
+        realRejectedDailyOrders: Number(editForm.realRejectedDailyOrders),
+        workingHours: Number(editForm.workingHours)
+      };
+
+      if (editForm.companyId) {
+        payload.companyId = Number(editForm.companyId);
+      }
+      if (editForm.housingId) {
+        payload.housingId = Number(editForm.housingId);
+      }
+      
+      await ApiService.put(API_ENDPOINTS.SHIFT.UPDATE, payload);
+      setMessage({ type: 'success', text: t('common.updateSuccess') || 'Updated successfully' });
+      setEditingShift(null);
+      loadShifts();
+    } catch(err) {
+      setMessage({ type: 'error', text: err.message || t('common.updateError') || 'Update failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteShiftClick = (shift) => {
+    setShiftToDelete(shift);
+    setShowDeleteShiftModal(true);
+    setDeletePassword('');
+  };
+
+  const handleConfirmDeleteShift = async () => {
+    if (deletePassword !== '2222') {
+      alert(t('common.incorrectPassword') || 'Incorrect Password');
+      return;
+    }
+    
+    setShowDeleteShiftModal(false);
+    setLoading(true);
+    try {
+      const shiftDateStr = shiftToDelete.shiftDate ? String(shiftToDelete.shiftDate).split('T')[0] : String(selectedDate).split('T')[0];
+      await ApiService.delete(API_ENDPOINTS.SHIFT.DELETE(shiftToDelete.workingId), { shiftDate: shiftDateStr });
+      
+      setMessage({ type: 'success', text: t('common.deleteSuccess') || 'Deleted successfully' });
+      loadShifts();
+    } catch(error) {
+       setMessage({ type: 'error', text: error.message || t('common.deleteError') || 'Delete failed' });
     } finally {
       setLoading(false);
     }
@@ -503,6 +603,7 @@ export default function ShiftsPage() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.stackedDeliveries')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.workingHours')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.status')}</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{t('common.actions') || 'Actions'}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -531,6 +632,22 @@ export default function ShiftsPage() {
                         {shift.hasRejectionProblem && (
                           <div className="text-xs text-red-600 mt-1">{t('shifts.penalty')}: {safeRender(shift.penaltyAmount, 0)}</div>
                         )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                          onClick={() => handleEditClick(shift)}
+                          className="text-blue-600 hover:text-blue-900 mx-2"
+                          title={t('common.edit') || 'Edit'}
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteShiftClick(shift)}
+                          className="text-red-600 hover:text-red-900 mx-2"
+                          title={t('common.delete') || 'Delete'}
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -568,6 +685,140 @@ export default function ShiftsPage() {
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 {t('common.confirm') || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Individual Shift Password Modal */}
+      {showDeleteShiftModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-w-[90%]">
+            <h3 className="text-xl font-bold mb-4">{t('common.enterPassword') || 'Enter Password'}</h3>
+            <p className="text-gray-600 mb-4">
+              {t('shifts.confirmDeleteMessage') || 'Please enter the password to confirm deletion.'}
+            </p>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder={t('common.password') || 'Password'}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteShiftModal(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                onClick={handleConfirmDeleteShift}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                {t('common.confirm') || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Shift Modal */}
+      {editingShift && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold mb-4">{t('shifts.editShift') || 'Edit Shift'} - {editForm.workingId}</h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.acceptedOrders') || 'Accepted Orders'}</label>
+                <input
+                  type="number"
+                  value={editForm.acceptedDailyOrders}
+                  onChange={(e) => setEditForm({...editForm, acceptedDailyOrders: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.rejectedOrders') || 'Rejected Orders'}</label>
+                <input
+                  type="number"
+                  value={editForm.rejectedDailyOrders}
+                  onChange={(e) => setEditForm({...editForm, rejectedDailyOrders: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.stackedDeliveries') || 'Stacked Deliveries'}</label>
+                <input
+                  type="number"
+                  value={editForm.stackedDeliveries}
+                  onChange={(e) => setEditForm({...editForm, stackedDeliveries: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.actualRejected') || 'Real Rejected Orders'}</label>
+                <input
+                  type="number"
+                  value={editForm.realRejectedDailyOrders}
+                  onChange={(e) => setEditForm({...editForm, realRejectedDailyOrders: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shifts.workingHours') || 'Working Hours'}</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={editForm.workingHours}
+                  onChange={(e) => setEditForm({...editForm, workingHours: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('riders.company') || 'Company'}</label>
+                <select
+                  value={editForm.companyId}
+                  onChange={(e) => setEditForm({...editForm, companyId: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">{t('common.select') || 'Select'}</option>
+                  {companies.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('riders.housing') || 'Housing'}</label>
+                <select
+                  value={editForm.housingId}
+                  onChange={(e) => setEditForm({...editForm, housingId: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">{t('common.select') || 'Select'}</option>
+                  {housings.map(h => (
+                    <option key={h.id} value={h.id}>{h.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={() => setEditingShift(null)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                onClick={handleUpdateShift}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? (t('common.saving') || 'Saving...') : (t('common.save') || 'Save')}
               </button>
             </div>
           </div>
