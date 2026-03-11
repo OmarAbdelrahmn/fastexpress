@@ -120,6 +120,11 @@ export default function ShiftsPage() {
 
   const handleImport = async () => {
     try {
+      if (!selectedCompanyId) {
+        setMessage({ type: 'error', text: t('riders.selectCompany') || 'Please select a company' });
+        return;
+      }
+
       if (!uploadFile) {
         setMessage({ type: 'error', text: t('shifts.selectFile') });
         return;
@@ -141,7 +146,7 @@ export default function ShiftsPage() {
       const token = TokenManager.getToken();
 
       const dateStr = String(selectedDate).split('T')[0];
-      const url = `${API_BASE}/shift/import?ShiftDate=${dateStr}`;
+      const url = `${API_BASE}/shift/import?ShiftDate=${dateStr}&CompanyId=${selectedCompanyId}`;
 
 
       const response = await fetch(url, {
@@ -442,7 +447,7 @@ export default function ShiftsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleImport}
-                disabled={loading || !uploadFile}
+                disabled={loading || !uploadFile || !selectedCompanyId}
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center gap-2 font-medium whitespace-nowrap"
               >
                 <Upload size={18} />
