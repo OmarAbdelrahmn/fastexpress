@@ -152,45 +152,63 @@ const API_ENDPOINTS = {
   },
 };
 
+const DASHBOARD_CACHE_KEY = "dashboard_stats_cache";
+
+const DEFAULT_STATS = {
+  vehicles: 0,
+  availableVehicles: 0,
+  takenVehicles: 0,
+  problemVehicles: 0,
+  riders: 0,
+  activeRiders: 0,
+  inactiveRiders: 0,
+  users: 0,
+  companies: 0,
+  housing: 0,
+  housingOccupancy: 0,
+  todayShifts: 0,
+  activeShifts: 0,
+  employees: 0,
+  pendingRequests: 0,
+  vehicleUtilization: 0,
+  riderEfficiency: 0,
+  previousDayTotalOrders: 0,
+  pendempst: 0,
+  activeHungerRiders: 0,
+  activeKeetaRiders: 0,
+  companyTotal: 0,
+  companyRidersCount: 0,
+  companyEmployeesCount: 0,
+  monthAcceptedOrders: 0,
+  hungerYesterdayOrders: 0,
+  ketaYesterdayOrders: 0,
+  activeYesterdayHunger: 0,
+  ketaActiveRiders: 0,
+  totalOrdersYesterday: 0,
+  totalActiveRiders: 0,
+  totalMonthOrders: 0,
+};
+
+function getCachedStats() {
+  try {
+    const raw = typeof window !== "undefined" ? localStorage.getItem(DASHBOARD_CACHE_KEY) : null;
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 export default function EnhancedDashboard() {
   const router = useRouter();
   const { t } = useLanguage();
 
   const { get, loading } = useApi();
-  const [stats, setStats] = useState({
-    vehicles: 0,
-    availableVehicles: 0,
-    takenVehicles: 0,
-    problemVehicles: 0,
-    riders: 0,
-    activeRiders: 0,
-    inactiveRiders: 0,
-    users: 0,
-    companies: 0,
-    housing: 0,
-    housingOccupancy: 0,
-    todayShifts: 0,
-    activeShifts: 0,
-    employees: 0,
-    pendingRequests: 0,
-    vehicleUtilization: 0,
-    riderEfficiency: 0,
-    previousDayTotalOrders: 0,
-    pendempst: 0,
-    activeHungerRiders: 0,
-    activeKeetaRiders: 0,
-    companyTotal: 0,
-    companyRidersCount: 0,
-    companyEmployeesCount: 0,
-    monthAcceptedOrders: 0,
-    hungerYesterdayOrders: 0,
-    ketaYesterdayOrders: 0,
-    activeYesterdayHunger: 0,
-    ketaActiveRiders: 0,
-    totalOrdersYesterday: 0,
-    totalActiveRiders: 0,
-    totalMonthOrders: 0
-  });
+
+  // Seed state with cached data immediately so numbers are visible on first render
+  const [stats, setStats] = useState(() => getCachedStats() ?? DEFAULT_STATS);
+  // isFirstLoad is true only when there is no cached data at all
+  const [isFirstLoad, setIsFirstLoad] = useState(() => getCachedStats() === null);
 
   const [trends, setTrends] = useState({
     vehicles: 5.2,
@@ -359,7 +377,7 @@ export default function EnhancedDashboard() {
       const companyTotal = statsData.total || statsData.Total || 0;
       const companyRidersCount = statsData.riders || statsData.Riders || 0;
       const companyEmployeesCount = statsData.employees || statsData.Employees || 0;
-      setStats({
+      const newStats = {
         vehicles: totalVehicles,
         availableVehicles: availableVehicles,
         takenVehicles: takenVehicles,
@@ -379,8 +397,6 @@ export default function EnhancedDashboard() {
         riderEfficiency: parseFloat(riderEfficiency),
         previousDayTotalOrders: previousDayTotal,
         previousDayTotalRiders: previousDayRiders,
-        previousDayTotalOrders: previousDayTotal,
-        previousDayTotalRiders: previousDayRiders,
         pendempst: tempEmployeesResData,
         activeHungerRiders,
         activeKeetaRiders,
@@ -394,8 +410,16 @@ export default function EnhancedDashboard() {
         ketaActiveRiders: summaryData.keta?.totalShifts || 0,
         totalOrdersYesterday: summaryData.totalDayOrders || 0,
         totalActiveRiders: summaryData?.hungerMonthToDate?.acceptedOrders || 0,
-        totalMonthOrders: summaryData?.ketaMonthToDate?.acceptedOrders || 0
-      });
+        totalMonthOrders: summaryData?.ketaMonthToDate?.acceptedOrders || 0,
+      };
+
+      // Persist to localStorage so the next page visit shows real numbers instantly
+      try {
+        localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(newStats));
+      } catch { /* storage quota exceeded – ignore */ }
+
+      setStats(newStats);
+      setIsFirstLoad(false);
 
       setTrends({
         vehicles: parseFloat(vehicleUtilization) > 70 ? 5.2 : -3.1,
@@ -513,7 +537,12 @@ export default function EnhancedDashboard() {
 
         <div className="relative z-10 ">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-2xl font-bold text-white">{loading ? "..." : value}</h3>
+            {/* On first ever load (no cache) show a subtle pulse skeleton; otherwise always show the number */}
+            {isFirstLoad && loading ? (
+              <div className="h-8 w-16 rounded-md bg-white/30 animate-pulse" />
+            ) : (
+              <h3 className="text-2xl font-bold text-white">{value}</h3>
+            )}
             {value === "-*" && <EyeOff size={16} className="text-white/70" />}
           </div>
           <p className="font-medium text-white text-sm mb-1">{title}</p>

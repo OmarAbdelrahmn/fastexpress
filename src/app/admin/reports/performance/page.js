@@ -1,177 +1,56 @@
 'use client';
 
-import { useState } from 'react';
 import { Building, Users, Clock, History, Calendar, BarChart3, Printer, FileSpreadsheet } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
-import { ApiService } from '@/lib/api/apiService';
-import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import HousingPerformanceReportPDF from '@/components/dashboard/HousingPerformanceReportPDF';
 
-export default function HousingPerformanceReport() {
-    const { t, language } = useLanguage();
-    const [loading, setLoading] = useState(false);
-    const [reportData, setReportData] = useState(null);
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [expandedHousing, setExpandedHousing] = useState(null);
-    const [selectedCompany, setSelectedCompany] = useState('hunger'); // 'hunger' or 'keta'
+import { useHousingPerformance } from '@/hooks/useHousingPerformance';
+import { exportHousingPerformanceToExcel } from '@/lib/utils/excelExport';
+import StatCard from '@/components/reports/StatCard';
+import HousingGroup from '@/components/reports/HousingGroup';
 
-    const [form, setForm] = useState(() => {
-        const today = new Date();
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        const formatDate = (date) => {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        };
-
-        return {
-            startDate: formatDate(startOfMonth),
-            endDate: formatDate(yesterday)
-        };
-    });
-
-    const handleExcelExport = () => {
-        if (!reportData || reportData.length === 0) return;
-
-        const excelData = [];
-
-        reportData.forEach(housing => {
-            if (housing.summaryReport?.riderSummaries) {
-                housing.summaryReport.riderSummaries.forEach(rider => {
-                    const hoursDiff = rider.hoursDifference;
-
-                    // Recalculate target orders and difference based on company
-                    const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
-                    const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
-                    const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
-
-                    excelData.push({
-                        ['اسم السكن']: housing.housingName,
-                        ['المعرف']: rider.workingId,
-                        ['رقم الاقامة']: rider.iqamaNo || '',
-                        ['اسم المندوب (AR)']: rider.riderNameAR,
-                        ['اسم المندوب (EN)']: rider.riderNameEN,
-                        ['ايام العمل']: rider.actualWorkingDays,
-                        ['ايام الغياب']: Math.abs(rider.missingDays || 0),
-                        ['ساعات العمل']: rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00",
-                        ['ساعات العمل المستهدفة']: rider.targetWorkingHours,
-                        ['فرق الساعات']: hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00",
-                        ['اجمالي الطلبات']: rider.totalOrders,
-                        ['الطلبات المستهدفة']: recalculatedTargetOrders,
-                        ['فرق الطلبات']: recalculatedOrdersDiff
-                    });
-                });
-            }
-        });
-
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Performance Report");
-        XLSX.writeFile(wb, `housing_performance_report_${form.startDate}_${form.endDate}.xlsx`);
+// Local Alert Component extracted from main component body
+const LocalAlert = ({ type, message, onClose }) => {
+    const styles = {
+        success: 'bg-green-50 border-green-200 text-green-800',
+        error: 'bg-red-50 border-red-200 text-red-800',
     };
 
-    const handleSubmit = async () => {
-        if (!form.startDate || !form.endDate) {
-            setError(t('common.periodError'));
-            return;
-        }
-
-        setLoading(true);
-        setError('');
-        setSuccessMessage('');
-        setReportData(null);
-
-        try {
-            const endpoint = selectedCompany === 'keta'
-                ? API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY + '2'
-                : API_ENDPOINTS.REPORTS.ALL_HOUSINGS_SUMMARY;
-
-            const data = await ApiService.get(endpoint, {
-                startDate: form.startDate,
-                endDate: form.endDate
-            });
-
-            if (data && data.length > 0) {
-                setReportData(data);
-                setSuccessMessage(t('common.successLoad'));
-                setTimeout(() => setSuccessMessage(''), 3000);
-            } else {
-                setError(t('common.noData'));
-            }
-        } catch (err) {
-            console.error('Error:', err);
-            setError(err.message || t('common.errorLoad'));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const Alert = ({ type, message, onClose }) => {
-        const styles = {
-            success: 'bg-green-50 border-green-200 text-green-800',
-            error: 'bg-red-50 border-red-200 text-red-800',
-        };
-
-        return (
-            <div className={`border-2 rounded-lg p-4 mb-6 flex items-center justify-between ${styles[type]}`}>
-                <span className="font-medium">{message}</span>
-                {onClose && (
-                    <button onClick={onClose} className="text-xl font-bold hover:opacity-70">
-                        &times;
-                    </button>
-                )}
-            </div>
-        );
-    };
-
-    const StatCard = ({ icon: Icon, title, value, color }) => (
-        <div className="bg-white rounded-xl shadow-md p-6 border-t-4" style={{ borderTopColor: color }}>
-            <div className="flex items-center justify-between">
-                <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">{title}</p>
-                    <p className="text-3xl font-bold" style={{ color }}>{value}</p>
-                </div>
-                <Icon size={40} style={{ color }} className="opacity-80" />
-            </div>
+    return (
+        <div className={`border-2 rounded-lg p-4 mb-6 flex items-center justify-between ${styles[type]}`}>
+            <span className="font-medium">{message}</span>
+            {onClose && (
+                <button onClick={onClose} className="text-xl font-bold hover:opacity-70">
+                    &times;
+                </button>
+            )}
         </div>
     );
+};
 
-    const calculateTotals = () => {
-        if (!reportData) return null;
+export default function HousingPerformanceReport() {
+    const { t, language } = useLanguage();
 
-        let totalRiders = 0;
-        let totalHours = 0;
-        let totalOrders = 0;
-        let totalMissingDays = 0;
+    const {
+        form,
+        setForm,
+        loading,
+        reportData,
+        error,
+        setError,
+        successMessage,
+        setSuccessMessage,
+        selectedCompany,
+        setSelectedCompany,
+        fetchData,
+        totals
+    } = useHousingPerformance(t);
 
-        reportData.forEach(housing => {
-            if (housing.summaryReport && housing.summaryReport.riderSummaries) {
-                totalRiders += housing.summaryReport.riderSummaries.length;
-                housing.summaryReport.riderSummaries.forEach(rider => {
-                    totalHours += rider.totalWorkingHours || 0;
-                    totalOrders += rider.totalOrders || 0;
-                    totalMissingDays += Math.abs(rider.missingDays || 0);
-                });
-            }
-        });
-
-        return {
-            totalRiders,
-            totalHours,
-            totalOrders,
-            totalMissingDays
-        };
+    const handleExcelExport = () => {
+        exportHousingPerformanceToExcel(reportData, form.startDate, form.endDate, selectedCompany);
     };
-
-    const totals = calculateTotals();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
@@ -183,8 +62,8 @@ export default function HousingPerformanceReport() {
 
             <div className="m-4 md:m-6">
                 {/* Alerts */}
-                {successMessage && <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
-                {error && <Alert type="error" message={error} onClose={() => setError('')} />}
+                {successMessage && <LocalAlert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
+                {error && <LocalAlert type="error" message={error} onClose={() => setError('')} />}
 
                 {/* Filter Form */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
@@ -241,7 +120,7 @@ export default function HousingPerformanceReport() {
 
                         <div className="flex flex-col md:flex-row items-center gap-4 pt-2">
                             <button
-                                onClick={handleSubmit}
+                                onClick={fetchData}
                                 disabled={loading}
                                 className="w-full md:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-bold transition-all"
                             >
@@ -329,192 +208,13 @@ export default function HousingPerformanceReport() {
                             </h2>
 
                             {reportData.map((housing, index) => (
-                                <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                                    {/* Housing Header */}
-                                    <div
-                                        className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 cursor-pointer hover:from-indigo-700 hover:to-purple-700 transition-all"
-                                        onClick={() => setExpandedHousing(expandedHousing === index ? null : index)}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-4">
-                                                <Building className="text-white" size={28} />
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-white">{housing.housingName}</h3>
-                                                    <p className="text-indigo-100 text-sm">
-                                                        {housing.summaryReport?.startDate} - {housing.summaryReport?.endDate}
-                                                        {' '}({housing.summaryReport?.totalExpectedDays} {"ايام العمل"})
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <span className="text-white text-2xl">{expandedHousing === index ? '▼' : (language === 'ar' ? '◀' : '▶')}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Riders Table */}
-                                    {expandedHousing === index && housing.summaryReport?.riderSummaries && housing.summaryReport.riderSummaries.length > 0 && (
-                                        <div className="p-6">
-                                            <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                                <Users className="text-purple-600" size={20} />
-                                                {t('riderDetails')} ({housing.summaryReport.riderSummaries.length})
-                                            </h4>
-
-                                            {/* Desktop Table */}
-                                            <div className="hidden md:block overflow-x-auto">
-                                                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                                    <thead className="bg-gray-50">
-                                                        <tr>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"المعرف"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"اسم المندوب"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ايام العمل"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-red-500 uppercase">{"ايام الغياب"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ساعات العمل"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"ساعات العمل المستهدفة"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"فرق الساعات"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"اجمالي الطلبات"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"الطلبات المستهدفة"}</th>
-                                                            <th className="px-4 py-3 text-start font-medium text-gray-500 uppercase">{"فرق الطلبات"}</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                        {housing.summaryReport.riderSummaries.map((rider, idx) => {
-                                                            const hoursDiff = rider.hoursDifference;
-                                                            const hoursPositive = hoursDiff >= 0;
-
-                                                            // Recalculate target orders and difference based on company
-                                                            const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
-                                                            const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
-                                                            const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
-                                                            const ordersPositive = recalculatedOrdersDiff >= 0;
-
-                                                            const missingDays = Math.abs(rider.missingDays || 0);
-
-                                                            return (
-                                                                <tr key={idx} className="hover:bg-gray-50">
-                                                                    <td className="px-4 py-3 whitespace-nowrap font-mono font-bold text-gray-700 text-start">
-                                                                        {rider.workingId}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-start">
-                                                                        <div>
-                                                                            <div className="font-medium text-gray-900">{rider.riderNameAR}</div>
-                                                                            <div className="text-xs text-gray-500">{rider.riderNameEN}</div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-start">
-                                                                        <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">
-                                                                            {rider.actualWorkingDays}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap font-bold text-red-600 text-start">
-                                                                        {missingDays > 0 ? missingDays : '-'}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-gray-700 text-start">
-                                                                        {rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(2) : "0.00"}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-start">
-                                                                        {rider.targetWorkingHours}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-start">
-                                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${hoursPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                                            }`}>
-                                                                            {hoursPositive ? '+' : ''}{hoursDiff ? Number(hoursDiff).toFixed(2) : "0.00"}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-600 text-start">
-                                                                        {rider.totalOrders}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-start">
-                                                                        {rider.targetOrders}
-                                                                    </td>
-                                                                    <td className="px-4 py-3 whitespace-nowrap text-start">
-                                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${ordersPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                                            }`}>
-                                                                            {ordersPositive ? '+' : ''}{recalculatedOrdersDiff}
-                                                                        </span>
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        })}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            {/* Mobile Card View */}
-                                            <div className="md:hidden space-y-4">
-                                                {housing.summaryReport.riderSummaries.map((rider, idx) => {
-                                                    const hoursDiff = rider.hoursDifference;
-                                                    const hoursPositive = hoursDiff >= 0;
-
-                                                    // Recalculate target orders and difference based on company
-                                                    const dailyOrderTarget = selectedCompany === 'keta' ? 12 : 14;
-                                                    const recalculatedTargetOrders = (housing.summaryReport?.totalExpectedDays || 0) * dailyOrderTarget;
-                                                    const recalculatedOrdersDiff = rider.totalOrders - recalculatedTargetOrders;
-                                                    const ordersPositive = recalculatedOrdersDiff >= 0;
-
-                                                    const missingDays = Math.abs(rider.missingDays || 0);
-
-                                                    return (
-                                                        <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                                            <div className="flex justify-between items-start mb-3 border-b border-gray-200 pb-2">
-                                                                <div>
-                                                                    <div className="font-bold text-gray-900">{rider.riderNameAR}</div>
-                                                                    <div className="text-xs text-gray-500">{rider.riderNameEN}</div>
-                                                                </div>
-                                                                <span className="font-mono bg-white px-2 py-1 rounded text-xs border border-gray-200 text-gray-600">
-                                                                    {rider.workingId}
-                                                                </span>
-                                                            </div>
-
-                                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                                <div>
-                                                                    <span className="text-gray-500 block text-xs">{"ايام العمل"}</span>
-                                                                    <span className="font-medium">{rider.actualWorkingDays}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="text-gray-500 block text-xs text-red-500">{"ايام الغياب"}</span>
-                                                                    <span className="font-bold text-red-600">{missingDays > 0 ? missingDays : '-'}</span>
-                                                                </div>
-
-                                                                <div className="col-span-2 grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border border-gray-200">
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الساعات"}</span>
-                                                                        <span className="font-bold text-gray-800 block text-xs">{rider.totalWorkingHours ? Number(rider.totalWorkingHours).toFixed(1) : "0"}</span>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الهدف"}</span>
-                                                                        <span className="text-gray-500 block text-xs">{rider.targetWorkingHours}</span>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الفرق"}</span>
-                                                                        <span className={`block text-xs font-bold ${hoursPositive ? 'text-green-600' : 'text-red-600'}`}>
-                                                                            {hoursPositive ? '+' : ''}{hoursDiff ? Number(hoursDiff).toFixed(1) : "0"}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="col-span-2 grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border border-gray-200">
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الطلبات"}</span>
-                                                                        <span className="font-bold text-blue-600 block text-xs">{rider.totalOrders}</span>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الهدف"}</span>
-                                                                        <span className="text-gray-500 block text-xs">{recalculatedTargetOrders}</span>
-                                                                    </div>
-                                                                    <div className="text-center">
-                                                                        <span className="text-gray-400 block text-[10px]">{"الفرق"}</span>
-                                                                        <span className={`block text-xs font-bold ${ordersPositive ? 'text-green-600' : 'text-red-600'}`}>
-                                                                            {ordersPositive ? '+' : ''}{recalculatedOrdersDiff}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                <HousingGroup
+                                    key={index}
+                                    housing={housing}
+                                    t={t}
+                                    language={language}
+                                    selectedCompany={selectedCompany}
+                                />
                             ))}
                         </div>
                     </div>
