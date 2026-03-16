@@ -65,7 +65,6 @@ export default function HungerMonthlyValidationReport() {
                 year: form.year,
                 month: form.month
             });
-
             if (data) {
                 setReportData(data);
                 setSuccessMessage('تم تحميل التقرير بنجاح');
@@ -423,13 +422,9 @@ export default function HungerMonthlyValidationReport() {
                                                     <span className="font-bold text-gray-800">{rider.totalOrders}</span>
                                                 </td>
                                                 <td className="p-4 text-center">
-                                                    {rider.ordersDeficit > 0 ? (
-                                                        <span className="text-red-500 font-bold bg-red-50 px-2 py-1 rounded-lg text-sm">
-                                                            -{rider.ordersDeficit}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-green-500 font-bold text-sm">0</span>
-                                                    )}
+                                                    <span className={`font-bold px-2 py-1 rounded-lg text-sm ${rider.ordersDeficit > 0 ? 'text-green-500 bg-green-50' : 'text-red-500 bg-red-50'}`}>
+                                                        {rider.ordersDeficit}
+                                                    </span>
                                                 </td>
                                                 <td className="p-4 text-center text-sm font-mono text-gray-600">
                                                     {Number(rider.averageHoursPerValidDay).toFixed(1)}
