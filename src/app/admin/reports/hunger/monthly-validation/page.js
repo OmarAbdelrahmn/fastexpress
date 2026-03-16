@@ -345,25 +345,21 @@ export default function HungerMonthlyValidationReport() {
                             />
                         </div>
 
-                        {/* Averages Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Target Achievement Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <StatCard
                                 icon={Target}
-                                title="متوسط نسبة الطلبات"
-                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.ordersPercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
+                                title="نسبة المناديب المحققين لهدف الطلبات 100%"
+                                value={`${((reportData.riderValidations?.filter(r => r.ordersPercentage >= 100).length / (reportData.riderValidations?.length || 1)) * 100).toFixed(1)}%`}
+                                subtitle={`${reportData.riderValidations?.filter(r => r.ordersPercentage >= 100).length} من ${reportData.riderValidations?.length} مندوب`}
                                 color="#8b5cf6"
                             />
                             <StatCard
                                 icon={Calendar}
-                                title="متوسط نسبة أيام العمل"
-                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.daysPercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
+                                title="نسبة المناديب المحققين لهدف أيام العمل 100%"
+                                value={`${((reportData.riderValidations?.filter(r => r.daysPercentage >= 100).length / (reportData.riderValidations?.length || 1)) * 100).toFixed(1)}%`}
+                                subtitle={`${reportData.riderValidations?.filter(r => r.daysPercentage >= 100).length} من ${reportData.riderValidations?.length} مندوب`}
                                 color="#f59e0b"
-                            />
-                            <StatCard
-                                icon={BarChart3}
-                                title="متوسط نسبة الأداء الكلية"
-                                value={`${(reportData.riderValidations?.reduce((acc, r) => acc + (r.performancePercentage || 0), 0) / (reportData.riderValidations?.length || 1)).toFixed(1)}%`}
-                                color="#f97316"
                             />
                         </div>
 
