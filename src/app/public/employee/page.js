@@ -663,6 +663,7 @@ export default function PublicEmployeePage() {
                     </span>
                   )}
                 </div>
+                
               </div>
               <div style={styles.infoItem}>
                 <div style={styles.infoLabel}>{t.jobTitle}</div>
