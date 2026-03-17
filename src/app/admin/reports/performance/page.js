@@ -1,6 +1,7 @@
 'use client';
 
-import { Building, Users, Clock, History, Calendar, BarChart3, Printer, FileSpreadsheet } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Building, Users, Clock, History, Calendar, BarChart3, Printer, FileSpreadsheet, Search } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -48,8 +49,66 @@ export default function HousingPerformanceReport() {
         totals
     } = useHousingPerformance(t);
 
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const filteredReportData = useMemo(() => {
+        if (!reportData) return null;
+        if (!searchQuery.trim()) return reportData;
+
+        const query = searchQuery.toLowerCase().trim();
+
+        return reportData.map(housing => {
+            if (!housing.summaryReport?.riderSummaries) return housing;
+
+            const filteredRiders = housing.summaryReport.riderSummaries.filter(rider => {
+                return (
+                    rider.riderNameAR?.toLowerCase().includes(query) ||
+                    rider.riderNameEN?.toLowerCase().includes(query) ||
+                    rider.userName?.toLowerCase().includes(query) ||
+                    rider.workingId?.toString().includes(query) ||
+                    rider.iqamaNo?.toString().includes(query)
+                );
+            });
+
+            return {
+                ...housing,
+                summaryReport: {
+                    ...housing.summaryReport,
+                    riderSummaries: filteredRiders
+                }
+            };
+        }).filter(housing => housing.summaryReport?.riderSummaries?.length > 0);
+    }, [reportData, searchQuery]);
+
+    const filteredTotals = useMemo(() => {
+        if (!filteredReportData) return null;
+
+        let totalRiders = 0;
+        let totalHours = 0;
+        let totalOrders = 0;
+        let totalMissingDays = 0;
+
+        filteredReportData.forEach(housing => {
+            if (housing.summaryReport && housing.summaryReport.riderSummaries) {
+                totalRiders += housing.summaryReport.riderSummaries.length;
+                housing.summaryReport.riderSummaries.forEach(rider => {
+                    totalHours += rider.totalWorkingHours || 0;
+                    totalOrders += rider.totalOrders || 0;
+                    totalMissingDays += Math.abs(rider.missingDays || 0);
+                });
+            }
+        });
+
+        return {
+            totalRiders,
+            totalHours,
+            totalOrders,
+            totalMissingDays
+        };
+    }, [filteredReportData]);
+
     const handleExcelExport = () => {
-        exportHousingPerformanceToExcel(reportData, form.startDate, form.endDate, selectedCompany);
+        exportHousingPerformanceToExcel(filteredReportData, form.startDate, form.endDate, selectedCompany);
     };
 
     return (
@@ -149,7 +208,7 @@ export default function HousingPerformanceReport() {
 
                                     <div className="w-full md:w-auto">
                                         <PDFDownloadLink
-                                            document={<HousingPerformanceReportPDF reportData={reportData} startDate={form.startDate} endDate={form.endDate} title={t('ridersPerformance')} language={language} t={t} selectedCompany={selectedCompany} />}
+                                            document={<HousingPerformanceReportPDF reportData={filteredReportData} startDate={form.startDate} endDate={form.endDate} title={t('ridersPerformance')} language={language} t={t} selectedCompany={selectedCompany} />}
                                             fileName={`housing_performance_report_${form.startDate}_${form.endDate}.pdf`}
                                             className="bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all w-full md:w-auto"
                                         >
@@ -170,52 +229,72 @@ export default function HousingPerformanceReport() {
                 </div>
 
                 {/* Report Display */}
-                {reportData && totals && (
+                {filteredReportData && filteredTotals && (
                     <div className="space-y-6">
                         {/* Summary Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <StatCard
                                 icon={Building}
                                 title={"اجمالي المجمعات"}
-                                value={reportData.length}
+                                value={filteredReportData.length}
                                 color="#3b82f6"
                             />
                             <StatCard
                                 icon={Users}
                                 title={"اجمالي المندوبين"}
-                                value={totals.totalRiders}
+                                value={filteredTotals.totalRiders}
                                 color="#10b981"
                             />
                             <StatCard
                                 icon={Clock}
                                 title={"اجمالي الساعات"}
-                                value={totals.totalHours.toFixed(2)}
+                                value={filteredTotals.totalHours.toFixed(2)}
                                 color="#f59e0b"
                             />
                             <StatCard
                                 icon={History}
                                 title={"ايام الغياب"}
-                                value={totals.totalMissingDays}
+                                value={filteredTotals.totalMissingDays}
                                 color="#ef4444"
                             />
                         </div>
 
                         {/* Housing Groups */}
                         <div className="space-y-4">
-                            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                                <Building className="text-blue-600" />
-                                تفاصيل السكن ({reportData.length})
-                            </h2>
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Building className="text-blue-600" />
+                                    تفاصيل السكن ({filteredReportData.length})
+                                </h2>
 
-                            {reportData.map((housing, index) => (
-                                <HousingGroup
-                                    key={index}
-                                    housing={housing}
-                                    t={t}
-                                    language={language}
-                                    selectedCompany={selectedCompany}
-                                />
-                            ))}
+                                {/* Search Input */}
+                                <div className="relative w-full md:w-96">
+                                    <input
+                                        type="text"
+                                        placeholder={"ابحث باسم المندوب او رقم الاقامة او المعرف"}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pr-10 pl-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-sm"
+                                    />
+                                    <Search className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} top-3.5 text-gray-400 w-5 h-5 pointer-events-none`} />
+                                </div>
+                            </div>
+
+                            {filteredReportData.length === 0 ? (
+                                <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                    <p className="text-gray-500 text-lg">لا توجد نتائج مطابقة للبحث</p>
+                                </div>
+                            ) : (
+                                filteredReportData.map((housing, index) => (
+                                    <HousingGroup
+                                        key={index}
+                                        housing={housing}
+                                        t={t}
+                                        language={language}
+                                        selectedCompany={selectedCompany}
+                                    />
+                                ))
+                            )}
                         </div>
                     </div>
                 )}
