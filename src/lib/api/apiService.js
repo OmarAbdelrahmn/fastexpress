@@ -161,4 +161,42 @@ export class ApiService {
       throw error;
     }
   }
+
+  static async uploadFormData(endpoint, formData, method = 'POST') {
+    const token = TokenManager.getToken();
+    if (!token) {
+      throw new Error('لا يوجد رمز مصادقة. يرجى تسجيل الدخول مرة أخرى');
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (response.status === 401) {
+        TokenManager.clearToken();
+        if (typeof window !== 'undefined') window.location.href = '/admin/login';
+        throw new Error('انتهت صلاحية الجلسة');
+      }
+
+      if (!response.ok) {
+        const errorMessage = data?.title || data?.detail || data?.error?.description || `خطأ: ${response.status}`;
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        error.fullError = data;
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Upload Form Error:', error);
+      throw error;
+    }
+  }
 }

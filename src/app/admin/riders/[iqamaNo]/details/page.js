@@ -38,13 +38,31 @@ export default function RiderDetailsPage() {
   const [rider, setRider] = useState(null);
   const [vehicle, setVehicle] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+
+  const API_BASE = 'https://fastexpress.tryasp.net';
 
   useEffect(() => {
     if (iqamaNo) {
       loadRiderDetails();
       loadVehicleDetails();
+      loadProfileImage();
     }
   }, [iqamaNo]);
+
+  const loadProfileImage = async () => {
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.EMPLOYEE_DOCUMENTS.PROFILE_IMAGE(iqamaNo));
+      if (data?.profileImageUrl) {
+        const url = data.profileImageUrl.startsWith('http')
+          ? data.profileImageUrl
+          : `${API_BASE}${data.profileImageUrl}`;
+        setProfileImageUrl(url);
+      }
+    } catch {
+      // Profile image not uploaded yet — silently ignore
+    }
+  };
 
   const loadVehicleDetails = async () => {
     setLoadingVehicle(true);
@@ -186,10 +204,33 @@ export default function RiderDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Personal Information */}
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <User size={20} />
-            {t('riders.personalInfo')}
-          </h3>
+          <div className="flex items-center gap-4 mb-5">
+            {/* Profile avatar */}
+            <div className="shrink-0 w-30 h-30 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+              {profileImageUrl ? (
+                <img
+                  src={profileImageUrl}
+                  alt={rider.nameAR}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              ) : (
+                <User size={36} className="text-gray-400" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <User size={20} />
+                {t('riders.personalInfo')}
+              </h3>
+              <button
+                onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
+                className="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
+                <ImageIcon size={13} /> إدارة الوثائق
+              </button>
+            </div>
+          </div>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -528,6 +569,13 @@ export default function RiderDetailsPage() {
           >
             <FileText size={18} className="ml-2" />
             {t('riders.workingIdHistory')}
+          </Button>
+          <Button
+            onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
+            className="!bg-indigo-600 hover:!bg-indigo-700 text-white"
+          >
+            <ImageIcon size={18} className="ml-2" />
+            إدارة الوثائق
           </Button>
         </div>
       </Card>

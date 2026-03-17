@@ -327,4 +327,15 @@ export const API_ENDPOINTS = {
     CREATE: "/api/return",
     LIST: "/api/return",
   },
+
+  // Employee Documents (Images)
+  EMPLOYEE_DOCUMENTS: {
+    ALL_IMAGES:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+    PROFILE_IMAGE: (iqamaNo) => `/api/employees/${iqamaNo}/images/profile`,
+    ALL_PROFILES:  `/api/employees/images/profiles`,
+    UPLOAD_ONE:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+    UPLOAD_BULK:   (iqamaNo) => `/api/employees/${iqamaNo}/images/bulk`,
+    DELETE_ONE:    (iqamaNo, imageType) => `/api/employees/${iqamaNo}/images/${imageType}`,
+    DELETE_ALL:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+  },
 };
