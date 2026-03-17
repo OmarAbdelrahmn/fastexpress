@@ -104,6 +104,15 @@ export default function RidersPage() {
   };
 
   const handleExportExcel = () => {
+    const statusArabicMap = {
+      enable: 'نشط',
+      disable: 'غير نشط',
+      fleeing: 'هارب',
+      vacation: 'إجازة',
+      sick: 'مريض',
+      accident: 'حادث',
+    };
+
     const data = filteredRiders.map(rider => ({
       [t('riders.iqamaNumber')]: rider.iqamaNo || '',
       [t('riders.nameArabic')]: rider.nameAR || '',
@@ -113,7 +122,7 @@ export default function RidersPage() {
       [t('riders.housing')]: rider.housingAddress || '',
       [t('riders.phoneNumber')]: rider.phone || '',
       [t('riders.nationality')]: rider.country || '',
-      [t('common.status')]: rider.status || '',
+      [t('common.status')]: statusArabicMap[rider.status?.toLowerCase()] || rider.status || '',
       [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
     }));
 

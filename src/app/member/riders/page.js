@@ -107,6 +107,15 @@ export default function MemberRiders() {
     };
 
     const handleExportExcel = () => {
+        const statusArabicMap = {
+            enable: 'نشط',
+            disable: 'غير نشط',
+            fleeing: 'هارب',
+            vacation: 'إجازة',
+            sick: 'مريض',
+            accident: 'حادث',
+        };
+
         // Prepare data for Excel
         const excelData = filteredRiders.map(rider => ({
             'رقم الإقامة': rider.employeeIqamaNo,
@@ -117,7 +126,7 @@ export default function MemberRiders() {
             'المركبة': rider.vehiclePlate ? formatPlateNumber(rider.vehiclePlate) : '',
             'رقم اللوحة': rider.vehicleNumber || '',
             'الجوال': rider.phone,
-            'الحالة': rider.status,
+            'الحالة': statusArabicMap[rider.status?.toLowerCase()] || rider.status || '',
             'سبب تغيير الحالة': rider.statusChangeReason || ''
         }));
 
