@@ -34,7 +34,7 @@ export default function HungerSummaryReport() {
         };
     });
 
-    const handleExcelExport = () => {
+    const handleExportSummary = () => {
         if (!reportData) return;
 
         const excelData = [];
@@ -50,17 +50,17 @@ export default function HungerSummaryReport() {
         if (reportData.companySummary?.tierDistribution) {
             const td = reportData.companySummary.tierDistribution;
             excelData.push({
-                'الفئة': 'فوق 400',
+                'الفئة': '450 فأكثر',
                 'العدد': td.excellentCount,
                 'النسبة': `${Number(td.excellentPercentage).toFixed(2)}%`
             });
             excelData.push({
-                'الفئة': '301 - 400',
+                'الفئة': '400 - 449',
                 'العدد': td.goodCount,
                 'النسبة': `${Number(td.goodPercentage).toFixed(2)}%`
             });
             excelData.push({
-                'الفئة': '1 - 300',
+                'الفئة': 'أقل من 400',
                 'العدد': td.poorCount,
                 'النسبة': `${Number(td.poorPercentage).toFixed(2)}%`
             });
@@ -79,17 +79,17 @@ export default function HungerSummaryReport() {
                 if (housing.tierDistribution) {
                     const td = housing.tierDistribution;
                     excelData.push({
-                        'الفئة': 'فوق 400',
+                        'الفئة': '450 فأكثر',
                         'العدد': td.excellentCount,
                         'النسبة': `${Number(td.excellentPercentage).toFixed(2)}%`
                     });
                     excelData.push({
-                        'الفئة': '301 - 400',
+                        'الفئة': '400 - 449',
                         'العدد': td.goodCount,
                         'النسبة': `${Number(td.goodPercentage).toFixed(2)}%`
                     });
                     excelData.push({
-                        'الفئة': '1 - 300',
+                        'الفئة': 'أقل من 400',
                         'العدد': td.poorCount,
                         'النسبة': `${Number(td.poorPercentage).toFixed(2)}%`
                     });
@@ -98,10 +98,53 @@ export default function HungerSummaryReport() {
             });
         }
 
-        const ws = XLSX.utils.json_to_sheet(excelData);
+        const wsSummary = XLSX.utils.json_to_sheet(excelData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Hunger Summary");
+        XLSX.utils.book_append_sheet(wb, wsSummary, "ملخص هنقرستيشن");
+
         XLSX.writeFile(wb, `hunger_summary_${form.startDate}_${form.endDate}.xlsx`);
+    };
+
+    const handleExportDetails = () => {
+        if (!reportData) return;
+
+        const wb = XLSX.utils.book_new();
+        let hasData = false;
+
+        // Rider Details by Housing
+        if (reportData.housingDistributions && reportData.housingDistributions.length > 0) {
+            const ridersExcelData = [];
+            reportData.housingDistributions.forEach((housing) => {
+                if (housing.riders && housing.riders.length > 0) {
+                    housing.riders.forEach((rider) => {
+                        ridersExcelData.push({
+                            'المجموعة': housing.housingName,
+                            'اسم المندوب': rider.riderNameAR,
+                            'الاسم بالإنجليزي': rider.riderNameEN || '',
+                            'رقم الهوية': rider.iqamaNo,
+                            'الرقم الوظيفي': rider.workingId,
+                            'إجمالي الطلبات': rider.totalOrders,
+                            'التارجيت': rider.targetOrders,
+                            'الفارق': rider.ordersDifference,
+                            'المعدل اليومي': Number(rider.averageOrdersPerDay).toFixed(2),
+                            'الأداء': rider.tierDescription ? rider.tierDescription.split('-')[0].trim() : ''
+                        });
+                    });
+                }
+            });
+            
+            if (ridersExcelData.length > 0) {
+                const wsRiders = XLSX.utils.json_to_sheet(ridersExcelData);
+                XLSX.utils.book_append_sheet(wb, wsRiders, "تفاصيل المناديب");
+                hasData = true;
+            }
+        }
+
+        if (!hasData) {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ 'رسالة': 'لا توجد بيانات مناديب للمجموعات المحددة' }]), "تفاصيل المناديب");
+        }
+
+        XLSX.writeFile(wb, `hunger_riders_details_${form.startDate}_${form.endDate}.xlsx`);
     };
 
     const handleSubmit = async () => {
@@ -177,7 +220,7 @@ export default function HungerSummaryReport() {
                 {/* Excellent Tier */}
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-gray-700">فوق 400</span>
+                        <span className="text-sm font-semibold text-gray-700">450 فأكثر</span>
                         <div className="flex items-center gap-2">
                             <span className="font-bold text-green-600 text-lg">{tierData.excellentCount}</span>
                             <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
@@ -196,7 +239,7 @@ export default function HungerSummaryReport() {
                 {/* Good Tier */}
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-gray-700">301 - 400</span>
+                        <span className="text-sm font-semibold text-gray-700">400 - 449</span>
                         <div className="flex items-center gap-2">
                             <span className="font-bold text-blue-600 text-lg">{tierData.goodCount}</span>
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
@@ -215,7 +258,7 @@ export default function HungerSummaryReport() {
                 {/* Poor Tier */}
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-gray-700">1 - 300</span>
+                        <span className="text-sm font-semibold text-gray-700">أقل من 400</span>
                         <div className="flex items-center gap-2">
                             <span className="font-bold text-red-600 text-lg">{tierData.poorCount}</span>
                             <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
@@ -271,7 +314,7 @@ export default function HungerSummaryReport() {
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">رقم الهوية</th>
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">الرقم الوظيفي</th>
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">إجمالي الطلبات</th>
-                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">الهدف</th>
+                                        <th className="p-4 text-sm font-bold text-gray-600 border-b">التارجيت</th>
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">الفارق</th>
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">المعدل اليومي</th>
                                         <th className="p-4 text-sm font-bold text-gray-600 border-b">الأداء</th>
@@ -384,13 +427,22 @@ export default function HungerSummaryReport() {
                             </button>
 
                             {reportData && (
-                                <button
-                                    onClick={handleExcelExport}
-                                    className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
-                                >
-                                    <FileSpreadsheet size={20} />
-                                    تصدير Excel
-                                </button>
+                                <>
+                                    <button
+                                        onClick={handleExportSummary}
+                                        className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all whitespace-nowrap"
+                                    >
+                                        <FileSpreadsheet size={20} />
+                                        تصدير الملخص
+                                    </button>
+                                    <button
+                                        onClick={handleExportDetails}
+                                        className="bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all whitespace-nowrap"
+                                    >
+                                        <FileSpreadsheet size={20} />
+                                        تصدير التفاصيل
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -501,7 +553,7 @@ export default function HungerSummaryReport() {
                                                         {/* Excellent */}
                                                         <div>
                                                             <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-sm font-semibold text-gray-700">فوق 400</span>
+                                                                <span className="text-sm font-semibold text-gray-700">450 فأكثر</span>
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="font-bold text-green-600">{housing.tierDistribution.excellentCount}</span>
                                                                     <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
@@ -520,7 +572,7 @@ export default function HungerSummaryReport() {
                                                         {/* Good */}
                                                         <div>
                                                             <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-sm font-semibold text-gray-700">301 - 400</span>
+                                                                <span className="text-sm font-semibold text-gray-700">400 - 449</span>
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="font-bold text-blue-600">{housing.tierDistribution.goodCount}</span>
                                                                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
@@ -539,7 +591,7 @@ export default function HungerSummaryReport() {
                                                         {/* Poor */}
                                                         <div>
                                                             <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-sm font-semibold text-gray-700">1 - 300</span>
+                                                                <span className="text-sm font-semibold text-gray-700">أقل من 400</span>
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="font-bold text-red-600">{housing.tierDistribution.poorCount}</span>
                                                                     <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
