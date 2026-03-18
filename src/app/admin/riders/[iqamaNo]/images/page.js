@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useLanguage } from '@/lib/context/LanguageContext';
 import Card from '@/components/Ui/Card';
 import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
@@ -32,15 +33,15 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf
 const ALLOWED_EXT_LABEL = '.jpg .jpeg .png .webp .pdf';
 
 const IMAGE_SLOTS = [
-  { imageType: 1, labelAR: 'الصورة الشخصية',   labelEN: 'Profile Image',    icon: User,      urlKey: 'profileImageUrl' },
-  { imageType: 2, labelAR: 'صورة الجواز',       labelEN: 'Passport Image',   icon: FileText,  urlKey: 'passportImageUrl' },
-  { imageType: 3, labelAR: 'صورة الإقامة',      labelEN: 'Iqama Image',      icon: CreditCard,urlKey: 'iqamaImageUrl' },
-  { imageType: 4, labelAR: 'صورة الرخصة',       labelEN: 'License Image',    icon: Briefcase, urlKey: 'licenseImageUrl' },
-  { imageType: 5, labelAR: 'تصريح العمل',       labelEN: 'Work Permit',      icon: Shield,    urlKey: 'workPermitImageUrl' },
-  { imageType: 6, labelAR: 'صورة إضافية 1',     labelEN: 'Additional 1',     icon: Plus,      urlKey: 'additionalImage1Url' },
-  { imageType: 7, labelAR: 'صورة إضافية 2',     labelEN: 'Additional 2',     icon: Plus,      urlKey: 'additionalImage2Url' },
-  { imageType: 8, labelAR: 'صورة إضافية 3',     labelEN: 'Additional 3',     icon: Plus,      urlKey: 'additionalImage3Url' },
-  { imageType: 9, labelAR: 'صورة إضافية 4',     labelEN: 'Additional 4',     icon: Plus,      urlKey: 'additionalImage4Url' },
+  { imageType: 1, labelKey: 'profile',   icon: User,      urlKey: 'profileImageUrl' },
+  { imageType: 2, labelKey: 'passport',  icon: FileText,  urlKey: 'passportImageUrl' },
+  { imageType: 3, labelKey: 'iqama',     icon: CreditCard,urlKey: 'iqamaImageUrl' },
+  { imageType: 4, labelKey: 'license',   icon: Briefcase, urlKey: 'licenseImageUrl' },
+  { imageType: 5, labelKey: 'workPermit',icon: Shield,    urlKey: 'workPermitImageUrl' },
+  { imageType: 6, labelKey: 'additional1',icon: Plus,      urlKey: 'additionalImage1Url' },
+  { imageType: 7, labelKey: 'additional2',icon: Plus,      urlKey: 'additionalImage2Url' },
+  { imageType: 8, labelKey: 'additional3',icon: Plus,      urlKey: 'additionalImage3Url' },
+  { imageType: 9, labelKey: 'additional4',icon: Plus,      urlKey: 'additionalImage4Url' },
 ];
 
 function buildFullUrl(relativeUrl) {
@@ -53,6 +54,7 @@ export default function RiderImagesPage() {
   const router = useRouter();
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
+  const { t, locale } = useLanguage();
 
   const [images, setImages] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ export default function RiderImagesPage() {
           additionalImage4Url: null,
         });
       } else {
-        setErrorMessage(err?.message || 'حدث خطأ أثناء تحميل الوثائق');
+        setErrorMessage(err?.message || t('riderImages.errorLoading'));
       }
     } finally {
       setLoading(false);
@@ -116,11 +118,11 @@ export default function RiderImagesPage() {
 
     // Client-side validations
     if (!ALLOWED_TYPES.includes(file.type)) {
-      showError(`نوع الملف غير مسموح به. الأنواع المسموحة: ${ALLOWED_EXT_LABEL}`);
+      showError(t('riderImages.invalidFileType').replace('{{allowedTypes}}', ALLOWED_EXT_LABEL));
       return;
     }
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      showError(`حجم الملف يتجاوز ${MAX_FILE_SIZE_MB} ميجابايت`);
+      showError(t('riderImages.fileTooLarge').replace('{{maxSize}}', MAX_FILE_SIZE_MB));
       return;
     }
 
@@ -136,10 +138,10 @@ export default function RiderImagesPage() {
         formData
       );
 
-      showSuccess('تم رفع الصورة بنجاح');
+      showSuccess(t('riderImages.uploadSuccess'));
       await loadImages();
     } catch (err) {
-      showError(err?.message || 'فشل رفع الصورة');
+      showError(err?.message || t('riderImages.uploadFailed'));
     } finally {
       setUploading(null);
       // Clear the file input so same file can be re-selected
@@ -158,10 +160,10 @@ export default function RiderImagesPage() {
       await ApiService.delete(
         API_ENDPOINTS.EMPLOYEE_DOCUMENTS.DELETE_ONE(iqamaNo, slotToDelete.imageType)
       );
-      showSuccess(`تم حذف الصورة: ${slotToDelete.labelAR}`);
+      showSuccess(t('riderImages.deleteSuccess').replace('{{label}}', t(`riderImages.slots.${slotToDelete.labelKey}`)));
       await loadImages();
     } catch (err) {
-      showError(err?.message || 'فشل حذف الصورة');
+      showError(err?.message || t('riderImages.deleteFailed'));
     } finally {
       setDeleting(null);
       setSlotToDelete(null);
@@ -172,7 +174,7 @@ export default function RiderImagesPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="إدارة وثائق العامل" subtitle="جاري التحميل..." icon={ImageIcon} />
+        <PageHeader title={t('riderImages.title')} subtitle={t('riderImages.loading')} icon={ImageIcon} />
         <Card>
           <div className="flex justify-center py-16">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
@@ -183,15 +185,15 @@ export default function RiderImagesPage() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <PageHeader
-        title="إدارة وثائق العامل"
-        subtitle={`رقم الإقامة: ${iqamaNo}`}
+        title={t('riderImages.title')}
+        subtitle={t('riderImages.subtitle').replace('{{iqamaNo}}', iqamaNo)}
         icon={ImageIcon}
         actionButton={{
-          text: 'رجوع',
-          icon: <ArrowRight size={18} />,
+          text: t('riderImages.back'),
+          icon: <ArrowRight size={18} className={locale === 'ar' ? '' : 'rotate-180'} />,
           onClick: () => router.push(`/admin/riders/${iqamaNo}/details`),
           variant: 'secondary',
         }}
@@ -199,22 +201,22 @@ export default function RiderImagesPage() {
 
       {/* Alerts */}
       {successMessage && (
-        <Alert type="success" title="تمّ" message={successMessage} onClose={() => setSuccessMessage('')} />
+        <Alert type="success" title={t('riderImages.success')} message={successMessage} onClose={() => setSuccessMessage('')} />
       )}
       {errorMessage && (
-        <Alert type="error" title="خطأ" message={errorMessage} onClose={() => setErrorMessage('')} />
+        <Alert type="error" title={t('riderImages.error')} message={errorMessage} onClose={() => setErrorMessage('')} />
       )}
 
       {/* Info banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+      <div className={`bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3`}>
         <AlertCircle size={20} className="text-blue-500 mt-0.5 shrink-0" />
         <div className="text-sm text-blue-700">
-          <p className="font-medium mb-1">ملاحظات مهمة</p>
+          <p className="font-medium mb-1">{t('riderImages.importantNotes')}</p>
           <ul className="list-disc list-inside space-y-0.5">
-            <li>الحجم الأقصى للملف: {MAX_FILE_SIZE_MB} ميجابايت</li>
-            <li>الأنواع المسموحة: {ALLOWED_EXT_LABEL}</li>
-            <li>رفع ملف جديد يستبدل الملف الحالي في نفس الخانة</li>
-            <li>الحذف يزيل الرابط من قاعدة البيانات فقط (الملف الفعلي يبقى على الخادم)</li>
+            <li>{t('riderImages.maxSizeNote').replace('{{maxSize}}', MAX_FILE_SIZE_MB)}</li>
+            <li>{t('riderImages.allowedTypesNote').replace('{{allowedTypes}}', ALLOWED_EXT_LABEL)}</li>
+            <li>{t('riderImages.replaceNote')}</li>
+            <li>{t('riderImages.deleteNote')}</li>
           </ul>
         </div>
       </div>
@@ -240,11 +242,10 @@ export default function RiderImagesPage() {
                   <SlotIcon size={18} className="text-blue-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800 text-sm">{slot.labelAR}</p>
-                  <p className="text-xs text-gray-400">{slot.labelEN}</p>
+                  <p className="font-semibold text-gray-800 text-sm">{t(`riderImages.slots.${slot.labelKey}`)}</p>
                 </div>
                 {fullUrl && !isDeleting && (
-                  <CheckCircle size={16} className="text-green-500 mr-auto" />
+                  <CheckCircle size={16} className={`text-green-500 ${locale === 'ar' ? 'mr-auto' : 'ml-auto'}`} />
                 )}
               </div>
 
@@ -253,33 +254,33 @@ export default function RiderImagesPage() {
                 {isUploading || isDeleting ? (
                   <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
-                    <p className="text-xs text-gray-500">{isUploading ? 'جاري الرفع...' : 'جاري الحذف...'}</p>
+                    <p className="text-xs text-gray-500">{isUploading ? t('riderImages.uploading') : t('riderImages.deleting')}</p>
                   </div>
                 ) : fullUrl ? (
                   isPdf ? (
                     <div className="flex flex-col items-center gap-3 p-4">
                       <FileText size={48} className="text-red-400" />
-                      <p className="text-xs text-gray-500 text-center">ملف PDF</p>
+                      <p className="text-xs text-gray-500 text-center">{t('riderImages.pdfFile')}</p>
                       <a
                         href={fullUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:underline flex items-center gap-1"
                       >
-                        <Eye size={14} /> فتح الملف
+                        <Eye size={14} /> {t('riderImages.openFile')}
                       </a>
                     </div>
                   ) : (
                     <div className="relative w-full h-full min-h-[180px]">
                       <img
                         src={fullUrl}
-                        alt={slot.labelAR}
+                        alt={t(`riderImages.slots.${slot.labelKey}`)}
                         className="w-full h-full object-cover min-h-[180px] cursor-pointer"
-                        onClick={() => { setPreviewUrl(fullUrl); setPreviewLabel(slot.labelAR); }}
+                        onClick={() => { setPreviewUrl(fullUrl); setPreviewLabel(t(`riderImages.slots.${slot.labelKey}`)); }}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
                       <button
-                        onClick={() => { setPreviewUrl(fullUrl); setPreviewLabel(slot.labelAR); }}
+                        onClick={() => { setPreviewUrl(fullUrl); setPreviewLabel(t(`riderImages.slots.${slot.labelKey}`)); }}
                         className="absolute inset-0 flex items-end justify-end p-2 opacity-0 hover:opacity-100 bg-black/10 transition-opacity"
                       >
                         <div className="bg-white rounded-lg p-1 shadow">
@@ -291,7 +292,7 @@ export default function RiderImagesPage() {
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-gray-300 p-6">
                     <ImageIcon size={48} />
-                    <p className="text-xs text-gray-400">لم يتم الرفع بعد</p>
+                    <p className="text-xs text-gray-400">{t('riderImages.notUploaded')}</p>
                   </div>
                 )}
               </div>
@@ -314,7 +315,7 @@ export default function RiderImagesPage() {
                     bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Upload size={15} />
-                  {fullUrl ? 'استبدال' : 'رفع'}
+                  {fullUrl ? t('riderImages.replace') : t('riderImages.upload')}
                 </button>
 
                 {fullUrl && (
@@ -368,25 +369,25 @@ export default function RiderImagesPage() {
       <Modal
         isOpen={showDeleteModal}
         onClose={() => { setShowDeleteModal(false); setSlotToDelete(null); }}
-        title="تأكيد الحذف"
+        title={t('riderImages.confirmDeleteTitle')}
       >
         <div className="space-y-4">
           <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-700">
             <AlertCircle size={24} />
             <p className="font-medium">
-              هل أنت متأكد من حذف <strong>{slotToDelete?.labelAR}</strong>؟
+              {t('riderImages.confirmDeleteMsg')} <strong>{slotToDelete ? t(`riderImages.slots.${slotToDelete.labelKey}`) : ''}</strong>؟
             </p>
           </div>
           <p className="text-sm text-gray-600">
-            سيتم إزالة الرابط من قاعدة البيانات. الملف الفعلي سيبقى على الخادم.
+            {t('riderImages.confirmDeleteSubmsg')}
           </p>
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => { setShowDeleteModal(false); setSlotToDelete(null); }}>
-              إلغاء
+              {t('riderImages.cancel')}
             </Button>
             <Button className="!bg-red-600 hover:!bg-red-700 text-white" onClick={confirmDelete}>
-              <Trash2 size={16} className="ml-2" />
-              حذف
+              <Trash2 size={16} className={locale === 'ar' ? 'ml-2' : 'mr-2'} />
+              {t('riderImages.delete')}
             </Button>
           </div>
         </div>

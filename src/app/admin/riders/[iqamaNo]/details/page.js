@@ -31,7 +31,7 @@ export default function RiderDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const iqamaNo = params?.iqamaNo;
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -227,7 +227,7 @@ export default function RiderDetailsPage() {
                 onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
                 className="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
-                <ImageIcon size={13} /> إدارة الوثائق
+                <ImageIcon size={13} /> {t('riderImages.manageDocuments')}
               </button>
             </div>
           </div>
@@ -574,8 +574,8 @@ export default function RiderDetailsPage() {
             onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
             className="!bg-indigo-600 hover:!bg-indigo-700 text-white"
           >
-            <ImageIcon size={18} className="ml-2" />
-            إدارة الوثائق
+            <ImageIcon size={18} className={locale === 'ar' ? 'ml-2' : 'mr-2'} />
+            {t('riderImages.manageDocuments')}
           </Button>
         </div>
       </Card>
