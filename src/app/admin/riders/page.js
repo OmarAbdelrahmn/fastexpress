@@ -262,7 +262,7 @@ export default function RidersPage() {
     sick: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
     accident: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
     other: searchFilteredRiders.filter(r => r.status?.toLowerCase() !== 'enable' && r.status?.toLowerCase() !== 'vacation').length,
-    employees: searchFilteredRiders.filter(r => r.isEmployee).length,
+    employees: searchFilteredRiders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'enable').length,
     inactiveEmployees: searchFilteredRiders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
     companies: new Set(searchFilteredRiders.map(r => r.companyName)).size,
     withHousing: searchFilteredRiders.filter(r => r.housingAddress).length
@@ -282,7 +282,7 @@ export default function RidersPage() {
       (statusFilter === 'sick' && status === 'sick' && !isEmployee) ||
       (statusFilter === 'accident' && status === 'accident' && !isEmployee) ||
       (statusFilter === 'other' && status !== 'enable' && status !== 'vacation') ||
-      (statusFilter === 'employees' && isEmployee) ||
+      (statusFilter === 'employees' && isEmployee && status === 'enable') ||
       (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable');
 
     return matchesStatus;
