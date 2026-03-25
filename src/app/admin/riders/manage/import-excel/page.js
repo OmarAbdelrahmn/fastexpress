@@ -46,14 +46,9 @@ export default function ImportEmployeeExcelPage() {
       const formData = new FormData();
       formData.append('excelFile', selectedFile);
 
-      const response = await ApiService.uploadFile('/api/Temp/import-employees', formData.get('excelFile'));
-      if (!response.ok) {
-        throw new Error(t('employees.uploadFailed'));
-      }
-
-      const result = await response.json();
+      const result = await ApiService.uploadFile('/api/Temp/import-employees', formData.get('excelFile'));
       setUploadResult(result);
-      setSuccessMessage(result.message || t('common.success'));
+      setSuccessMessage(result?.message || t('common.success'));
 
     } catch (err) {
       console.error('Error uploading file:', err);

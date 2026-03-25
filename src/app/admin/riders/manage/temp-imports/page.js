@@ -140,6 +140,26 @@ export default function TempImportsPage() {
         </Card>
       ) : (
         <>
+          {/* Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <p className="text-sm text-blue-600 mb-1">{t('employees.pendingUpdatesCount')}</p>
+              <p className="text-2xl font-bold text-blue-700">{pendingUpdates.length}</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+              <p className="text-sm text-green-600 mb-1">{t('employees.newEmployees')}</p>
+              <p className="text-2xl font-bold text-green-700">
+                {pendingUpdates.filter(u => u.isNewEmployee).length}
+              </p>
+            </div>
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+              <p className="text-sm text-purple-600 mb-1">{t('employees.dataUpdate')}</p>
+              <p className="text-2xl font-bold text-purple-700">
+                {pendingUpdates.filter(u => !u.isNewEmployee).length}
+              </p>
+            </div>
+          </div>
+
           {/* Action Buttons */}
           <Card>
             <div className="flex gap-3 justify-end">
@@ -189,7 +209,6 @@ export default function TempImportsPage() {
                     </div>
                   </div>
                   <div className="text-right text-sm text-gray-600">
-                    <p>{t('employees.uploadedBy')}: {update.uploadedBy}</p>
                     <p className="text-xs mt-1">
                       {new Date(update.uploadedAt).toLocaleString(language === 'ar' ? 'en-US' : 'en-US')}
                     </p>
