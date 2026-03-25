@@ -49,7 +49,7 @@ export default function TempImportsPage() {
 
       setSuccessMessage(t('employees.approveAllSuccess'));
       setTimeout(() => {
-        router.push('/employees/admin');
+        router.push('/admin/riders');
       }, 2000);
     } catch (err) {
       console.error('Error approving updates:', err);
@@ -133,7 +133,7 @@ export default function TempImportsPage() {
             <p className="text-gray-600 mb-4">
               {t('employees.allUpdatesProcessed')}
             </p>
-            <Button onClick={() => router.push('/employees/admin/import-excel')}>
+            <Button onClick={() => router.push('/admin/riders/manage/import-excel')}>
               {t('employees.importNewFile')}
             </Button>
           </div>

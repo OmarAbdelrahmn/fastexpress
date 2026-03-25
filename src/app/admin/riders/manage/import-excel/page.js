@@ -55,9 +55,6 @@ export default function ImportEmployeeExcelPage() {
       setUploadResult(result);
       setSuccessMessage(result.message || t('common.success'));
 
-      setTimeout(() => {
-        router.push('/admin/riders/manage/temp-imports');
-      }, 3000);
     } catch (err) {
       console.error('Error uploading file:', err);
       setErrorMessage(err?.message || t('employees.uploadErrorOccurred'));
@@ -130,6 +127,64 @@ export default function ImportEmployeeExcelPage() {
               <p className="text-2xl font-bold text-orange-700">{uploadResult.skippedRows}</p>
             </div>
           </div>
+
+          <div className="mt-6 flex justify-end">
+            <Button onClick={() => router.push('/admin/riders/manage/temp-imports')}>
+              {t('employees.viewPendingUpdates')}
+            </Button>
+          </div>
+
+          {uploadResult.employeesInExcelNotInDB && uploadResult.employeesInExcelNotInDB.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-bold text-red-600 mb-3">{t('employees.employeesInExcelNotInDB')}</h4>
+              <div className="bg-red-50 p-4 rounded-lg overflow-x-auto">
+                <table className="min-w-full text-sm text-left whitespace-nowrap">
+                  <thead>
+                    <tr className="border-b border-red-200">
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.passportNumber')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.profession')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uploadResult.employeesInExcelNotInDB.map((emp, idx) => (
+                      <tr key={idx} className="border-b border-red-100 last:border-0">
+                        <td className="py-2">{emp.iqamaNo}</td>
+                        <td className="py-2">{emp.passportNo || '-'}</td>
+                        <td className="py-2">{emp.jobTitle || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {uploadResult.employeesInDBNotInExcel && uploadResult.employeesInDBNotInExcel.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-bold text-yellow-600 mb-3">{t('employees.employeesInDBNotInExcel')}</h4>
+              <div className="bg-yellow-50 p-4 rounded-lg overflow-x-auto">
+                <table className="min-w-full text-sm text-left whitespace-nowrap">
+                  <thead>
+                    <tr className="border-b border-yellow-200">
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.nameArabic')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.profession')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uploadResult.employeesInDBNotInExcel.map((emp, idx) => (
+                      <tr key={idx} className="border-b border-yellow-100 last:border-0">
+                        <td className="py-2">{emp.iqamaNo}</td>
+                        <td className="py-2">{emp.nameAR || emp.employeeNameAR || '-'}</td>
+                        <td className="py-2">{emp.jobTitle || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </Card>
       )}
 
@@ -181,21 +236,11 @@ export default function ImportEmployeeExcelPage() {
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iqamaNumber')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.nameArabic')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.nameEnglish')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iqamaExpiry')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iqamaExpiryHijri')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.passportNumber')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.passportExpiry')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.sponsorship')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.employerNumber')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.profession')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.country')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.phone')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.birthDate')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.status')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iban')}</div>
-              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.outsideKingdom')}</div>
             </div>
           </div>
 
