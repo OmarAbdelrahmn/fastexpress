@@ -263,7 +263,7 @@ export default function RiderDetailsPage() {
         {/* Top: Avatar + key identity info */}
         <div className="flex items-start gap-4 mb-3">
           <div className="flex flex-col items-center shrink-0">
-            <div className="w-25 h-25 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
               {profileImageUrl ? (
                 <img src={profileImageUrl} alt={rider.nameAR} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
               ) : (
@@ -284,10 +284,6 @@ export default function RiderDetailsPage() {
               <p className="font-bold text-gray-800 text-sm">{rider.nameEN}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">{t('riders.iqamaNumber')}</p>
-              <p className="font-medium text-gray-800 text-sm break-all">{rider.iqamaNo}</p>
-            </div>
-            <div>
               <p className="text-xs text-gray-500">{t('riders.phone')}</p>
               <p className="font-medium text-gray-800 text-sm flex items-center gap-1"><Phone size={11} />{rider.phone}</p>
             </div>
@@ -296,23 +292,36 @@ export default function RiderDetailsPage() {
               <p className="font-medium text-gray-800 text-sm flex items-center gap-1"><MapPin size={11} />{rider.country}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">{t('riders.dateOfBirth')}</p>
-              <p className="font-medium text-gray-800 text-sm">{formatDate(rider.dateOfBirth)}</p>
+              <p className="text-xs text-gray-500">{t('riders.iqamaNumber')}</p>
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="font-medium text-gray-800 text-sm">{rider.iqamaNo}</span>
+                <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactDate(rider.iqamaEndM)}</span>
+                <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactHijriDate(rider.iqamaEndH)}</span>
+              </div>
             </div>
             <div>
               <p className="text-xs text-gray-500">{t('riders.passportNumber')}</p>
-              <p className="font-medium text-gray-800 text-sm">{rider.passportNo || t('profile.notSpecified')}</p>
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="font-medium text-gray-800 text-sm">{rider.passportNo || t('profile.notSpecified')}</span>
+                {rider.passportEnd && (
+                  <span className={`${getDateStatusClass(rider.passportEnd, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactDate(rider.passportEnd)}</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.dateOfBirth')}</p>
+              <p className="font-medium text-gray-800 text-sm">{formatDate(rider.dateOfBirth)}</p>
             </div>
           </div>
         </div>
 
-        {/* Divider */}
+        {/* Divider and bottom section */}
         <div className="border-t border-gray-100 pt-2">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
             {!rider.isEmployee && (
               <div>
                 <p className="text-xs text-gray-500">{t('riders.workingId')}</p>
-                <p className="font-bold text-blue-700 text-lg">{rider.workingId || 'N/A'}</p>
+                <p className="font-bold text-blue-700 text-lg leading-none">{rider.workingId || 'N/A'}</p>
               </div>
             )}
             <div>
@@ -329,22 +338,6 @@ export default function RiderDetailsPage() {
               <p className="text-xs text-gray-500">{t('riders.housing')}</p>
               <p className="font-medium text-gray-800 text-sm">{rider.housingAddress || t('profile.notSpecified')}</p>
             </div>
-          </div>
-        </div>
-
-        {/* Date Badges */}
-        <div className="flex flex-wrap gap-3 mt-2 pt-2 border-t border-gray-100">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500">{t('riders.iqamaEndGregorian')}:</span>
-            <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactDate(rider.iqamaEndM)}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500">{t('riders.iqamaEndHijri')}:</span>
-            <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactHijriDate(rider.iqamaEndH)}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500">{t('riders.passportEnd')}:</span>
-            <span className={`${getDateStatusClass(rider.passportEnd, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactDate(rider.passportEnd)}</span>
           </div>
         </div>
       </Card>
