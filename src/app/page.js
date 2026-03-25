@@ -144,12 +144,12 @@ export default function ComprehensiveLandingPage() {
 
             <div className="pt-8 border-t border-white/10 flex gap-8 justify-center lg:justify-start">
               <div>
-                <div className="text-2xl md:text-3xl font-black text-white">500+</div>
+                <div className="text-2xl md:text-3xl font-black text-white">700+</div>
                 <div className="text-blue-300 text-xs md:text-sm">مركبة</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-black text-white">3K+</div>
-                <div className="text-blue-300 text-xs md:text-sm">شحنة يومياً</div>
+                <div className="text-2xl md:text-3xl font-black text-white">6K+</div>
+                <div className="text-blue-300 text-xs md:text-sm">طلبات يومياً</div>
               </div>
             </div>
           </div>
@@ -173,7 +173,6 @@ export default function ComprehensiveLandingPage() {
                   </div>
                 </div>
               </div>
-
               {/* Top Left */}
               <div className="flex absolute top-24 -left-2 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1.5s' }}>
                 <div className="flex items-center gap-2 md:gap-3">
@@ -199,7 +198,6 @@ export default function ComprehensiveLandingPage() {
                   </div>
                 </div>
               </div>
-
               {/* Bottom Left */}
               <div className="flex absolute bottom-24 -left-1 bg-white/10 backdrop-blur-xl border border-white/20 p-2 md:p-3 rounded-xl md:rounded-2xl text-white animate-float-delayed shadow-2xl z-20 hover:scale-105 transition-transform" style={{ animationDelay: '1s' }}>
                 <div className="flex items-center gap-2 md:gap-3">
@@ -212,7 +210,6 @@ export default function ComprehensiveLandingPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
