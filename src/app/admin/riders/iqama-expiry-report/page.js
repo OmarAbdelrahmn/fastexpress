@@ -55,7 +55,6 @@ export default function IqamaExpiryReportPage() {
     total: report?.employees?.length || 0,
     active: report?.employees?.filter(r => r.status?.toLowerCase() === 'enable').length || 0,
     inactive: report?.employees?.filter(r => r.status?.toLowerCase() === 'disable').length || 0,
-    fleeing: report?.employees?.filter(r => r.status?.toLowerCase() === 'fleeing').length || 0,
     vacation: report?.employees?.filter(r => r.status?.toLowerCase() === 'vacation').length || 0,
     sick: report?.employees?.filter(r => r.status?.toLowerCase() === 'sick').length || 0,
     accident: report?.employees?.filter(r => r.status?.toLowerCase() === 'accident').length || 0,
@@ -67,7 +66,6 @@ export default function IqamaExpiryReportPage() {
     if (statusFilter === 'all') return true;
     if (statusFilter === 'active') return status === 'enable';
     if (statusFilter === 'inactive') return status === 'disable';
-    if (statusFilter === 'fleeing') return status === 'fleeing';
     if (statusFilter === 'vacation') return status === 'vacation';
     if (statusFilter === 'sick') return status === 'sick';
     if (statusFilter === 'accident') return status === 'accident';
@@ -255,7 +253,6 @@ export default function IqamaExpiryReportPage() {
               { id: 'all', label: t('common.all'), count: stats.total, color: 'bg-blue-600' },
               { id: 'active', label: t('common.active'), count: stats.active, color: 'bg-green-600' },
               { id: 'inactive', label: t('common.inactive'), count: stats.inactive, color: 'bg-red-600' },
-              { id: 'fleeing', label: t('status.fleeing'), count: stats.fleeing, color: 'bg-rose-600' },
               { id: 'vacation', label: t('status.vacation'), count: stats.vacation, color: 'bg-blue-500' },
               { id: 'sick', label: t('status.sick'), count: stats.sick, color: 'bg-yellow-500' },
               { id: 'accident', label: t('status.accident'), count: stats.accident, color: 'bg-orange-500' },
