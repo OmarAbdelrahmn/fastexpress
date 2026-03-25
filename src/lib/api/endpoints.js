@@ -48,6 +48,14 @@ export const API_ENDPOINTS = {
     MULTI_SEARCH: "/api/employee/multi-search",
     SMART_SEARCH: "/api/employee/smart-search",
     CHANGE_EMPLOYEE_RIDER: (iqama) => `/api/employee/change-employee-rider?iqama=${iqama}`,
+    IQAMA_EXPIRY_REPORT: (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.urgency !== undefined && params.urgency !== '') qs.append('urgency', params.urgency);
+      if (params.housingName) qs.append('housingName', params.housingName);
+      if (params.sponsor) qs.append('sponsor', params.sponsor);
+      const q = qs.toString();
+      return `/api/Employee/iqama-end-report${q ? '?' + q : ''}`;
+    },
   },
 
   // Housing

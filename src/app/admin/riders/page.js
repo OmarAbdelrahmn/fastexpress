@@ -436,6 +436,14 @@ export default function RidersPage() {
               color="#ea580c" // orange-600
               bgClass="bg-orange-50"
             />
+            <MiniStatRow
+              icon={AlertCircle}
+              title="تقرير انتهاء الإقامة "
+              description="تقرير الموظفين المرتبين حسب تاريخ انتهاء الإقامة لسرعة المتابعة"
+              onClick={() => router.push('/admin/riders/iqama-expiry-report')}
+              color="#ea580c" // orange-600
+              bgClass="bg-orange-50"
+            />
           </div>
         </div>
 

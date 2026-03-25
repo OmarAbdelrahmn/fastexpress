@@ -16,12 +16,9 @@ import {
   Calendar,
   MapPin,
   Phone,
-  CreditCard,
   Building,
-  Package,
   FileText,
   Shield,
-  Briefcase,
   Truck,
   Image as ImageIcon
 } from 'lucide-react';
@@ -86,7 +83,7 @@ export default function RiderDetailsPage() {
 
       if (data && data.length > 0) {
         setRider(data[0]);
-            } else {
+      } else {
         setErrorMessage(t('riders.riderNotFound'));
       }
     } catch (err) {
@@ -163,10 +160,10 @@ export default function RiderDetailsPage() {
   const getCompactDate = (dateString) => {
     if (!dateString) return t('profile.notSpecified');
     if (typeof dateString === 'string' && dateString.includes('-')) {
-       const parts = dateString.split('T')[0].split('-');
-       if (parts.length === 3) {
-         return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
-       }
+      const parts = dateString.split('T')[0].split('-');
+      if (parts.length === 3) {
+        return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
+      }
     }
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
@@ -216,13 +213,13 @@ export default function RiderDetailsPage() {
     if (!dateString) return type === 'bg' ? 'bg-blue-50' : type === 'text' ? 'text-blue-300' : 'text-gray-500';
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return type === 'bg' ? 'bg-blue-50' : type === 'text' ? 'text-blue-300' : 'text-gray-500';
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    
+
     const isPastOrToday = target.getTime() <= today.getTime();
-    
+
     if (type === 'bg') return isPastOrToday ? 'bg-red-400 text-white' : 'bg-blue-400 text-white';
     if (type === 'title') return isPastOrToday ? 'text-red-100' : 'text-blue-100';
     if (type === 'val') return 'text-white font-bold';
