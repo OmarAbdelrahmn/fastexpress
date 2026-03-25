@@ -133,13 +133,13 @@ export default function ComprehensiveLandingPage() {
               شريكك الاستراتيجي في إدارة سلاسل الإمداد. نقدم تقنيات متطورة وبنية تحتية قوية لضمان وصول منتجاتك إلى عملائك في الوقت المحدد.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start">
-              <button className="bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 group w-full sm:w-auto">
+              <a href="#services" className="bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition-all flex items-center justify-center gap-2 group w-full sm:w-auto">
                 ابدأ الآن
                 <ArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-              </button>
-              <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all w-full sm:w-auto">
+              </a>
+              <a href="#about" className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all w-full sm:w-auto text-center">
                 تعرف علينا
-              </button>
+              </a>
             </div>
 
             <div className="pt-8 border-t border-white/10 flex gap-8 justify-center lg:justify-start">
