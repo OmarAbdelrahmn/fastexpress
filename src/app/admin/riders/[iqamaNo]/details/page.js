@@ -86,7 +86,7 @@ export default function RiderDetailsPage() {
 
       if (data && data.length > 0) {
         setRider(data[0]);
-      } else {
+            } else {
         setErrorMessage(t('riders.riderNotFound'));
       }
     } catch (err) {
@@ -160,8 +160,66 @@ export default function RiderDetailsPage() {
     }
   };
 
+  const getCompactDate = (dateString) => {
+    if (!dateString) return t('profile.notSpecified');
+    if (typeof dateString === 'string' && dateString.includes('-')) {
+       const parts = dateString.split('T')[0].split('-');
+       if (parts.length === 3) {
+         return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
+       }
+    }
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  };
+
+  const getCompactHijriDate = (dateString) => {
+    if (!dateString) return t('profile.notSpecified');
+    if (typeof dateString === 'string') {
+      const parts = dateString.split('T')[0].split(/[-/]/);
+      if (parts.length === 3 && parts[0].startsWith('14')) {
+        return `${parts[0]}/${parts[1].padStart(2, '0')}/${parts[2].padStart(2, '0')}`;
+      }
+    }
+    try {
+      const d = new Date(dateString);
+      const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(d);
+      const year = parts.find(p => p.type === 'year')?.value;
+      const month = parts.find(p => p.type === 'month')?.value;
+      const day = parts.find(p => p.type === 'day')?.value;
+      if (year && month && day) return `${year}/${month}/${day}`;
+      return getCompactDate(dateString);
+    } catch {
+      return getCompactDate(dateString);
+    }
+  };
+
+  const getDateStatusClass = (dateString, type) => {
+    if (!dateString) return type === 'bg' ? 'bg-blue-50' : type === 'text' ? 'text-blue-300' : 'text-gray-500';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return type === 'bg' ? 'bg-blue-50' : type === 'text' ? 'text-blue-300' : 'text-gray-500';
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    
+    const isPastOrToday = target.getTime() <= today.getTime();
+    
+    if (type === 'bg') return isPastOrToday ? 'bg-red-400 text-white' : 'bg-blue-400 text-white';
+    if (type === 'title') return isPastOrToday ? 'text-red-100' : 'text-blue-100';
+    if (type === 'val') return 'text-white font-bold';
+    return '';
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title={`${rider.nameAR}`}
         subtitle={rider.isEmployee
@@ -177,7 +235,7 @@ export default function RiderDetailsPage() {
       />
 
       {/* Status Banner */}
-      <div className={`p-4 rounded-lg ${rider.status === 'enable'
+      <div className={`p-3 rounded-lg ${rider.status === 'enable'
         ? 'bg-green-50 border-r-4 border-green-500'
         : 'bg-red-50 border-r-4 border-red-500'
         }`}>
@@ -200,167 +258,93 @@ export default function RiderDetailsPage() {
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Personal Information */}
-        <Card>
-          <div className="flex items-center gap-4 mb-5">
-            {/* Profile avatar */}
-            <div className="shrink-0 w-35 h-35 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
-              {profileImageUrl ? (
-                <img
-                  src={profileImageUrl}
-                  alt={rider.nameAR}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
-              ) : (
-                <User size={36} className="text-gray-400" />
-              )}
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <User size={20} />
-                {t('riders.personalInfo')}
-              </h3>
-              <button
-                onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
-                className="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <ImageIcon size={13} /> {t('riderImages.manageDocuments')}
-              </button>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.nameArabic')}</p>
-                <p className="font-bold text-gray-800 text-base sm:text-lg">{rider.nameAR}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.nameEnglish')}</p>
-                <p className="font-bold text-gray-800 text-base sm:text-lg">{rider.nameEN}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.iqamaNumber')}</p>
-                <p className="font-medium text-gray-800 break-all">{rider.iqamaNo}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.passportNumber')}</p>
-                <p className="font-medium text-gray-800">{rider.passportNo || t('profile.notSpecified')}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.country')}</p>
-                <p className="font-medium text-gray-800 flex items-center gap-2">
-                  <MapPin size={14} />
-                  {rider.country}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.phone')}</p>
-                <p className="font-medium text-gray-800 flex items-center gap-2">
-                  <Phone size={14} />
-                  {rider.phone}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600 mb-1">{t('riders.dateOfBirth')}</p>
-              <p className="font-medium text-gray-800 flex items-center gap-2">
-                <Calendar size={14} />
-                {formatDate(rider.dateOfBirth)}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Rider Work Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Briefcase size={20} />
-            {t('riders.workInfo')}
-          </h3>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {!rider.isEmployee && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('riders.workingId')}</p>
-                  <p className="font-bold text-blue-700 text-xl">{rider.workingId || 'N/A'}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.jobTitle')}</p>
-                <p className="font-medium text-gray-800">{rider.jobTitle}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {!rider.isEmployee && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('riders.company')}</p>
-                  <p className="font-medium text-gray-800 flex items-center gap-2">
-                    <Building size={14} />
-                    {rider.companyName}
-                  </p>
-                </div>
-              )}
-              {!rider.isEmployee && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('riders.licenseNumber')}</p>
-                  <p className="font-medium text-gray-800 flex items-center gap-2">
-                    <FileText size={14} />
-                    {rider.licenseNumber}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {!rider.isEmployee && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('riders.tshirtSize')}</p>
-                  <p className="font-medium text-gray-800 flex items-center gap-2">
-                    <Package size={14} />
-                    {rider.tshirtSize}
-                  </p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{t('riders.housing')}</p>
-                <p className="font-medium text-gray-800">
-                  {rider.housingAddress || t('profile.notSpecified')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Iqama & Passport Details */}
+      {/* Card 1: Profile Header + All Personal/Work Info */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <FileText size={20} />
-          {t('riders.iqamaPassportDetails')}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">{t('riders.iqamaEndGregorian')}</p>
-            <p className="font-bold text-gray-800">{formatDate(rider.iqamaEndM)}</p>
+        {/* Top: Avatar + key identity info */}
+        <div className="flex items-start gap-4 mb-3">
+          <div className="flex flex-col items-center shrink-0">
+            <div className="w-25 h-25 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+              {profileImageUrl ? (
+                <img src={profileImageUrl} alt={rider.nameAR} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+              ) : (
+                <User size={32} className="text-gray-400" />
+              )}
+            </div>
+            <button onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)} className="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <ImageIcon size={11} /> {t('riderImages.manageDocuments')}
+            </button>
           </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">{t('riders.iqamaEndHijri')}</p>
-            <p className="font-bold text-gray-800">{formatHijriDate(rider.iqamaEndH)}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 flex-1">
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.nameArabic')}</p>
+              <p className="font-bold text-gray-800 text-sm">{rider.nameAR}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.nameEnglish')}</p>
+              <p className="font-bold text-gray-800 text-sm">{rider.nameEN}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.iqamaNumber')}</p>
+              <p className="font-medium text-gray-800 text-sm break-all">{rider.iqamaNo}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.phone')}</p>
+              <p className="font-medium text-gray-800 text-sm flex items-center gap-1"><Phone size={11} />{rider.phone}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.country')}</p>
+              <p className="font-medium text-gray-800 text-sm flex items-center gap-1"><MapPin size={11} />{rider.country}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.dateOfBirth')}</p>
+              <p className="font-medium text-gray-800 text-sm">{formatDate(rider.dateOfBirth)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.passportNumber')}</p>
+              <p className="font-medium text-gray-800 text-sm">{rider.passportNo || t('profile.notSpecified')}</p>
+            </div>
           </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-600 mb-1 text-sm">{t('riders.passportEnd')}</p>
-            <p className="font-bold text-gray-800">{formatDate(rider.passportEnd)}</p>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 pt-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2">
+            {!rider.isEmployee && (
+              <div>
+                <p className="text-xs text-gray-500">{t('riders.workingId')}</p>
+                <p className="font-bold text-blue-700 text-lg">{rider.workingId || 'N/A'}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.jobTitle')}</p>
+              <p className="font-medium text-gray-800 text-sm">{rider.jobTitle}</p>
+            </div>
+            {!rider.isEmployee && (
+              <div>
+                <p className="text-xs text-gray-500">{t('riders.company')}</p>
+                <p className="font-medium text-gray-800 text-sm flex items-center gap-1"><Building size={11} />{rider.companyName}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.housing')}</p>
+              <p className="font-medium text-gray-800 text-sm">{rider.housingAddress || t('profile.notSpecified')}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Date Badges */}
+        <div className="flex flex-wrap gap-3 mt-2 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">{t('riders.iqamaEndGregorian')}:</span>
+            <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactDate(rider.iqamaEndM)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">{t('riders.iqamaEndHijri')}:</span>
+            <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactHijriDate(rider.iqamaEndH)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">{t('riders.passportEnd')}:</span>
+            <span className={`${getDateStatusClass(rider.passportEnd, 'bg')} text-xs font-bold px-2 py-0.5 rounded`}>{getCompactDate(rider.passportEnd)}</span>
           </div>
         </div>
       </Card>
@@ -368,17 +352,17 @@ export default function RiderDetailsPage() {
       {/* Vehicle Information */}
       {(loadingVehicle || vehicle) && (
         <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Truck size={20} />
+          <h3 className="text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <Truck size={18} />
             {t('vehicles.title') || 'Vehicle Information'}
           </h3>
           {loadingVehicle ? (
-            <div className="flex justify-center py-4">
+            <div className="flex justify-center py-3">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">{t('vehicles.plateNumber') || 'Plate Number'}</p>
                   <p className="font-bold text-gray-800 text-lg">{formatPlateNumber(vehicle.plateNumberA)}</p>
@@ -406,17 +390,6 @@ export default function RiderDetailsPage() {
                     <Calendar size={14} />
                     {formatDate(vehicle.licenseExpiryDate)}
                   </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('common.location') || 'Location'}</p>
-                  <p className="font-medium text-gray-800 flex items-center gap-2">
-                    <MapPin size={14} />
-                    {vehicle.location}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{t('vehicles.ownerName') || 'Owner Name'}</p>
-                  <p className="font-medium text-gray-800">{vehicle.ownerName}</p>
                 </div>
               </div>
 
@@ -479,102 +452,82 @@ export default function RiderDetailsPage() {
           )}
         </Card>
       )}
-      {/* Sponsor Information */}
+      {/* Sponsor, Banking & Registration - merged */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <Shield size={20} />
-          {t('riders.sponsorInfo')}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
           <div>
-            <p className="text-sm text-gray-600 mb-1">{t('riders.sponsor')}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{t('riders.sponsor')}</p>
             <p className="font-medium text-gray-800">{rider.sponsor}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">{t('riders.sponsorNumber')}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{t('riders.sponsorNumber')}</p>
             <p className="font-medium text-gray-800">{rider.sponsorNo || t('profile.notSpecified')}</p>
           </div>
-        </div>
-      </Card>
-
-      {/* Banking Information */}
-      <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <CreditCard size={20} />
-          {t('riders.bankingInfo')}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">{t('riders.ibanNumber')}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{t('riders.ibanNumber')}</p>
             <p className="font-medium text-gray-800 font-mono">{rider.iban || t('profile.notSpecified')}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">{t('riders.inKSA')}</p>
+            <p className="text-xs text-gray-500 mb-0.5">{t('riders.inKSA')}</p>
             <p className={`font-bold ${rider.inksa ? 'text-green-600' : 'text-gray-600'}`}>
               {rider.inksa ? t('common.yes') : t('common.no')}
             </p>
           </div>
-        </div>
-      </Card>
-
-      {/* Timeline */}
-      <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <Calendar size={20} />
-          {t('riders.registration')}
-        </h3>
-        <div>
-          <p className="text-sm text-gray-600 mb-1">{t('riders.addedToSystem')}</p>
-          <p className="font-medium text-gray-800">
-            {formatDate(rider.createdAt)}
-          </p>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">{t('riders.addedToSystem')}</p>
+            <p className="font-medium text-gray-800">{formatDate(rider.createdAt)}</p>
+          </div>
         </div>
       </Card>
 
       {/* Action Buttons */}
       <Card>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.quickActions')}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
           <Button
             onClick={() => router.push(`/admin/riders/${iqamaNo}/edit`)}
             variant="secondary"
+            className="text-xs !py-1.5"
           >
-            <Edit size={18} className="ml-2" />
+            <Edit size={14} className="ml-1" />
             {t('riders.editData')}
           </Button>
           <Button
             onClick={() => router.push('/admin/riders')}
             variant="secondary"
+            className="text-xs !py-1.5"
           >
-            <ArrowRight size={18} className="ml-2" />
+            <ArrowRight size={14} className="ml-1" />
             {t('navigation.backToList')}
           </Button>
           <Button
             onClick={() => router.push(`/admin/shifts/rider/${rider.workingId}`)}
             variant="secondary"
+            className="text-xs !py-1.5"
           >
-            <Calendar size={18} className="ml-2" />
+            <Calendar size={14} className="ml-1" />
             {t('riders.viewShifts')}
           </Button>
           <Button
             onClick={() => router.push(`/admin/reports/riders/${rider.workingId}/renge`)}
             variant="secondary"
+            className="text-xs !py-1.5"
           >
-            <FileText size={18} className="ml-2" />
+            <FileText size={14} className="ml-1" />
             {t('reports.title')}
           </Button>
           <Button
             onClick={() => router.push(`/admin/riders/working-id-history?iqama=${iqamaNo}`)}
             variant="secondary"
+            className="text-xs !py-1.5"
           >
-            <FileText size={18} className="ml-2" />
+            <FileText size={14} className="ml-1" />
             {t('riders.workingIdHistory')}
           </Button>
           <Button
             onClick={() => router.push(`/admin/riders/${iqamaNo}/images`)}
-            className="!bg-indigo-600 hover:!bg-indigo-700 text-white"
+            className="!bg-indigo-600 hover:!bg-indigo-700 text-white text-xs !py-1.5"
           >
-            <ImageIcon size={18} className={locale === 'ar' ? 'ml-2' : 'mr-2'} />
+            <ImageIcon size={14} className={locale === 'ar' ? 'ml-1' : 'mr-1'} />
             {t('riderImages.manageDocuments')}
           </Button>
         </div>
