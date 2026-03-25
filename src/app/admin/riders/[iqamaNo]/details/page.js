@@ -201,6 +201,17 @@ export default function RiderDetailsPage() {
     }
   };
 
+  const getRemainingDays = (dateString) => {
+    if (!dateString) return null;
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diffTime = target.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
   const getDateStatusClass = (dateString, type) => {
     if (!dateString) return type === 'bg' ? 'bg-blue-50' : type === 'text' ? 'text-blue-300' : 'text-gray-500';
     const d = new Date(dateString);
@@ -297,6 +308,11 @@ export default function RiderDetailsPage() {
                 <span className="font-medium text-gray-800 text-sm">{rider.iqamaNo}</span>
                 <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactDate(rider.iqamaEndM)}</span>
                 <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactHijriDate(rider.iqamaEndH)}</span>
+                {getRemainingDays(rider.iqamaEndM) !== null && (
+                  <span className={`${getRemainingDays(rider.iqamaEndM) < 30 ? 'bg-red-600' : 'bg-blue-600'} text-[13px] text-white px-1.5 py-0.5 rounded-sm font-bold`}>
+                    {getRemainingDays(rider.iqamaEndM)} {locale === 'ar' ? 'يوم' : 'Days'}
+                  </span>
+                )}
               </div>
             </div>
             <div>

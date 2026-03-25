@@ -11,7 +11,7 @@ import Alert from '@/components/Ui/Alert';
 export default function TransferForm({ initialData, onSubmit, onCancel, isLoading }) {
     const [formData, setFormData] = useState({
         housingId: '',
-        transferDate: new Date(Date.now() + 3 * 60 * 60 * 1000)
+        transferredAt: new Date(Date.now() + 3 * 60 * 60 * 1000)
             .toISOString()
             .slice(0, 16),
         notes: '',
@@ -33,8 +33,8 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
     useEffect(() => {
         if (initialData) {
             // Convert UTC date back to local for display
-            const localDate = initialData.transferDate
-                ? new Date(initialData.transferDate).toISOString().slice(0, 16)
+            const localDate = initialData.transferredAt
+                ? new Date(initialData.transferredAt).toISOString().slice(0, 16)
                 : '';
 
             // Map API items to form structure
@@ -47,7 +47,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
             setFormData(prev => ({
                 ...prev,
                 housingId: initialData.housingId,
-                transferDate: localDate,
+                transferredAt: localDate,
                 notes: initialData.notes || '',
                 items: mappedItems
             }));
@@ -149,7 +149,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
         }
 
         // Convert local date to UTC
-        const localDate = new Date(formData.transferDate);
+        const localDate = new Date(formData.transferredAt);
         const utcDate = new Date(Date.UTC(
             localDate.getFullYear(),
             localDate.getMonth(),
@@ -161,7 +161,7 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
 
         const formattedData = {
             housingId: formData.housingId,
-            transferDate: utcDate.toISOString(),
+            transferredAt: utcDate.toISOString(),
             notes: formData.notes,
             items: formData.items.map(item => ({
                 itemId: item.itemId,
@@ -199,9 +199,9 @@ export default function TransferForm({ initialData, onSubmit, onCancel, isLoadin
 
                 <Input
                     label="تاريخ التحويل"
-                    name="transferDate"
+                    name="transferredAt"
                     type="datetime-local"
-                    value={formData.transferDate}
+                    value={formData.transferredAt}
                     onChange={handleChange}
                     required
                 />
