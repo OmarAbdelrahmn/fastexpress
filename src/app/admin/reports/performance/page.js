@@ -45,8 +45,7 @@ export default function HousingPerformanceReport() {
         setSuccessMessage,
         selectedCompany,
         setSelectedCompany,
-        fetchData,
-        totals
+        fetchData
     } = useHousingPerformance(t);
 
     const [searchQuery, setSearchQuery] = useState("");
