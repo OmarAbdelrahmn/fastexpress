@@ -21,21 +21,22 @@ export default function AllRidersHistoryPage() {
     const [companyFilter, setCompanyFilter] = useState("");
     const [showStatusFilter, setShowStatusFilter] = useState(false);
     const [showCompanyFilter, setShowCompanyFilter] = useState(false);
+    const [companies, setCompanies] = useState([]);
 
-    const fetchData = async () => {
+    const fetchData = async (overrideCompanyId) => {
         setLoading(true);
         try {
             let url = API_ENDPOINTS.REPORTS.ALL_RIDERS_HISTORY;
             const params = [];
             if (startDate) params.push(`startDate=${startDate}`);
             if (endDate) params.push(`endDate=${endDate}`);
+            const cId = overrideCompanyId !== undefined ? overrideCompanyId : companyFilter;
+            if (cId) params.push(`companyId=${cId}`);
 
             if (params.length > 0) {
                 url += `?${params.join("&")}`;
             }
-
             const response = await ApiService.get(url);
-            console.log(response);
             setData(response || []);
         } catch (error) {
             console.error("Failed to fetch history:", error);
@@ -45,6 +46,15 @@ export default function AllRidersHistoryPage() {
     };
 
     useEffect(() => {
+        const loadCompanies = async () => {
+            try {
+                const response = await ApiService.get(API_ENDPOINTS.COMPANY.LIST);
+                setCompanies(Array.isArray(response) ? response : []);
+            } catch (err) {
+                console.error("Failed to load companies:", err);
+            }
+        };
+        loadCompanies();
         fetchData();
     }, []);
 
@@ -64,14 +74,7 @@ export default function AllRidersHistoryPage() {
         // Status filter
         const matchesStatus = !statusFilter || rider.status?.toLowerCase() === statusFilter.toLowerCase();
 
-        // Company filter (based on working ID length)
-        // Company filter
-        let matchesCompany = true;
-        if (companyFilter) {
-            matchesCompany = rider.companyName === companyFilter;
-        }
-
-        return matchesSearch && matchesStatus && matchesCompany;
+        return matchesSearch && matchesStatus;
     });
 
     const getStatusLabel = (status) => {
@@ -304,15 +307,17 @@ export default function AllRidersHistoryPage() {
                                                     <select
                                                         value={companyFilter}
                                                         onChange={(e) => {
-                                                            setCompanyFilter(e.target.value);
+                                                            const val = e.target.value;
+                                                            setCompanyFilter(val);
                                                             setShowCompanyFilter(false);
+                                                            fetchData(val);
                                                         }}
                                                         className="w-full px-2 py-1 text-xs border-0 focus:ring-0"
                                                         size={5}
                                                     >
                                                         <option value="">الكل</option>
-                                                        {Array.from(new Set(data.map(r => r.companyName).filter(Boolean))).map((company, idx) => (
-                                                            <option key={idx} value={company}>{company}</option>
+                                                        {companies.map((company) => (
+                                                            <option key={company.id} value={company.id}>{company.name}</option>
                                                         ))}
                                                     </select>
                                                 </div>
