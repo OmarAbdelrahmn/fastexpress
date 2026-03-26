@@ -37,6 +37,7 @@ export default function AllRidersHistoryPage() {
                 url += `?${params.join("&")}`;
             }
             const response = await ApiService.get(url);
+            
             setData(response || []);
         } catch (error) {
             console.error("Failed to fetch history:", error);

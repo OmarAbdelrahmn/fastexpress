@@ -259,7 +259,6 @@ export default function VehicleHistory() {
     setLoadingRiders(true);
     try {
       const data = await ApiService.get("/api/rider");
-      console.log(data);
       setAllRiders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading riders:", err);
