@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { AlertTriangle, Shield, Clock, CheckCircle, XCircle, Search, RefreshCw, Download, ArrowRight, Filter } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -9,7 +8,6 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import Table from '@/components/Ui/Table';
-import Input from '@/components/Ui/Input';
 import Button from '@/components/Ui/Button';
 import * as XLSX from 'xlsx';
 
