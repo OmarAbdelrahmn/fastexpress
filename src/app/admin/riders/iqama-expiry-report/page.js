@@ -203,7 +203,6 @@ export default function IqamaExpiryReportPage() {
           onClick: () => router.push('/admin/riders'),
         }}
       />
-
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 px-4 md:px-6">
         <SummaryCard icon={XCircle}      label="منتهية"             count={report?.expiredCount}  colorClass="bg-red-600"    bgClass="border-red-200 bg-red-50" />

@@ -11,7 +11,7 @@ import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import {
     BarChart3, TrendingUp, Clock, CheckCircle, XCircle,
-    RefreshCw, Calendar, PieChart, Activity
+    RefreshCw, Calendar, PieChart, Activity, History
 } from 'lucide-react';
 
 export default function StatisticsPage() {
