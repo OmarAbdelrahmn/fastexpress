@@ -50,6 +50,7 @@ export default function IqamaExpiryReportPage() {
   const [report, setReport] = useState(null);
   const [filters, setFilters] = useState({ urgency: '', housingName: '', sponsor: '' });
   const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const stats = {
     total: report?.employees?.length || 0,
@@ -62,13 +63,24 @@ export default function IqamaExpiryReportPage() {
 
   const filteredEmployees = (report?.employees || []).filter(rider => {
     const status = rider.status?.toLowerCase();
-    
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'active') return status === 'enable';
-    if (statusFilter === 'inactive') return status === 'disable';
-    if (statusFilter === 'vacation') return status === 'vacation';
-    if (statusFilter === 'sick') return status === 'sick';
-    if (statusFilter === 'accident') return status === 'accident';
+
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'active' && status !== 'enable') return false;
+      if (statusFilter === 'inactive' && status !== 'disable') return false;
+      if (statusFilter === 'vacation' && status !== 'vacation') return false;
+      if (statusFilter === 'sick' && status !== 'sick') return false;
+      if (statusFilter === 'accident' && status !== 'accident') return false;
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      const matchesName = rider.nameAR?.toLowerCase().includes(q) || rider.nameEN?.toLowerCase().includes(q);
+      const matchesIqama = rider.iqamaNo != null && String(rider.iqamaNo).toLowerCase().includes(q);
+      const matchesHousing = rider.housingName?.toLowerCase().includes(q);
+      const matchesSponsor = rider.sponsor?.toLowerCase().includes(q);
+      if (!matchesName && !matchesIqama && !matchesHousing && !matchesSponsor) return false;
+    }
+
     return true;
   });
 
@@ -205,7 +217,7 @@ export default function IqamaExpiryReportPage() {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm mx-4 md:mx-6 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 border-b pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 border-b pb-4">
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">مستوى الإلحاح</label>
             <select
@@ -217,20 +229,6 @@ export default function IqamaExpiryReportPage() {
               {URGENCY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
-          <Input
-            label="اسم السكن"
-            name="housingName"
-            placeholder="بحث جزئي..."
-            value={filters.housingName}
-            onChange={handleFilterChange}
-          />
-          <Input
-            label="الكفيل"
-            name="sponsor"
-            placeholder="بحث جزئي..."
-            value={filters.sponsor}
-            onChange={handleFilterChange}
-          />
           <div className="flex items-end gap-2">
             <Button onClick={handleSearch} disabled={loading} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
               {loading ? <RefreshCw size={16} className="animate-spin ml-1" /> : <Search size={16} className="ml-1" />}
@@ -277,6 +275,30 @@ export default function IqamaExpiryReportPage() {
             {report.generatedAt && ` · تم التوليد: ${new Date(report.generatedAt).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}`}
           </p>
         )}
+      </div>
+
+      {/* Search by Name / Iqama */}
+      <div className="bg-white rounded-xl shadow-sm mx-4 md:mx-6 p-4">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="بحث باسم السائق أو رقم الإقامة..."
+              className="w-full pr-9 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-xs text-gray-500 hover:text-red-500 whitespace-nowrap"
+            >
+              مسح
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
