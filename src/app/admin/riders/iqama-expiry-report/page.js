@@ -159,7 +159,17 @@ export default function IqamaExpiryReportPage() {
       ),
     },
     { header: 'رقم الإقامة', accessor: 'iqamaNo' },
-    { header: 'الكفيل', accessor: 'sponsor' },
+    {
+      header: 'الكفيل',
+      render: (row) => (
+        <div>
+          <span>{row.sponsor ?? '–'}</span>
+          {row.sponsorNo && (
+            <p className="text-xs text-gray-500 mt-0.5">{row.sponsorNo}</p>
+          )}
+        </div>
+      ),
+    },
     { header: 'السكن', render: (row) => row.housingName ?? '–' },
     {
       header: 'انتهاء الإقامة (م)',
