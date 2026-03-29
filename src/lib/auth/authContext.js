@@ -15,11 +15,16 @@ export function AuthProvider({ children, loginPath = '/admin/login', dashboardPa
   useEffect(() => {
     checkAuth();
 
-    // Check token validity every minute
-    const interval = setInterval(checkAuth, 60000);
+    // Only re-check when user returns to the tab, not every 60s
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []); // ← remove logout from deps, it causes re-renders
 
   const checkAuth = () => {
     const isValid = TokenManager.isTokenValid();
