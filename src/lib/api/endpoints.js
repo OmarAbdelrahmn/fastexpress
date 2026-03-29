@@ -226,6 +226,37 @@ export const API_ENDPOINTS = {
     SUGGEST_WORKING_ID: (iqamaNo, companyId) => `/api/History/suggest-working-id?riderIqamaNo=${iqamaNo}&companyId=${companyId}`,
   },
 
+  // Dashboard New routes
+  DASHBOARD_NEW: {
+    OVERVIEW: "/api/dashboard/overview",
+    ORDERS_BY_COMPANY: (year, month) => `/api/dashboard/orders/by-company?year=${year}&month=${month}`,
+    ORDERS_TREND: (months = 6) => `/api/dashboard/orders/trend?months=${months}`,
+    ORDERS_DAILY: (days = 30, companyId = null) => {
+      let url = `/api/dashboard/orders/daily?days=${days}`;
+      if (companyId) url += `&companyId=${companyId}`;
+      return url;
+    },
+    RIDERS_TOP: (year, month, companyId = null, top = 10) => {
+      let url = `/api/dashboard/riders/top?year=${year}&month=${month}&top=${top}`;
+      if (companyId) url += `&companyId=${companyId}`;
+      return url;
+    },
+    RIDERS_BY_COMPANY: "/api/dashboard/riders/by-company",
+    VEHICLES_STATS: "/api/dashboard/vehicles/stats",
+    HOUSING_STATS: "/api/dashboard/housing/stats",
+    IQAMA_EXPIRY: "/api/dashboard/iqama/expiry",
+    EMPLOYEES_STATUS: "/api/dashboard/employees/status",
+    VALIDITY: (year, month) => `/api/dashboard/validity?year=${year}&month=${month}`,
+    ORDERS_MATRIX: (year) => {
+      let url = `/api/dashboard/orders/matrix`;
+      if (year) url += `?year=${year}`;
+      return url;
+    },
+    EMPLOYEES_COUNTRIES: "/api/dashboard/employees/countries",
+    EMPLOYEES_SPONSORS: "/api/dashboard/employees/sponsors",
+  },
+
+
   // Member
   MEMBER: {
     LOGIN: "/api/Member/member/login",
