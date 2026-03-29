@@ -17,6 +17,7 @@ export default function KetaRejectionReport() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [expandedHousing, setExpandedHousing] = useState(null);
+    const [riderSearch, setRiderSearch] = useState('');
 
     const [form, setForm] = useState(() => {
         const today = new Date();
@@ -167,6 +168,26 @@ export default function KetaRejectionReport() {
 
     const totals = calculateTotals();
 
+    const filteredReportData = reportData?.map(housing => {
+        if (!riderSearch.trim()) {
+            return { ...housing, displayRiders: housing.rejectionReport?.riderDetails || [] };
+        }
+        
+        const q = riderSearch.trim().toLowerCase();
+        const matchingRiders = (housing.rejectionReport?.riderDetails || []).filter(rider => {
+            return (
+                (rider.riderNameAR && rider.riderNameAR.toLowerCase().includes(q)) ||
+                (rider.riderNameEN && rider.riderNameEN.toLowerCase().includes(q)) ||
+                (rider.workingId && String(rider.workingId).toLowerCase().includes(q))
+            );
+        });
+        
+        return {
+             ...housing,
+             displayRiders: matchingRiders
+        };
+    }).filter(housing => housing.displayRiders.length > 0) || null;
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
             <PageHeader
@@ -291,17 +312,40 @@ export default function KetaRejectionReport() {
 
                         {/* Housing Groups */}
                         <div className="space-y-4">
+                            {/* Rider Search */}
+                            <div className="bg-white rounded-xl shadow-md p-4 flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="text-gray-400 shrink-0" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input
+                                    type="text"
+                                    value={riderSearch}
+                                    onChange={(e) => setRiderSearch(e.target.value)}
+                                    placeholder="ابحث باسم المندوب أو الإقامة..."
+                                    className="flex-1 outline-none text-sm text-gray-700 placeholder-gray-400"
+                                />
+                                {riderSearch && (
+                                    <button onClick={() => setRiderSearch('')} className="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+                                )}
+                            </div>
+
                             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 <Building className="text-blue-600" />
-                                تفاصيل التقرير ({reportData.length})
+                                تفاصيل التقرير ({filteredReportData ? filteredReportData.length : 0})
                             </h2>
 
-                            {reportData.map((housing, index) => (
+                            {filteredReportData?.length === 0 && (
+                                <div className="text-center py-8 text-gray-500 font-medium bg-white rounded-xl shadow-sm border border-gray-100">
+                                    لا توجد نتائج مطابقة للبحث
+                                </div>
+                            )}
+
+                            {filteredReportData && filteredReportData.map((housing, index) => {
+                                const isExpanded = expandedHousing === index || riderSearch.trim() !== '';
+                                return (
                                 <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
                                     {/* Housing Header */}
                                     <div
                                         className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 cursor-pointer hover:from-indigo-700 hover:to-purple-700 transition-all"
-                                        onClick={() => setExpandedHousing(expandedHousing === index ? null : index)}
+                                        onClick={() => riderSearch.trim() === '' && setExpandedHousing(expandedHousing === index ? null : index)}
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-4">
@@ -314,16 +358,16 @@ export default function KetaRejectionReport() {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className="text-white text-2xl">{expandedHousing === index ? '▼' : (language === 'ar' ? '◀' : '▶')}</span>
+                                            <span className="text-white text-2xl">{isExpanded ? '▼' : (language === 'ar' ? '◀' : '▶')}</span>
                                         </div>
                                     </div>
 
                                     {/* Riders Table */}
-                                    {expandedHousing === index && housing.rejectionReport?.riderDetails && housing.rejectionReport.riderDetails.length > 0 && (
+                                    {isExpanded && housing.displayRiders.length > 0 && (
                                         <div className="p-6">
                                             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                 <Users className="text-purple-600" size={20} />
-                                                تفاصيل السائقين ({housing.rejectionReport.riderDetails.length})
+                                                تفاصيل السائقين ({housing.displayRiders.length})
                                             </h4>
 
                                             <div className="overflow-x-auto">
@@ -342,7 +386,7 @@ export default function KetaRejectionReport() {
                                                         </tr>
                                                     </thead>
                                                     <tbody className="bg-white divide-y divide-gray-200">
-                                                        {housing.rejectionReport.riderDetails.map((rider, idx) => (
+                                                        {housing.displayRiders.map((rider, idx) => (
                                                             <tr key={idx} className="hover:bg-gray-50">
                                                                 <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <span className="font-mono font-bold text-gray-700">{rider.workingId}</span>
@@ -396,7 +440,8 @@ export default function KetaRejectionReport() {
                                         </div>
                                     )}
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}
