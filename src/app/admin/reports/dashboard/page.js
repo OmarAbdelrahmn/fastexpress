@@ -23,6 +23,7 @@ export default function ComprehensiveDashboardPage() {
     { id: 'logistics', label: t('dashboardTabs.logistics.tabName') || 'Vehicles & Housing', icon: Home },
   ];
 
+  
   return (
     <div className="min-h-screen bg-gray-50/50">
       <PageHeader
