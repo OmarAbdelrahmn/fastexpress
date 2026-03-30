@@ -133,8 +133,8 @@ export default function OrdersTab() {
                   <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                   <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend />
-                  <Bar dataKey="totalOrders" fill="#8b5cf6" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.orders')} maxBarSize={60} />
-                  <Bar dataKey="totalShifts" fill="#f59e0b" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.shifts')} maxBarSize={60} />
+                  <Bar dataKey="totalOrders" fill="#D7C49E" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.orders')} maxBarSize={60} />
+                  <Bar dataKey="totalShifts" fill="#343148" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.shifts')} maxBarSize={60} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

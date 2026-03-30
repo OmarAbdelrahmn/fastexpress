@@ -12,8 +12,8 @@ import { Building2, Calendar, TrendingUp, Users, Package, Clock } from 'lucide-r
 
 // Vibrant palette matching the screenshot colours
 const COMPANY_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // green
+  '#d3c897ff', // blue
+  '#755139', // green
   '#8b5cf6', // purple
   '#f59e0b', // amber
   '#ef4444', // red
@@ -105,7 +105,7 @@ export default function CompaniesTab() {
   const [visibleCompanies, setVisibleCompanies] = useState([]);
 
   // Derived: normalised day-level data for charts
-  const [chartData, setChartData] = useState({ ordersPerDay: [], ridersPerDay: [], sharePerDay: [] });
+  const [chartData, setChartData] = useState({ ordersPerDay: [], ridersPerDay: [], sharePerDay: [], combinedPerDay: [] });
   // All available companies for the dropdown
   const [allAvailableCompanies, setAllAvailableCompanies] = useState([]);
 
@@ -192,7 +192,17 @@ export default function CompaniesTab() {
       return row;
     });
 
-    setChartData({ ordersPerDay, ridersPerDay, sharePerDay });
+    const combinedPerDay = sortedIsoDates.map(isoDate => {
+      const row = { dateLabel: dateMap.get(isoDate) };
+      displayed.forEach(c => {
+        const day = c.days?.find(d => formatDate(d.date) === isoDate);
+        row[`${c.companyName}_Orders`] = day?.acceptedOrders ?? 0;
+        row[`${c.companyName}_Riders`] = day?.uniqueRiders ?? 0;
+      });
+      return row;
+    });
+
+    setChartData({ ordersPerDay, ridersPerDay, sharePerDay, combinedPerDay });
   }, [data, visibleCompanies]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
@@ -318,7 +328,7 @@ export default function CompaniesTab() {
       {!loading && !error && data && (
         <>
           {/* KPI Summary */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <StatCard
               label={t('dashboardTabs.companies.totalOrders')}
               value={data.grandTotalOrders}
@@ -386,85 +396,72 @@ export default function CompaniesTab() {
 
           {viewMode === 'chart' ? (
             <div className="space-y-6">
-              {/* Chart 0: Orders and Riders by Company */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                  <Building2 size={18} className="text-indigo-500" />
-                  {t('dashboardTabs.companies.ordersAndRidersByCompany') || 'Orders & Riders by Company'}
-                </h3>
-                <div className="h-80" dir="ltr">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={displayed} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="companyName" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="left" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f3f4f6' }} />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="totalOrders" name={t('dashboardTabs.companies.totalOrders') || 'Total Orders'} fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={60} />
-                      <Bar yAxisId="right" dataKey="totalUniqueRiders" name={t('dashboardTabs.companies.uniqueRiders') || 'Unique Riders'} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={60} />
-                    </BarChart>
-                  </ResponsiveContainer>
+              {/* Daily Orders and Riders Charts Side-by-Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Orders per day */}
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <Package size={18} className="text-blue-500" />
+                    {t('dashboardTabs.companies.acceptedOrdersPerDay') || 'Orders per day'}
+                  </h3>
+                  <div className="h-72" dir="ltr">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData.ordersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                        <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Legend />
+                        {displayed.map((c, i) => (
+                          <Line
+                            key={c.companyId}
+                            type="monotone"
+                            dataKey={c.companyName}
+                            name={c.companyName}
+                            stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
+                            strokeWidth={2.5}
+                            dot={<CustomDot />}
+                            activeDot={{ r: 6 }}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
 
-              {/* Chart 1: Accepted orders per day */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-bold text-gray-700 mb-4">
-                  {t('dashboardTabs.companies.acceptedOrdersPerDay')}
-                </h3>
-                <div className="h-72" dir="ltr">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData.ordersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Legend />
-                      {displayed.map((c, i) => (
-                        <Line
-                          key={c.companyId}
-                          type="monotone"
-                          dataKey={c.companyName}
-                          stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
-                          strokeWidth={2.5}
-                          dot={<CustomDot />}
-                          activeDot={{ r: 6 }}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
+                {/* Riders per day */}
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <Users size={18} className="text-emerald-500" />
+                    {t('dashboardTabs.companies.uniqueRidersPerDay') || 'Unique riders per day'}
+                  </h3>
+                  <div className="h-72" dir="ltr">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData.ridersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                        <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Legend />
+                        {displayed.map((c, i) => (
+                          <Line
+                            key={c.companyId}
+                            type="monotone"
+                            dataKey={c.companyName}
+                            name={c.companyName}
+                            stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
+                            strokeWidth={2}
+                            strokeDasharray="5 3"
+                            dot={<CustomDot />}
+                            activeDot={{ r: 6 }}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
 
-              {/* Chart 2: Unique riders per day */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-bold text-gray-700 mb-4">
-                  {t('dashboardTabs.companies.uniqueRidersPerDay')}
-                </h3>
-                <div className="h-72" dir="ltr">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData.ridersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Legend />
-                      {displayed.map((c, i) => (
-                        <Line
-                          key={c.companyId}
-                          type="monotone"
-                          dataKey={c.companyName}
-                          stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
-                          strokeWidth={2}
-                          strokeDasharray="5 3"
-                          dot={<CustomDot />}
-                          activeDot={{ r: 6 }}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
               </div>
 
               {/* Chart 3: Daily order share (stacked bar) */}

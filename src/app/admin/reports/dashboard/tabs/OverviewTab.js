@@ -8,8 +8,8 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Users, Car, Home, AlertTriangle, Briefcase } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-const SQ_COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6', '#6b7280'];
+const COLORS = ['#3b82f6','#ef4444',  '#000000ff','#10b981',  '#8b5cf6', '#ec4899'];
+const SQ_COLORS = ['#10b981', '#e05656ff', '#350c0cff', '#f6ab3bff', '#1c67fdff'];
 
 export default function OverviewTab() {
   const { t } = useLanguage();
@@ -62,10 +62,24 @@ export default function OverviewTab() {
     { name: t('dashboardTabs.overview.empVacation') || 'Vacation', value: employees.vacation },
   ] : [];
 
+  const renderLegend = (props) => {
+    const { payload } = props;
+    return (
+      <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm mt-4">
+        {payload.map((entry, index) => (
+          <li key={`item-${index}`} className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="text-gray-700 whitespace-nowrap">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {[
           { label: t('dashboardTabs.overview.totalEmployees'), value: overview.totalEmployees, icon: Briefcase, color: 'text-blue-500', bg: 'bg-blue-50' },
           { label: t('dashboardTabs.overview.totalRiders'), value: overview.totalRiders, icon: Users, color: 'text-purple-500', bg: 'bg-purple-50' },
@@ -101,7 +115,7 @@ export default function OverviewTab() {
                   ))}
                 </Pie>
                 <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}/>
-                <Legend verticalAlign="bottom" height={36}/>
+                <Legend content={renderLegend} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -122,7 +136,7 @@ export default function OverviewTab() {
                   ))}
                 </Pie>
                 <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}/>
-                <Legend verticalAlign="bottom" height={36}/>
+                <Legend content={renderLegend} />
               </PieChart>
             </ResponsiveContainer>
           </div>

@@ -10,7 +10,7 @@ import {
 import { Users, Award, Building2 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
-const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e'];
+const COLORS = ['#ef4444', '#84cc16', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e'];
 
 export default function RidersTab() {
   const { t } = useLanguage();
@@ -89,6 +89,20 @@ export default function RidersTab() {
     value: c.activeRiders
   }));
 
+  const renderLegend = (props) => {
+    const { payload } = props;
+    return (
+      <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm mt-2">
+        {payload.map((entry, index) => (
+          <li key={`item-${index}`} className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+            <span className="text-gray-700">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters */}
@@ -127,7 +141,7 @@ export default function RidersTab() {
                     {companyPieData.map((e, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
                   </Pie>
                   <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Legend />
+                  <Legend content={renderLegend} />
                 </PieChart>
               )}
             </ResponsiveContainer>
@@ -140,7 +154,7 @@ export default function RidersTab() {
             <Award size={18} className="text-yellow-500" />
             {t('dashboardTabs.riders.topRiders').replace('{{count}}', topCount)}
           </h3>
-          <div className="h-64 w-full">
+          <div className="h-64 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               {loading ? <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg" /> : (
                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
@@ -148,7 +162,7 @@ export default function RidersTab() {
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                   <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Bar dataKey="orders" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <Bar dataKey="orders" fill="#a39af1ff" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
               )}
             </ResponsiveContainer>
