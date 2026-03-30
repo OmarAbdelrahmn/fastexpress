@@ -26,20 +26,35 @@ export default function DailyReportsPage() {
     const [loading, setLoading] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
 
+    const getYesterdayStr = () => {
+        const d = new Date();
+        d.setDate(d.getDate() - 1);
+        return d.toISOString().slice(0, 10);
+    };
+
+    const getThirtyDaysAgoStr = () => {
+        const d = new Date();
+        d.setDate(d.getDate() - 30);
+        return d.toISOString().slice(0, 10);
+    };
+
+    const yesterdayStr = getYesterdayStr();
+    const thirtyDaysAgoStr = getThirtyDaysAgoStr();
+
     // Report 1 State (Monthly/Period Diff)
-    const [dateRange1, setDateRange1] = useState({ start: '', end: '' });
+    const [dateRange1, setDateRange1] = useState({ start: thirtyDaysAgoStr, end: yesterdayStr });
     const [reportData1, setReportData1] = useState(null);
 
     // Report 2 State (Daily Total)
-    const [date2, setDate2] = useState('');
+    const [date2, setDate2] = useState(yesterdayStr);
     const [reportData2, setReportData2] = useState(null);
 
     // Report 3 State (Daily Detailed)
-    const [date3, setDate3] = useState('');
+    const [date3, setDate3] = useState(yesterdayStr);
     const [reportData3, setReportData3] = useState(null);
 
     // Report 4 State (Special 7)
-    const [dateRange4, setDateRange4] = useState({ start: '', end: '' });
+    const [dateRange4, setDateRange4] = useState({ start: thirtyDaysAgoStr, end: yesterdayStr });
     const [reportData4, setReportData4] = useState(null);
 
     const resetReports = () => {

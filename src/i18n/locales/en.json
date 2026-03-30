@@ -2939,7 +2939,9 @@
       "empDisable": "Disable",
       "empVacation": "Vacation",
       "empSick": "Sick/Accident",
-      "empFleeing": "Fleeing"
+      "empFleeing": "Fleeing",
+      "ridersToEmployees": "Riders / Employees",
+      "totalHousings": "Total Housings"
     },
     "orders": {
       "tabName": "Orders Trends",

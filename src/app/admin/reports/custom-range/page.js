@@ -16,8 +16,20 @@ export default function CustomRangeReportsPage() {
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const getYesterdayStr = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().slice(0, 10);
+  };
+
+  const getThirtyDaysAgoStr = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  };
+
+  const [startDate, setStartDate] = useState(getThirtyDaysAgoStr());
+  const [endDate, setEndDate] = useState(getYesterdayStr());
   const [workingId, setWorkingId] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedReport, setSelectedReport] = useState(null);

@@ -2908,7 +2908,9 @@
       "empDisable": "غير نشط",
       "empVacation": "إجازة",
       "empSick": "مريض/حادث",
-      "empFleeing": "هروب"
+      "empFleeing": "هروب",
+      "ridersToEmployees": "المناديب / الموظفين",
+      "totalHousings": "إجمالي السكنات"
     },
     "orders": {
       "orders": "الطلبات",

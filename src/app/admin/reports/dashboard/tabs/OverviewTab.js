@@ -6,10 +6,10 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
-import { Users, Car, Home, AlertTriangle, Briefcase } from 'lucide-react';
+import { Users, Car, Home, AlertTriangle, Briefcase, Building } from 'lucide-react';
 
-const COLORS = ['#3b82f6','#ef4444',  '#000000ff','#10b981',  '#8b5cf6', '#ec4899'];
-const SQ_COLORS = ['#10b981', '#e05656ff', '#350c0cff', '#f6ab3bff', '#1c67fdff'];
+const COLORS = ['#3b82f6','#ef4444',  '#851f74ff','#10b981',  '#8b5cf6', '#ec4899'];
+const SQ_COLORS = ['#10b981', '#e05656ff', '#871f91ff', '#f6ab3bff', '#1c67fdff'];
 
 export default function OverviewTab() {
   const { t } = useLanguage();
@@ -109,7 +109,7 @@ export default function OverviewTab() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={vehiclePieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                <Pie data={vehiclePieData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={5} dataKey="value">
                   {vehiclePieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
@@ -130,7 +130,7 @@ export default function OverviewTab() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={employeePieData} cx="50%" cy="50%" innerRadius={0} outerRadius={80} dataKey="value">
+                <Pie data={employeePieData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} paddingAngle={5} dataKey="value">
                   {employeePieData.map((entry, index) => (
                      <Cell key={`cell-${index}`} fill={SQ_COLORS[index % SQ_COLORS.length]} />
                   ))}

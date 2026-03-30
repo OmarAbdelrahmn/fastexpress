@@ -36,8 +36,10 @@ function todayMinus(days) {
   return d.toISOString().slice(0, 10);
 }
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+function yesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
 }
 
 // ── Stat card ────────────────────────────────────────────────────────────────
@@ -97,8 +99,8 @@ export default function CompaniesTab() {
   const [data, setData] = useState(null);
 
   // Controls
-  const [startDate, setStartDate] = useState(todayMinus(29)); // default last 30 days
-  const [endDate, setEndDate] = useState(todayStr());
+  const [startDate, setStartDate] = useState(todayMinus(30)); // default last 30 days (ending yesterday)
+  const [endDate, setEndDate] = useState(yesterdayStr());
   const [selectedCompanyId, setSelectedCompanyId] = useState('all');
   const [viewMode, setViewMode] = useState('chart'); // 'chart' | 'table'
   const [quickDays, setQuickDays] = useState(30);
@@ -208,8 +210,8 @@ export default function CompaniesTab() {
   // ── Handlers ─────────────────────────────────────────────────────────────
   const applyQuickRange = (days) => {
     setQuickDays(days);
-    setStartDate(todayMinus(days - 1));
-    setEndDate(todayStr());
+    setStartDate(todayMinus(days));
+    setEndDate(yesterdayStr());
   };
 
   const toggleCompany = (id) => {

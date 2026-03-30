@@ -64,8 +64,8 @@ export default function LogisticsTab() {
                       <YAxis dataKey="vehicleType" type="category" width={80} tick={{fontSize: 12}} tickLine={false} axisLine={false} />
                       <Tooltip cursor={{fill: '#f3f4f6'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                       <Legend />
-                      <Bar dataKey="available" stackId="a" fill="#5fc5a3ff" radius={[0, 0, 0, 0]} name={t('dashboardTabs.logistics.available')} />
-                      <Bar dataKey="taken" stackId="a" fill="#5a8ee0ff" radius={[0, 4, 4, 0]} name={t('dashboardTabs.logistics.taken')} />
+                      <Bar dataKey="available" stackId="a" fill="#02343F" radius={[0, 0, 0, 0]} name={t('dashboardTabs.logistics.available')} />
+                      <Bar dataKey="taken" stackId="a" fill="#b3ae82ff" radius={[0, 4, 4, 0]} name={t('dashboardTabs.logistics.taken')} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -85,8 +85,8 @@ export default function LogisticsTab() {
                         <YAxis dataKey="country" type="category" width={80} tick={{fontSize: 12}} tickLine={false} axisLine={false} />
                         <Tooltip cursor={{fill: '#f3f4f6'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                         <Legend />
-                        <Bar dataKey="employeeCount" stackId="a" fill="#1e9144ff" radius={[0, 0, 0, 0]} name={t('dashboardTabs.demographics.employees')} />
-                        <Bar dataKey="riderCount" stackId="a" fill="#b6a452ff" radius={[0, 4, 4, 0]} name={t('dashboardTabs.demographics.riders')} />
+                        <Bar dataKey="employeeCount" stackId="a" fill="#50586C" radius={[0, 0, 0, 0]} name={t('dashboardTabs.demographics.employees')} />
+                        <Bar dataKey="riderCount" stackId="a" fill="#97a6c7ff" radius={[0, 4, 4, 0]} name={t('dashboardTabs.demographics.riders')} />
                       </BarChart>
                    </ResponsiveContainer>
                 </div>
