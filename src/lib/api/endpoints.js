@@ -254,6 +254,11 @@ export const API_ENDPOINTS = {
     },
     EMPLOYEES_COUNTRIES: "/api/dashboard/employees/countries",
     EMPLOYEES_SPONSORS: "/api/dashboard/employees/sponsors",
+    COMPANIES_REPORT: (startDate, endDate, companyId = null) => {
+      let url = `/api/Dashboard/companies?StartDate=${startDate}&EndDate=${endDate}`;
+      if (companyId) url += `&CompanyId=${companyId}`;
+      return url;
+    },
   },
 
 

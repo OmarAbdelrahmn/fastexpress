@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   BarChart3, LayoutDashboard, ShoppingCart, Users,
-  Home, Globe
+  Home, Globe, Building2
 } from 'lucide-react';
 import PageHeader from "@/components/layout/pageheader";
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -11,6 +11,7 @@ import OverviewTab from './tabs/OverviewTab';
 import OrdersTab from './tabs/OrdersTab';
 import RidersTab from './tabs/RidersTab';
 import LogisticsTab from './tabs/LogisticsTab';
+import CompaniesTab from './tabs/CompaniesTab';
 
 export default function ComprehensiveDashboardPage() {
   const { t } = useLanguage();
@@ -21,6 +22,7 @@ export default function ComprehensiveDashboardPage() {
     { id: 'orders', label: t('dashboardTabs.orders.tabName') || 'Orders Trends', icon: ShoppingCart },
     { id: 'riders', label: t('dashboardTabs.riders.tabName') || 'Riders Stats', icon: Users },
     { id: 'logistics', label: t('dashboardTabs.logistics.tabName') || 'Vehicles & Housing', icon: Home },
+    { id: 'companies', label: t('dashboardTabs.companies.tabName') || 'Companies', icon: Building2 },
   ];
 
   
@@ -57,6 +59,7 @@ export default function ComprehensiveDashboardPage() {
           {activeTab === 'orders' && <OrdersTab />}
           {activeTab === 'riders' && <RidersTab />}
           {activeTab === 'logistics' && <LogisticsTab />}
+          {activeTab === 'companies' && <CompaniesTab />}
         </div>
       </div>
     </div>
