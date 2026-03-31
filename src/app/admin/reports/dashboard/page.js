@@ -34,7 +34,7 @@ export default function ComprehensiveDashboardPage() {
         icon={BarChart3}
       />
 
-      <div className="mx-6 mb-6">
+      <div className="mx-6 mb-6 pt-4">
         {/* Modern Tabs Navigation */}
         <div className="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 mb-6 flex space-x-2 overflow-x-auto">
           {tabs.map(tab => (
