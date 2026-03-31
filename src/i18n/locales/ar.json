@@ -1,5 +1,6 @@
 {
   "common": {
+    "other": "أخرى",
     "settings": "الاعدادات",
     "searchPlaceholder": "بحث",
     "wrongPassword": "كلمة المرور خاطئة",

@@ -377,6 +377,7 @@ export const API_ENDPOINTS = {
     ALL_IMAGES:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
     PROFILE_IMAGE: (iqamaNo) => `/api/employees/${iqamaNo}/images/profile`,
     ALL_PROFILES:  `/api/employees/images/profiles`,
+    ALL:           `/api/Images/all`,
     UPLOAD_ONE:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
     UPLOAD_BULK:   (iqamaNo) => `/api/employees/${iqamaNo}/images/bulk`,
     DELETE_ONE:    (iqamaNo, imageType) => `/api/employees/${iqamaNo}/images/${imageType}`,

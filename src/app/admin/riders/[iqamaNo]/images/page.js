@@ -30,6 +30,7 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  RotateCw,
 } from 'lucide-react';
 
 const BASE_URL = 'https://fastexpress.tryasp.net';
@@ -63,10 +64,22 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
   const dragRef     = useRef({ active: false, startX: 0, startY: 0, offsetX: 0, offsetY: 0 });
   const [scale, setScale]     = useState(1);
   const [offset, setOffset]   = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isCircle, setIsCircle]     = useState(false);
 
   const CANVAS_SIZE = 400;
+
+  const drawImageWithRotation = useCallback((ctx, img, size) => {
+    const w = img.naturalWidth  * scale;
+    const h = img.naturalHeight * scale;
+    const rad = (rotation * Math.PI) / 180;
+    ctx.save();
+    ctx.translate(size / 2 + offset.x, size / 2 + offset.y);
+    ctx.rotate(rad);
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+    ctx.restore();
+  }, [scale, offset, rotation]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -83,9 +96,7 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
       ctx.clip();
     }
 
-    const w = img.naturalWidth  * scale;
-    const h = img.naturalHeight * scale;
-    ctx.drawImage(img, offset.x + (CANVAS_SIZE - w) / 2, offset.y + (CANVAS_SIZE - h) / 2, w, h);
+    drawImageWithRotation(ctx, img, CANVAS_SIZE);
 
     if (isCircle) ctx.restore();
 
@@ -115,7 +126,7 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
       }
       ctx.restore();
     }
-  }, [scale, offset, isCircle]);
+  }, [scale, offset, rotation, isCircle, drawImageWithRotation]);
 
   useEffect(() => { draw(); }, [draw]);
 
@@ -158,9 +169,7 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
       ctx.arc(CANVAS_SIZE/2, CANVAS_SIZE/2, CANVAS_SIZE/2, 0, Math.PI*2);
       ctx.clip();
     }
-    const w = img.naturalWidth  * scale;
-    const h = img.naturalHeight * scale;
-    ctx.drawImage(img, offset.x + (CANVAS_SIZE - w)/2, offset.y + (CANVAS_SIZE - h)/2, w, h);
+    drawImageWithRotation(ctx, img, CANVAS_SIZE);
     out.toBlob((blob) => { if (blob) onConfirm(blob); }, 'image/jpeg', 0.92);
   };
 
@@ -214,6 +223,15 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
 
           {/* Controls */}
           <div className="flex items-center gap-3 w-full">
+            
+            <button
+              onClick={() => setRotation(r => r - 90)}
+              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              title="Rotate Left"
+            >
+              <RotateCcw size={16} />
+            </button>
+
             <button
               onClick={() => setScale(s => Math.max(0.1, s - 0.1))}
               className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -232,11 +250,15 @@ function CropModal({ imageSrc, label, onConfirm, onCancel, locale }) {
             ><ZoomIn size={16} /></button>
 
             <button
-              onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); }}
+              onClick={() => setRotation(r => r + 90)}
               className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-              title="Reset"
-            ><RotateCcw size={16} /></button>
+              title="Rotate Right"
+            >
+              <RotateCw size={16} />
+            </button>
+
           </div>
+
 
           {/* Circle toggle */}
           <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-700">

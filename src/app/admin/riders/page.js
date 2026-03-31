@@ -11,7 +11,7 @@ import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, UserCog, Building, Package, Filter, Download, AlertCircle, History } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, UserCog, Building, Package, Filter, Download, AlertCircle, History, Camera } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 import Modal from '@/components/Ui/Model';
 import * as XLSX from 'xlsx';
@@ -444,11 +444,27 @@ export default function RidersPage() {
               color="#ea580c" // orange-600
               bgClass="bg-orange-50"
             />
+
           </div>
         </div>
 
-
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2 text-lg">
+            {t('common.other')}
+          </h3>
+          <div className="flex flex-col gap-3">
+            <MiniStatRow
+              icon={Camera}
+              title="صور الموظفين"
+              description="عرض وإدارة صور الموظفين"
+              onClick={() => router.push('/admin/riders/images')}
+              color="#7c3aed" // purple-700
+              bgClass="bg-purple-50"
+            />
+          </div>
+        </div>
       </div>
+
       <Card>
         <div className="space-y-4">
           <div className="flex flex-col gap-4">
