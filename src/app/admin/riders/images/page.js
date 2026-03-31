@@ -58,7 +58,7 @@ export default function RiderImagesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="صور هويات الموظفين"
+        title="صور الموظفين"
         subtitle={`إجمالي: ${riderImages.length} سجل`}
         icon={Camera}
         actionButton={{
