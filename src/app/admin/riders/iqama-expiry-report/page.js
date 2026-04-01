@@ -80,6 +80,12 @@ export default function IqamaExpiryReportPage() {
     }
 
     return true;
+  }).sort((a, b) => {
+    const isAExpired = a.urgency === 0;
+    const isBExpired = b.urgency === 0;
+    if (isAExpired && !isBExpired) return 1;
+    if (!isAExpired && isBExpired) return -1;
+    return 0;
   });
 
   const loadReport = useCallback(async (customFilters = null) => {
@@ -241,8 +247,8 @@ export default function IqamaExpiryReportPage() {
               {loading ? <RefreshCw size={16} className="animate-spin ml-1" /> : <Search size={16} className="ml-1" />}
               {t('common.search')}
             </Button>
-            <Button onClick={handleExport} variant="secondary" disabled={!report?.employees?.length}>
-              <Download size={16} />
+            <Button onClick={handleExport} variant="success" disabled={!report?.employees?.length}>
+              <Download size={22} />
             </Button>
           </div>
         </div>
