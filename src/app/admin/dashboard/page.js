@@ -344,7 +344,7 @@ export default function EnhancedDashboard() {
           (s) => s.isActive !== false
         ).length;
       } catch (err) {
-        console.log("Shifts data not available:", err.message);
+        console.error("Shifts data not available:", err.message);
       }
 
       const vehicleUtilization =
