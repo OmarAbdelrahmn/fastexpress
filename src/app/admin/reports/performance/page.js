@@ -113,8 +113,8 @@ export default function HousingPerformanceReport() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" >
             <PageHeader
-                title={"اداء المندوبين"}
-                subtitle={"تقرير مفصل عن اداء المندوبين"}
+                title={"اداء المناديب"}
+                subtitle={"تقرير مفصل عن اداء المناديب"}
                 icon={Clock}
             />
 
