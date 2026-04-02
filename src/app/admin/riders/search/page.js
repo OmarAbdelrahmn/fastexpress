@@ -346,11 +346,96 @@ export default function RiderSearchPage() {
         </div>
 
 
-        <Table
-          columns={columns}
-          data={filteredRiders}
-          loading={loading}
-        />
+        <div className="hidden md:block">
+          <Table
+            columns={columns}
+            data={filteredRiders}
+            loading={loading}
+          />
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4 p-4">
+          {loading ? (
+            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+          ) : filteredRiders.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">لا توجد بيانات</div>
+          ) : (
+            filteredRiders.map((rider, idx) => (
+              <div key={rider.iqamaNo} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">{rider.nameAR}</h3>
+                        <div className="text-xs text-gray-500">{rider.nameEN}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono text-gray-600">
+                            {rider.workingId}
+                          </span>
+                          {rider.companyName && (
+                            <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
+                              {rider.companyName}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <StatusBadge status={rider.status} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.iqamaNumber')}</span>
+                      <span className="font-mono text-gray-700">{rider.iqamaNo}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.phoneNumber')}</span>
+                      <span className="font-mono text-gray-700" dir="ltr">{rider.phone || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.sponsorInfo')}</span>
+                      <span className="text-gray-700 truncate block">{rider.sponsor || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block mb-0.5">{t('riders.housing')}</span>
+                      <span className="text-gray-700 truncate block">{rider.housingAddress || '-'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <button
+                      onClick={() => handleViewDetails(rider.iqamaNo)}
+                      className="p-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                      title={t('riders.viewDetails')}
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(rider.iqamaNo)}
+                      className="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      title={t('riders.edit')}
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(rider.iqamaNo)}
+                      className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      title={t('riders.delete')}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </Card>
     </div>
   );
