@@ -48,6 +48,7 @@ export default function VehiclesWithRidersPage() {
     setLoading(true);
     try {
       const data = await ApiService.get("/api/vehicles/with-riders");
+      console.log(data);
       setVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading vehicles:", err);
@@ -127,6 +128,7 @@ export default function VehiclesWithRidersPage() {
         [t('employees.riderNameEn')]: v.currentRider?.riderNameE || '-',
         [t('employees.iqamaNumber')]: v.currentRider?.employeeIqamaNo || '-',
         [t('employees.phoneNumber')]: v.currentRider?.phoneNumber || '-',
+        [t('common.companyName')]: v.currentRider?.companyName || '-',
         [t('vehicles.statuss')]: statusAttrs.label
       };
     });
@@ -392,6 +394,11 @@ export default function VehiclesWithRidersPage() {
                                       {t('employees.iqamaNumber')}: {vehicle.currentRider.employeeIqamaNo}
                                     </span>
                                   )}
+                                  {vehicle.currentRider.companyName && (
+                                    <span className="text-[10px] md:text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded w-fit font-medium">
+                                      {vehicle.currentRider.companyName}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             ) : (
@@ -475,6 +482,11 @@ export default function VehiclesWithRidersPage() {
                               {vehicle.currentRider.employeeIqamaNo && (
                                 <span className="font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
                                   {vehicle.currentRider.employeeIqamaNo}
+                                </span>
+                              )}
+                              {vehicle.currentRider.companyName && (
+                                <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs font-medium">
+                                  {vehicle.currentRider.companyName}
                                 </span>
                               )}
                             </div>
