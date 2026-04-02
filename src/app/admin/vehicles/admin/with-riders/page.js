@@ -120,15 +120,15 @@ export default function VehiclesWithRidersPage() {
         [t('vehicles.plateNumber')]: formatPlateNumber(v.plateNumberA),
         [t('vehicles.serialNumber')]: v.serialNumber,
         [t('vehicles.vehicleNumber')]: v.vehicleNumber,
-        [t('vehicles.type')]: v.vehicleType,
+        ["نوع المركبة"]: v.vehicleType,
         [t('vehicles.manufacturer')]: v.manufacturer,
         [t('vehicles.manufactureYear')]: v.manufactureYear,
         [t('vehicles.currentLocation')]: v.location || '-',
-        [t('employees.riderName')]: v.currentRider?.riderName || '-',
-        [t('employees.riderNameEn')]: v.currentRider?.riderNameE || '-',
-        [t('employees.iqamaNumber')]: v.currentRider?.employeeIqamaNo || '-',
-        [t('employees.phoneNumber')]: v.currentRider?.phoneNumber || '-',
-        [t('common.companyName')]: v.currentRider?.companyName || '-',
+        ["اسم المندوب"]: v.currentRider?.riderName || '-',
+        ["اسم المندوب بالانجليزية"]: v.currentRider?.riderNameE || '-',
+        ["رقم الاقامة"]: v.currentRider?.employeeIqamaNo || '-',
+        ["رقم الجوال"]: v.currentRider?.phoneNumber || '-',
+        ["الشركة"]: v.currentRider?.companyName || '-',
         [t('vehicles.statuss')]: statusAttrs.label
       };
     });
