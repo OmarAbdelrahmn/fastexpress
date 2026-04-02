@@ -69,6 +69,8 @@ export default function DetailedDailyPerformanceReport() {
 
         // Get all unique dates from the first rider to create column headers
         const dates = reportData.housingDetails?.[0]?.riders?.[0]?.dailyEntries?.map(d => d.date) || [];
+        const lastDate = dates[dates.length - 1];
+        let grandTotalLastDayOrders = 0;
 
         reportData.housingDetails?.forEach(housing => {
             housing.riders?.forEach(rider => {
@@ -92,6 +94,12 @@ export default function DetailedDailyPerformanceReport() {
                     riderRow[date] = dayData ? (dayData.workingHours?.toFixed(2) || '0') : '0';
                 });
 
+                // Add last day accepted orders
+                const lastDayData = lastDate ? dailyDataMap[lastDate] : null;
+                const lastDayOrders = lastDayData ? (lastDayData.acceptedOrders || 0) : 0;
+                riderRow['طلبات اليوم الأخير'] = lastDayOrders;
+                grandTotalLastDayOrders += lastDayOrders;
+
                 // Add summary metrics after all daily columns
                 riderRow['إجمالي الطلبات'] = rider.periodSummary?.totalAcceptedOrders || '0';
                 riderRow['تارجيت الطلبات'] = rider.periodSummary?.totalTargetOrders || '0';
@@ -114,6 +122,7 @@ export default function DetailedDailyPerformanceReport() {
                 'الاسم (عربي)': `عدد المجموعات: ${summary.totalHousings}`,
                 'الاسم (إنجليزي)': `عدد المناديب: ${summary.totalRiders}`,
                 'رقم العمل': `أيام العمل: ${summary.totalWorkingDays}`,
+                'طلبات اليوم الأخير': grandTotalLastDayOrders,
                 'إجمالي الطلبات': summary.grandTotalOrders || '0',
                 'تارجيت الطلبات': summary.grandTotalTargetOrders || '0',
                 'فرق الساعات': '',
