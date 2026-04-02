@@ -132,7 +132,7 @@
     "workingId": "الرقم الوظيفي",
     "message": "الرسالة",
     "allRecords": "جميع سجلات المحفظة",
-    "totalRecordsCount": "{{count}} سجل إجمالي",
+    "totalRecordsCount": "سجل إجمالي",
     "searchPlaceholder": "بحث بالرقم، الاسم، السكن...",
     "loadingRecords": "جاري تحميل السجلات...",
     "noRecordsMatch": "لا توجد سجلات تطابق بحثك.",
