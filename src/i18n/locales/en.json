@@ -907,6 +907,7 @@
     "timeRecord": "Time Record",
     "byDate": "By Date",
     "importExcel": "Import Excel",
+    "importExcels": "Upload Resident Update",
     "tempData": "Temporary Data",
     "reviewUpdates": "Review Updates",
     "statusRequests": "Status Requests",

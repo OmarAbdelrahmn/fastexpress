@@ -34,7 +34,7 @@ export default function RiderManagePage() {
                     <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={FileSpreadsheet}
-                            title={t('employees.importExcel')}
+                            title={t('employees.importExcels')}
                             description={t('employees.uploadFile')}
                             onClick={() => router.push('/admin/riders/manage/import-excel')}
                             color="#1a3b26ff"
