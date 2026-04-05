@@ -13,7 +13,7 @@ export default function ComprehensiveLandingPage() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-
+      
       const revealElements = document.querySelectorAll('.reveal-on-scroll');
       revealElements.forEach((element) => {
         const elementTop = element.getBoundingClientRect().top;
@@ -27,7 +27,7 @@ export default function ComprehensiveLandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  
+
   const navLinks = [
     { name: 'الرئيسية', href: '#home' },
     { name: 'من نحن', href: '#about' },
