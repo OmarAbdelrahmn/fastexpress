@@ -30,7 +30,7 @@ export default function RidersPage() {
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
-  const [sponsorFilter, setSponsorFilter] = useState('');
+  const [sponsorFilter, setSponsorFilter] = useState(null);
   const [sponsorDropdownOpen, setSponsorDropdownOpen] = useState(false);
 
   const deleteReasons = [
@@ -182,7 +182,7 @@ export default function RidersPage() {
               e.stopPropagation();
               setSponsorDropdownOpen(true);
             }}
-            className={`p-0.5 rounded transition-colors ${sponsorFilter
+            className={`p-0.5 rounded transition-colors ${sponsorFilter !== null
                 ? 'text-orange-500 bg-orange-50'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
               }`}
@@ -268,7 +268,7 @@ export default function RidersPage() {
       rider.sponsorNo?.toString().includes(searchTerm) ||
       rider.housingAddress?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesSponsor = !sponsorFilter || rider.sponsor === sponsorFilter;
+    const matchesSponsor = sponsorFilter === null || sponsorFilter.includes(rider.sponsor);
 
     return matchesSearch && matchesSponsor;
   });
@@ -711,26 +711,60 @@ export default function RidersPage() {
         title="تصفية حسب الكفيل"
       >
         <div className="space-y-2 max-h-[60vh] overflow-y-auto p-1">
-          <button
-            onClick={() => { setSponsorFilter(''); setSponsorDropdownOpen(false); }}
-            className={`w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border ${!sponsorFilter ? 'border-orange-500 font-bold text-orange-600 bg-orange-50' : 'border-transparent text-gray-700'
-              }`}
-          >
-            الكل
-          </button>
+          <label className={`flex items-center justify-between gap-3 w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border cursor-pointer ${sponsorFilter === null ? 'border-blue-500 font-bold text-blue-600 bg-blue-50' : 'border-transparent text-gray-700'}`}>
+            <span>الكل</span>
+            <input 
+              type="checkbox" 
+              checked={sponsorFilter === null} 
+              onChange={() => {
+                if (sponsorFilter === null) setSponsorFilter([]);
+                else setSponsorFilter(null);
+              }} 
+              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+            />
+          </label>
           {[...new Set(riders.map(r => r.sponsor).filter(Boolean))]
             .sort()
-            .map(sponsor => (
-              <button
-                key={sponsor}
-                onClick={() => { setSponsorFilter(sponsor); setSponsorDropdownOpen(false); }}
-                className={`w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border ${sponsorFilter === sponsor ? 'border-orange-500 font-bold text-orange-600 bg-orange-50' : 'border-transparent text-gray-700'
-                  }`}
-              >
-                {sponsor}
-              </button>
-            ))
+            .map(sponsor => {
+              const isSelected = sponsorFilter === null || sponsorFilter.includes(sponsor);
+              return (
+                <label
+                  key={sponsor}
+                  className={`flex items-center justify-between gap-3 w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border cursor-pointer ${isSelected ? 'border-blue-500 font-bold text-blue-600 bg-blue-50' : 'border-transparent text-gray-700'}`}
+                >
+                  <span>{sponsor}</span>
+                  <input 
+                    type="checkbox" 
+                    checked={isSelected}
+                    onChange={() => {
+                      if (sponsorFilter === null) {
+                        const allSponsors = [...new Set(riders.map(r => r.sponsor).filter(Boolean))];
+                        setSponsorFilter(allSponsors.filter(s => s !== sponsor));
+                      } else {
+                        if (isSelected) {
+                          setSponsorFilter(sponsorFilter.filter(s => s !== sponsor));
+                        } else {
+                          const newFilters = [...sponsorFilter, sponsor];
+                          const allSponsors = [...new Set(riders.map(r => r.sponsor).filter(Boolean))];
+                          if (newFilters.length === allSponsors.length) {
+                            setSponsorFilter(null);
+                          } else {
+                            setSponsorFilter(newFilters);
+                          }
+                        }
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                </label>
+              );
+            })
           }
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button onClick={() => setSponsorDropdownOpen(false)} className="!bg-blue-600 hover:!bg-blue-700 text-white px-6">
+            إغلاق
+          </Button>
         </div>
       </Modal>
 
