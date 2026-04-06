@@ -316,8 +316,8 @@ export default function VehicleManagePage() {
         </div>
 
         <Card>
-          <div className="mb-4">
-            <div className="relative">
+          <div className="mb-4 flex justify-between items-center gap-4">
+            <div className="relative flex-1">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
@@ -327,6 +327,10 @@ export default function VehicleManagePage() {
                 className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
+            <Button onClick={openCreateModal} className="flex items-center gap-2 shrink-0">
+              <Car size={18} />
+              <span>{t('vehicles.addNewVehicle') || 'Add Vehicle'}</span>
+            </Button>
           </div>
 
           <Table
