@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -30,6 +30,8 @@ export default function RidersPage() {
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
+  const [sponsorFilter, setSponsorFilter] = useState('');
+  const [sponsorDropdownOpen, setSponsorDropdownOpen] = useState(false);
 
   const deleteReasons = [
     'خرج ولم يعد',
@@ -172,7 +174,24 @@ export default function RidersPage() {
       )
     },
     {
-      header: t('riders.sponsorInfo'),
+      header: (
+        <div className="relative flex items-center gap-1">
+          <span>{t('riders.sponsorInfo')}</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSponsorDropdownOpen(true);
+            }}
+            className={`p-0.5 rounded transition-colors ${sponsorFilter
+                ? 'text-orange-500 bg-orange-50'
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              }`}
+            title="تصفية حسب الكفيل"
+          >
+            <Filter size={13} />
+          </button>
+        </div>
+      ),
       accessor: 'sponsor',
       render: (row) => (
         <div className="flex flex-col">
@@ -249,7 +268,9 @@ export default function RidersPage() {
       rider.sponsorNo?.toString().includes(searchTerm) ||
       rider.housingAddress?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesSearch;
+    const matchesSponsor = !sponsorFilter || rider.sponsor === sponsorFilter;
+
+    return matchesSearch && matchesSponsor;
   });
 
   // Calculate statistics based on search-filtered riders
@@ -268,7 +289,7 @@ export default function RidersPage() {
     withHousing: searchFilteredRiders.filter(r => r.housingAddress).length
   };
 
-  // Then apply status filter
+  // Then apply status filter and sponsor filter
   const filteredRiders = searchFilteredRiders.filter(rider => {
     const isEmployee = rider.isEmployee;
     const status = rider.status?.toLowerCase();
@@ -682,6 +703,36 @@ export default function RidersPage() {
           )}
         </div>
       </Card>
+
+      {/* Sponsor Filter Modal */}
+      <Modal
+        isOpen={sponsorDropdownOpen}
+        onClose={() => setSponsorDropdownOpen(false)}
+        title="تصفية حسب الكفيل"
+      >
+        <div className="space-y-2 max-h-[60vh] overflow-y-auto p-1">
+          <button
+            onClick={() => { setSponsorFilter(''); setSponsorDropdownOpen(false); }}
+            className={`w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border ${!sponsorFilter ? 'border-orange-500 font-bold text-orange-600 bg-orange-50' : 'border-transparent text-gray-700'
+              }`}
+          >
+            الكل
+          </button>
+          {[...new Set(riders.map(r => r.sponsor).filter(Boolean))]
+            .sort()
+            .map(sponsor => (
+              <button
+                key={sponsor}
+                onClick={() => { setSponsorFilter(sponsor); setSponsorDropdownOpen(false); }}
+                className={`w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border ${sponsorFilter === sponsor ? 'border-orange-500 font-bold text-orange-600 bg-orange-50' : 'border-transparent text-gray-700'
+                  }`}
+              >
+                {sponsor}
+              </button>
+            ))
+          }
+        </div>
+      </Modal>
 
       {/* Quick Actions */}
 
