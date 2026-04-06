@@ -39,6 +39,8 @@ export default function VehiclesWithRidersPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [vehicles, setVehicles] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [manufacturerFilter, setManufacturerFilter] = useState("all");
+  const [yearFilter, setYearFilter] = useState("all");
 
   useEffect(() => {
     loadVehicles();
@@ -78,7 +80,9 @@ export default function VehiclesWithRidersPage() {
       v.currentRider?.employeeIqamaNo?.toString().includes(searchTerm) ||
       v.currentRider?.workingId?.toString().includes(searchTerm) ||
       v.currentRider?.phoneNumber?.toString().includes(searchTerm) ||
-      v.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      v.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.manufactureYear?.toString().includes(searchTerm)
     );
   });
 
@@ -93,7 +97,15 @@ export default function VehiclesWithRidersPage() {
       (statusFilter.toLowerCase() === "stolen" && effectiveStatus === VehicleStatusType.Stolen) ||
       (statusFilter.toLowerCase() === "breakup" && effectiveStatus === VehicleStatusType.BreakUp);
 
-    return matchesStatus;
+    const matchesManufacturer = 
+      manufacturerFilter === "all" || 
+      v.manufacturer === manufacturerFilter;
+      
+    const matchesYear = 
+      yearFilter === "all" || 
+      v.manufactureYear?.toString() === yearFilter;
+
+    return matchesStatus && matchesManufacturer && matchesYear;
   });
 
   const getStatsCount = (statusType) => {
@@ -279,6 +291,66 @@ export default function VehiclesWithRidersPage() {
                     </button>
                   );
                 })}
+              </div>
+
+              <div className="hidden md:flex flex-wrap gap-4 overflow-x-auto pb-2 border-t border-gray-100 pt-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-600 block whitespace-nowrap">{t('vehicles.manufacturer')}:</span>
+                  <button
+                    onClick={() => setManufacturerFilter("all")}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${manufacturerFilter === "all"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    {t('common.all')}
+                  </button>
+                  <button
+                    onClick={() => setManufacturerFilter("هوندا")}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${manufacturerFilter === "هوندا"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    هوندا
+                  </button>
+                  <button
+                    onClick={() => setManufacturerFilter("هوجو")}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${manufacturerFilter === "هوجو"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    هوجو
+                  </button>
+                </div>
+                
+                <div className="hidden md:block w-px bg-gray-200 h-8 self-center"></div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-600 block whitespace-nowrap">{t('vehicles.manufactureYear')}:</span>
+                  <button
+                    onClick={() => setYearFilter("all")}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${yearFilter === "all"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    {t('common.all')}
+                  </button>
+                  {["2022", "2023", "2024"].map((year) => (
+                    <button
+                      key={year}
+                      onClick={() => setYearFilter(year)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${yearFilter === year
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                    >
+                      {year}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex justify-end">
