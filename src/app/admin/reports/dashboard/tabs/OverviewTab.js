@@ -49,7 +49,9 @@ export default function OverviewTab() {
 
   const vehiclePieData = vehicles ? [
     { name: t('dashboardTabs.overview.vehicleAvailable') || 'Available', value: vehicles.available },
-    { name: t('dashboardTabs.overview.vehicleProblem') || 'Problem/Break', value: vehicles.problem + vehicles.breakUp },
+    { name: t('dashboardTabs.overview.vehicleProblem') || 'Problem', value: vehicles.problem },
+    { name: t('vehicles.outOfService') || 'Break Up', value: vehicles.breakUp },
+    { name: t('vehicles.actualOutOfService') || 'Out of Service', value: vehicles.outOfService || 0 },
     { name: t('dashboardTabs.overview.vehicleStolen') || 'Stolen', value: vehicles.stolen },
     { name: t('dashboardTabs.overview.vehicleTaken') || 'Taken', value: vehicles.taken },
   ] : [];

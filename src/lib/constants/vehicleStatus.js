@@ -5,6 +5,7 @@ import {
     Shield,
     PackageX,
     Car,
+    Ban,
 } from "lucide-react";
 
 export const VehicleStatusType = {
@@ -13,6 +14,7 @@ export const VehicleStatusType = {
     Problem: 3,
     Stolen: 4,
     BreakUp: 5,
+    OutOfService: 6,
 };
 
 export const normalizeVehicleStatus = (status) => {
@@ -26,6 +28,7 @@ export const normalizeVehicleStatus = (status) => {
     if (lowerStatus === "problem") return VehicleStatusType.Problem;
     if (lowerStatus === "stolen") return VehicleStatusType.Stolen;
     if (lowerStatus === "breakup" || lowerStatus === "break-up") return VehicleStatusType.BreakUp;
+    if (lowerStatus === "outofservice" || lowerStatus === "out-of-service") return VehicleStatusType.OutOfService;
 
     // Attempt to parse if it's a string number "1"
     const parsed = parseInt(status, 10);
@@ -99,6 +102,19 @@ export const getVehicleStatusAttributes = (statusType, t) => {
                     border: "border-gray-200",
                     text: "text-gray-600",
                     badge: "bg-gray-600",
+                },
+            };
+        case VehicleStatusType.OutOfService:
+            return {
+                key: "outofservice",
+                label: t ? t('vehicles.actualOutOfService') : "Out of Service",
+                color: "slate",
+                icon: Ban,
+                styles: {
+                    bg: "bg-slate-50",
+                    border: "border-slate-200",
+                    text: "text-slate-600",
+                    badge: "bg-slate-600",
                 },
             };
         default:

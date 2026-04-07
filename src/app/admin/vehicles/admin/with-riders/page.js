@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Shield,
   PackageX,
-  Download
+  Download,
+  Ban
 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -63,6 +64,7 @@ export default function VehiclesWithRidersPage() {
   const getEffectiveStatus = (v) => {
     return v.isStolen ? VehicleStatusType.Stolen :
       v.isBreakUp ? VehicleStatusType.BreakUp :
+        v.isOutOfService ? VehicleStatusType.OutOfService :
         v.hasActiveProblem ? VehicleStatusType.Problem :
           normalizeVehicleStatus(v.currentStatus) ||
           (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
@@ -95,7 +97,8 @@ export default function VehiclesWithRidersPage() {
       (statusFilter.toLowerCase() === "taken" && effectiveStatus === VehicleStatusType.Taken) ||
       (statusFilter.toLowerCase() === "problem" && effectiveStatus === VehicleStatusType.Problem) ||
       (statusFilter.toLowerCase() === "stolen" && effectiveStatus === VehicleStatusType.Stolen) ||
-      (statusFilter.toLowerCase() === "breakup" && effectiveStatus === VehicleStatusType.BreakUp);
+      (statusFilter.toLowerCase() === "breakup" && effectiveStatus === VehicleStatusType.BreakUp) ||
+      (statusFilter.toLowerCase() === "outofservice" && effectiveStatus === VehicleStatusType.OutOfService);
 
     const matchesManufacturer = 
       manufacturerFilter === "all" || 
@@ -119,6 +122,7 @@ export default function VehiclesWithRidersPage() {
     problems: getStatsCount(VehicleStatusType.Problem),
     stolen: getStatsCount(VehicleStatusType.Stolen),
     breakup: getStatsCount(VehicleStatusType.BreakUp),
+    outOfService: getStatsCount(VehicleStatusType.OutOfService),
   };
 
 
@@ -276,6 +280,7 @@ export default function VehiclesWithRidersPage() {
                   { type: VehicleStatusType.Problem, key: "problem", count: stats.problems },
                   { type: VehicleStatusType.Stolen, key: "stolen", count: stats.stolen },
                   { type: VehicleStatusType.BreakUp, key: "breakup", count: stats.breakup },
+                  { type: VehicleStatusType.OutOfService, key: "outofservice", count: stats.outOfService },
                 ].map(item => {
                   const attrs = getVehicleStatusAttributes(item.type, t);
                   return (

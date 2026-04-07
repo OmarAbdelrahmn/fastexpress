@@ -491,7 +491,8 @@
     "noActiveVehiclesFound": "No active vehicles found.",
     "status": {
       "Taken": "In Service",
-      "Returned": "Ready for Delivery"
+      "Returned": "Ready for Delivery",
+      "Breakup": "Break Up"
     },
     "reportProblemButton": "Report Problem",
     "problemReason": "Problem Reason",
@@ -533,7 +534,12 @@
     "needsRepair": "Needs Repair",
     "stolen": "Stolen",
     "reported": "Reported",
-    "outOfService": "Out of Service",
+    "outOfService": "Break Up",
+    "statusBreakup": "Break Up",
+    "actualOutOfService": "Out of Service",
+    "markOutOfService": "Mark Out of Service",
+    "restoreOutOfService": "Restore from Out of Service",
+    "outOfServiceReason": "Out of Service Reason",
     "unusable": "Unusable",
     "quickActions": "Quick Actions",
     "allVehicles": "All Vehicles",
@@ -546,7 +552,8 @@
     "vehiclesNeedRepair": "Vehicles needing repair",
     "stolenVehicles": "Stolen Vehicles",
     "reportedAsStolen": "Vehicles reported as stolen",
-    "outOfServiceVehicles": "Out of Service",
+    "outOfServiceVehicles": "Break Up",
+    "actualOutOfServiceVehicles": "Out of Service",
     "unusableVehicles": "Unusable Vehicles",
     "changeLocation": "Change Location",
     "updateVehicleLocations": "Update vehicle locations",
@@ -865,7 +872,6 @@
     "enterNewLocationPlaceholder": "Enter new location...",
     "saveNewLocation": "Save New Location",
     "statusStolen": "Stolen",
-    "statusBreakup": "Damaged",
     "statusProblem": "Maintenance",
     "statusTaken": "In Service",
     "statusAvailable": "Ready for Delivery",
@@ -891,7 +897,10 @@
     "selectRiderToViewHistory": "Select a rider to view history",
     "selectRiderToViewHistoryDesc": "Click on a rider from the list to view their full history details",
     "riderHistory": "Rider History",
-    "riderHistoryDesc": "Rider History"
+    "riderHistoryDesc": "Rider History",
+    "outOfServiceDesc": "Out of Service Vehicles",
+    "addoutofservicevehicle": "Add Out of Service Vehicle",
+    "addoutofservicevehiclesubtitle": "Add Out of Service Vehicle"
   },
   "employees": {
     "title": "Employees",

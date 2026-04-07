@@ -21,6 +21,7 @@ import {
   BarChart3,
   TrendingUp,
   FileText,
+  Ban,
 } from "lucide-react";
 
 export default function VehicleAdminDashboard() {
@@ -62,6 +63,7 @@ export default function VehicleAdminDashboard() {
     problemCount: 0,
     stolenCount: 0,
     breakUpCount: 0,
+    outOfServiceCount: 0,
   };
 
   const totalVehicles = groupedData?.totalVehicles || 0;
@@ -204,6 +206,19 @@ export default function VehicleAdminDashboard() {
           </div>
           <p className="text-xs text-gray-600 mt-2">{t("vehicles.unusable")}</p>
         </div>
+
+        {/* <div className={`border-r-4 border-slate-500 bg-slate-50 p-5 rounded-lg`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-600 mb-1">{t("vehicles.actualOutOfService")}</p>
+              <p className="text-3xl font-bold text-slate-700">
+                {stats.outOfServiceCount}
+              </p>
+            </div>
+            <Ban className="text-slate-500" size={36} />
+          </div>
+          <p className="text-xs text-slate-600 mt-2">{t("vehicles.outOfServiceReason")}</p>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
@@ -366,6 +381,15 @@ export default function VehicleAdminDashboard() {
               bgClass="bg-gray-50"
               className="!p-2"
             />
+            <MiniStatRow
+              icon={Ban}
+              title={t('vehicles.actualOutOfService')}
+              description={t('vehicles.outOfServiceReason')}
+              onClick={() => router.push('/admin/vehicles/admin/out-of-service')}
+              color="#475569" // slate-600
+              bgClass="bg-slate-50"
+              className="!p-2"
+            />
           </div>
         </div>
       </div>
@@ -459,6 +483,12 @@ export default function VehicleAdminDashboard() {
                   <span className="text-sm text-gray-600">{t("vehicles.outOfService")}</span>
                   <span className="font-bold text-gray-600">
                     {stats.breakUpCount}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <span className="text-sm text-slate-600">{t("vehicles.actualOutOfService")}</span>
+                  <span className="font-bold text-slate-600">
+                    {stats.outOfServiceCount}
                   </span>
                 </div>
               </div>
