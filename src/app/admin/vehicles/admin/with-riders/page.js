@@ -323,6 +323,15 @@ export default function VehiclesWithRidersPage() {
                   >
                     هوجو
                   </button>
+                  <button
+                    onClick={() => setManufacturerFilter("هاوجو")}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${manufacturerFilter === "هاوجو"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                  >
+                    هاوجو
+                  </button>
                 </div>
                 
                 <div className="hidden md:block w-px bg-gray-200 h-8 self-center"></div>
