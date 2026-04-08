@@ -15,7 +15,7 @@ import { useLanguage } from '@/lib/context/LanguageContext';
  * - sick (Sick): Yellow/Amber - Medical leave due to illness
  */
 
-export default function StatusBadge({ status }) {
+export default function StatusBadge({ status, text }) {
     const { t } = useLanguage();
 
     const statusConfig = {
@@ -54,14 +54,30 @@ export default function StatusBadge({ status }) {
             bgColor: 'bg-red-100',
             textColor: 'text-red-800',
         },
+        // Escaped Service Statuses
+        outage: {
+            labelKey: 'outage', // Fallback key
+            bgColor: 'bg-emerald-100',
+            textColor: 'text-emerald-800',
+        },
+        reported: {
+            labelKey: 'reported', // Fallback key
+            bgColor: 'bg-amber-100',
+            textColor: 'text-amber-800',
+        },
+        none: {
+            labelKey: 'none', // Fallback key
+            bgColor: 'bg-gray-100',
+            textColor: 'text-gray-800',
+        },
     };
 
     const normalizedStatus = status?.toString().toLowerCase().trim();
     const config = statusConfig[normalizedStatus] || statusConfig.disable;
 
     return (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}>
-            {t(config.labelKey)}
+        <span className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${config.bgColor} ${config.textColor}`}>
+            {text || t(config.labelKey)}
         </span>
     );
 }

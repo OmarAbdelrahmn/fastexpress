@@ -399,7 +399,8 @@
     "personalInfo": "معلوماتي شخصية",
     "updateShifts": "تحديث الأداء",
     "generalSettings": "الإعدادات العامة",
-    "returnsManagement": "إدارة المرتجعات"
+    "returnsManagement": "إدارة المرتجعات",
+    "escaped": "إدارة الهروب"
   },
   "dashboard": {
     "periodHousingReport": "تقرير المجموعات الاجمالي خلال فترة",

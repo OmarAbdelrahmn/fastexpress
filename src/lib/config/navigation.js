@@ -135,6 +135,7 @@ export const adminNavigationConfig = {
       { path: "/admin/riders", label: "riders.manageEmployees" },
       { path: "/admin/riders/search", label: "riders.searchEmployees" },
       { path: "/admin/riders/manage", label: "riders.manageEmployee" },
+      { path: "/admin/riders/escaped", label: "navigation.escaped" },
     ],
   },
 

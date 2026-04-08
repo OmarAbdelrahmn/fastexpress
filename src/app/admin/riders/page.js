@@ -483,6 +483,14 @@ export default function RidersPage() {
               color="#7c3aed" // purple-700
               bgClass="bg-purple-50"
             />
+            <MiniStatRow
+              icon={AlertCircle}
+              title={t('navigation.escaped')}
+              description="إدارة بلاغات الموظفين الهاربين وبلاغات الخارج"
+              onClick={() => router.push('/admin/riders/escaped')}
+              color="#dc2626" // red-600
+              bgClass="bg-red-50"
+            />
           </div>
         </div>
       </div>

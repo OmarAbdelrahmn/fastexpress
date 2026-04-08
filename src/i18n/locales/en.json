@@ -379,7 +379,8 @@
     "personalInfo": "My Personal Information",
     "updateShifts": "Update Performance",
     "generalSettings": "General Settings",
-    "returnsManagement": "Returns Management"
+    "returnsManagement": "Returns Management",
+    "escaped": "Escaped Management"
   },
   "dashboard": {
     "periodHousingReport": "Total Housing Report for Period",
@@ -3085,7 +3086,8 @@
       "ordersByCompany": "Orders by Company",
       "ridersByCompany": "Riders by Company",
       "totalHungerOrders": "Hungerstation Orders",
-      "totalKetaOrders": "Keeta Orders"
+      "totalKetaOrders": "Keeta Orders",
+      "escapedManagement": "Escaped Management"
     }
   }
 }

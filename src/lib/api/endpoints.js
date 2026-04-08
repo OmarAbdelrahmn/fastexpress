@@ -383,4 +383,17 @@ export const API_ENDPOINTS = {
     DELETE_ONE:    (iqamaNo, imageType) => `/api/employees/${iqamaNo}/images/${imageType}`,
     DELETE_ALL:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
   },
-};
+
+  // Escaped Employee
+  ESCAPED_EMPLOYEE: {
+    LIST: "/api/escaped",
+    STATS: "/api/escaped/stats",
+    OVERDUE: "/api/escaped/overdue",
+    BY_PATH: (path) => `/api/escaped/by-path/${path}`,
+    REPORTED: (iqamaNo) => `/api/escaped/${iqamaNo}/reported`,
+    OUTAGE: (iqamaNo) => `/api/escaped/${iqamaNo}/outage`,
+    SWITCH_PATH: (iqamaNo) => `/api/escaped/${iqamaNo}/switch-path`,
+    UPDATE_NOTES: (iqamaNo) => `/api/escaped/${iqamaNo}/notes`,
+    DELETE: (iqamaNo) => `/api/escaped/${iqamaNo}`,
+  },
+};
