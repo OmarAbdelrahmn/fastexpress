@@ -184,8 +184,8 @@ export default function RidersPage() {
               setSponsorDropdownOpen(true);
             }}
             className={`p-0.5 rounded transition-colors ${sponsorFilter !== null
-                ? 'text-orange-500 bg-orange-50'
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              ? 'text-orange-500 bg-orange-50'
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
               }`}
             title="تصفية حسب الكفيل"
           >
@@ -224,8 +224,23 @@ export default function RidersPage() {
     {
       header: t('common.status'),
       accessor: 'status',
-      render: (row) => <StatusBadge status={row.status} />
-    },
+      render: (row) => (
+          <div className="flex">
+        <div className="flex flex-col gap-1">
+          <StatusBadge status={row.status} />
+          {statusFilter === 'outage' && row.dateOfOutage && (
+            <span className="text-xs text-amber-600 font-medium">
+              {new Date(row.dateOfOutage).toLocaleDateString('ar-SA')}
+            </span>
+          )}
+          {statusFilter === 'reported' && row.reportedAt && (
+            <span className="text-xs text-red-600 font-medium">
+              {new Date(row.reportedAt).toLocaleDateString('ar-SA')}
+            </span>
+          )}
+        </div>
+        </div>
+      )    },
     {
       header: t('riders.actions'),
       render: (row) => (
@@ -287,10 +302,12 @@ export default function RidersPage() {
     employees: searchFilteredRiders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'enable').length,
     inactiveEmployees: searchFilteredRiders.filter(r => r.isEmployee && r.status?.toLowerCase() === 'disable').length,
     companies: new Set(searchFilteredRiders.map(r => r.companyName)).size,
-    withHousing: searchFilteredRiders.filter(r => r.housingAddress).length
+    withHousing: searchFilteredRiders.filter(r => r.housingAddress).length,
+    outage: searchFilteredRiders.filter(r => r.isOutage).length,
+    reported: searchFilteredRiders.filter(r => r.isReported).length,
   };
 
-  // Then apply status filter and sponsor filter
+  // Then apply status filter, outage filter, and reported filter
   const filteredRiders = searchFilteredRiders.filter(rider => {
     const isEmployee = rider.isEmployee;
     const status = rider.status?.toLowerCase();
@@ -305,7 +322,9 @@ export default function RidersPage() {
       (statusFilter === 'accident' && status === 'accident' && !isEmployee) ||
       (statusFilter === 'other' && status !== 'enable' && status !== 'vacation') ||
       (statusFilter === 'employees' && isEmployee && status === 'enable') ||
-      (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable');
+      (statusFilter === 'inactiveEmployees' && isEmployee && status === 'disable') ||
+      (statusFilter === 'outage' && rider.isOutage) ||
+      (statusFilter === 'reported' && rider.isReported);
 
     return matchesStatus;
   });
@@ -543,6 +562,24 @@ export default function RidersPage() {
                 {t('status.fleeing')} ({stats.fleeing})
               </button>
               <button
+                onClick={() => setStatusFilter("outage")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "outage"
+                  ? "bg-amber-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                خروج نهائي ({stats.outage})
+              </button>
+              <button
+                onClick={() => setStatusFilter("reported")}
+                className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "reported"
+                  ? "bg-red-700 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+                تم الابلاغ ({stats.reported})
+              </button>
+              <button
                 onClick={() => setStatusFilter("vacation")}
                 className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${statusFilter === "vacation"
                   ? "bg-blue-500 text-white"
@@ -660,8 +697,17 @@ export default function RidersPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <StatusBadge status={rider.status} />
-                    </div>
+                  <StatusBadge status={rider.status} />
+                  {statusFilter === 'outage' && rider.dateOfOutage && (
+                    <span className="text-xs text-amber-600 font-medium mt-1">
+                      {new Date(rider.dateOfOutage).toLocaleDateString('ar-SA')}
+                    </span>
+                  )}
+                  {statusFilter === 'reported' && rider.reportedAt && (
+                    <span className="text-xs text-red-600 font-medium mt-1">
+                      {new Date(rider.reportedAt).toLocaleDateString('ar-SA')}
+                    </span>
+                  )}                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -722,14 +768,14 @@ export default function RidersPage() {
         <div className="space-y-2 max-h-[60vh] overflow-y-auto p-1">
           <label className={`flex items-center justify-between gap-3 w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border cursor-pointer ${sponsorFilter === null ? 'border-blue-500 font-bold text-blue-600 bg-blue-50' : 'border-transparent text-gray-700'}`}>
             <span>الكل</span>
-            <input 
-              type="checkbox" 
-              checked={sponsorFilter === null} 
+            <input
+              type="checkbox"
+              checked={sponsorFilter === null}
               onChange={() => {
                 if (sponsorFilter === null) setSponsorFilter([]);
                 else setSponsorFilter(null);
-              }} 
-              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+              }}
+              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </label>
           {[...new Set(riders.map(r => r.sponsor).filter(Boolean))]
@@ -742,8 +788,8 @@ export default function RidersPage() {
                   className={`flex items-center justify-between gap-3 w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border cursor-pointer ${isSelected ? 'border-blue-500 font-bold text-blue-600 bg-blue-50' : 'border-transparent text-gray-700'}`}
                 >
                   <span>{sponsor}</span>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={isSelected}
                     onChange={() => {
                       if (sponsorFilter === null) {
