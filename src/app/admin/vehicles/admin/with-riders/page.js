@@ -30,7 +30,7 @@ import {
   getVehicleStatusAttributes,
   normalizeVehicleStatus
 } from "@/lib/constants/vehicleStatus";
-import { formatPlateNumber } from "@/lib/utils/formatters";
+import { formatPlateNumber, matchesCompanySearch } from "@/lib/utils/formatters";
 
 export default function VehiclesWithRidersPage() {
   const { t } = useLanguage();
@@ -82,6 +82,7 @@ export default function VehiclesWithRidersPage() {
       v.currentRider?.employeeIqamaNo?.toString().includes(searchTerm) ||
       v.currentRider?.workingId?.toString().includes(searchTerm) ||
       v.currentRider?.phoneNumber?.toString().includes(searchTerm) ||
+      matchesCompanySearch(v.currentRider?.companyName, searchTerm) ||
       v.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.manufactureYear?.toString().includes(searchTerm)

@@ -109,3 +109,44 @@ export const formatLicenseExpiry = (dateString) => {
         return dateString;
     }
 };
+
+/**
+ * Checks if a company name matches a search term, considering aliases.
+ * @param {string} companyName - The company name
+ * @param {string} searchStr - The search term
+ * @returns {boolean} - True if it matches
+ */
+export const matchesCompanySearch = (companyName, searchStr) => {
+    if (!companyName && searchStr) return false;
+    if (!searchStr) return true;
+    
+    const normalizedCompany = companyName.toLowerCase();
+    const normalizedSearch = searchStr.toLowerCase().trim();
+    
+    if (normalizedCompany.includes(normalizedSearch)) return true;
+    
+    const companyAliases = [
+        ['hungerstation', 'hunger station', 'هنقر', 'هنقرستيشن', 'هنقر ستيشن', 'hunger'],
+        ['jahez', 'جاهز', 'jahiz'],
+        ['keta', 'كيتا', 'keeta'],
+        ['mrsool', 'مرسول', 'mrsol'],
+        ['talabat', 'طلبات', 'talabat'],
+        ['ninja', 'نينجا'],
+        ['thechefz', 'ذا شفز', 'ذاشفز', 'شفز', 'chefz', 'the chefz'],
+        ['careem', 'كريم', 'careem food'],
+        ['shgardi', 'شقردي'],
+        ['wssel', 'وصل']
+    ];
+    
+    for (const aliases of companyAliases) {
+        // If the company name matches any of the aliases for this company
+        const isThisCompany = aliases.some(alias => normalizedCompany.includes(alias));
+        if (isThisCompany) {
+            // Check if the search string matches any of the aliases
+            const matchesSearch = aliases.some(alias => alias.includes(normalizedSearch));
+            if (matchesSearch) return true;
+        }
+    }
+    
+    return false;
+};

@@ -15,6 +15,7 @@ import { Plus, Search, Edit, Trash2, UserCheck, Eye, Users, UserCog, Building, P
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 import Modal from '@/components/Ui/Model';
 import * as XLSX from 'xlsx';
+import { matchesCompanySearch } from '@/lib/utils/formatters';
 
 export default function RidersPage() {
   const router = useRouter();
@@ -262,7 +263,7 @@ export default function RidersPage() {
       rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.workingId?.toString().includes(searchTerm) ||
       rider.iqamaNo?.toString().includes(searchTerm) ||
-      rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      matchesCompanySearch(rider.companyName, searchTerm) ||
       rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.sponsorNo?.toString().includes(searchTerm) ||

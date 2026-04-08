@@ -14,6 +14,7 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import { Search, Edit, Trash2, Eye, Filter, Download } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 import * as XLSX from 'xlsx';
+import { matchesCompanySearch } from '@/lib/utils/formatters';
 
 export default function RiderSearchPage() {
   const router = useRouter();
@@ -72,7 +73,7 @@ export default function RiderSearchPage() {
       rider.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.workingId?.toString().includes(searchTerm) ||
       rider.iqamaNo?.toString().includes(searchTerm) ||
-      rider.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      matchesCompanySearch(rider.companyName, searchTerm) ||
       rider.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rider.sponsor?.toLowerCase().includes(searchTerm.toLowerCase());
 
