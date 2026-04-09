@@ -301,7 +301,7 @@ export default function RidersPage() {
     total: searchFilteredRiders.length,
     active: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'enable' && !r.isEmployee).length,
     inactive: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'disable' && !r.isEmployee).length,
-    fleeing: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee).length,
+    fleeing: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'fleeing' && !r.isEmployee && !r.isOutage && !r.isReported).length,
     vacation: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'vacation').length,
     sick: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'sick' && !r.isEmployee).length,
     accident: searchFilteredRiders.filter(r => r.status?.toLowerCase() === 'accident' && !r.isEmployee).length,
@@ -323,7 +323,7 @@ export default function RidersPage() {
       statusFilter === 'all' ||
       (statusFilter === 'active' && status === 'enable' && !isEmployee) ||
       (statusFilter === 'inactive' && status === 'disable' && !isEmployee) ||
-      (statusFilter === 'fleeing' && status === 'fleeing' && !isEmployee) ||
+      (statusFilter === 'fleeing' && status === 'fleeing' && !isEmployee && !rider.isOutage && !rider.isReported) ||
       (statusFilter === 'vacation' && status === 'vacation') ||
       (statusFilter === 'sick' && status === 'sick' && !isEmployee) ||
       (statusFilter === 'accident' && status === 'accident' && !isEmployee) ||

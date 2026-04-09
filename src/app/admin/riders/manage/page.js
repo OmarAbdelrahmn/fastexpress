@@ -56,6 +56,14 @@ export default function RiderManagePage() {
                             color="#ca8a04" // yellow-600
                             bgClass="bg-yellow-50"
                         />
+                        <MiniStatRow
+                            icon={History}
+                            title={t('employees.riderStatusChanges.title')}
+                            description={t('employees.riderStatusChanges.description')}
+                            onClick={() => router.push('/admin/riders/manage/status-changes')}
+                            color="#8b5cf6" // purple-600
+                            bgClass="bg-purple-50"
+                        />
                     </div>
                 </div>
 
