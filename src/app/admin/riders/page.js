@@ -230,7 +230,7 @@ export default function RidersPage() {
           <div className="flex">
         <div className="flex flex-col gap-1">
           <StatusBadge status={row.status} />
-          {row.updatedAd && (
+          {row.updatedAd && !row.dateOfOutage && !row.reportedAt && (
             <span className="text-xs text-gray-500">
               {new Date(row.updatedAd).toLocaleDateString('ar-SA')}
             </span>
