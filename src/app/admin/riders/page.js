@@ -51,6 +51,8 @@ export default function RidersPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+      console.log(data);
+      
       setRiders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading riders:', err);
@@ -228,6 +230,11 @@ export default function RidersPage() {
           <div className="flex">
         <div className="flex flex-col gap-1">
           <StatusBadge status={row.status} />
+          {row.updatedAd && (
+            <span className="text-xs text-gray-500">
+              {new Date(row.updatedAd).toLocaleDateString('ar-SA')}
+            </span>
+          )}
           {statusFilter === 'outage' && row.dateOfOutage && (
             <span className="text-xs text-amber-600 font-medium">
               {new Date(row.dateOfOutage).toLocaleDateString('ar-SA')}
