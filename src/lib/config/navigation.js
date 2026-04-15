@@ -198,6 +198,17 @@ export const adminNavigationConfig = {
     ],
   },
 
+  petrol: {
+    title: "ادارة البنزين",
+    icon: "⛽",
+    routes: [
+      { path: "/admin/petrol/upload", label: "رفع وتخصيص الفواتير" },
+      { path: "/admin/petrol/riders", label: "تقارير بنزين السائقين" },
+      { path: "/admin/petrol/vehicles", label: "تقارير بنزين المركبات" },
+      { path: "/admin/petrol/unattributed", label: "سجلات غير مخصصة" },
+    ],
+  },
+
   admin: {
     title: "navigation.admin",
     icon: "👨‍✈️",

@@ -401,4 +401,18 @@ export const API_ENDPOINTS = {
     DEACTIVATE: (iqamaNo) => `/api/escaped/${iqamaNo}/deactivate`,
     ACTIVATE: (iqamaNo) => `/api/escaped/${iqamaNo}/activate`,
   },
+
+  // Petrol
+  PETROL: {
+    UPLOAD: "/api/petrol/upload",
+    ATTRIBUTE_PENDING: "/api/petrol/attribute-pending",
+    ATTRIBUTE_ID: (id) => `/api/petrol/attribute/${id}`,
+    RIDER_MONTHLY: (iqamaNo, year, month) => `/api/petrol/rider/${iqamaNo}/monthly?year=${year}&month=${month}`,
+    RIDERS_SUMMARY: (year, month) => `/api/petrol/riders/summary?year=${year}&month=${month}`,
+    RIDER_DATE: (iqamaNo, date) => `/api/petrol/rider/${iqamaNo}/date?date=${date}`,
+    VEHICLE_MONTHLY: (vehicleNumber, year, month) => `/api/petrol/vehicle/${vehicleNumber}/monthly?year=${year}&month=${month}`,
+    VEHICLES_SUMMARY: (year, month) => `/api/petrol/vehicles/summary?year=${year}&month=${month}`,
+    VEHICLE_DATE: (vehicleNumber, date) => `/api/petrol/vehicle/${vehicleNumber}/date?date=${date}`,
+    UNATTRIBUTED: (year, month) => `/api/petrol/unattributed?year=${year}&month=${month}`,
+  },
 };

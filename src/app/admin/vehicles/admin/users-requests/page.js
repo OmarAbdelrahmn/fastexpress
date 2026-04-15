@@ -37,7 +37,6 @@ export default function PendingVehicleRequestsPage() {
   const [note, setNote] = useState('');
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [permission, setPermission] = useState('');
-  const [permissionEndDate, setPermissionEndDate] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
@@ -92,17 +91,6 @@ export default function PendingVehicleRequestsPage() {
       if (!permission) {
         errors.permission = t('vehicles.permissionRequired');
       }
-      if (!permissionEndDate) {
-        errors.permissionEndDate = t('vehicles.permissionEndDateRequired');
-      } else {
-        const selectedDate = new Date(permissionEndDate);
-        const now = new Date();
-        selectedDate.setHours(23, 59, 59, 999);
-
-        if (selectedDate <= now) {
-          errors.permissionEndDate = t('vehicles.permissionDateFuture');
-        }
-      }
     }
 
     if (Object.keys(errors).length > 0) {
@@ -123,25 +111,20 @@ export default function PendingVehicleRequestsPage() {
           resolvedBy: "Omar", // Identifying user context if available
           note: note || "",
           permission: isApproved ? permission : null,
-          permissionEndDate: isApproved ? new Date(`${permissionEndDate}T23:59:59.999`).toISOString() : null
+          permissionEndDate: null
         };
 
         await ApiService.post(API_ENDPOINTS.VEHICLES.RESOLVE_SWITCH, payload);
         successMsg = t('vehicles.switchRequestSent');
 
       } else {
-        // Standard handling for other requests
         let permissionValue = "";
-        let permissionEndDateValue = null;
 
         if (
           isApproved &&
           request?.operationType?.toLowerCase() === 'taken'
         ) {
           permissionValue = permission;
-          permissionEndDateValue = new Date(
-            `${permissionEndDate}T23:59:59.999`
-          ).toISOString();
         }
 
         const payload = {
@@ -151,7 +134,7 @@ export default function PendingVehicleRequestsPage() {
           plate: request?.vehiclePlateNumber,
           note: note || "",
           permission: isApproved ? permissionValue : null,
-          permissionEndDate: permissionEndDateValue ?? null
+          permissionEndDate: null
         };
 
         await ApiService.put(`/api/temp/vehicle-resolve`, payload);
@@ -165,7 +148,6 @@ export default function PendingVehicleRequestsPage() {
       setSelectedRequest(null);
       setNote('');
       setPermission('');
-      setPermissionEndDate('');
       loadPendingRequests();
 
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -182,7 +164,6 @@ export default function PendingVehicleRequestsPage() {
     setSelectedRequest(request);
     setNote('');
     setPermission(''); // Reset fields
-    setPermissionEndDate('');
     setFieldErrors({});
     setShowResolveModal(true);
   };
@@ -578,7 +559,7 @@ export default function PendingVehicleRequestsPage() {
                       <h3 className="text-purple-800 font-bold mb-3 flex items-center gap-2 text-sm sm:text-base">
                         <CheckCircle size={16} /> {t('vehicles.approvalRequirements')}
                       </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
                             {t('vehicles.permission')} <span className="text-red-500">*</span>
@@ -594,21 +575,6 @@ export default function PendingVehicleRequestsPage() {
                             placeholder="e.g. Monthly Delivery Authorization"
                           />
                           {fieldErrors.permission && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permission}</p>}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">
-                            {t('vehicles.permissionEndDate')} <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="date"
-                            value={permissionEndDate}
-                            onChange={(e) => {
-                              setPermissionEndDate(e.target.value);
-                              if (fieldErrors.permissionEndDate) setFieldErrors({ ...fieldErrors, permissionEndDate: null });
-                            }}
-                            className={`w-full px-3 py-2 border rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all outline-none text-sm ${fieldErrors.permissionEndDate ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'}`}
-                          />
-                          {fieldErrors.permissionEndDate && <p className="text-xs text-red-500 mt-1 ml-1 font-medium">{fieldErrors.permissionEndDate}</p>}
                         </div>
                       </div>
                     </div>

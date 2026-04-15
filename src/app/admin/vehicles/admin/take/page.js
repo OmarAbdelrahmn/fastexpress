@@ -31,7 +31,6 @@ export default function TakeVehiclePage() {
   const [riderIqama, setRiderIqama] = useState("");
   const [reason, setReason] = useState("");
   const [permission, setPermission] = useState("");
-  const [permissionEndDate, setPermissionEndDate] = useState("");
 
   useEffect(() => {
     loadAvailableVehicles();
@@ -105,28 +104,17 @@ export default function TakeVehiclePage() {
       return;
     }
 
-    if (!permissionEndDate) {
-      setErrorMessage(t("vehicles.permissionEndDateRequired"));
-      return;
-    }
-
     setLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
     try {
-      let finalPermissionEndDate = permissionEndDate;
-      // Ensure time component is added if it's just a date string from input[type=date]
-      if (finalPermissionEndDate.length === 10) { // YYYY-MM-DD
-        finalPermissionEndDate = `${finalPermissionEndDate}T23:59:59`;
-      }
-
       const queryParams = new URLSearchParams({
         iqamaNo: riderIqama,
         vehicleNumber: selectedVehicle.plateNumberA,
         reason: reason,
         permission: permission,
-        permissionEndDate: finalPermissionEndDate
+        permissionEndDate: ""
       });
 
       await ApiService.post(`/api/vehicles/take?${queryParams.toString()}`);
@@ -138,7 +126,6 @@ export default function TakeVehiclePage() {
         setRiderIqama("");
         setReason("");
         setPermission("");
-        setPermissionEndDate("");
         loadAvailableVehicles();
       }, 2000);
     } catch (err) {
@@ -368,7 +355,7 @@ export default function TakeVehiclePage() {
                 placeholder={t("employees.enterIqamaNumber")}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("vehicles.permission")} <span className="text-red-500">*</span>
@@ -379,17 +366,6 @@ export default function TakeVehiclePage() {
                     onChange={(e) => setPermission(e.target.value)}
                     required
                     placeholder={t("vehicles.permissionPlaceholder") || "Authorization"}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("vehicles.permissionEndDate")} <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    type="date"
-                    value={permissionEndDate}
-                    onChange={(e) => setPermissionEndDate(e.target.value)}
-                    required
                   />
                 </div>
               </div>
