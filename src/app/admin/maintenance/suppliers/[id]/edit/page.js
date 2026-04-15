@@ -26,7 +26,8 @@ export default function EditSupplierPage() {
         phone: '',
         email: '',
         address: '',
-        taxNumber: ''
+        taxNumber: '',
+        commercialRegister: ''
     });
 
     useEffect(() => {
@@ -46,7 +47,8 @@ export default function EditSupplierPage() {
                 phone: data.phone || '',
                 email: data.email || '',
                 address: data.address || '',
-                taxNumber: data.taxNumber || ''
+                taxNumber: data.taxNumber || '',
+                commercialRegister: data.commercialRegister || ''
             });
         } catch (err) {
             console.error('Error loading supplier:', err);
@@ -210,6 +212,21 @@ export default function EditSupplierPage() {
                                 onChange={handleChange}
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="ادخل الرقم الضريبي"
+                            />
+                        </div>
+
+                        {/* Commercial Register */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                السجل التجاري
+                            </label>
+                            <input
+                                type="text"
+                                name="commercialRegister"
+                                value={formData.commercialRegister}
+                                onChange={handleChange}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ادخل السجل التجاري"
                             />
                         </div>
 

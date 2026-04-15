@@ -150,6 +150,10 @@ const API_ENDPOINTS = {
     },
     REPORTS_SUMMARY: "/api/report/summary"
   },
+  ESCAPED_EMPLOYEE: {
+    LIST: "/api/escaped",
+    STATS: "/api/escaped/stats",
+  }
 };
 
 const DASHBOARD_CACHE_KEY = "dashboard_stats_cache";
@@ -218,6 +222,8 @@ export default function EnhancedDashboard() {
   });
 
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
+  const [escapedAlerts, setEscapedAlerts] = useState([]);
+  const [showEscapedPopup, setShowEscapedPopup] = useState(false);
 
   useEffect(() => {
     // Check for privacy mode setting
@@ -259,7 +265,8 @@ export default function EnhancedDashboard() {
         tempEmployeesRes,
         previousDayOrdersRes,
         statisticsRes,
-        summaryData1
+        summaryData1,
+        escapedRes
       ] = await Promise.all([
         get(API_ENDPOINTS.VEHICLES.LIST),
         get(API_ENDPOINTS.VEHICLES.GROUP_BY_STATUS),
@@ -274,7 +281,20 @@ export default function EnhancedDashboard() {
         get(API_ENDPOINTS.SHIFT.PREVIOUS_DAY_ACCEPTED),
         get(API_ENDPOINTS.RIDER.STATISTICS),
         get(API_ENDPOINTS.TEMP.REPORTS_SUMMARY),
+        get(API_ENDPOINTS.ESCAPED_EMPLOYEE.LIST),
       ]);
+
+      // Check for urgent escaped employees (less than 8 days remaining)
+      const urgentEscaped = (escapedRes.data || []).filter(emp => 
+        emp.isActive !== false && 
+        emp.remainingDaysToRemoval !== null && 
+        emp.remainingDaysToRemoval < 8
+      );
+      
+      if (urgentEscaped.length > 0) {
+        setEscapedAlerts(urgentEscaped);
+        setShowEscapedPopup(true);
+      }
 
       const vehiclesSummary = vehicleStatusRes.data?.summary || {};
       const totalVehicles =
@@ -755,7 +775,41 @@ export default function EnhancedDashboard() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto relative">
+        {/* Escaped Employees Urgent Popup */}
+        {showEscapedPopup && escapedAlerts.length > 0 && (
+          <div className="fixed top-20 left-180 z-[200] animate-in slide-in-from-left duration-500">
+            <div className="bg-white border-2 border-red-500 rounded-2xl shadow-2xl p-4 max-w-sm relative group overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+              <button 
+                onClick={() => setShowEscapedPopup(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+              >
+                <X size={18} />
+              </button>
+              
+              <div className="flex items-start gap-3 mt-1">
+                <div className="p-2 bg-red-50 rounded-xl">
+                  <AlertTriangle className="text-red-600" size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">تنبيه: مهلة وشيكة</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                    يوجد {escapedAlerts.length} موظفاً هارباً يتبقى لهم أقل من 7 أيام على الموعد النهائي. هؤلاء يتطلبون إجراءً فورياً.
+                  </p>
+                  <Link 
+                    href="/admin/riders/escaped"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 underline underline-offset-4"
+                  >
+                    انتقل لصفحة الهاربين للمتابعة
+                    <ArrowRight size={14} className="rtl:rotate-180" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <PageHeader />
 
         {/* Primary Stats Grid */}

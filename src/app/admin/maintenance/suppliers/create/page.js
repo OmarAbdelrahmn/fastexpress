@@ -24,7 +24,8 @@ export default function CreateSupplierPage() {
         phone: '',
         email: '',
         address: '',
-        taxNumber: ''
+        taxNumber: '',
+        commercialRegister: ''
     });
 
     const handleChange = (e) => {
@@ -170,6 +171,21 @@ export default function CreateSupplierPage() {
                                 onChange={handleChange}
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="ادخل الرقم الضريبي"
+                            />
+                        </div>
+
+                        {/* Commercial Register */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                السجل التجاري
+                            </label>
+                            <input
+                                type="text"
+                                name="commercialRegister"
+                                value={formData.commercialRegister}
+                                onChange={handleChange}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ادخل السجل التجاري"
                             />
                         </div>
 

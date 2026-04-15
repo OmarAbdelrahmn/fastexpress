@@ -12,6 +12,19 @@ export const escapedService = {
   },
 
   /**
+   * GET /api/escaped/{iqamaNo}
+   * Returns a single escaped employee or null
+   */
+  getByIqama: async (iqamaNo) => {
+    try {
+      return await ApiService.get(API_ENDPOINTS.ESCAPED_EMPLOYEE.BY_IQAMA(iqamaNo));
+    } catch (err) {
+      const list = await ApiService.get(API_ENDPOINTS.ESCAPED_EMPLOYEE.LIST);
+      return list.find(x => x.iqamaNo == iqamaNo) || null;
+    }
+  },
+
+  /**
    * GET /api/escaped/stats
    * Returns dashboard summary numbers.
    */
@@ -78,5 +91,26 @@ export const escapedService = {
    */
   delete: async (iqamaNo) => {
     return ApiService.delete(API_ENDPOINTS.ESCAPED_EMPLOYEE.DELETE(iqamaNo));
+  },
+
+  /**
+   * DELETE /api/escaped/{iqamaNo}/force
+   */
+  forceDelete: async (iqamaNo) => {
+    return ApiService.delete(API_ENDPOINTS.ESCAPED_EMPLOYEE.FORCE_DELETE(iqamaNo));
+  },
+
+  /**
+   * PATCH /api/escaped/{iqamaNo}/deactivate
+   */
+  deactivate: async (iqamaNo) => {
+    return ApiService.patch(API_ENDPOINTS.ESCAPED_EMPLOYEE.DEACTIVATE(iqamaNo));
+  },
+
+  /**
+   * PATCH /api/escaped/{iqamaNo}/activate
+   */
+  activate: async (iqamaNo) => {
+    return ApiService.patch(API_ENDPOINTS.ESCAPED_EMPLOYEE.ACTIVATE(iqamaNo));
   },
 };

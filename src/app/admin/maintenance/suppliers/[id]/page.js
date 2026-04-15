@@ -215,6 +215,15 @@ export default function SupplierDetailsPage() {
                             </div>
                         </div>
 
+                        {/* Commercial Register */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-600">السجل التجاري</label>
+                            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                                <FileText size={18} className="text-gray-500" />
+                                <span className="text-gray-900">{supplier.commercialRegister || '-'}</span>
+                            </div>
+                        </div>
+
                         {/* Created At */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-600">تاريخ الإضافة</label>

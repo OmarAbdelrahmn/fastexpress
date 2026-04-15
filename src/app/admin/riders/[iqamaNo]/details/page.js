@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ApiService } from '@/lib/api/apiService';
+import { escapedService } from '@/lib/api/escapedService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { formatPlateNumber } from '@/lib/utils/formatters';
 import Card from '@/components/Ui/Card';
@@ -20,7 +21,9 @@ import {
   FileText,
   Shield,
   Truck,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ShieldAlert,
+  Clock
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
@@ -36,6 +39,9 @@ export default function RiderDetailsPage() {
   const [vehicle, setVehicle] = useState(null);
   const [loadingVehicle, setLoadingVehicle] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
+  
+  const [escapedInfo, setEscapedInfo] = useState(null);
+  const [loadingEscaped, setLoadingEscaped] = useState(false);
 
   const API_BASE = 'https://fastexpress.tryasp.net';
 
@@ -44,8 +50,21 @@ export default function RiderDetailsPage() {
       loadRiderDetails();
       loadVehicleDetails();
       loadProfileImage();
+      loadEscapedInfo();
     }
   }, [iqamaNo]);
+
+  const loadEscapedInfo = async () => {
+    setLoadingEscaped(true);
+    try {
+      const data = await escapedService.getByIqama(iqamaNo);
+      if (data) setEscapedInfo(data);
+    } catch (err) {
+      console.error('Error loading escaped info:', err);
+    } finally {
+      setLoadingEscaped(false);
+    }
+  };
 
   const loadProfileImage = async () => {
     try {
@@ -458,6 +477,9 @@ export default function RiderDetailsPage() {
           )}
         </Card>
       )}
+
+     
+
       {/* Sponsor, Banking & Registration - merged */}
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
@@ -486,6 +508,86 @@ export default function RiderDetailsPage() {
         </div>
       </Card>
 
+ {/* Escaped Info */}
+      {(loadingEscaped || escapedInfo) && (
+        <Card>
+          <h3 className="text-base text-gray-800 mb-4 flex items-center gap-2">
+            <ShieldAlert size={18} className={escapedInfo?.isActive === false ? 'text-red-500' : 'text-orange-500'} />
+            تفاصيل الهروب والخروج النهائي
+            {escapedInfo?.isActive === false && (
+              <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full mr-2">سجل معطل</span>
+            )}
+          </h3>
+          
+          {loadingEscaped ? (
+             <div className="flex justify-center py-3">
+               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+             </div>
+          ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+               <div>
+                  <p className="text-xs text-gray-500 mb-1">المسار الحالي</p>
+                  <p className="font-medium text-gray-800">
+                    {escapedInfo.activePath === 2 ? 'خروج نهائي' : escapedInfo.activePath === 1 ? 'تم الإبلاغ' : 'غير محدد'}
+                  </p>
+               </div>
+               {escapedInfo.escapedAt && (
+                 <div>
+                    <p className="text-xs text-gray-500 mb-1">تاريخ الهروب</p>
+                    <p className="font-medium text-gray-800 flex items-center gap-1">
+                      <Calendar size={13} /> {formatDate(escapedInfo.escapedAt)}
+                    </p>
+                 </div>
+               )}
+               {escapedInfo.reportedAt && (
+                 <div>
+                    <p className="text-xs text-gray-500 mb-1">تاريخ البلاغ</p>
+                    <p className="font-medium text-gray-800 flex items-center gap-1">
+                       <Calendar size={13} /> {formatDate(escapedInfo.reportedAt)}
+                    </p>
+                 </div>
+               )}
+               {(escapedInfo.dateOfOutage || escapedInfo.outageDate) ? (
+                 <div>
+                    <p className="text-xs text-gray-500 mb-1">تاريخ الخروج النهائي</p>
+                    <p className="font-medium text-gray-800 flex items-center gap-1">
+                       <Calendar size={13} /> {formatDate(escapedInfo.dateOfOutage || escapedInfo.outageDate)}
+                    </p>
+                 </div>
+               ) : null}
+               {(escapedInfo.outageVisaNumber || escapedInfo.visaNumber) && (
+                 <div>
+                    <p className="text-xs text-gray-500 mb-1">رقم التأشيرة</p>
+                    <p className="font-medium text-gray-800 text-sm">{escapedInfo.outageVisaNumber || escapedInfo.visaNumber}</p>
+                 </div>
+               )}
+               {escapedInfo.removalDeadline && (
+                 <div>
+                    <p className="text-xs text-red-500 mb-1 font-bold">الموعد النهائي</p>
+                    <p className="font-bold text-red-500 flex items-center gap-1">
+                      <Clock size={13} /> {formatDate(escapedInfo.removalDeadline)}
+                    </p>
+                 </div>
+               )}
+               {escapedInfo.remainingDaysToRemoval !== undefined && escapedInfo.remainingDaysToRemoval !== null && (
+                 <div>
+                    <p className="text-xs text-gray-500 mb-1">الأيام المتبقية</p>
+                    <p className={`font-bold text-lg ${escapedInfo.isOverdue ? 'text-red-700' : escapedInfo.remainingDaysToRemoval <= 10 ? 'text-orange-600' : 'text-blue-600'}`}>
+                      {escapedInfo.remainingDaysToRemoval} يوم
+                    </p>
+                 </div>
+               )}
+               {escapedInfo.notes && (
+                 <div className="col-span-1 md:col-span-2 lg:col-span-4 mt-2">
+                    <p className="text-xs text-gray-500 mb-1">ملاحظات</p>
+                    <p className="text-sm text-gray-700 bg-orange-50 p-3 rounded-lg border border-orange-100">{escapedInfo.notes}</p>
+                 </div>
+               )}
+             </div>
+          )}
+        </Card>
+      )}
+      
       {/* Action Buttons */}
       <Card>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">

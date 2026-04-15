@@ -180,7 +180,9 @@ export default function SuppliersPage() {
     const filteredSuppliers = suppliers.filter(supplier =>
         supplier.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         supplier.phone?.includes(searchTerm) ||
-        supplier.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        supplier.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        supplier.taxNumber?.includes(searchTerm) ||
+        supplier.commercialRegister?.includes(searchTerm)
     );
 
     // Calculate totals
@@ -281,7 +283,7 @@ export default function SuppliersPage() {
                             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                             <input
                                 type="text"
-                                placeholder="البحث بالاسم، المسؤول، الهاتف، البريد، أو الرقم الضريبي..."
+                                placeholder="البحث بالاسم، المسؤول، الهاتف، البريد، الرقم الضريبي، أو السجل التجاري..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base"

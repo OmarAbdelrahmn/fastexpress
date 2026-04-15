@@ -11,8 +11,9 @@ import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { AlertCircle, Calendar, FileText, Search, User, Trash2, Clock, Pin, Edit, Globe, ShieldAlert, NotebookTabs, Filter } from 'lucide-react';
+import { AlertCircle, Calendar, FileText, Search, User, Trash2, Clock, Pin, Edit, Globe, ShieldAlert, NotebookTabs, Filter, Power, FileDown } from 'lucide-react';
 import moment from 'moment';
+import * as XLSX from 'xlsx';
 
 export default function EscapedManagementPage() {
   const router = useRouter();
@@ -182,18 +183,90 @@ export default function EscapedManagementPage() {
     }
   };
 
+  const handleActivateRecord = async (iqamaNo) => {
+    if (!confirm('هل أنت متأكد من تفعيل هروب هذا الموظف؟')) return;
+    try {
+      const res = await escapedService.deactivate(iqamaNo);
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم التفعيل بنجاح'));
+      loadData();
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error activating record:', err);
+      setErrorMessage(err.message || 'حدث خطأ أثناء التفعيل');
+    }
+  };
+
+  const handleDeactivateRecord = async (iqamaNo) => {
+    if (!confirm('هل أنت متأكد من تعطيل هروب هذا الموظف؟')) return;
+    try {
+      const res = await escapedService.deactivate(iqamaNo);
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم التعطيل بنجاح'));
+      loadData();
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error deactivating record:', err);
+      setErrorMessage(err.message || 'حدث خطأ أثناء التعطيل');
+    }
+  };
+
+  const handleForceDeleteRecord = async (iqamaNo) => {
+    if (!confirm('هل أنت متأكد من الحذف النهائي لهذا البلاغ؟')) return;
+    try {
+      const res = await escapedService.forceDelete(iqamaNo);
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم الحذف النهائي بنجاح'));
+      loadData();
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error force deleting record:', err);
+      setErrorMessage(err.message || t('common.deleteError'));
+    }
+  };
+
   const filteredEmployees = escapedEmployees.filter(emp => {
     const matchesSearch = emp.nameAR?.includes(searchTerm) || 
       emp.nameEN?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.iqamaNo?.toString().includes(searchTerm);
       
-    const matchesStatus = statusFilter === 'all' || 
+      const matchesStatus = statusFilter === 'all' || 
       (statusFilter === 'reported' && emp.activePath === 1) ||
       (statusFilter === 'outage' && emp.activePath === 2) ||
       (statusFilter === 'none' && emp.activePath === 0);
       
     return matchesSearch && matchesStatus;
   });
+
+  const handleExportNoPath = () => {
+    const dataToExport = escapedEmployees.filter(emp => emp.activePath === 0).map(emp => ({
+      'رقم الإقامة': emp.iqamaNo,
+      'الاسم': emp.nameAR,
+      'الوظيفة': emp.jobTitle,
+      'تاريخ الهروب': emp.escapedAt ? moment(emp.escapedAt).format('YYYY-MM-DD') : '-',
+      'تجاوز المهلة': emp.isOverdue ? 'نعم' : 'لا'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'بدون مسار');
+    XLSX.writeFile(workbook, 'Escaped_No_Path.xlsx');
+  };
+
+  const handleExportWithPaths = () => {
+    const dataToExport = escapedEmployees.filter(emp => emp.activePath !== 0).map(emp => ({
+      'رقم الإقامة': emp.iqamaNo,
+      'الاسم': emp.nameAR,
+      'الوظيفة': emp.jobTitle,
+      'المسار': emp.activePath === 1 ? 'تم الإبلاغ' : 'خروج نهائي',
+      'تاريخ الهروب': emp.escapedAt ? moment(emp.escapedAt).format('YYYY-MM-DD') : '-',
+      'الموعد النهائي': emp.removalDeadline ? moment(emp.removalDeadline).format('YYYY-MM-DD') : '-',
+      'الأيام المتبقية': emp.remainingDaysToRemoval ?? '-',
+      'ملاحظات': emp.notes || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'محددي المسار');
+    XLSX.writeFile(workbook, 'Escaped_With_Paths.xlsx');
+  };
 
   const columns = [
     { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
@@ -230,9 +303,19 @@ export default function EscapedManagementPage() {
         </div>
       ),
       render: (row) => {
-        if (row.activePath === 2) return <StatusBadge status="outage" text="خروج نهائي" />;
-        if (row.activePath === 1) return <StatusBadge status="reported" text="تم الإبلاغ" />;
-        if (row.activePath === 0) return <StatusBadge status="None" text="غير محدد" />;
+        let pathBadge;
+        if (row.activePath === 2) pathBadge = <StatusBadge status="outage" text="خروج نهائي" />;
+        else if (row.activePath === 1) pathBadge = <StatusBadge status="reported" text="تم الإبلاغ" />;
+        else pathBadge = <StatusBadge status="None" text="غير محدد" />;
+
+        return (
+          <div className="flex flex-col gap-1.5 items-start">
+            {pathBadge}
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${row.isActive !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {row.isActive !== false ? 'سجل نشط' : 'سجل معطل'}
+            </span>
+          </div>
+        );
       }
     },
     {
@@ -290,13 +373,30 @@ export default function EscapedManagementPage() {
           >
             <NotebookTabs size={15} />
           </Button>
-          {/* <Button 
-            onClick={() => handleDeleteRecord(row.iqamaNo)}
+          {row.isActive !== false ? (
+            <Button 
+              onClick={() => handleDeactivateRecord(row.iqamaNo)}
+              className="!p-2 !bg-orange-500 hover:!bg-orange-600 text-orange-600 border-none"
+              title="تعطيل الموظف"
+            >
+              <Power size={15} />
+            </Button>
+          ) : (
+            <Button 
+              onClick={() => handleActivateRecord(row.iqamaNo)}
+              className="!p-2 !bg-green-500 hover:!bg-green-600 text-green-600 border-none"
+              title="إعادة تفعيل الموظف"
+            >
+              <Power size={15} />
+            </Button>
+          )}
+          <Button 
+            onClick={() => handleForceDeleteRecord(row.iqamaNo)}
             className="!p-2 !bg-red-500 hover:!bg-red-600 text-red-600 border-none"
-            title={t('common.delete')}
+            title="حذف نهائي"
           >
-            <Trash2 size={18} />
-          </Button> */}
+            <Trash2 size={15} />
+          </Button>
         </div>
       )
     }
@@ -346,7 +446,7 @@ export default function EscapedManagementPage() {
       {errorMessage && <Alert type="error" message={errorMessage} onClose={() => setErrorMessage('')} />}
 
       <Card className="!shadow-sm !border-gray-100">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between gap-4">
           <div className="relative w-full">
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300" size={18} />
             <input 
@@ -356,6 +456,16 @@ export default function EscapedManagementPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
             />
+          </div>
+          <div className="flex gap-2 whitespace-nowrap">
+            <Button onClick={handleExportNoPath} className="!bg-green-600 hover:!bg-green-700 text-white flex items-center gap-2">
+              <FileDown size={18} />
+              استخراج بدون مسار
+            </Button>
+            <Button onClick={handleExportWithPaths} className="!bg-blue-600 hover:!bg-blue-700 text-white flex items-center gap-2">
+              <FileDown size={18} />
+              استخراج بمسار
+            </Button>
           </div>
         </div>
 
