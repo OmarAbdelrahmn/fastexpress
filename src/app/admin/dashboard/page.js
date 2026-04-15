@@ -288,7 +288,8 @@ export default function EnhancedDashboard() {
       const urgentEscaped = (escapedRes.data || []).filter(emp => 
         emp.isActive !== false && 
         emp.remainingDaysToRemoval !== null && 
-        emp.remainingDaysToRemoval < 8
+        emp.remainingDaysToRemoval < 8 &&
+        emp.remainingDaysToRemoval > 0
       );
       
       if (urgentEscaped.length > 0) {
