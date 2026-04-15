@@ -5,8 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { Calendar, Activity, AlertCircle, RefreshCw, Car, Receipt, History, Users } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function VehiclePetrolDetailsPage() {
   const { vehicleNumber } = useParams();
@@ -29,26 +28,10 @@ export default function VehiclePetrolDetailsPage() {
     setMessage('');
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const apiPath = API_ENDPOINTS.PETROL.VEHICLE_MONTHLY(vehicleNumber, year, month);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setDetails(data);
-      } else {
-        const err = await response.json().catch(() => null);
-        setMessage(err?.detail || 'فشل في جلب تفاصيل المركبة.');
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.VEHICLE_MONTHLY(vehicleNumber, year, month));
+      setDetails(data);
     } catch (error) {
-      setMessage('خطأ في الاتصال بالخادم.');
+      setMessage(error.message || 'خطأ في الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }
@@ -59,23 +42,8 @@ export default function VehiclePetrolDetailsPage() {
     setDayLoading(true);
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const apiPath = API_ENDPOINTS.PETROL.VEHICLE_DATE(vehicleNumber, dateStr);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setDayDetails(Array.isArray(data) ? data : []);
-      } else {
-        setDayDetails([]);
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.VEHICLE_DATE(vehicleNumber, dateStr));
+      setDayDetails(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
       setDayDetails([]);

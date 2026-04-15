@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Car, XCircle } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function PetrolUnattributedPage() {
   const currentDate = new Date();
@@ -21,26 +20,10 @@ export default function PetrolUnattributedPage() {
     setMessage('');
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const apiPath = API_ENDPOINTS.PETROL.UNATTRIBUTED(year, month);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setRows(Array.isArray(data) ? data : []);
-      } else {
-        const err = await response.json().catch(() => null);
-        setMessage(err?.detail || 'فشل في جلب السجلات غير المخصصة.');
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.UNATTRIBUTED(year, month));
+      setRows(Array.isArray(data) ? data : []);
     } catch (error) {
-      setMessage('خطأ في الاتصال بالخادم.');
+      setMessage(error.message || 'خطأ في الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }
@@ -53,28 +36,10 @@ export default function PetrolUnattributedPage() {
   const handleAttributeId = async (id) => {
     setActionLoadingId(id);
     try {
-      const token = localStorage.getItem('auth_token');
-      const apiPath = API_ENDPOINTS.PETROL.ATTRIBUTE_ID(id);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (response.ok) {
-        // Remove from list or refresh
-        setRows(prev => prev.filter(r => r.id !== id && r.Id !== id));
-      } else {
-        alert(data?.detail || data?.message || 'فشلت عملية التخصيص للسجل المعين.');
-      }
+      await ApiService.post(API_ENDPOINTS.PETROL.ATTRIBUTE_ID(id), null);
+      setRows(prev => prev.filter(r => r.id !== id && r.Id !== id));
     } catch (error) {
-      alert('خطأ في الانصال بالخادم.');
+      alert(error.message || 'فشلت عملية التخصيص للسجل المعين.');
     } finally {
       setActionLoadingId(null);
     }
@@ -139,8 +104,8 @@ export default function PetrolUnattributedPage() {
           <div>
             <p className="text-red-800 font-bold mb-1">ملاحظة بشأن السجلات غير المخصصة</p>
             <p className="text-red-900 text-sm leading-relaxed">
-              هذه السجلات تخص مركبات تم تعبئتها بالبنزين، ولكن النظام لم يجد أي سائق نشط أو مربوط بتلك المركبات في ذلك اليوم بناءً على سجلات الشفتات.
-              قم بتصحيح بيانات الشفتات أو تحديث المركبة المستلمة للسائق ثم انقر على "محاولة ربط مجدداً".
+              هذه السجلات تخص مركبات تم تعبئتها بالبنزين، ولكن النظام لم يجد أي سائق نشط أو مربوط بتلك المركبات في ذلك اليوم بناءً على السجلات .
+              قم بتصحيح بيانات السائقين أو تحديث المركبة المستلمة للسائق ثم انقر على "محاولة ربط مجدداً".
             </p>
           </div>
         </div>

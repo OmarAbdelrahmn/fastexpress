@@ -5,8 +5,7 @@ import { Calendar, FileText, Activity, AlertCircle, RefreshCw, Car, Users, HelpC
 import Link from 'next/link';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function PetrolVehiclesPage() {
   const currentDate = new Date();
@@ -21,26 +20,10 @@ export default function PetrolVehiclesPage() {
     setMessage('');
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const apiPath = API_ENDPOINTS.PETROL.VEHICLES_SUMMARY(year, month);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setVehicles(Array.isArray(data) ? data : []);
-      } else {
-        const err = await response.json().catch(() => null);
-        setMessage(err?.detail || 'فشل في جلب بيانات المركبات.');
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.VEHICLES_SUMMARY(year, month));
+      setVehicles(Array.isArray(data) ? data : []);
     } catch (error) {
-      setMessage('خطأ في الاتصال بالخادم.');
+      setMessage(error.message || 'خطأ في الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }

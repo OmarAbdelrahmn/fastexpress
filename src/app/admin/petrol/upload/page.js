@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { UploadCloud, CheckCircle, XCircle, AlertCircle, RefreshCw, FileSpreadsheet } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function PetrolUploadPage() {
   const [file, setFile] = useState(null);
@@ -38,32 +37,16 @@ export default function PetrolUploadPage() {
     setUploadResult(null);
 
     try {
-      const token = localStorage.getItem('auth_token');
       const formData = new FormData();
       formData.append('file', file);
 
-      // Extract endpoint relative, ensure it attaches /api if not present, though endpoints.js has /api included mostly
-      const endpoint = `${API_BASE}${API_ENDPOINTS.PETROL.UPLOAD}?reportDate=${reportDate}`;
+      const endpoint = `${API_ENDPOINTS.PETROL.UPLOAD}?reportDate=${reportDate}`;
+      const data = await ApiService.uploadFormData(endpoint, formData);
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      console.log(data);
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'تم رفع الملف ومعالجته بنجاح.' });
-        setUploadResult(data);
-      } else {
-        setMessage({ type: 'error', text: data.detail || data.title || 'فشل رفع الملف.' });
-      }
+      setMessage({ type: 'success', text: 'تم رفع الملف ومعالجته بنجاح.' });
+      setUploadResult(data);
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم.' });
+      setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم.' });
     } finally {
       setLoading(false);
     }
@@ -74,26 +57,10 @@ export default function PetrolUploadPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const endpoint = `${API_BASE}${API_ENDPOINTS.PETROL.ATTRIBUTE_PENDING}`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: data.message || 'تم إعادة تخصيص السجلات المعلقة بنجاح.' });
-      } else {
-        setMessage({ type: 'error', text: data.detail || data.title || 'فشل عملية التخصيص.' });
-      }
+      const data = await ApiService.post(API_ENDPOINTS.PETROL.ATTRIBUTE_PENDING, null);
+      setMessage({ type: 'success', text: data?.message || 'تم إعادة تخصيص السجلات المعلقة بنجاح.' });
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ في الاتصال بالخادم.' });
+      setMessage({ type: 'error', text: error.message || 'حدث خطأ في الاتصال بالخادم.' });
     } finally {
       setAttributeLoading(false);
     }

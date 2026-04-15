@@ -5,8 +5,7 @@ import { User, Calendar, FileText, Activity, AlertCircle, RefreshCw, Car } from 
 import Link from 'next/link';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function PetrolRidersPage() {
   const currentDate = new Date();
@@ -21,27 +20,10 @@ export default function PetrolRidersPage() {
     setMessage('');
     
     try {
-      const token = localStorage.getItem('auth_token');
-      // The endpoint function: (year, month) => `/api/petrol/riders/summary?year=${year}&month=${month}`
-      const apiPath = API_ENDPOINTS.PETROL.RIDERS_SUMMARY(year, month);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setRiders(data || []);
-      } else {
-        const err = await response.json().catch(() => null);
-        setMessage(err?.detail || 'فشل في جلب البيانات.');
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.RIDERS_SUMMARY(year, month));
+      setRiders(data || []);
     } catch (error) {
-      setMessage('خطأ في الاتصال بالخادم.');
+      setMessage(error.message || 'خطأ في الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }

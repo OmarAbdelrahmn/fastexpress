@@ -5,8 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { User, Calendar, Activity, AlertCircle, RefreshCw, Car, Receipt, History } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://fastexpress.tryasp.net";
+import { ApiService } from '@/lib/api/apiService';
 
 export default function RiderPetrolDetailsPage() {
   const { iqamaNo } = useParams();
@@ -30,27 +29,10 @@ export default function RiderPetrolDetailsPage() {
     setMessage('');
     
     try {
-      const token = localStorage.getItem('auth_token');
-      // Helper in endpoints: RIDER_MONTHLY: (iqamaNo, year, month)
-      const apiPath = API_ENDPOINTS.PETROL.RIDER_MONTHLY(iqamaNo, year, month);
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setDetails(data);
-      } else {
-        const err = await response.json().catch(() => null);
-        setMessage(err?.detail || 'فشل في جلب تفاصيل السائق.');
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.RIDER_MONTHLY(iqamaNo, year, month));
+      setDetails(data);
     } catch (error) {
-      setMessage('خطأ في الاتصال بالخادم.');
+      setMessage(error.message || 'خطأ في الاتصال بالخادم.');
     } finally {
       setLoading(false);
     }
@@ -61,25 +43,8 @@ export default function RiderPetrolDetailsPage() {
     setDayLoading(true);
     
     try {
-      const token = localStorage.getItem('auth_token');
-      // Helper: RIDER_DATE: (iqamaNo, date)
-      const apiPath = API_ENDPOINTS.PETROL.RIDER_DATE(iqamaNo, dateStr);
-
-      const url = `${API_BASE}${apiPath}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setDayDetails(Array.isArray(data) ? data : []);
-      } else {
-        setDayDetails([]);
-      }
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.RIDER_DATE(iqamaNo, dateStr));
+      setDayDetails(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
       setDayDetails([]);
