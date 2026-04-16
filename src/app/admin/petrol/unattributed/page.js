@@ -201,9 +201,9 @@ export default function PetrolUnattributedPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-lg font-bold text-gray-800">{row.costAmount || row.CostAmount || row.cost || row.Cost || 0}</span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate text-sm text-gray-700" title={row.notes || row.Notes}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700" title={row.notes || row.Notes}>
                             {row.notes || row.Notes ? (
-                              <span className="truncate block max-w-[150px]">{row.notes || row.Notes}</span>
+                              <span className="truncate block max-w-[150px] sm:max-w-[200px] md:max-w-[300px] lg:max-w-[400px] xl:max-w-[600px]">{row.notes || row.Notes}</span>
                             ) : (
                               <span className="text-gray-400">-</span>
                             )}
