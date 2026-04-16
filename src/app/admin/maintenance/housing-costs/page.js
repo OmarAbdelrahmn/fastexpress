@@ -82,7 +82,7 @@ export default function HousingCostsPage() {
         const excelData = data.map(item => ({
             "السكن": item.housingName,
             "عدد المركبات": item.vehicleCount,
-            "عدد السائقين": item.riderCount,
+            "عدد المناديب النشطة": item.riderCount,
             "تكلفة قطع الغيار": `${Number(item.sparePartsCost).toFixed(2)} ر.س`,
             "تكلفة معدات السائقين": `${Number(item.accessoriesCost).toFixed(2)} ر.س`,
             "نوع الصنف": "معدات السائقين",
@@ -120,7 +120,7 @@ export default function HousingCostsPage() {
             accessor: 'vehicleCount',
         },
         {
-            header: 'عدد السائقين',
+            header: 'عدد المناديب النشطة',
             accessor: 'riderCount',
         },
         {
