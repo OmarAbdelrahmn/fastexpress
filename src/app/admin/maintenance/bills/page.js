@@ -64,6 +64,17 @@ export default function BillsPage() {
         return matchesSearch && matchesSupplier;
     });
 
+    const handleEdit = async (row) => {
+        try {
+            const billDetails = await ApiService.get(API_ENDPOINTS.BILL.BY_ID(row.id));
+            setEditingItem(billDetails);
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error('Error fetching bill details:', error);
+            showAlert('error', 'حدث خطأ أثناء جلب تفاصيل الفاتورة');
+        }
+    };
+
     const handleDelete = async (id) => {
         if (!confirm('هل أنت متأكد من حذف هذه الفاتورة؟')) return;
 
@@ -163,10 +174,7 @@ export default function BillsPage() {
                         <Eye size={18} />
                     </button>
                     <button
-                        onClick={() => {
-                            setEditingItem(row);
-                            setIsModalOpen(true);
-                        }}
+                        onClick={() => handleEdit(row)}
                         className="text-blue-600 hover:text-blue-800 cursor-pointer"
                         title="تعديل"
                     >
