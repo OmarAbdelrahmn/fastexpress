@@ -122,7 +122,7 @@ export default function SparePartsUsagePage() {
 
             await ApiService.post(API_ENDPOINTS.SPARE_PARTS.RECORD_USAGE, requestBody);
 
-            showAlert('success', 'تم تسجيل الاستخدام بنجاح');
+            showAlert('success', 'تم تسجيل الصرف بنجاح');
 
             // Reset form
             setUsageEntries([
@@ -130,7 +130,7 @@ export default function SparePartsUsagePage() {
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
-            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
+            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الصرف');
         } finally {
             setLoading(false);
         }
@@ -144,8 +144,8 @@ export default function SparePartsUsagePage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="تسجيل استخدام قطع الغيار"
-                subtitle="تسجيل استخدام قطع الغيار للمركبات"
+                title="تسجيل صرف قطع الغيار"
+                subtitle="تسجيل صرف قطع الغيار للمركبات"
                 icon={Package}
             />
 
@@ -179,7 +179,7 @@ export default function SparePartsUsagePage() {
                     {/* Usage Entries */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الصرف</h3>
                             <Button
                                 type="button"
                                 onClick={addUsageEntry}

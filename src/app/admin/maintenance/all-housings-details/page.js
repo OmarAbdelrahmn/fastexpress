@@ -8,6 +8,7 @@ import { FileText, Calendar, Search, FileSpreadsheet, Package, DollarSign, Wrenc
 import Button from '@/components/Ui/Button';
 import Table from '@/components/Ui/Table';
 import * as XLSX from 'xlsx';
+import { formatPlateNumber } from '@/lib/utils/formatters';
 
 export default function AllHousingsDetailsPage() {
     const [loading, setLoading] = useState(false);
@@ -15,13 +16,15 @@ export default function AllHousingsDetailsPage() {
     const [summary, setSummary] = useState(null);
     const [fromDate, setFromDate] = useState(() => {
         const now = new Date();
-        return `${now.getFullYear()}-01-01`;
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     });
     const [toDate, setToDate] = useState(() => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         return tomorrow.toISOString().split('T')[0];
     });
+    const [selectedHousing, setSelectedHousing] = useState('');
+    const [availableHousings, setAvailableHousings] = useState([]);
 
     useEffect(() => {
         loadData();
@@ -39,9 +42,14 @@ export default function AllHousingsDetailsPage() {
                 });
                 const processed = processData(response);
                 setTableData(processed);
+
+                // Extract unique housings
+                const housingsList = processed.map(item => item.housingName);
+                setAvailableHousings([...new Set(housingsList)].sort());
             } else {
                 setTableData([]);
                 setSummary(null);
+                setAvailableHousings([]);
             }
 
         } catch (error) {
@@ -70,7 +78,7 @@ export default function AllHousingsDetailsPage() {
                                 date: item.usedAt,
                                 type: 'قطع غيار',
                                 itemName: item.sparePartName,
-                                entityName: `${vehicleUsage.vehiclePlate} - ${vehicleUsage.vehicleNumber || ''}`, // Vehicle
+                                entityName: `${formatPlateNumber(vehicleUsage.vehiclePlate)} - ${vehicleUsage.vehicleNumber || ''}`, // Vehicle
                                 quantity: item.quantityUsed,
                                 cost: item.totalCost,
                                 originalItem: item,
@@ -126,9 +134,10 @@ export default function AllHousingsDetailsPage() {
     };
 
     const handleExcelExport = () => {
-        if (!tableData || tableData.length === 0) return;
+        const dataToExport = displayData;
+        if (!dataToExport || dataToExport.length === 0) return;
 
-        const excelData = tableData.map(item => ({
+        const excelData = dataToExport.map(item => ({
             "السكن/الموقع": item.housingName,
             "التاريخ": item.date ? new Date(item.date).toLocaleDateString('ar-SA') : '-',
             "النوع": item.type,
@@ -201,6 +210,18 @@ export default function AllHousingsDetailsPage() {
         }
     ];
 
+    const displayData = selectedHousing
+        ? tableData.filter(row => row.housingName === selectedHousing)
+        : tableData;
+
+    const displaySummary = selectedHousing
+        ? {
+            totalCost: displayData.reduce((sum, row) => sum + (Number(row.cost) || 0), 0),
+            totalSparePartsCost: displayData.filter(row => row.type === 'قطع غيار').reduce((sum, row) => sum + (Number(row.cost) || 0), 0),
+            totalAccessoriesCost: displayData.filter(row => row.type === 'معدات السائقين').reduce((sum, row) => sum + (Number(row.cost) || 0), 0),
+        }
+        : summary;
+
     return (
         <div className="space-y-6">
             <PageHeader
@@ -216,7 +237,7 @@ export default function AllHousingsDetailsPage() {
                         <div>
                             <p className="text-xs md:text-sm text-gray-500 mb-1">إجمالي التكلفة</p>
                             <h3 className="text-lg md:text-2xl font-bold text-gray-800">
-                                {summary ? `${Number(summary.totalCost).toFixed(2)} ر.س` : '-'}
+                                {displaySummary ? `${Number(displaySummary.totalCost).toFixed(2)} ر.س` : '-'}
                             </h3>
                         </div>
                         <div className="p-2 md:p-3 bg-blue-50 rounded-full text-blue-600">
@@ -230,7 +251,7 @@ export default function AllHousingsDetailsPage() {
                         <div>
                             <p className="text-sm text-gray-500 mb-1">قطع الغيار</p>
                             <h3 className="text-2xl font-bold text-gray-800">
-                                {summary ? `${Number(summary.totalSparePartsCost).toFixed(2)} ر.س` : '-'}
+                                {displaySummary ? `${Number(displaySummary.totalSparePartsCost).toFixed(2)} ر.س` : '-'}
                             </h3>
                         </div>
                         <div className="p-3 bg-orange-50 rounded-full text-orange-600">
@@ -244,7 +265,7 @@ export default function AllHousingsDetailsPage() {
                         <div>
                             <p className="text-sm text-gray-500 mb-1">معدات السائقين</p>
                             <h3 className="text-2xl font-bold text-gray-800">
-                                {summary ? `${Number(summary.totalAccessoriesCost).toFixed(2)} ر.س` : '-'}
+                                {displaySummary ? `${Number(displaySummary.totalAccessoriesCost).toFixed(2)} ر.س` : '-'}
                             </h3>
                         </div>
                         <div className="p-3 bg-purple-50 rounded-full text-purple-600">
@@ -282,6 +303,20 @@ export default function AllHousingsDetailsPage() {
                         </div>
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">السكن / الموقع</label>
+                        <select
+                            value={selectedHousing}
+                            onChange={(e) => setSelectedHousing(e.target.value)}
+                            className="bg-white border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none min-w-[200px]"
+                        >
+                            <option value="">الكل</option>
+                            {availableHousings.map(housing => (
+                                <option key={housing} value={housing}>{housing}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     <Button
                         onClick={handleSearch}
                         className="bg-blue-600 hover:bg-blue-700 text-white mb-[1px]"
@@ -304,7 +339,7 @@ export default function AllHousingsDetailsPage() {
 
                 <Table
                     columns={columns}
-                    data={tableData}
+                    data={displayData}
                     loading={loading}
                     emptyMessage="الرجاء اختيار الفترة وعمل بحث لعرض البيانات"
                 />

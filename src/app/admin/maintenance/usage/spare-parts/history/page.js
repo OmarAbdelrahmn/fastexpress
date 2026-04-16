@@ -108,8 +108,8 @@ export default function SparePartsHistoryPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="سجل استخدام قطع الغيار"
-                subtitle="عرض سجل استخدام قطع الغيار حسب المركبة"
+                title="سجل صرف قطع الغيار"
+                subtitle="عرض سجل صرف قطع الغيار حسب المركبة"
                 icon={History}
             />
 
@@ -133,7 +133,7 @@ export default function SparePartsHistoryPage() {
                     className="border-orange-600 text-orange-600 hover:bg-orange-50 w-full md:w-auto text-sm md:text-base"
                 >
                     <Package size={18} className="ml-2" />
-                    تسجيل استخدام جديد
+                    تسجيل صرف جديد
                 </Button>
             </div>
 

@@ -100,8 +100,8 @@ export default function RiderAccessoriesHistoryPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="سجل استخدام معدات السائقين"
-                subtitle="عرض سجل استخدام معدات السائقين حسب السائق"
+                title="سجل صرف معدات السائقين"
+                subtitle="عرض سجل صرف معدات السائقين حسب السائق"
                 icon={History}
             />
 
@@ -125,7 +125,7 @@ export default function RiderAccessoriesHistoryPage() {
                     className="border-purple-600 text-purple-600 hover:bg-purple-50 w-full md:w-auto text-sm md:text-base"
                 >
                     <Package size={18} className="ml-2" />
-                    تسجيل استخدام جديد
+                    تسجيل صرف جديد
                 </Button>
             </div>
 
@@ -242,7 +242,7 @@ export default function RiderAccessoriesHistoryPage() {
                         <div>
                             <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
                                 <History size={20} />
-                                سجل الاستخدام
+                                سجل الصرف
                             </h4>
                             <Table
                                 columns={[...columns, {
@@ -259,7 +259,7 @@ export default function RiderAccessoriesHistoryPage() {
 
                             {!loading && historyData.length === 0 && (
                                 <div className="text-center py-8 text-gray-500">
-                                    لا يوجد سجل استخدام لهذا السائق
+                                    لا يوجد سجل صرف لهذا السائق
                                 </div>
                             )}
                         </div>
@@ -269,7 +269,7 @@ export default function RiderAccessoriesHistoryPage() {
                 {!selectedRider && filteredRiders.length > 0 && (
                     <div className="text-center py-8 text-gray-500">
                         <History size={48} className="mx-auto mb-3 text-gray-400" />
-                        <p>اختر سائقاً لعرض سجل الاستخدام</p>
+                        <p>اختر سائقاً لعرض سجل الصرف</p>
                     </div>
                 )}
             </div>

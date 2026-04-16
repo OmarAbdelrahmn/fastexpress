@@ -109,7 +109,7 @@ export default function RiderAccessoriesUsagePage() {
 
             await ApiService.post(API_ENDPOINTS.RIDER_ACCESSORY.RECORD_USAGE, requestBody);
 
-            showAlert('success', 'تم تسجيل الاستخدام بنجاح');
+            showAlert('success', 'تم تسجيل الصرف بنجاح');
 
             // Reset form
             setUsageEntries([
@@ -117,7 +117,7 @@ export default function RiderAccessoriesUsagePage() {
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
-            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الاستخدام');
+            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الصرف');
         } finally {
             setLoading(false);
         }
@@ -131,8 +131,8 @@ export default function RiderAccessoriesUsagePage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="تسجيل استخدام معدات السائقين"
-                subtitle="تسجيل توزيع معدات السائقين على السائقين"
+                title="تسجيل صرف معدات السائقين"
+                subtitle="تسجيل صرف معدات السائقين على السائقين"
                 icon={Package}
             />
 
@@ -166,7 +166,7 @@ export default function RiderAccessoriesUsagePage() {
                     {/* Usage Entries */}
                     <div className="space-y-4">
                         <div key="usage-header" className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الاستخدام</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">إدخالات الصرف</h3>
                             <Button
                                 type="button"
                                 onClick={addUsageEntry}

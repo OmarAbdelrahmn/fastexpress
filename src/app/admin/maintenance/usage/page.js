@@ -26,16 +26,16 @@ export default function UsagePage() {
                     <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={Package}
-                            title="تسجيل استخدام قطعة غيار"
-                            description="تسجيل استخدام قطع الغيار للمركبات"
+                            title="تسجيل صرف قطعة غيار"
+                            description="تسجيل صرف قطع الغيار للمركبات"
                             onClick={() => router.push('/admin/maintenance/usage/spare-parts')}
                             color="#f97316"
                             bgClass="bg-orange-50"
                         />
                         <MiniStatRow
                             icon={History}
-                            title="سجل استخدام قطع الغيار"
-                            description="عرض سجل استخدام قطع الغيار حسب المركبة"
+                            title="سجل صرف قطع الغيار"
+                            description="عرض سجل صرف قطع الغيار حسب المركبة"
                             onClick={() => router.push('/admin/maintenance/usage/spare-parts/history')}
                             color="#ea580c"
                             bgClass="bg-orange-50"
@@ -52,16 +52,16 @@ export default function UsagePage() {
                     <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={Package}
-                            title="تسجيل استخدام معدات السائقين"
-                            description="تسجيل استخدام معدات السائقين للمركبات"
+                            title="تسجيل صرف معدات السائقين"
+                            description="تسجيل صرف معدات السائقين للمركبات"
                             onClick={() => router.push('/admin/maintenance/usage/rider-accessories')}
                             color="#8b5cf6"
                             bgClass="bg-purple-50"
                         />
                         <MiniStatRow
                             icon={History}
-                            title="سجل استخدام معدات السائقين"
-                            description="عرض سجل استخدام معدات السائقين حسب المركبة"
+                            title="سجل صرف معدات السائقين"
+                            description="عرض سجل صرف معدات السائقين حسب المركبة"
                             onClick={() => router.push('/admin/maintenance/usage/rider-accessories/history')}
                             color="#7c3aed"
                             bgClass="bg-purple-50"

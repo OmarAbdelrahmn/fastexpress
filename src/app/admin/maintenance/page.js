@@ -134,8 +134,8 @@ export default function MaintenancePage() {
                         />
                         <MiniStatRow
                             icon={FileText}
-                            title="تفاصيل استخدام السكنات"
-                            description="تفاصيل استخدام قطع الغيار في السكنات"
+                            title="تفاصيل صرف السكنات"
+                            description="تفاصيل صرف قطع الغيار في السكنات"
                             onClick={() => router.push('/admin/maintenance/all-housings-details')}
                             color="#10b981"
                             bgClass="bg-emerald-50"
@@ -167,8 +167,8 @@ export default function MaintenancePage() {
                         />
                         <MiniStatRow
                             icon={History}
-                            title="تتبع الاستخدام"
-                            description="تسجيل ومتابعة استخدام قطع الغيار والمعدات"
+                            title="تتبع الصرف"
+                            description="تسجيل ومتابعة صرف قطع الغيار والمعدات"
                             onClick={() => router.push('/admin/maintenance/usage')}
                             color="#f59e0b"
                             bgClass="bg-amber-50"
