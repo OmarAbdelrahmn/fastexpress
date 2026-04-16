@@ -19,7 +19,7 @@ export default function RiderAccessoriesUsagePage() {
 
     // Array to hold multiple usage entries
     const [usageEntries, setUsageEntries] = useState([
-        { accessoryId: '', riderId: '', selectedRider: null }
+        { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: '', unitPrice: '' }
     ]);
 
     useEffect(() => {
@@ -62,13 +62,32 @@ export default function RiderAccessoriesUsagePage() {
     const handleAccessoryChange = (value, index) => {
         const updatedEntries = [...usageEntries];
         updatedEntries[index].accessoryId = value;
+        // Auto-fill unit price from the selected accessory
+        const selectedAccessory = accessories.find(a => String(a.id) === String(value));
+        if (selectedAccessory && selectedAccessory.price != null) {
+            updatedEntries[index].unitPrice = selectedAccessory.price;
+        } else {
+            updatedEntries[index].unitPrice = '';
+        }
+        setUsageEntries(updatedEntries);
+    };
+
+    const handleUnitPriceChange = (value, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].unitPrice = value;
+        setUsageEntries(updatedEntries);
+    };
+
+    const handleQuantityChange = (value, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].quantityUsed = value;
         setUsageEntries(updatedEntries);
     };
 
     const addUsageEntry = () => {
         setUsageEntries([
             ...usageEntries,
-            { accessoryId: '', riderId: '', selectedRider: null }
+            { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: '', unitPrice: '' }
         ]);
     };
 
@@ -95,6 +114,11 @@ export default function RiderAccessoriesUsagePage() {
                 showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
                 return;
             }
+
+            if (!entry.quantityUsed || entry.quantityUsed <= 0) {
+                showAlert('error', `الرجاء إدخال كمية صحيحة للإدخال رقم ${i + 1}`);
+                return;
+            }
         }
 
         setLoading(true);
@@ -113,7 +137,7 @@ export default function RiderAccessoriesUsagePage() {
 
             // Reset form
             setUsageEntries([
-                { accessoryId: '', riderId: '', selectedRider: null }
+                { accessoryId: '', riderId: '', selectedRider: null, unitPrice: '' }
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
@@ -192,7 +216,7 @@ export default function RiderAccessoriesUsagePage() {
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                                     {/* Accessory Selection */}
                                     <SearchableSelect
                                         label="معدات السائق"
@@ -219,6 +243,39 @@ export default function RiderAccessoriesUsagePage() {
                                         placeholder="ابحث عن السائق (الاسم، الهوية...)"
                                         required
                                     />
+
+                                    {/* Quantity */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">الكمية <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="الكمية"
+                                            value={entry.quantityUsed}
+                                            onChange={(e) => handleQuantityChange(e.target.value, index)}
+                                            required
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        />
+                                    </div>
+
+                                    {/* Unit Price */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">سعر الوحدة (ر.س)</label>
+                                        <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 font-semibold min-h-[42px] flex items-center">
+                                            {entry.unitPrice ? `${parseFloat(entry.unitPrice).toFixed(2)} ر.س` : '—'}
+                                        </div>
+                                    </div>
+
+                                    {/* Total */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">الإجمالي (ر.س)</label>
+                                        <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 font-semibold min-h-[42px] flex items-center">
+                                            {entry.unitPrice && entry.quantityUsed
+                                                ? `${(parseFloat(entry.unitPrice) * parseFloat(entry.quantityUsed)).toFixed(2)} ر.س`
+                                                : '—'
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}

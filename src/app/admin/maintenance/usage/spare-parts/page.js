@@ -21,7 +21,7 @@ export default function SparePartsUsagePage() {
 
     // Array to hold multiple usage entries
     const [usageEntries, setUsageEntries] = useState([
-        { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+        { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '', unitPrice: '' }
     ]);
 
     useEffect(() => {
@@ -63,6 +63,13 @@ export default function SparePartsUsagePage() {
     const handleSparePartChange = (value, index) => {
         const updatedEntries = [...usageEntries];
         updatedEntries[index].sparePartId = value;
+        // Auto-fill unit price from the selected spare part
+        const selectedPart = spareParts.find(p => String(p.id) === String(value));
+        if (selectedPart && selectedPart.price != null) {
+            updatedEntries[index].unitPrice = selectedPart.price;
+        } else {
+            updatedEntries[index].unitPrice = '';
+        }
         setUsageEntries(updatedEntries);
     };
 
@@ -72,10 +79,16 @@ export default function SparePartsUsagePage() {
         setUsageEntries(updatedEntries);
     };
 
+    const handleUnitPriceChange = (value, index) => {
+        const updatedEntries = [...usageEntries];
+        updatedEntries[index].unitPrice = value;
+        setUsageEntries(updatedEntries);
+    };
+
     const addUsageEntry = () => {
         setUsageEntries([
             ...usageEntries,
-            { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+            { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '', unitPrice: '' }
         ]);
     };
 
@@ -126,7 +139,7 @@ export default function SparePartsUsagePage() {
 
             // Reset form
             setUsageEntries([
-                { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+                { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '', unitPrice: '' }
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
@@ -205,7 +218,7 @@ export default function SparePartsUsagePage() {
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                                     {/* Spare Part Selection */}
                                     <SearchableSelect
                                         label="قطعة الغيار"
@@ -236,16 +249,35 @@ export default function SparePartsUsagePage() {
                                     {/* Quantity */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            الكمية المستخدمة <span className="text-red-500">*</span>
+                                            الكمية <span className="text-red-500">*</span>
                                         </label>
                                         <Input
                                             type="number"
                                             min="1"
-                                            placeholder="أدخل الكمية المستخدمة"
+                                            placeholder="الكمية"
                                             value={entry.quantityUsed}
                                             onChange={(e) => handleQuantityChange(e.target.value, index)}
                                             required
                                         />
+                                    </div>
+
+                                    {/* Unit Price */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">سعر الوحدة (ر.س)</label>
+                                        <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 font-semibold min-h-[42px] flex items-center">
+                                            {entry.unitPrice ? `${parseFloat(entry.unitPrice).toFixed(2)} ر.س` : '—'}
+                                        </div>
+                                    </div>
+
+                                    {/* Total */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">الإجمالي (ر.س)</label>
+                                        <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 font-semibold min-h-[42px] flex items-center">
+                                            {entry.unitPrice && entry.quantityUsed
+                                                ? `${(parseFloat(entry.unitPrice) * parseFloat(entry.quantityUsed)).toFixed(2)} ر.س`
+                                                : '—'
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
