@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Car, XCircle } from 'lucide-react';
+import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Car, XCircle, Edit3, FileText } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { ApiService } from '@/lib/api/apiService';
@@ -14,6 +14,10 @@ export default function PetrolUnattributedPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [selectedRecordForNote, setSelectedRecordForNote] = useState(null);
+  const [noteInputValue, setNoteInputValue] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const fetchUnattributed = async () => {
     setLoading(true);
@@ -21,6 +25,7 @@ export default function PetrolUnattributedPage() {
 
     try {
       const data = await ApiService.get(API_ENDPOINTS.PETROL.UNATTRIBUTED(year, month));
+      console.log(data);
       setRows(Array.isArray(data) ? data : []);
     } catch (error) {
       setMessage(error.message || 'خطأ في الاتصال بالخادم.');
@@ -42,6 +47,48 @@ export default function PetrolUnattributedPage() {
       alert(error.message || 'فشلت عملية التخصيص للسجل المعين.');
     } finally {
       setActionLoadingId(null);
+    }
+  };
+
+  const openNoteModal = (record) => {
+    setSelectedRecordForNote(record);
+    setNoteInputValue(record.notes || record.Notes || record.note || record.Note || '');
+    setIsNoteModalOpen(true);
+  };
+
+  const handleSaveNote = async () => {
+    if (!selectedRecordForNote) return;
+
+    const vehicleNumber = selectedRecordForNote.plateNumberE;
+    let recordDate = selectedRecordForNote.date || selectedRecordForNote.Date;
+    
+    console.log(recordDate);
+    console.log(vehicleNumber);
+    
+    if (recordDate && recordDate.includes('T')) {
+      recordDate = recordDate.split('T')[0];
+    }
+
+    const recordId = selectedRecordForNote.id || selectedRecordForNote.Id;
+    setIsSavingNote(true);
+    
+    try {
+      await ApiService.put(API_ENDPOINTS.PETROL.UPDATE_NOTE(vehicleNumber), null, { 
+        date: recordDate, 
+        note: noteInputValue 
+      });
+      
+      setRows(prev => prev.map(r => {
+        if ((r.id || r.Id) === recordId) {
+          return { ...r, notes: noteInputValue, Notes: noteInputValue, note: noteInputValue, Note: noteInputValue };
+        }
+        return r;
+      }));
+      setIsNoteModalOpen(false);
+    } catch (error) {
+      alert(error.message || 'فشلت عملية تحديث الملاحظة.');
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
@@ -131,6 +178,7 @@ export default function PetrolUnattributedPage() {
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">التاريخ</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">المركبة</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">التكلفة (ريال)</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">ملاحظات</th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">الإجراءات</th>
                   </tr>
                 </thead>
@@ -153,26 +201,44 @@ export default function PetrolUnattributedPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-lg font-bold text-gray-800">{row.costAmount || row.CostAmount || row.cost || row.Cost || 0}</span>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap max-w-xs truncate text-sm text-gray-700" title={row.notes || row.Notes}>
+                            {row.notes || row.Notes ? (
+                              <span className="truncate block max-w-[150px]">{row.notes || row.Notes}</span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <button
-                              onClick={() => handleAttributeId(recordId)}
-                              disabled={isProcessing}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-red-600 hover:text-white font-bold rounded-lg transition-colors border border-gray-200 hover:border-red-600 disabled:opacity-50 inline-flex items-center gap-2"
-                            >
-                              {isProcessing ? (
-                                <RefreshCw className="animate-spin text-gray-500" size={18} />
-                              ) : (
-                                <CheckCircle size={18} />
-                              )}
-                              محاولة ربط مجدداً
-                            </button>
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                onClick={() => openNoteModal(row)}
+                                disabled={isProcessing}
+                                className="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-bold rounded-lg transition-colors border border-blue-200 hover:border-blue-600 disabled:opacity-50 inline-flex items-center gap-1 text-sm"
+                                title="إضافة / تعديل ملاحظة"
+                              >
+                                <Edit3 size={16} />
+                                ملاحظة
+                              </button>
+                              {/* <button
+                                onClick={() => handleAttributeId(recordId)}
+                                disabled={isProcessing}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-red-600 hover:text-white font-bold rounded-lg transition-colors border border-gray-200 hover:border-red-600 disabled:opacity-50 inline-flex items-center gap-2 text-sm"
+                              >
+                                {isProcessing ? (
+                                  <RefreshCw className="animate-spin text-gray-500" size={18} />
+                                ) : (
+                                  <CheckCircle size={18} />
+                                )}
+                                محاولة ربط مجدداً
+                              </button> */}
+                            </div>
                           </td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-6 py-16 text-center text-gray-500">
+                      <td colSpan="5" className="px-6 py-16 text-center text-gray-500">
                         <AlertTriangle size={48} className="mx-auto mb-4 text-gray-300" />
                         الوضع ممتاز! لا توجد سجلات غير مخصصة في هذا الشهر.
                       </td>
@@ -184,6 +250,63 @@ export default function PetrolUnattributedPage() {
           )}
         </div>
       </div>
+
+      {/* Note Modal */}
+      {isNoteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex justify-between items-center">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <FileText size={20} />
+                ملاحظات السجل
+              </h3>
+              <button 
+                onClick={() => setIsNoteModalOpen(false)}
+                className="text-white/80 hover:text-white transition-colors"
+                disabled={isSavingNote}
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">الملاحظة</label>
+                <textarea
+                  value={noteInputValue}
+                  onChange={(e) => setNoteInputValue(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 min-h-[120px] resize-y"
+                  placeholder="أدخل ملاحظاتك هنا..."
+                  disabled={isSavingNote}
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSaveNote}
+                  disabled={isSavingNote}
+                  className="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isSavingNote ? (
+                    <RefreshCw className="animate-spin" size={20} />
+                  ) : (
+                    <CheckCircle size={20} />
+                  )}
+                  حفظ الملاحظة
+                </button>
+                <button
+                  onClick={() => setIsNoteModalOpen(false)}
+                  disabled={isSavingNote}
+                  className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

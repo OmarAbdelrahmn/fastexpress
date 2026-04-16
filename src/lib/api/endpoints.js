@@ -414,5 +414,6 @@ export const API_ENDPOINTS = {
     VEHICLES_SUMMARY: (year, month) => `/api/petrol/vehicles/summary?year=${year}&month=${month}`,
     VEHICLE_DATE: (vehicleNumber, date) => `/api/petrol/vehicle/${vehicleNumber}/date?date=${date}`,
     UNATTRIBUTED: (year, month) => `/api/petrol/unattributed?year=${year}&month=${month}`,
+    UPDATE_NOTE: (vehicleNumber) => `/api/Petrol/${vehicleNumber}/note`,
   },
 };
