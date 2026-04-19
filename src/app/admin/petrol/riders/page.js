@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Calendar, FileText, Activity, AlertCircle, RefreshCw, Car } from 'lucide-react';
+import { User, Calendar, FileText, Activity, AlertCircle, RefreshCw, Car, Search } from 'lucide-react';
 import Link from 'next/link';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -14,6 +14,7 @@ export default function PetrolRidersPage() {
   const [riders, setRiders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [search, setSearch] = useState('');
 
   const fetchRiders = async () => {
     setLoading(true);
@@ -35,6 +36,15 @@ export default function PetrolRidersPage() {
 
   const years = Array.from({ length: 5 }, (_, i) => currentDate.getFullYear() - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
+  const filteredRiders = riders.filter(r => {
+    const q = search.toLowerCase();
+    return (
+      (r.riderIqamaNo || '').toString().includes(q) ||
+      (r.riderNameAR || '').toLowerCase().includes(q) ||
+      (r.riderNameEN || '').toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
@@ -87,12 +97,32 @@ export default function PetrolRidersPage() {
           </div>
         )}
 
+        {/* Search */}
+        <div className="bg-white rounded-xl shadow-md p-4 flex items-center gap-3">
+          <Search className="text-gray-400 shrink-0" size={20} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="ابحث برقم الإقامة أو اسم السائق..."
+            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="text-gray-400 hover:text-gray-600 transition-colors text-xs shrink-0"
+            >
+              ✕ مسح
+            </button>
+          )}
+        </div>
+
         {/* Table */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="bg-blue-600 px-6 py-4">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <FileText />
-              السائقين الذين استهلكوا البنزين ({riders.length})
+              السائقين الذين استهلكوا البنزين ({filteredRiders.length}{search ? ` من ${riders.length}` : ''})
             </h3>
           </div>
 
@@ -114,8 +144,8 @@ export default function PetrolRidersPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {riders.length > 0 ? (
-                    riders.map((row, index) => (
+                  {filteredRiders.length > 0 ? (
+                    filteredRiders.map((row, index) => (
                       <tr key={row.riderIqamaNo || index} className="hover:bg-blue-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold">
