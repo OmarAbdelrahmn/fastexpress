@@ -11,7 +11,7 @@ import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { AlertCircle, Calendar, FileText, Search, User, Trash2, Clock, Pin, Edit, Globe, ShieldAlert, NotebookTabs, Filter, Power, FileDown } from 'lucide-react';
+import { AlertCircle, Calendar, FileText, Search, User, Trash2, Clock, Pin, Edit, Globe, ShieldAlert, NotebookTabs, Filter, Power, FileDown, Eye } from 'lucide-react';
 import moment from 'moment';
 import * as XLSX from 'xlsx';
 
@@ -186,7 +186,7 @@ export default function EscapedManagementPage() {
   const handleActivateRecord = async (iqamaNo) => {
     if (!confirm('هل أنت متأكد من تفعيل هروب هذا الموظف؟')) return;
     try {
-      const res = await escapedService.deactivate(iqamaNo);
+      const res = await escapedService.activate(iqamaNo);
       setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم التفعيل بنجاح'));
       loadData();
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -359,6 +359,13 @@ export default function EscapedManagementPage() {
       header: t('riders.actions'),
       render: (row) => (
         <div className="flex gap-2">
+          <Button
+            onClick={() => router.push(`/admin/riders/${row.iqamaNo}/details`)}
+            className="!p-2 !bg-indigo-500 hover:!bg-indigo-600 text-indigo-600 border-none"
+            title="عرض تفاصيل الموظف"
+          >
+            <Eye size={15} />
+          </Button>
           <Button 
             onClick={() => handleOpenPathModal(row)}
             className="!p-2 !bg-blue-500 hover:!bg-blue-600 text-blue-600 border-none"

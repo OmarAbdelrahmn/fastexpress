@@ -99,7 +99,8 @@
     "deficitSurplus": "العجز/الفائض",
     "averageOrdersPerDay": "الطلبات/يوم",
     "startDate": "تاريخ البداية",
-    "endDate": "تاريخ النهاية"
+    "endDate": "تاريخ النهاية",
+    "viewDetails": "عرض التفاصيل"
   },
   "hunger": {
     "title": "هنقر",

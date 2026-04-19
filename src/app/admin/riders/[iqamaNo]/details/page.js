@@ -57,7 +57,15 @@ export default function RiderDetailsPage() {
   const loadEscapedInfo = async () => {
     setLoadingEscaped(true);
     try {
-      const data = await escapedService.getByIqama(iqamaNo);
+      let data = await escapedService.getByIqama(iqamaNo);
+      if (!data) {
+        // Fallback: call GET /api/escaped/{iqamaNo} directly
+        try {
+          data = await ApiService.get(API_ENDPOINTS.ESCAPED_EMPLOYEE.BY_IQAMA(iqamaNo));
+        } catch {
+          // endpoint returned 404 or error — no escaped record exists
+        }
+      }
       if (data) setEscapedInfo(data);
     } catch (err) {
       console.error('Error loading escaped info:', err);

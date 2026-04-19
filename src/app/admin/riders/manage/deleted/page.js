@@ -8,7 +8,7 @@ import Card from '@/components/Ui/Card';
 import Table from '@/components/Ui/Table';
 import Alert from '@/components/Ui/Alert';
 import PageHeader from '@/components/layout/pageheader';
-import { Archive, Search, ArrowRight } from 'lucide-react';
+import { Archive, Search, ArrowRight, Eye } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function DeletedEmployeesPage() {
@@ -104,6 +104,19 @@ export default function DeletedEmployeesPage() {
         <span className="text-sm text-gray-600">
           {formatDate(row.deletedAt)}
         </span>
+      )
+    },
+    {
+      header: t('riders.actions'),
+      render: (row) => (
+        <button
+          onClick={() => router.push(`/admin/riders/${row.iqamaNo}/details`)}
+          title={t('common.viewDetails')}
+          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+        >
+          <Eye size={15} />
+          <span>{t('common.viewDetails') || 'عرض'}</span>
+        </button>
       )
     }
   ];

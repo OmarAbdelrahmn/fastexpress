@@ -85,8 +85,8 @@
     "deficitSurplus": "Deficit/Surplus",
     "averageOrdersPerDay": "Average Orders/Day",
     "startDate": "Start Date",
-    "endDate": "End Date"
-    
+    "endDate": "End Date",
+    "viewDetails": "View Details"
   },
   "hunger": {
     "title": "Hunger",
