@@ -101,9 +101,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    // Dynamic Columns (RTL order: Index, Name, Months..., Avg, Trend)
+    // Dynamic Columns (RTL order: Index, Iqama, Name, Months..., Avg)
     colIndex: { width: '5%', textAlign: 'center' },
-    colName: { width: '35%', textAlign: 'right', paddingRight: 5 },
+    colIqama: { width: '15%', textAlign: 'center' },
+    colName: { width: '25%', textAlign: 'right', paddingRight: 5 },
     colMonth: { flex: 1, textAlign: 'center' },
     colAvg: { width: '15%', textAlign: 'center' },
 
@@ -195,6 +196,7 @@ const RiderRecentMonthsReportPDF = ({ data }) => {
                     {/* Table Header */}
                     <View style={styles.tableHeader}>
                         <View style={styles.colIndex}><Text style={styles.headerText}>م</Text></View>
+                        <View style={styles.colIqama}><Text style={styles.headerText}>رقم الإقامة</Text></View>
                         <View style={styles.colName}><Text style={styles.headerText}>اسم السائق</Text></View>
                         {months.map((m, idx) => (
                             <View key={idx} style={styles.colMonth}>
@@ -212,6 +214,7 @@ const RiderRecentMonthsReportPDF = ({ data }) => {
                         return (
                             <View key={rIdx} style={styles.tableRow}>
                                 <View style={styles.colIndex}><Text style={styles.cellText}>{globalIdx}</Text></View>
+                                <View style={styles.colIqama}><Text style={styles.cellText}>{rider.iqamaNo}</Text></View>
                                 <View style={styles.colName}><Text style={styles.cellText}>{rider.riderNameAR || rider.riderNameEN}</Text></View>
                                 {months.map((m, mIdx) => (
                                     <View key={mIdx} style={styles.colMonth}>
