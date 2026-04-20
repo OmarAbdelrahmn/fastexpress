@@ -20,6 +20,8 @@ import HousingDetailedReportPDF from "@/components/dashboard/HousingDetailedRepo
 import SpecialReportPDF from "@/components/dashboard/SpecialReportPDF";
 import HousingSummaryReportPDF from "@/components/dashboard/HousingSummaryReportPDF";
 import Special7ReportPDF from "@/components/dashboard/Special7ReportPDF";
+import RiderRecentMonthsReportPDF from "@/components/dashboard/RiderRecentMonthsReportPDF";
+import { Upload } from 'lucide-react';
 
 export default function DailyReportsPage() {
     const { t } = useLanguage();
@@ -57,11 +59,16 @@ export default function DailyReportsPage() {
     const [dateRange4, setDateRange4] = useState({ start: thirtyDaysAgoStr, end: yesterdayStr });
     const [reportData4, setReportData4] = useState(null);
 
+    // Report 5 State (Rider Recent Months)
+    const [file5, setFile5] = useState(null);
+    const [reportData5, setReportData5] = useState(null);
+
     const resetReports = () => {
         setReportData1(null);
         setReportData2(null);
         setReportData3(null);
         setReportData4(null);
+        setReportData5(null);
     };
 
     const generateReport1 = async () => {
@@ -161,6 +168,28 @@ export default function DailyReportsPage() {
         }
     };
 
+    const generateReport5 = async () => {
+        if (!file5) {
+            alert(t('common.selectFile') || 'Please select a file');
+            return;
+        }
+        setLoading(true);
+        try {
+            resetReports();
+            const formData = new FormData();
+            formData.append('file', file5);
+            
+            const response = await ApiService.uploadFormData('/api/Report/rider-recent-months/from-file', formData);
+            setReportData5(response);
+            setIsPrinting(true);
+        } catch (error) {
+            console.error(error);
+            alert(error.message || 'Error generating report');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 pb-12">
 
@@ -223,6 +252,18 @@ export default function DailyReportsPage() {
                             <PDFDownloadLink
                                 document={<Special7ReportPDF data={reportData4} />}
                                 fileName={`تقرير مجموعات خلال فترة ${reportData4.startDate} - ${reportData4.endDate}.pdf`}
+                                className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                            >
+                                {({ blob, url, loading, error }) =>
+                                    loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                                }
+                            </PDFDownloadLink>
+                        )}
+
+                        {reportData5 && (
+                            <PDFDownloadLink
+                                document={<RiderRecentMonthsReportPDF data={reportData5} />}
+                                fileName={`تقرير أداء السائقين الشهري.pdf`}
                                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
                             >
                                 {({ blob, url, loading, error }) =>
@@ -402,6 +443,46 @@ export default function DailyReportsPage() {
                                 <>
                                     <Printer size={18} className="mr-2" />
                                     {t('common.print') || "Print Report"}
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Report 5 Card */}
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 p-6 text-white">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Upload className="w-8 h-8 opacity-80" />
+                            <h3 className="text-xl font-bold">تقرير أداء السائقين (شهور)</h3>
+                        </div>
+                        <p className="text-indigo-100 text-sm opacity-90">تحليل أداء السائقين بناءً على ملف</p>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">اختر ملف السائقين (Excel/CSV)</label>
+                            <input
+                                type="file"
+                                onChange={(e) => setFile5(e.target.files[0])}
+                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-200 rounded-lg p-2"
+                            />
+                        </div>
+
+                        <div className="h-[74px]" /> 
+
+                        <Button
+                            variant="primary"
+                            onClick={generateReport5}
+                            disabled={loading}
+                            className="w-full justify-center py-3 bg-indigo-500 hover:bg-indigo-600 shadow-md hover:shadow-lg transform transition-all active:scale-95"
+                        >
+                            {loading ? (
+                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <Printer size={18} className="mr-2" />
+                                    <span>استخراج و طباعة</span>
                                 </>
                             )}
                         </Button>
