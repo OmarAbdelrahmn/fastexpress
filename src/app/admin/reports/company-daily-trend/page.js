@@ -184,11 +184,14 @@ export default function CompanyDailyTrendPage() {
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
-            const periodDuration = end - start;
 
-            const prevEnd = new Date(start);
-            prevEnd.setDate(prevEnd.getDate() - 1);
-            const prevStart = new Date(prevEnd - periodDuration);
+            // Previous period = same day range but one month earlier
+            // e.g. Apr 1–18 compares against Mar 1–18
+            const prevStart = new Date(start);
+            prevStart.setMonth(prevStart.getMonth() - 1);
+
+            const prevEnd = new Date(end);
+            prevEnd.setMonth(prevEnd.getMonth() - 1);
 
             const previousData = rawData.filter(item => {
                 const itemDate = new Date(item.shiftDate);
