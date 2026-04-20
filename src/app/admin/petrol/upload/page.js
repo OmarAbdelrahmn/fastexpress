@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadCloud, CheckCircle, XCircle, AlertCircle, RefreshCw, FileSpreadsheet } from 'lucide-react';
+import { UploadCloud, CheckCircle, XCircle, AlertCircle, RefreshCw, FileSpreadsheet, CalendarDays, Search } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { ApiService } from '@/lib/api/apiService';
@@ -13,7 +13,11 @@ export default function PetrolUploadPage() {
   const [attributeLoading, setAttributeLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [uploadResult, setUploadResult] = useState(null);
-  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'attribute'
+  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'attribute' | 'daily'
+  
+  const [dailyDate, setDailyDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dailyData, setDailyData] = useState(null);
+  const [dailyLoading, setDailyLoading] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -66,6 +70,25 @@ export default function PetrolUploadPage() {
     }
   };
 
+  const handleFetchDaily = async (e) => {
+    if (e) e.preventDefault();
+    if (!dailyDate) return;
+    
+    setDailyLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.PETROL.DAILY(dailyDate));
+      console.log(data);
+      setDailyData(data);
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || 'حدث خطأ في جلب البيانات اليومية.' });
+      setDailyData(null);
+    } finally {
+      setDailyLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100" dir="rtl">
       <PageHeader
@@ -93,6 +116,14 @@ export default function PetrolUploadPage() {
           >
             <RefreshCw size={18} />
             تخصيص السجلات العالقة
+          </button>
+          <button
+            onClick={() => setActiveTab('daily')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-sm transition-all ${activeTab === 'daily' ? 'bg-white text-green-600 shadow hover:bg-gray-50' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+              }`}
+          >
+            <CalendarDays size={18} />
+            البيانات اليومية
           </button>
         </div>
 
@@ -207,10 +238,165 @@ export default function PetrolUploadPage() {
               </div>
             </div>
           )}
+
+          {/* Daily Data Section */}
+          {activeTab === 'daily' && (
+            <div className="bg-white rounded-xl shadow-md p-6 border-t-4 border-green-500 animate-in fade-in duration-300">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <CalendarDays className="text-green-500" />
+                البيانات اليومية
+              </h2>
+              <form onSubmit={handleFetchDaily} className="flex flex-col md:flex-row gap-4 items-end mb-6">
+                <div className="flex-1 w-full md:max-w-md">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    التاريخ
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={dailyDate}
+                    onChange={(e) => setDailyDate(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={dailyLoading}
+                  className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 font-bold flex items-center justify-center gap-2 shadow-md transition-all h-[50px] w-full md:w-auto"
+                >
+                  {dailyLoading ? (
+                    <RefreshCw className="animate-spin" size={20} />
+                  ) : (
+                    <Search size={20} />
+                  )}
+                  بحث
+                </button>
+              </form>
+
+              {dailyData && (
+                <div className="space-y-6 mt-6 border-t pt-6 border-gray-100">
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm text-center">
+                      <div className="text-sm text-gray-500 font-medium mb-1">إجمالي التكلفة</div>
+                      <div className="text-2xl font-bold text-gray-800">{dailyData.totalCost} ريال</div>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm text-center">
+                      <div className="text-sm text-blue-600 font-medium mb-1">إجمالي المركبات</div>
+                      <div className="text-2xl font-bold text-blue-800">{dailyData.totalVehicles}</div>
+                    </div>
+                    <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-sm text-center">
+                      <div className="text-sm text-green-600 font-medium mb-1">السجلات المخصصة</div>
+                      <div className="text-2xl font-bold text-green-800">{dailyData.totalAttributedRows}</div>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl shadow-sm text-center">
+                      <div className="text-sm text-orange-600 font-medium mb-1">السجلات غير المخصصة</div>
+                      <div className="text-2xl font-bold text-orange-800">{dailyData.totalUnattributedRows}</div>
+                    </div>
+                  </div>
+
+                  {/* Daily Vehicles Table */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden mt-6">
+                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                      <h3 className="font-bold text-gray-700 flex items-center gap-2">
+                        <FileSpreadsheet size={18} className="text-gray-500" />
+                        تفاصيل المركبات
+                      </h3>
+                    </div>
+                    <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm outline outline-1 outline-gray-200">
+                          <tr>
+                            <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">المركبة / اللوحة</th>
+                            <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">التكلفة</th>
+                            <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">الحالة</th>
+                            <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">التخصيص</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {dailyData.vehicles?.length > 0 ? (
+                            dailyData.vehicles.map((v, idx) => (
+                              <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 py-4 whitespace-nowrap align-top">
+                                  <div className="font-bold text-gray-900 text-sm">{v.plateNumberE || 'غير متوفر'}</div>
+                                  {v.vehicleNumber && <div className="text-xs text-gray-500 mt-1 font-medium bg-gray-100 px-2 py-0.5 rounded-full inline-block">{v.vehicleNumber}</div>}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap font-bold text-gray-800 align-top">
+                                  {v.cost !== undefined ? `${v.cost} ريال` : '-'}
+                                </td>
+                                <td className="px-4 py-4 align-top w-48">
+                                  {v.hasResolutionError ? (
+                                    <div className="flex flex-col gap-1.5">
+                                      <span className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 bg-red-100 text-red-800 rounded-full w-fit border border-red-200">
+                                        <AlertCircle size={14} /> خطأ بالمركبة
+                                      </span>
+                                      {v.resolutionErrorMessage && (
+                                        <span className="text-[11px] text-red-600 whitespace-normal leading-tight font-medium bg-red-50 p-1.5 rounded border border-red-100">
+                                          {v.resolutionErrorMessage}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 bg-green-100 text-green-800 rounded-full w-fit border border-green-200">
+                                      <CheckCircle size={14} /> معروفة
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-600 align-top min-w-[300px]">
+                                  {v.attributions?.length > 0 ? (
+                                    <div className="space-y-2">
+                                      {v.attributions.map((attr, aIdx) => (
+                                        <div key={aIdx} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm transition-all hover:shadow-md">
+                                          <div className="flex justify-between items-start mb-2">
+                                            <div className="font-bold text-gray-800">{attr.riderNameAR || attr.riderNameEN || 'غير معروف'}</div>
+                                            <span className="font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md text-xs border border-blue-100 shadow-sm">{attr.cost} ريال</span>
+                                          </div>
+                                          <div className="text-xs font-medium text-gray-500 mb-2 flex items-center gap-1">
+                                            <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600">إقامة: {attr.riderIqamaNo}</span>
+                                          </div>
+                                          {attr.notes && (
+                                            <div className="text-[11px] text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100 leading-relaxed font-medium">
+                                              <span className="text-gray-400 block mb-0.5">ملاحظات النظام:</span>
+                                              {attr.notes}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-md text-xs font-bold border border-orange-200">
+                                      <AlertCircle size={14} />
+                                      لا يوجد تخصيص
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="4" className="px-4 py-16 text-center text-gray-500">
+                                <div className="flex flex-col items-center justify-center">
+                                  <div className="bg-gray-100 p-4 rounded-full mb-4">
+                                    <AlertCircle size={32} className="text-gray-400" />
+                                  </div>
+                                  <p className="text-lg font-bold text-gray-600">لا توجد بيانات مسجلة</p>
+                                  <p className="text-sm text-gray-500 mt-1">لم يتم العثور على أي تفاصيل لهذا اليوم في النظام.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Upload Results Table */}
-        {uploadResult && (
+        {activeTab === 'upload' && uploadResult && (
           <div className="bg-white rounded-xl shadow-md overflow-hidden mt-8 border border-gray-100">
             <div className="bg-blue-600 px-6 py-4 flex flex-col md:flex-row justify-between items-center text-white gap-4">
               <h3 className="text-lg font-bold">نتائج رفع الملف</h3>
