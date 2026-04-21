@@ -401,7 +401,13 @@
     "updateShifts": "تحديث الأداء",
     "generalSettings": "الإعدادات العامة",
     "returnsManagement": "إدارة المرتجعات",
-    "escaped": "إدارة الهروب"
+    "escaped": "إدارة الهروب",
+    "petrol": "البنزين",
+    "petrolUpload": "رفع البنزين",
+    "petrolDaily": "البنزين اليومي",
+    "petrolRiders": "البنزين للمناديب",
+    "petrolVehicles": "البنزين للمركبات",
+    "petrolUnattributed": "البنزين غير المنسوب"
   },
   "dashboard": {
     "periodHousingReport": "تقرير المجموعات الاجمالي خلال فترة",

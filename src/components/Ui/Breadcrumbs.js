@@ -163,6 +163,14 @@ const pathTranslationKeys = {
   "admin/profile/change-password": "navigation.changePassword",
   "admin/account/profile": "navigation.profile",
   "admin/account/change-password": "navigation.changePassword",
+
+  // Petrol
+  "admin/petrol": "navigation.petrol",
+  "admin/petrol/upload": "navigation.petrolUpload",
+  "admin/petrol/daily": "navigation.petrolDaily",
+  "admin/petrol/riders": "navigation.petrolRiders",
+  "admin/petrol/vehicles": "navigation.petrolVehicles",
+  "admin/petrol/unattributed": "navigation.petrolUnattributed",
 };
 
 export default function Breadcrumb() {

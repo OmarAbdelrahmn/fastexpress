@@ -380,7 +380,13 @@
     "updateShifts": "Update Performance",
     "generalSettings": "General Settings",
     "returnsManagement": "Returns Management",
-    "escaped": "Escaped Management"
+    "escaped": "Escaped Management",
+    "petrol": "Petrol",
+    "petrolUpload": "Petrol Upload",
+    "petrolDaily": "Petrol Daily",
+    "petrolRiders": "Petrol Riders",
+    "petrolVehicles": "Petrol Vehicles",
+    "petrolUnattributed": "Petrol Unattributed"
   },
   "dashboard": {
     "periodHousingReport": "Total Housing Report for Period",
