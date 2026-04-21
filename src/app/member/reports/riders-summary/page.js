@@ -172,9 +172,9 @@ export default function RidersSummaryReportPage() {
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Riders Summary");
-        XLSX.utils.book_append_sheet(wb, ws, "Riders Summary");
         XLSX.writeFile(wb, `Riders_Summary_${startDate}_to_${endDate}_${filterType}.xlsx`);
     };
+
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">

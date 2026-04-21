@@ -163,9 +163,9 @@ export default function RejectionReportPage() {
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
-        XLSX.utils.book_append_sheet(wb, ws, "Rejection Report");
         XLSX.writeFile(wb, `Rejection_Report_${startDate}_to_${endDate}_${filterType}.xlsx`);
     };
+
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">
