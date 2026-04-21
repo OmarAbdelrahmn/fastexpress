@@ -62,7 +62,6 @@ export default function EscapedManagementPage() {
         escapedService.getStats(),
       ]);
       setEscapedEmployees(Array.isArray(listData) ? listData : []);
-      console.log(listData);
       setStats(statsData || {
         totalEscaped: 0,
         nonePathCount: 0,

@@ -51,7 +51,6 @@ export default function VehiclesWithRidersPage() {
     setLoading(true);
     try {
       const data = await ApiService.get("/api/vehicles/with-riders");
-      console.log(data);
       setVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading vehicles:", err);

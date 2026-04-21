@@ -79,7 +79,6 @@ export default function PetrolUploadPage() {
     
     try {
       const data = await ApiService.get(API_ENDPOINTS.PETROL.DAILY(dailyDate));
-      console.log(data);
       setDailyData(data);
     } catch (error) {
       setMessage({ type: 'error', text: error.message || 'حدث خطأ في جلب البيانات اليومية.' });

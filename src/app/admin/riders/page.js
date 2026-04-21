@@ -51,7 +51,6 @@ export default function RidersPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
-      console.log(data);
       
       setRiders(Array.isArray(data) ? data : []);
     } catch (err) {

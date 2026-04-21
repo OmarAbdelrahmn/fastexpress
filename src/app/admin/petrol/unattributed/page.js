@@ -25,7 +25,6 @@ export default function PetrolUnattributedPage() {
 
     try {
       const data = await ApiService.get(API_ENDPOINTS.PETROL.UNATTRIBUTED(year, month));
-      console.log(data);
       setRows(Array.isArray(data) ? data : []);
     } catch (error) {
       setMessage(error.message || 'خطأ في الاتصال بالخادم.');
@@ -61,9 +60,6 @@ export default function PetrolUnattributedPage() {
 
     const vehicleNumber = selectedRecordForNote.plateNumberE;
     let recordDate = selectedRecordForNote.date || selectedRecordForNote.Date;
-    
-    console.log(recordDate);
-    console.log(vehicleNumber);
     
     if (recordDate && recordDate.includes('T')) {
       recordDate = recordDate.split('T')[0];
