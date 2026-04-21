@@ -96,23 +96,24 @@ export default function CompanyDailyTrendPage() {
                     hungerAccepted: 0,
                     hungerRejected: 0,
                     hungerUniqueRiders: 0,
+                    hungerCount: 0,
                     ketaAccepted: 0,
                     ketaRejected: 0,
                     ketaUniqueRiders: 0,
+                    ketaCount: 0,
                 };
             }
 
-            groupedData[key].count += 1;
-
-            // Aggregate based on company
             if (item.companyId === 1) { // Hunger
                 groupedData[key].hungerAccepted += item.totalAcceptedOrders || 0;
                 groupedData[key].hungerRejected += item.totalRejectedOrders || 0;
                 groupedData[key].hungerUniqueRiders += item.uniqueRiders || 0;
+                groupedData[key].hungerCount += 1;
             } else if (item.companyId === 2) { // Keta
                 groupedData[key].ketaAccepted += item.totalAcceptedOrders || 0;
                 groupedData[key].ketaRejected += item.totalRejectedOrders || 0;
                 groupedData[key].ketaUniqueRiders += item.uniqueRiders || 0;
+                groupedData[key].ketaCount += 1;
             }
         });
 
@@ -120,8 +121,8 @@ export default function CompanyDailyTrendPage() {
         const result = Object.values(groupedData).sort((a, b) => a.originalDate - b.originalDate);
         return result.map(item => ({
             ...item,
-            hungerUniqueRiders: item.count > 0 ? Math.round(item.hungerUniqueRiders / (item.count / 2)) : 0, // Approx count of days
-            ketaUniqueRiders: item.count > 0 ? Math.round(item.ketaUniqueRiders / (item.count / 2)) : 0,
+            hungerUniqueRiders: item.hungerCount > 0 ? Math.round(item.hungerUniqueRiders / item.hungerCount) : 0,
+            ketaUniqueRiders: item.ketaCount > 0 ? Math.round(item.ketaUniqueRiders / item.ketaCount) : 0,
         }));
     }, [rawData, zoomLevel, startDate, endDate]); // `zoomLevel` here is the aggregation zoom
 
