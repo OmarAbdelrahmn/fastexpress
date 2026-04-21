@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import PageHeader from "@/components/layout/pageheader";
@@ -26,21 +26,21 @@ export default function AllRidersHistoryPage() {
     const fetchData = async (overrideCompanyId) => {
         setLoading(true);
         try {
-            let url = API_ENDPOINTS.REPORTS.ALL_RIDERS_HISTORY;
-            const params = [];
-            if (startDate) params.push(`startDate=${startDate}`);
-            if (endDate) params.push(`endDate=${endDate}`);
+            const queryParams = {};
+            if (startDate) queryParams.startDate = startDate;
+            if (endDate) queryParams.endDate = endDate;
+            
             const cId = overrideCompanyId !== undefined ? overrideCompanyId : companyFilter;
-            if (cId) params.push(`companyId=${cId}`);
+            if (cId) queryParams.CompanyId = cId;
 
-            if (params.length > 0) {
-                url += `?${params.join("&")}`;
-            }
-            const response = await ApiService.get(url);
+            const response = await ApiService.get(API_ENDPOINTS.REPORTS.ALL_RIDERS_HISTORY, queryParams);
             
             setData(response || []);
         } catch (error) {
             console.error("Failed to fetch history:", error);
+            if (error.fullError) {
+                console.error("Validation Errors:", error.fullError.errors || error.fullError);
+            }
         } finally {
             setLoading(false);
         }
@@ -386,7 +386,7 @@ export default function AllRidersHistoryPage() {
                                 </tr>
                             ) : (
                                 filteredData.map((rider, index) => (
-                                    <>
+                                    <Fragment key={rider.workingId}>
                                         <tr
                                             key={rider.workingId}
                                             className="hover:bg-gray-50 transition-colors cursor-pointer"
@@ -425,15 +425,15 @@ export default function AllRidersHistoryPage() {
                                                                 </tr>
                                                             </thead>
                                                             <tbody className="divide-y divide-gray-100">
-                                                                {rider.activeMonths?.map((month, idx) => (
-                                                                    <tr key={idx} className="hover:bg-gray-50">
+                                                                {rider.activeMonths?.map((month) => (
+                                                                    <tr key={`${month.year}-${month.monthName}`} className="hover:bg-gray-50">
                                                                         <td className="px-4 py-2 font-bold">
                                                                             {month.monthName} {month.year}
                                                                         </td>
                                                                         <td className="px-4 py-2">{month.totalShifts}</td>
                                                                         <td className="px-4 py-2 font-bold">{month.totalAcceptedOrders + month.totalRejectedOrders}</td>
                                                                         <td className="px-4 py-2 text-green-600">{month.totalAcceptedOrders}</td>
-                                                                        <td className="px-4 py-2">{month.totalWorkingHours}</td>
+                                                                        <td className="px-4 py-2">{Math.round(month.totalWorkingHours)}</td>
                                                                     </tr>
                                                                 ))}
                                                             </tbody>
@@ -442,7 +442,7 @@ export default function AllRidersHistoryPage() {
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </Fragment>
                                 ))
                             )}
                         </tbody>
@@ -518,7 +518,7 @@ export default function AllRidersHistoryPage() {
                                     <div className="border-t border-gray-100 bg-gray-50 p-3">
                                         <div className="space-y-3">
                                             {rider.activeMonths?.map((month, idx) => (
-                                                <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200">
+                                                <div key={`${month.year}-${month.monthName}`} className="bg-white p-3 rounded-lg border border-gray-200">
                                                     <div className="flex justify-between items-center mb-2">
                                                         <span className="font-bold text-sm text-gray-800">
                                                             {month.monthName} {month.year}
@@ -538,7 +538,7 @@ export default function AllRidersHistoryPage() {
                                                         </div>
                                                         <div>
                                                             <span className="text-gray-400 block mb-0.5">الساعات</span>
-                                                            <span>{month.totalWorkingHours}</span>
+                                                            <span>{Math.round(month.totalWorkingHours)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
