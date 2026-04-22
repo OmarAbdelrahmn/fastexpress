@@ -386,7 +386,18 @@
     "petrolDaily": "Petrol Daily",
     "petrolRiders": "Petrol Riders",
     "petrolVehicles": "Petrol Vehicles",
-    "petrolUnattributed": "Petrol Unattributed"
+    "petrolUnattributed": "Petrol Unattributed",
+    "history": "History",
+    "stock": "Stock",
+    "costSummary": "Cost Summary",
+    "vehicleRequests": "Vehicle Requests",
+    "ketaFreelancer": "Keta Freelancer",
+    "transfersToHousing": "Transfers to Housing",
+    "importSubstitution": "Import Substitution",
+    "createSupplier": "Add Supplier",
+    "ai": "AI Assistance",
+    "month": "Month",
+    "year": "Year"
   },
   "dashboard": {
     "periodHousingReport": "Total Housing Report for Period",
@@ -1560,7 +1571,8 @@
     "noHistoryFound": "No history found for this rider",
     "viewWorkingIdHistory": "View History",
     "currentCompany": "Current Company",
-    "enterIqamaNumber": "Enter Iqama Number"
+    "enterIqamaNumber": "Enter Iqama Number",
+    "changeRole":"Change Role"
   },
   "housing": {
     "title": "Housing",
@@ -2431,6 +2443,11 @@
     "detailedDailyPerformance": "Detailed Daily Performance",
     "detailedDailyPerformanceDesc": "Comprehensive daily performance metrics",
     "otherReportsButton": "View Other Reports",
+    "allRidersHistory": "All Riders History",
+    "dailyDetailed": "Daily Detailed Report",
+    "dailySummary": "Daily Summary",
+    "riderDaily": "Rider Daily Performance",
+    "ridersSummary": "Riders Summary",
     "dashboardPage": {
       "failedToLoadData": "Failed to load data",
       "pleaseSelectDates": "Please select start and end dates",

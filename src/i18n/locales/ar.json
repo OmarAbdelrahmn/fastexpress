@@ -294,7 +294,7 @@
   "navigation": {
     "hunger": "هنقرستيشن",
     "backToDashboard": "العودة للوحة التحكم",
-    "themeSettings": "اللوان الواجهة",
+
     "manageRiders": "إدارة المناديب",
     "home": "الرئيسية",
     "dashboard": "لوحة التحكم",
@@ -407,7 +407,19 @@
     "petrolDaily": "البنزين اليومي",
     "petrolRiders": "البنزين للمناديب",
     "petrolVehicles": "البنزين للمركبات",
-    "petrolUnattributed": "البنزين غير المنسوب"
+    "petrolUnattributed": "البنزين غير المنسوب",
+    "iqamaExpiryReport": "تقرير انتهاء الاقامة",
+    "history": "السجل",
+    "stock": "المخزون",
+    "costSummary": "ملخص التكاليف",
+    "vehicleRequests": "طلبات المركبات",
+    "ketaFreelancer": "كيتا فري لانسر",
+    "transfersToHousing": "نقل إلى السكن",
+    "importSubstitution": "استيراد البدلاء",
+    "createSupplier": "إضافة مورد",
+    "ai": "الذكاء الاصطناعي",
+    "month": "الشهر",
+    "year": "السنة"
   },
   "dashboard": {
     "periodHousingReport": "تقرير المجموعات الاجمالي خلال فترة",
@@ -1617,7 +1629,8 @@
     "noHistoryFound": "لا يوجد سجل لهذا المندوب",
     "viewWorkingIdHistory": "عرض السجل",
     "currentCompany": "الشركة الحالية",
-    "enterIqamaNumber": "أدخل رقم الإقامة"
+    "enterIqamaNumber": "أدخل رقم الإقامة",
+    "changeRole":"تغيير الدور"
   },
   "housing": {
     "title": "السكن",
@@ -2588,7 +2601,12 @@
       "averageRejectionRate": "متوسط معدل الرفض",
       "noDataToShow": "لا توجد بيانات للعرض في السنة المحددة",
       "hourShort": "س"
-    }
+    },
+    "allRidersHistory": "سجل كل المناديب",
+    "dailyDetailed": "تقرير يومي تفصيلي",
+    "dailySummary": "ملخص يومي",
+    "riderDaily": "أداء المندوب اليومي",
+    "ridersSummary": "ملخص المناديب"
   },
   "admin": {
     "title": "الإدارة",

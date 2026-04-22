@@ -1,5 +1,5 @@
 import { LanguageProvider } from '@/lib/context/LanguageContext';
-import { ThemeProvider } from '@/lib/context/ThemeContext';
+
 import './globals.css';
 import localFont from 'next/font/local';
 
@@ -54,11 +54,9 @@ export default function RootLayout({ children }) {
             pointerEvents: 'none'
           }}
         /> */}
-        <ThemeProvider>
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );
