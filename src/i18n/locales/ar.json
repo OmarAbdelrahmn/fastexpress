@@ -1630,7 +1630,9 @@
     "viewWorkingIdHistory": "عرض السجل",
     "currentCompany": "الشركة الحالية",
     "enterIqamaNumber": "أدخل رقم الإقامة",
-    "changeRole":"تغيير الدور"
+    "changeRole": "تغيير الدور",
+    "driverTracking": "تتبع السائقين",
+    "escaped": "إدارة الهروب"
   },
   "housing": {
     "title": "السكن",
