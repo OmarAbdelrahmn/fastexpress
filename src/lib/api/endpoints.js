@@ -299,6 +299,7 @@ export const API_ENDPOINTS = {
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
     REPORTS_RIDER_DAILY_DETAIL: "/api/Member/reports/rider-daily-detail",
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
+    HOUSING_DETAILED_DAILY_PERFORMANCE: "/api/Member/housing/detailed-daily-performance",
     SPARE_PARTS: {
       LIST: "/api/member/spare-parts",
       RECORD_USAGE: "/api/Member/spare-parts/usage/batch",
