@@ -5,7 +5,7 @@ import { Target, Users, Calendar, BarChart3, FileSpreadsheet, AlertTriangle, Che
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function HungerMonthlyValidationReport() {
@@ -23,30 +23,213 @@ export default function HungerMonthlyValidationReport() {
         };
     });
 
-    const handleExcelExport = () => {
+    const handleExcelExport = async () => {
         if (!reportData || !reportData.riderValidations) return;
 
-        const excelData = reportData.riderValidations.map(rider => ({
-            'المجموعة': rider.housingName || '',
-            'اسم المندوب': rider.riderNameAR || '',
-            'الاقامة': rider.iqamaNo || '',
-            'المعرف': rider.workingId || '',
-            'أيام العمل الصالحة': rider.totalValidWorkingDays,
-            'أيام الغياب': rider.missingDaysCount,
-            'عجز الأيام': rider.workingDaysDeficit,
-            'إجمالي الطلبات': rider.totalOrders,
-            'عجز الطلبات': rider.ordersDeficit,
-            'متوسط الساعات التزام': Number(rider.averageHoursPerValidDay).toFixed(2),
-            'نسبة الأيام': `${rider.daysPercentage || 0}%`,
-            'نسبة الطلبات': `${rider.ordersPercentage || 0}%`,
-            'نسبة الأداء': `${rider.performancePercentage || 0}%`,
-            'النتيجة': rider.statusLabel || (rider.isValidForMonth ? 'صالح' : 'غير صالح'),
-        }));
+        const totalDaysInMonth = reportData.totalCalendarDays || new Date(form.year, form.month, 0).getDate();
+        const requiredOrders = reportData.requiredOrders || 0;
 
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, `Validation_${form.year}_${form.month}`);
-        XLSX.writeFile(wb, `hunger_monthly_validation_${form.year}_${form.month}.xlsx`);
+        // ── helpers ──────────────────────────────────────────────────────────
+        const isSpecialDay = (dateStr, dayNum, totalDays) => {
+            if (dayNum <= 3 || dayNum >= totalDays - 4) return true;
+            const dow = new Date(dateStr).getDay();
+            return dow === 4 || dow === 5 || dow === 6; // Thu/Fri/Sat
+        };
+
+        // ExcelJS colour helpers (ARGB strings, no leading 'FF' prefix confusion)
+        const COLOR = {
+            red:          'FFFF0000',
+            white:        'FFFFFFFF',
+            darkBlue:     'FF1F3864',
+            medBlue:      'FF2E75B6',
+            lightBlue:    'FFDAE3F3',
+            green:        'FF00B050',
+            grey:         'FFBFBFBF',
+        };
+
+        const applyBorder = (cell) => {
+            ['top','left','bottom','right'].forEach(side => {
+                cell.border = {
+                    ...cell.border,
+                    [side]: { style: 'thin', color: { argb: COLOR.grey } },
+                };
+            });
+        };
+
+        const styleCell = (cell, { bgColor, fontColor = COLOR.darkBlue, bold = false, value } = {}) => {
+            if (value !== undefined) cell.value = value;
+            if (bgColor) {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
+            }
+            cell.font = { bold, color: { argb: fontColor }, name: 'Calibri', size: 11 };
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            applyBorder(cell);
+        };
+
+        // ── Build workbook with ExcelJS ───────────────────────────────────────
+        const wb = new ExcelJS.Workbook();
+
+        // ── SHEET 1 : Summary ────────────────────────────────────────────────
+        const wsSummary = wb.addWorksheet('Summary');
+        const summaryHeaders = [
+            'المجموعة','اسم المندوب','الاقامة','المعرف',
+            'أيام العمل الصالحة','أيام الغياب','عجز الأيام',
+            'إجمالي الطلبات','عجز الطلبات','متوسط الساعات التزام',
+            'نسبة الأيام','نسبة الطلبات','نسبة الأداء','النتيجة',
+        ];
+        wsSummary.columns = summaryHeaders.map(h => ({ header: h, width: 20 }));
+        // style header row
+        wsSummary.getRow(1).eachCell(cell => {
+            styleCell(cell, { bgColor: COLOR.darkBlue, fontColor: COLOR.white, bold: true });
+        });
+        reportData.riderValidations.forEach(rider => {
+            wsSummary.addRow([
+                rider.housingName || '',
+                rider.riderNameAR || '',
+                rider.iqamaNo || '',
+                rider.workingId || '',
+                rider.totalValidWorkingDays,
+                rider.missingDaysCount,
+                rider.workingDaysDeficit,
+                rider.totalOrders,
+                rider.ordersDeficit,
+                Number(rider.averageHoursPerValidDay).toFixed(2),
+                `${rider.daysPercentage || 0}%`,
+                `${rider.ordersPercentage || 0}%`,
+                `${rider.performancePercentage || 0}%`,
+                rider.statusLabel || (rider.isValidForMonth ? 'صالح' : 'غير صالح'),
+            ]);
+        });
+
+        // ── SHEET 2 : Details ────────────────────────────────────────────────
+        const wsDetails = wb.addWorksheet('Details');
+
+        // Group riders by housing
+        const grouped = {};
+        reportData.riderValidations.forEach(rider => {
+            const h = rider.housingName || 'غير محدد';
+            if (!grouped[h]) grouped[h] = [];
+            grouped[h].push(rider);
+        });
+
+        // Collect all unique special-day dates
+        const specialDayDatesSet = new Set();
+        reportData.riderValidations.forEach(rider => {
+            (rider.dailyDetails || []).forEach(day => {
+                const dayNum = day.day || new Date(day.date).getDate();
+                if (isSpecialDay(day.date, dayNum, totalDaysInMonth)) {
+                    specialDayDatesSet.add(day.date);
+                }
+            });
+        });
+        const specialDayDates = Array.from(specialDayDatesSet).sort();
+
+        const totalCols = 2 + specialDayDates.length + 3; // housing+rider + dates + missing+orders+diff
+
+        // Set column widths
+        wsDetails.columns = [
+            { width: 22 }, // housing
+            { width: 30 }, // rider
+            ...specialDayDates.map(() => ({ width: 13 })),
+            { width: 14 }, // أيام ناقصة
+            { width: 16 }, // إجمالي الطلبات
+            { width: 22 }, // الفرق
+        ];
+
+        // Header row
+        const headerValues = [
+            'المجموعة', 'المندوب',
+            ...specialDayDates,
+            'أيام ناقصة', 'إجمالي الطلبات',
+            `الفرق عن الهدف (${requiredOrders})`,
+        ];
+        const headerRow = wsDetails.addRow(headerValues);
+        headerRow.eachCell(cell => {
+            styleCell(cell, { bgColor: COLOR.darkBlue, fontColor: COLOR.white, bold: true });
+        });
+        headerRow.height = 24;
+
+        // Data rows
+        Object.entries(grouped).forEach(([housingName, riders]) => {
+            // Housing group separator row
+            const housingRow = wsDetails.addRow([housingName, ...new Array(totalCols - 1).fill('')]);
+            housingRow.eachCell(cell => {
+                styleCell(cell, { bgColor: COLOR.medBlue, fontColor: COLOR.white, bold: true });
+            });
+            housingRow.height = 20;
+
+            riders.forEach(rider => {
+                const dayMap = {};
+                (rider.dailyDetails || []).forEach(day => { dayMap[day.date] = day; });
+
+                let missingDaysCount = 0;
+                const dayValues = specialDayDates.map(dateStr => {
+                    const day = dayMap[dateStr];
+                    const h = day != null ? day.workingHours : null;
+                    const displayH = h !== null ? h : 0;
+                    if (displayH < 8) missingDaysCount++;
+                    return parseFloat(Number(displayH).toFixed(2));
+                });
+
+                const diff = (rider.totalOrders ?? 0) - requiredOrders;
+                const riderRowData = [
+                    housingName,
+                    rider.riderNameAR || '',
+                    ...dayValues,
+                    missingDaysCount,
+                    rider.totalOrders ?? 0,
+                    diff >= 0 ? `+${diff}` : `${diff}`,
+                ];
+
+                const riderRow = wsDetails.addRow(riderRowData);
+                riderRow.height = 18;
+
+                // Housing col
+                styleCell(riderRow.getCell(1), { bgColor: COLOR.lightBlue, fontColor: COLOR.darkBlue, bold: true });
+                // Rider name col
+                styleCell(riderRow.getCell(2), { fontColor: COLOR.darkBlue, bold: true });
+
+                // Date cols
+                specialDayDates.forEach((dateStr, ci) => {
+                    const cell = riderRow.getCell(3 + ci);
+                    const day = dayMap[dateStr];
+                    const hours = day != null ? day.workingHours : 0;
+                    if (hours < 8) {
+                        styleCell(cell, { bgColor: COLOR.red, fontColor: COLOR.white, bold: true });
+                    } else {
+                        styleCell(cell, { fontColor: COLOR.darkBlue });
+                    }
+                });
+
+                // أيام ناقصة col
+                const missingCell = riderRow.getCell(3 + specialDayDates.length);
+                if (missingDaysCount > 0) {
+                    styleCell(missingCell, { bgColor: COLOR.red, fontColor: COLOR.white, bold: true });
+                } else {
+                    styleCell(missingCell, { fontColor: COLOR.darkBlue, bold: true });
+                }
+
+                // إجمالي الطلبات col
+                styleCell(riderRow.getCell(4 + specialDayDates.length), { fontColor: COLOR.darkBlue, bold: true });
+
+                // diff col
+                const diffCell = riderRow.getCell(5 + specialDayDates.length);
+                styleCell(diffCell, {
+                    fontColor: diff >= 0 ? COLOR.green : COLOR.red,
+                    bold: true,
+                });
+            });
+        });
+
+        // ── Write and trigger download ─────────────────────────────────────────
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hunger_monthly_validation_${form.year}_${form.month}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleSubmit = async () => {
