@@ -104,22 +104,30 @@ export default function ImportEmployeeExcelPage() {
             <CheckCircle className="text-green-600" size={24} />
             {t('employees.uploadResult')}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="text-gray-800 font-medium">{uploadResult.message}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-600 mb-1">{t('employees.totalRows')}</p>
-              <p className="text-2xl font-bold text-blue-700">{uploadResult.totalRows}</p>
+              <p className="text-sm text-blue-600 mb-1">{t('employees.totalInExcel', 'Total in Excel')}</p>
+              <p className="text-2xl font-bold text-blue-700">{uploadResult.totalInExcel ?? 0}</p>
+            </div>
+            <div className="bg-indigo-50 p-4 rounded-lg">
+              <p className="text-sm text-indigo-600 mb-1">{t('employees.totalInDB', 'Total in DB')}</p>
+              <p className="text-2xl font-bold text-indigo-700">{uploadResult.totalInDB ?? 0}</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-green-600 mb-1">{t('employees.newEmployees')}</p>
-              <p className="text-2xl font-bold text-green-700">{uploadResult.newEmployees}</p>
+              <p className="text-sm text-green-600 mb-1">{t('employees.directlyUpdated', 'Directly Updated')}</p>
+              <p className="text-2xl font-bold text-green-700">{uploadResult.directlyUpdated?.length ?? 0}</p>
             </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <p className="text-sm text-purple-600 mb-1">{t('employees.existingEmployees')}</p>
-              <p className="text-2xl font-bold text-purple-700">{uploadResult.existingEmployees}</p>
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <p className="text-sm text-yellow-600 mb-1">{t('employees.pendingApproval', 'Pending Approval')}</p>
+              <p className="text-2xl font-bold text-yellow-700">{uploadResult.totalPendingApproval ?? 0}</p>
             </div>
             <div className="bg-orange-50 p-4 rounded-lg">
               <p className="text-sm text-orange-600 mb-1">{t('employees.skippedRows')}</p>
-              <p className="text-2xl font-bold text-orange-700">{uploadResult.skippedRows}</p>
+              <p className="text-2xl font-bold text-orange-700">{uploadResult.skippedRows ?? 0}</p>
             </div>
           </div>
 
@@ -171,12 +179,57 @@ export default function ImportEmployeeExcelPage() {
                     {uploadResult.employeesInDBNotInExcel.map((emp, idx) => (
                       <tr key={idx} className="border-b border-yellow-100 last:border-0">
                         <td className="py-2">{emp.iqamaNo}</td>
-                        <td className="py-2">{emp.nameAR || emp.employeeNameAR || '-'}</td>
+                        <td className="py-2">{emp.nameAR || emp.nameEN || emp.employeeNameAR || '-'}</td>
                         <td className="py-2">{emp.jobTitle || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {uploadResult.directlyUpdated && uploadResult.directlyUpdated.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-bold text-green-600 mb-3">{t('employees.directlyUpdatedRecords', 'Directly Updated Records')}</h4>
+              <div className="bg-green-50 p-4 rounded-lg overflow-x-auto">
+                <table className="min-w-full text-sm text-left whitespace-nowrap">
+                  <thead>
+                    <tr className="border-b border-green-200">
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.employeeName', 'Employee Name')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.changedFields', 'Changed Fields')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uploadResult.directlyUpdated.map((emp, idx) => (
+                      <tr key={idx} className="border-b border-green-100 last:border-0">
+                        <td className="py-2 align-top">{emp.iqamaNo}</td>
+                        <td className="py-2 align-top">{emp.employeeNameEN || emp.employeeNameAR || '-'}</td>
+                        <td className="py-2">
+                          <ul className="list-disc list-inside">
+                            {emp.changedFields?.map((field, fIdx) => (
+                              <li key={fIdx}>{field}</li>
+                            ))}
+                          </ul>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {uploadResult.exitReturnNotes && uploadResult.exitReturnNotes.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-bold text-purple-600 mb-3">{t('employees.exitReturnNotes', 'Exit/Return Notes')}</h4>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <ul className="list-disc list-inside space-y-1 text-sm text-purple-800">
+                  {uploadResult.exitReturnNotes.map((note, idx) => (
+                    <li key={idx}>{note}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}
