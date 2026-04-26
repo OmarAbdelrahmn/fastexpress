@@ -110,19 +110,19 @@ export default function ImportEmployeeExcelPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-600 mb-1">{t('employees.totalInExcel', 'Total in Excel')}</p>
+              <p className="text-sm text-blue-600 mb-1">{t('employees.totalInExcel')}</p>
               <p className="text-2xl font-bold text-blue-700">{uploadResult.totalInExcel ?? 0}</p>
             </div>
             <div className="bg-indigo-50 p-4 rounded-lg">
-              <p className="text-sm text-indigo-600 mb-1">{t('employees.totalInDB', 'Total in DB')}</p>
+              <p className="text-sm text-indigo-600 mb-1">{t('employees.totalInDB')}</p>
               <p className="text-2xl font-bold text-indigo-700">{uploadResult.totalInDB ?? 0}</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
-              <p className="text-sm text-green-600 mb-1">{t('employees.directlyUpdated', 'Directly Updated')}</p>
+              <p className="text-sm text-green-600 mb-1">{t('employees.directlyUpdated')}</p>
               <p className="text-2xl font-bold text-green-700">{uploadResult.directlyUpdated?.length ?? 0}</p>
             </div>
             <div className="bg-yellow-50 p-4 rounded-lg">
-              <p className="text-sm text-yellow-600 mb-1">{t('employees.pendingApproval', 'Pending Approval')}</p>
+              <p className="text-sm text-yellow-600 mb-1">{t('employees.pendingApproval')}</p>
               <p className="text-2xl font-bold text-yellow-700">{uploadResult.totalPendingApproval ?? 0}</p>
             </div>
             <div className="bg-orange-50 p-4 rounded-lg">
@@ -191,14 +191,14 @@ export default function ImportEmployeeExcelPage() {
 
           {uploadResult.directlyUpdated && uploadResult.directlyUpdated.length > 0 && (
             <div className="mt-6">
-              <h4 className="font-bold text-green-600 mb-3">{t('employees.directlyUpdatedRecords', 'Directly Updated Records')}</h4>
+              <h4 className="font-bold text-green-600 mb-3">{t('employees.directlyUpdatedRecords')}</h4>
               <div className="bg-green-50 p-4 rounded-lg overflow-x-auto">
                 <table className="min-w-full text-sm text-left whitespace-nowrap">
                   <thead>
                     <tr className="border-b border-green-200">
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
-                      <th className="pb-2 font-semibold">{t('employees.employeeName', 'Employee Name')}</th>
-                      <th className="pb-2 font-semibold">{t('employees.changedFields', 'Changed Fields')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.employeeName')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.changedFields')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -223,7 +223,7 @@ export default function ImportEmployeeExcelPage() {
 
           {uploadResult.exitReturnNotes && uploadResult.exitReturnNotes.length > 0 && (
             <div className="mt-6">
-              <h4 className="font-bold text-purple-600 mb-3">{t('employees.exitReturnNotes', 'Exit/Return Notes')}</h4>
+              <h4 className="font-bold text-purple-600 mb-3">{t('employees.exitReturnNotes')}</h4>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <ul className="list-disc list-inside space-y-1 text-sm text-purple-800">
                   {uploadResult.exitReturnNotes.map((note, idx) => (
