@@ -48,6 +48,7 @@ const pathTranslationKeys = {
   "admin/reports/keta/cumulative-stats": "keta.cumulativeStats",
   "admin/reports/keta/rejection": "keta.rejectionReport",
   "admin/reports/keta/declined": "keta.declinedOrdersReport",
+  "admin/reports/keta/history": "reports.history",
 
   // Hunger Reports
   "admin/reports/hunger": "hunger.reportsTitle",
