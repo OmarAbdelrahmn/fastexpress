@@ -375,7 +375,7 @@ export default function KetaRiderHistoryPage() {
                                                         {month.totalShifts}
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        {month.totalWorkingHours}
+                                                        {parseInt(month.totalWorkingHours)}
                                                     </td>
 
                                                 </tr>
