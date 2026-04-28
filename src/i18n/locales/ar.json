@@ -1407,6 +1407,7 @@
     "disableInstructions4": "أرسل الطلب وانتظر موافقة المسؤول"
   },
   "riders": {
+    "manage": "إدارة",
     "ridersList": "قائمة المناديب",
     "selectHousing": "اختر السكن",
     "manageRiders": "إدارة المناديب",
@@ -2066,6 +2067,7 @@
     "summaryDesc": "عرض ملخص شامل لعجز هنقر"
   },
   "reports": {
+    "performance": "الأداء",
     "pleaseSelectPeriods": "الرجاء تحديد الفترتين للمقارنة",
     "showRanking": "عرض الترتيب",
     "searchCriteria": "معايير البحث",

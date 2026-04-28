@@ -1351,6 +1351,7 @@
     "disableInstructions4": "Send the request and wait for admin approval"
   },
   "riders": {
+    "manage": "Manage",
     "ridersList": "Riders List",
     "accountStatus": "Account Status",
     "target": "Target",
@@ -2007,6 +2008,7 @@
     "summaryDesc": "View comprehensive summary of hunger deficit"
   },
   "reports": {
+    "performance": "Performance",
     "pleaseSelectPeriods": "Please select both periods for comparison",
     "showRanking": "Show Ranking",
     "searchCriteria": "Search Criteria",
