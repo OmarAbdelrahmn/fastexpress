@@ -314,7 +314,7 @@ export default function EnhancedDashboard() {
 
       if (Array.isArray(allRiders)) {
         allRiders.forEach(rider => {
-          if (rider.status === 'enable') {
+          if (rider.status === 'enable' && !rider.isEmployee) {
             const companyProps = (rider.companyName || "").toLowerCase();
             if (companyProps.includes('hunger')) {
               activeHungerRiders++;
