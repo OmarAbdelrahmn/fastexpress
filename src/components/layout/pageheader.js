@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Ui/Breadcrumbs';
 
 export default function PageHeader({
@@ -9,6 +10,7 @@ export default function PageHeader({
   icon: Icon,
   stats
 }) {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -32,10 +34,10 @@ export default function PageHeader({
   }, [lastScrollY]);
 
   return (
-    <div className={`text-white px-6 py-4 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+    <div className={`text-white px-6 py-3 shadow-lg sticky top-0 z-50 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
       }`}>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mb-1">
         <Breadcrumb />
       </div>
       <div className="flex items-center justify-between">
@@ -52,11 +54,19 @@ export default function PageHeader({
             )}
           </div>
         </div>
-        {actions && (
-          <div className="flex gap-3">
-            {actions}
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {actions}
+          <button
+            onClick={() => router.back()}
+            title="Go back"
+            className="cursor-pointer bg-white/20 hover:bg-white/30 active:bg-white/40 transition-colors duration-200 px-3 py-1 rounded-lg flex items-center gap-1 text-sm"
+          >
+            للرجوع للصفحة السابقة
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 19-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {stats && stats.length > 0 && (
