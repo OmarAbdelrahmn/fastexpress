@@ -738,7 +738,7 @@ export default function ComprehensiveLandingPage() {
 
     </div>
   );
-}
+} 
 
 function CheckCircle(props) {
   return (
