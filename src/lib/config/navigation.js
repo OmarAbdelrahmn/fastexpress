@@ -109,7 +109,7 @@ export const adminNavigationConfig = {
   dashboard: {
     title: "navigation.dashboard",
     icon: "🏠",
-    path: "/admin",
+    path: "/admin/live-stats",
   },
 
   reports: {

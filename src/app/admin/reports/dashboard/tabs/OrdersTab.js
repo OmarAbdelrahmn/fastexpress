@@ -8,24 +8,23 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { Calendar, Package, TrendingUp } from 'lucide-react';
+import { Calendar, Package, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
+import {
+  StatCard, ChartCard, FilterBar, PillButton, LoadingSkeleton,
+  TOOLTIP_STYLE, PALETTE, CHART_COLORS
+} from './shared';
+
+const langTag = () => (typeof document !== 'undefined' ? document.documentElement.lang : 'en');
 
 export default function OrdersTab() {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear]   = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [days, setDays] = useState(30);
+  const [days, setDays]   = useState(30);
+  const [data, setData]   = useState({ byCompany: [], trend: [], daily: [] });
 
-  const [data, setData] = useState({
-    byCompany: [],
-    trend: [],
-    daily: []
-  });
-
-  useEffect(() => {
-    fetchData();
-  }, [year, month, days]);
+  useEffect(() => { fetchData(); }, [year, month, days]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -33,112 +32,170 @@ export default function OrdersTab() {
       const [byCompany, trend, daily] = await Promise.all([
         ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.ORDERS_BY_COMPANY(year, month)),
         ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.ORDERS_TREND(6)),
-        ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.ORDERS_DAILY(days))
+        ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.ORDERS_DAILY(days)),
       ]);
       setData({ byCompany, trend, daily });
     } catch (err) {
-      console.error("Orders load error:", err);
+      console.error('Orders error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const langTag = typeof document !== 'undefined' ? document.documentElement.lang : 'en';
-  const currentMonthName = new Date(year, month - 1).toLocaleString(langTag, { month: 'long' });
+  const monthName = new Date(year, month - 1).toLocaleString(langTag(), { month: 'long' });
+
+  // KPIs from byCompany
+  const totalOrders   = data.byCompany.reduce((s, c) => s + (c.totalOrders || 0), 0);
+  const totalShifts   = data.byCompany.reduce((s, c) => s + (c.totalShifts || 0), 0);
+  const totalRejected = data.trend.slice(-1)[0]?.totalRejected ?? 0;
+  const acceptRate    = totalOrders > 0 ? Math.round((totalOrders / (totalOrders + totalRejected)) * 100) : 0;
+
+  const kpis = [
+    { label: 'إجمالي الطلبات',    value: totalOrders,   icon: Package,     accent: PALETTE.blue },
+    { label: 'إجمالي الشيفتات',   value: totalShifts,   icon: Calendar,    accent: PALETTE.emerald },
+    { label: 'طلبات مرفوضة',     value: totalRejected,  icon: XCircle,     accent: PALETTE.rose },
+    { label: 'معدل القبول',       value: `${acceptRate}%`, icon: CheckCircle, accent: PALETTE.amber },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center">
-        <h3 className="font-bold text-gray-700 mr-auto flex items-center gap-2">
-          <Calendar size={18} className="text-blue-500" />
-          {t('dashboardTabs.orders.dataPeriod')}
-        </h3>
-        <select value={year} onChange={(e) => setYear(Number(e.target.value))} className="border-gray-200 rounded-lg text-sm focus:ring-blue-500">
-          {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-        </select>
-        <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="border-gray-200 rounded-lg text-sm focus:ring-blue-500">
-          {Array.from({ length: 12 }).map((_, i) => <option key={i + 1} value={i + 1}>{new Date(2000, i).toLocaleString(langTag, { month: 'short' })}</option>)}
-        </select>
-        <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="border-gray-200 rounded-lg text-sm focus:ring-blue-500">
-          <option value={7}>{t('dashboardTabs.orders.last7Days')}</option>
-          <option value={15}>{t('dashboardTabs.orders.last15Days')}</option>
-          <option value={30}>{t('dashboardTabs.orders.last30Days')}</option>
-        </select>
+      <FilterBar title="فترة البيانات" icon={Calendar}>
+        <div className="flex items-center gap-2">
+          <select
+            value={year}
+            onChange={e => setYear(Number(e.target.value))}
+            className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            {[2023, 2024, 2025, 2026].map(y => <option key={y}>{y}</option>)}
+          </select>
+          <select
+            value={month}
+            onChange={e => setMonth(Number(e.target.value))}
+            className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(2000, i).toLocaleString(langTag(), { month: 'short' })}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-1.5">
+          {[7, 15, 30].map(d => (
+            <PillButton key={d} active={days === d} onClick={() => setDays(d)}>
+              {d} يوم
+            </PillButton>
+          ))}
+        </div>
+      </FilterBar>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {kpis.map((k, i) => <StatCard key={i} {...k} />)}
       </div>
 
       {loading ? (
-        <div className="h-64 flex items-center justify-center text-gray-400 animate-pulse">{t('dashboardTabs.orders.loading')}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {[1, 2].map(i => (
+            <div key={i} className="bg-white rounded-2xl border border-slate-100 p-5 h-80 animate-pulse" />
+          ))}
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Daily Trend */}
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-sm font-bold text-gray-700 mb-6 flex items-center gap-2">
-                <TrendingUp size={18} className="text-emerald-500" />
-                {t('dashboardTabs.orders.dailyTrend')} {t('dashboardTabs.orders.lastDays').replace('{{days}}', days)}
-              </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Daily Area Chart */}
+            <ChartCard
+              title={`اتجاه الطلبات اليومي — آخر ${days} يوم`}
+              icon={TrendingUp}
+              accent={PALETTE.emerald}
+            >
               <div className="h-72" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data.daily} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
+                  <AreaChart data={data.daily} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
                     <defs>
-                      <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <linearGradient id="gradOrders" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%"   stopColor="#059669" stopOpacity={0.18} />
+                        <stop offset="100%" stopColor="#059669" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                    <XAxis dataKey="dateLabel" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Area type="monotone" dataKey="totalOrders" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorOrders)" name={t('dashboardTabs.orders.totalOrders')} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="dateLabel" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} />
+                    <Area
+                      type="monotone"
+                      dataKey="totalOrders"
+                      stroke="#059669"
+                      strokeWidth={2.5}
+                      fill="url(#gradOrders)"
+                      name={t('dashboardTabs.orders.totalOrders') || 'إجمالي الطلبات'}
+                      dot={false}
+                      activeDot={{ r: 5, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </ChartCard>
 
-            {/* Monthly Trend */}
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-sm font-bold text-gray-700 mb-6 flex items-center gap-2">
-                <TrendingUp size={18} className="text-blue-500" />
-                {t('dashboardTabs.orders.monthlyOverview')}
-              </h3>
+            {/* Monthly Trend Line */}
+            <ChartCard
+              title="الاتجاه الشهري (6 أشهر)"
+              icon={TrendingUp}
+              accent={PALETTE.blue}
+            >
               <div className="h-72" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.trend} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                    <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Legend />
-                    <Line type="monotone" dataKey="totalOrders" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} name={t('dashboardTabs.orders.totalOrders')} />
-                    <Line type="monotone" dataKey="totalRejected" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} name={t('dashboardTabs.orders.rejectedOrders')} />
+                  <LineChart data={data.trend} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="monthLabel" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Line
+                      type="monotone"
+                      dataKey="totalOrders"
+                      stroke={PALETTE.blue}
+                      strokeWidth={2.5}
+                      dot={{ r: 3.5, fill: PALETTE.blue, stroke: '#fff', strokeWidth: 2 }}
+                      activeDot={{ r: 6 }}
+                      name={t('dashboardTabs.orders.totalOrders') || 'مقبولة'}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="totalRejected"
+                      stroke={PALETTE.rose}
+                      strokeWidth={2}
+                      strokeDasharray="5 3"
+                      dot={{ r: 3, fill: PALETTE.rose, stroke: '#fff', strokeWidth: 2 }}
+                      name={t('dashboardTabs.orders.rejectedOrders') || 'مرفوضة'}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </ChartCard>
           </div>
 
-          {/* Orders by Company Bar Chart */}
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-sm font-bold text-gray-700 mb-6 flex items-center gap-2">
-              <Package size={18} className="text-purple-500" />
-              {t('dashboardTabs.orders.ordersByCompany')} ({currentMonthName} {year})
-            </h3>
-            <div className="h-[400px]" dir="ltr">
+          {/* By Company Bar */}
+          <ChartCard
+            title={`الطلبات والشيفتات بالشركة — ${monthName} ${year}`}
+            icon={Package}
+            accent={PALETTE.violet}
+          >
+            <div className="h-80" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.byCompany} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis dataKey="companyName" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                  <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Legend />
-                  <Bar dataKey="totalOrders" fill="#D7C49E" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.orders')} maxBarSize={60} />
-                  <Bar dataKey="totalShifts" fill="#343148" radius={[6, 6, 0, 0]} name={t('dashboardTabs.orders.shifts')} maxBarSize={60} />
+                <BarChart data={data.byCompany} margin={{ top: 5, right: 20, left: 0, bottom: 5 }} barGap={4}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="companyName" tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={TOOLTIP_STYLE} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="totalOrders" fill={PALETTE.blue}   radius={[6, 6, 0, 0]} maxBarSize={48} name={t('dashboardTabs.orders.orders') || 'الطلبات'} />
+                  <Bar dataKey="totalShifts" fill={PALETTE.slate}  radius={[6, 6, 0, 0]} maxBarSize={48} name={t('dashboardTabs.orders.shifts') || 'الشيفتات'} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </ChartCard>
         </>
       )}
     </div>

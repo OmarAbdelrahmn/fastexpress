@@ -306,8 +306,8 @@ export default function EnhancedDashboard() {
 
       const allRiders = ridersRes.data || [];
       const totalRiders = allRiders.length;
-      const activeRiders = allRiders.filter(rider => rider.status === 'enable').length;
-      const inactiveRiders = allRiders.length - activeRiders;
+      const activeRiders = allRiders.filter(rider => rider.status === 'enable' && !rider.isEmployee).length;
+      const inactiveRiders = allRiders.filter(rider => !rider.isEmployee).length - activeRiders;
 
       let activeHungerRiders = 0;
       let activeKeetaRiders = 0;
@@ -843,6 +843,15 @@ export default function EnhancedDashboard() {
             background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
           <StatCard
+            title={t("dashboard.totalOrderYesterday")}
+            value={stats.totalOrdersYesterday}
+            subtitle={t("dashboard.total")}
+            icon={Package}
+            color="#ffffffff"
+            link="#"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
+          />
+          <StatCard
             title={t("dashboard.hungerYesterdayOrders")}
             value={stats.hungerYesterdayOrders}
             subtitle={t("dashboard.orders")}
@@ -858,7 +867,7 @@ export default function EnhancedDashboard() {
             icon={ShoppingBag}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-yellow-400 to-orange-400"
+            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
           <StatCard
             title={t("dashboard.activeYesterdayHunger")}
@@ -867,7 +876,7 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
+            background="bg-gradient-to-r from-yellow-400 to-orange-400"
           />
           <StatCard
             title={t("dashboard.ketaActiveRiders")}
@@ -876,20 +885,8 @@ export default function EnhancedDashboard() {
             icon={Users}
             color="#ffffffff"
             link="#"
-            background="bg-gradient-to-r from-yellow-400 to-orange-400"
-          />
-          <StatCard
-            title={t("dashboard.totalOrderYesterday")}
-            value={stats.totalOrdersYesterday}
-            subtitle={t("dashboard.total")}
-            icon={Package}
-            color="#ffffffff"
-            link="#"
             background="bg-gradient-to-r from-[#2E63E6] to-[#1A44B8]"
           />
-
-
-
         </div>
 
         {/* Notification Icons */}
@@ -921,7 +918,7 @@ export default function EnhancedDashboard() {
             }}
           >
          <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <BarChart3 size={20} color={COLORS.blue} />
+                {/* <BarChart3 size={20} color={COLORS.blue} /> */}
                 {t("dashboard.statistics")}
               </h3>
               <div className="space-y-4">
@@ -1009,7 +1006,7 @@ export default function EnhancedDashboard() {
             }}
           >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Car size={20} color={COLORS.blue} />
+                {/* <Car size={20} color={COLORS.blue} /> */}
                 {t("dashboard.vehiclesBreakdown")}
               </h3>
               <div className="space-y-4">
@@ -1043,7 +1040,7 @@ export default function EnhancedDashboard() {
             }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Users size={20} color={COLORS.blue} />
+                {/* <Users size={20} color={COLORS.blue} /> */}
                 {t("dashboard.ridersStatus")}
               </h3>
               <div className="space-y-4">
@@ -1084,7 +1081,7 @@ export default function EnhancedDashboard() {
               }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Users size={20} color={COLORS.blue} />
+                {/* <Users size={20} color={COLORS.blue} /> */}
                 {t("dashboard.activeRidersByCompany")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1113,7 +1110,7 @@ export default function EnhancedDashboard() {
               }}
             >
               <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <BarChart3 size={20} color={COLORS.blue} />
+                {/* <BarChart3 size={20} color={COLORS.blue} /> */}
                 {t("dashboard.overview")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -9,79 +9,45 @@ import {
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Building2, Calendar, TrendingUp, Users, Package, Clock } from 'lucide-react';
-
-// Vibrant palette matching the screenshot colours
-const COMPANY_COLORS = [
-  '#d3c897ff', // blue
-  '#755139', // green
-  '#8b5cf6', // purple
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#84cc16', // lime
-];
+import {
+  StatCard, ChartCard, FilterBar, PillButton, DateInput, ViewToggle,
+  ErrorBanner, EmptyState, ChartDot, TOOLTIP_STYLE, PALETTE, CHART_COLORS
+} from './shared';
 
 function formatDate(d) {
-  // Returns  "YYYY-MM-DD" from DateOnly   e.g. { year, month, day }
   if (!d) return '';
   if (typeof d === 'string') return d.slice(0, 10);
   const pad = n => String(n).padStart(2, '0');
   return `${d.year ?? d.Year}-${pad(d.month ?? d.Month)}-${pad(d.day ?? d.Day)}`;
 }
 
-function todayMinus(days) {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
+function todayMinus(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+function yesterday() {
+  const d = new Date(); d.setDate(d.getDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 
-function yesterdayStr() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
-// ── Stat card ────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, bg }) {
-  return (
-    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
-      <div className={`p-3 rounded-xl ${bg}`}>
-        <Icon className={color} size={22} />
-      </div>
-      <div>
-        <p className="text-xs text-gray-500 font-medium mb-1">{label}</p>
-        <h3 className="text-xl font-bold text-gray-800">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
-      </div>
-    </div>
-  );
-}
-
-// ── Custom dot for LineChart (matches the screenshot) ────────────────────────
-const CustomDot = ({ cx, cy, stroke }) => (
-  <circle cx={cx} cy={cy} r={4} fill={stroke} stroke="#fff" strokeWidth={2} />
-);
-
-// ── Company toggle pills ─────────────────────────────────────────────────────
-function CompanyToggle({ companies, visible, onToggle }) {
+/** Compact company pill toggle */
+function CompanyPills({ companies, visible, onToggle }) {
   return (
     <div className="flex flex-wrap gap-2">
       {companies.map((c, i) => {
-        const color = COMPANY_COLORS[i % COMPANY_COLORS.length];
+        const color = CHART_COLORS[i % CHART_COLORS.length];
         const active = visible.includes(c.companyId);
         return (
           <button
             key={c.companyId}
             onClick={() => onToggle(c.companyId)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-              active ? 'text-white border-transparent shadow' : 'bg-white text-gray-500 border-gray-200'
-            }`}
-            style={active ? { backgroundColor: color, borderColor: color } : {}}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border transition-all duration-150"
+            style={active
+              ? { backgroundColor: color, borderColor: color, color: '#fff' }
+              : { backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#64748b' }
+            }
           >
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: active ? '#fff' : color }}
-            />
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: active ? '#fff' : color }} />
             {c.companyName}
           </button>
         );
@@ -91,53 +57,36 @@ function CompanyToggle({ companies, visible, onToggle }) {
 }
 
 export default function CompaniesTab() {
-  const { t, locale } = useLanguage();
-  const isRtl = locale === 'ar';
+  const { t } = useLanguage();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
-
-  // Controls
-  const [startDate, setStartDate] = useState(todayMinus(30)); // default last 30 days (ending yesterday)
-  const [endDate, setEndDate] = useState(yesterdayStr());
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState(null);
+  const [data, setData]                 = useState(null);
+  const [startDate, setStartDate]       = useState(todayMinus(30));
+  const [endDate, setEndDate]           = useState(yesterday());
   const [selectedCompanyId, setSelectedCompanyId] = useState('all');
-  const [viewMode, setViewMode] = useState('chart'); // 'chart' | 'table'
-  const [quickDays, setQuickDays] = useState(30);
-  const [visibleCompanies, setVisibleCompanies] = useState([]);
+  const [viewMode, setViewMode]         = useState('chart');
+  const [quickDays, setQuickDays]       = useState(30);
+  const [visibleCompanies, setVisibleCompanies]   = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [chartData, setChartData]       = useState({ orders: [], riders: [], stacked: [] });
 
-  // Derived: normalised day-level data for charts
-  const [chartData, setChartData] = useState({ ordersPerDay: [], ridersPerDay: [], sharePerDay: [], combinedPerDay: [] });
-  // All available companies for the dropdown
-  const [allAvailableCompanies, setAllAvailableCompanies] = useState([]);
-
-  // ── Fetch ────────────────────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
       const compId = selectedCompanyId === 'all' ? null : selectedCompanyId;
       const result = await ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.COMPANIES_REPORT(startDate, endDate, compId));
-      
-      // Sort the days arrays chronologically for each company
       if (result.companies) {
-        result.companies.forEach(company => {
-          if (company.days) {
-            company.days.sort((a, b) => formatDate(a.date).localeCompare(formatDate(b.date)));
-          }
-        });
+        result.companies.forEach(c => c.days?.sort((a, b) => formatDate(a.date).localeCompare(formatDate(b.date))));
       }
-
       setData(result);
-      setVisibleCompanies(result.companies?.map(c => c.companyId) ?? []);
-      
-      // Update dropdown list if it's the first fetch or "all" was selected
+      const ids = result.companies?.map(c => c.companyId) ?? [];
+      setVisibleCompanies(ids);
       if (selectedCompanyId === 'all' && result.companies) {
-        setAllAvailableCompanies(result.companies.map(c => ({ id: c.companyId, name: c.companyName })));
+        setAllCompanies(result.companies.map(c => ({ id: c.companyId, name: c.companyName })));
       }
     } catch (err) {
-      console.error('Companies report error:', err);
-      setError(err.message || t('dashboardTabs.companies.loadError'));
+      setError(err.message || 'حدث خطأ في تحميل البيانات');
     } finally {
       setLoading(false);
     }
@@ -145,408 +94,224 @@ export default function CompaniesTab() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // ── Build chart series whenever data or visible companies change ──────────
   useEffect(() => {
-    if (!data?.companies?.length) {
-      setChartData({ ordersPerDay: [], ridersPerDay: [], sharePerDay: [] });
-      return;
-    }
-
+    if (!data?.companies?.length) { setChartData({ orders: [], riders: [], stacked: [] }); return; }
     const displayed = data.companies.filter(c => visibleCompanies.includes(c.companyId));
+    const dateMap   = new Map();
+    displayed.forEach(c => c.days?.forEach(d => {
+      const iso = formatDate(d.date);
+      if (!dateMap.has(iso)) dateMap.set(iso, d.dateLabel || iso);
+    }));
+    const dates = [...dateMap.keys()].sort();
 
-    // Collect all dates (union) using ISO format for chronological sorting
-    const dateMap = new Map();
-    displayed.forEach(c => {
-      c.days?.forEach(d => {
-        const isoDate = formatDate(d.date);
-        if (!dateMap.has(isoDate)) {
-          dateMap.set(isoDate, d.dateLabel || isoDate);
-        }
-      });
-    });
-
-    const sortedIsoDates = [...dateMap.keys()].sort();
-
-    const ordersPerDay = sortedIsoDates.map(isoDate => {
-      const row = { dateLabel: dateMap.get(isoDate) };
+    const build = (key) => dates.map(iso => {
+      const row = { dateLabel: dateMap.get(iso) };
       displayed.forEach(c => {
-        const day = c.days?.find(d => formatDate(d.date) === isoDate);
-        row[c.companyName] = day?.acceptedOrders ?? 0;
+        const day = c.days?.find(d => formatDate(d.date) === iso);
+        row[c.companyName] = day?.[key] ?? 0;
       });
       return row;
     });
 
-    const ridersPerDay = sortedIsoDates.map(isoDate => {
-      const row = { dateLabel: dateMap.get(isoDate) };
-      displayed.forEach(c => {
-        const day = c.days?.find(d => formatDate(d.date) === isoDate);
-        row[c.companyName] = day?.uniqueRiders ?? 0;
-      });
-      return row;
-    });
-
-    const sharePerDay = sortedIsoDates.map(isoDate => {
-      const row = { dateLabel: dateMap.get(isoDate) };
-      displayed.forEach(c => {
-        const day = c.days?.find(d => formatDate(d.date) === isoDate);
-        row[c.companyName] = day?.acceptedOrders ?? 0;
-      });
-      return row;
-    });
-
-    const combinedPerDay = sortedIsoDates.map(isoDate => {
-      const row = { dateLabel: dateMap.get(isoDate) };
-      displayed.forEach(c => {
-        const day = c.days?.find(d => formatDate(d.date) === isoDate);
-        row[`${c.companyName}_Orders`] = day?.acceptedOrders ?? 0;
-        row[`${c.companyName}_Riders`] = day?.uniqueRiders ?? 0;
-      });
-      return row;
-    });
-
-    setChartData({ ordersPerDay, ridersPerDay, sharePerDay, combinedPerDay });
+    setChartData({ orders: build('acceptedOrders'), riders: build('uniqueRiders'), stacked: build('acceptedOrders') });
   }, [data, visibleCompanies]);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
-  const applyQuickRange = (days) => {
-    setQuickDays(days);
-    setStartDate(todayMinus(days));
-    setEndDate(yesterdayStr());
-  };
-
-  const toggleCompany = (id) => {
-    setVisibleCompanies(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
+  const applyQuick = (d) => { setQuickDays(d); setStartDate(todayMinus(d)); setEndDate(yesterday()); };
+  const toggleCompany = (id) => setVisibleCompanies(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   const displayed = data?.companies?.filter(c => visibleCompanies.includes(c.companyId)) ?? [];
 
-  // ── Tooltip style ────────────────────────────────────────────────────────
-  const tooltipStyle = { borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', direction: 'ltr' };
+  const kpis = data ? [
+    { label: 'إجمالي الطلبات',       value: data.grandTotalOrders, icon: Package,   accent: PALETTE.blue },
+    { label: 'إجمالي المناديب الفريدة', value: data.companies?.reduce((s, c) => s + c.totalUniqueRiders, 0) ?? 0, icon: Users, accent: PALETTE.violet },
+    { label: 'الأيام في النطاق',      value: data.totalDays,        icon: Calendar,  accent: PALETTE.emerald },
+    { label: 'الشركات',              value: data.totalCompanies,   icon: Building2, accent: PALETTE.amber },
+    { label: 'متوسط الطلبات/يوم',    value: data.totalDays > 0 ? Math.round(data.grandTotalOrders / data.totalDays).toLocaleString() : 0, icon: TrendingUp, accent: PALETTE.rose },
+  ] : [];
 
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-
-      {/* ── Filter Bar ──────────────────────────────────────────────────── */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-        <div className="flex flex-wrap items-center gap-3">
-          <Calendar size={18} className="text-blue-500 shrink-0" />
-          <h3 className="font-bold text-gray-700 me-auto">
-            {t('dashboardTabs.companies.filters')}
-          </h3>
-
-          {/* Quick range buttons */}
-          <div className="flex gap-2">
-            {[7, 14, 30].map(d => (
-              <button
-                key={d}
-                onClick={() => applyQuickRange(d)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  quickDays === d
-                    ? 'bg-blue-600 text-white shadow'
-                    : 'bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-                }`}
-              >
-                {d} {t('dashboardTabs.companies.days')}
-              </button>
-            ))}
-          </div>
-
-          {/* Date inputs */}
-          <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
-            <label className="font-medium">{t('common.from')}</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={e => { setStartDate(e.target.value); setQuickDays(null); }}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <label className="font-medium">{t('common.to')}</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={e => { setEndDate(e.target.value); setQuickDays(null); }}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              onClick={fetchData}
-              className="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
-            >
-              {t('common.refresh')}
-            </button>
-          </div>
-
-          {/* Company dropdown */}
-          <div className="flex items-center w-full md:w-auto">
-            <select
-              value={selectedCompanyId}
-              onChange={(e) => setSelectedCompanyId(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-48 bg-gray-50 text-gray-700"
-            >
-              <option value="all">{t('dashboardTabs.companies.allCompanies') || 'All companies'}</option>
-              {allAvailableCompanies.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* View mode */}
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden ms-auto">
-            <button
-              onClick={() => setViewMode('chart')}
-              className={`px-4 py-1.5 text-sm font-semibold transition-all ${
-                viewMode === 'chart' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {t('dashboardTabs.companies.chart')}
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`px-4 py-1.5 text-sm font-semibold transition-all ${
-                viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {t('dashboardTabs.companies.table')}
-            </button>
-          </div>
+      {/* Filter Bar */}
+      <FilterBar title="نطاق التقرير" icon={Calendar}>
+        <div className="flex gap-1.5">
+          {[7, 14, 30].map(d => (
+            <PillButton key={d} active={quickDays === d} onClick={() => applyQuick(d)}>{d} يوم</PillButton>
+          ))}
         </div>
-      </div>
+        <DateInput label="من" value={startDate} onChange={e => { setStartDate(e.target.value); setQuickDays(null); }} />
+        <DateInput label="إلى" value={endDate} onChange={e => { setEndDate(e.target.value); setQuickDays(null); }} />
+        <button
+          onClick={fetchData}
+          className="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+        >
+          تحديث
+        </button>
+        <select
+          value={selectedCompanyId}
+          onChange={e => setSelectedCompanyId(e.target.value)}
+          className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="all">جميع الشركات</option>
+          {allCompanies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <div className="mr-auto">
+          <ViewToggle mode={viewMode} onChange={setViewMode} />
+        </div>
+      </FilterBar>
 
-      {/* ── Loading / Error ──────────────────────────────────────────────── */}
       {loading && (
-        <div className="h-64 flex items-center justify-center text-gray-400 animate-pulse text-lg">
-          {t('dashboardTabs.companies.loading')}
-        </div>
-      )}
-      {error && !loading && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-sm">
-          {error}
+        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
+          <div className="flex flex-col items-center gap-3 text-slate-400">
+            <div className="w-8 h-8 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
+            <p className="text-sm font-medium">جاري تحميل البيانات...</p>
+          </div>
         </div>
       )}
 
-      {/* ── Data ────────────────────────────────────────────────────────── */}
+      {error && !loading && <ErrorBanner message={error} />}
+
       {!loading && !error && data && (
         <>
-          {/* KPI Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            <StatCard
-              label={t('dashboardTabs.companies.totalOrders')}
-              value={data.grandTotalOrders}
-              icon={Package}
-              color="text-blue-500"
-              bg="bg-blue-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.totalHungerOrders') || 'Hunger Orders'}
-              value={data.companies?.find(c => c.companyName.toLowerCase().includes('hunger'))?.totalOrders || 0}
-              icon={Package}
-              color="text-emerald-500"
-              bg="bg-emerald-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.totalKetaOrders') || 'Keta Orders'}
-              value={data.companies?.find(c => c.companyName.toLowerCase().includes('keta') || c.companyName.toLowerCase().includes('keeta'))?.totalOrders || 0}
-              icon={Package}
-              color="text-cyan-500"
-              bg="bg-cyan-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.totalRiders')}
-              value={data.companies?.reduce((s, c) => s + c.totalUniqueRiders, 0) ?? 0}
-              icon={Users}
-              color="text-purple-500"
-              bg="bg-purple-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.daysInRange')}
-              value={data.totalDays}
-              icon={Calendar}
-              color="text-emerald-500"
-              bg="bg-emerald-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.companies')}
-              value={data.totalCompanies}
-              icon={Building2}
-              color="text-orange-500"
-              bg="bg-orange-50"
-            />
-            <StatCard
-              label={t('dashboardTabs.companies.avgOrdersPerDay')}
-              value={data.totalDays > 0 ? Math.round(data.grandTotalOrders / data.totalDays).toLocaleString() : 0}
-              icon={TrendingUp}
-              color="text-pink-500"
-              bg="bg-pink-50"
-            />
+          {/* KPIs */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {kpis.map((k, i) => <StatCard key={i} {...k} />)}
           </div>
 
-          {/* Company toggles
-          {data.companies?.length > 0 && (
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-              <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">
-                {t('dashboardTabs.companies.toggleCompanies')}
-              </p>
-              <CompanyToggle
-                companies={data.companies}
-                visible={visibleCompanies}
-                onToggle={toggleCompany}
-              />
+          {/* Company Toggles */}
+          {data.companies?.length > 1 && (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">تصفية الشركات</p>
+              <CompanyPills companies={data.companies} visible={visibleCompanies} onToggle={toggleCompany} />
             </div>
-          )} */}
+          )}
 
           {viewMode === 'chart' ? (
-            <div className="space-y-6">
-              {/* Daily Orders and Riders Charts Side-by-Side */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Orders per day */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                  <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                    <Package size={18} className="text-blue-500" />
-                    {t('dashboardTabs.companies.acceptedOrdersPerDay') || 'Orders per day'}
-                  </h3>
+                <ChartCard title="الطلبات المقبولة / يوم" icon={Package} accent={PALETTE.blue}>
                   <div className="h-72" dir="ltr">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData.ordersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                        <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <Tooltip contentStyle={tooltipStyle} />
-                        <Legend />
+                      <LineChart data={chartData.orders} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="dateLabel" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
                         {displayed.map((c, i) => (
                           <Line
                             key={c.companyId}
                             type="monotone"
                             dataKey={c.companyName}
-                            name={c.companyName}
-                            stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
+                            stroke={CHART_COLORS[i % CHART_COLORS.length]}
                             strokeWidth={2.5}
-                            dot={<CustomDot />}
-                            activeDot={{ r: 6 }}
+                            dot={<ChartDot />}
+                            activeDot={{ r: 5 }}
                           />
                         ))}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </ChartCard>
 
                 {/* Riders per day */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                  <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                    <Users size={18} className="text-emerald-500" />
-                    {t('dashboardTabs.companies.uniqueRidersPerDay') || 'Unique riders per day'}
-                  </h3>
+                <ChartCard title="المناديب الفريدون / يوم" icon={Users} accent={PALETTE.emerald}>
                   <div className="h-72" dir="ltr">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData.ridersPerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                        <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                        <Tooltip contentStyle={tooltipStyle} />
-                        <Legend />
+                      <LineChart data={chartData.riders} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="dateLabel" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
                         {displayed.map((c, i) => (
                           <Line
                             key={c.companyId}
                             type="monotone"
                             dataKey={c.companyName}
-                            name={c.companyName}
-                            stroke={COMPANY_COLORS[i % COMPANY_COLORS.length]}
+                            stroke={CHART_COLORS[i % CHART_COLORS.length]}
                             strokeWidth={2}
                             strokeDasharray="5 3"
-                            dot={<CustomDot />}
-                            activeDot={{ r: 6 }}
+                            dot={<ChartDot />}
+                            activeDot={{ r: 5 }}
                           />
                         ))}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
-
+                </ChartCard>
               </div>
 
-              {/* Chart 3: Daily order share (stacked bar) */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-bold text-gray-700 mb-4">
-                  {t('dashboardTabs.companies.dailyOrderShare')}
-                </h3>
+              {/* Stacked Bar */}
+              <ChartCard title="مقارنة الطلبات اليومية (مجمّعة)" icon={TrendingUp} accent={PALETTE.violet}>
                 <div className="h-80" dir="ltr">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.sharePerDay} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Legend />
+                    <BarChart data={chartData.stacked} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="dateLabel" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={TOOLTIP_STYLE} />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
                       {displayed.map((c, i) => (
                         <Bar
                           key={c.companyId}
                           dataKey={c.companyName}
-                          stackId="a"
-                          fill={COMPANY_COLORS[i % COMPANY_COLORS.length]}
+                          stackId="s"
+                          fill={CHART_COLORS[i % CHART_COLORS.length]}
                           radius={i === displayed.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                         />
                       ))}
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </ChartCard>
             </div>
           ) : (
-            /* ── TABLE MODE ─────────────────────────────────────────────── */
-            <div className="space-y-6">
+            /* TABLE MODE */
+            <div className="space-y-5">
               {data.companies?.map((company, ci) => (
-                <div key={company.companyId} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div key={company.companyId} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                   {/* Company header */}
-                  <div
-                    className="px-5 py-4 flex flex-wrap items-center gap-4"
-                    style={{ borderLeft: `4px solid ${COMPANY_COLORS[ci % COMPANY_COLORS.length]}` }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: COMPANY_COLORS[ci % COMPANY_COLORS.length] }}
-                      />
-                      <span className="font-bold text-gray-800 text-base">{company.companyName}</span>
+                  <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center gap-4" style={{ borderRight: `4px solid ${CHART_COLORS[ci % CHART_COLORS.length]}` }}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS[ci % CHART_COLORS.length] }} />
+                      <span className="font-bold text-slate-800">{company.companyName}</span>
                     </div>
-                    <div className="flex flex-wrap gap-4 ms-auto text-sm text-gray-600">
-                      <span><span className="font-semibold text-gray-800">{company.totalOrders.toLocaleString()}</span> {t('dashboardTabs.companies.totalOrders')}</span>
-                      <span><span className="font-semibold text-gray-800">{company.totalShifts.toLocaleString()}</span> {t('dashboardTabs.companies.totalShifts')}</span>
-                      <span><span className="font-semibold text-gray-800">{company.totalUniqueRiders}</span> {t('dashboardTabs.companies.uniqueRiders')}</span>
-                      <span><span className="font-semibold text-gray-800">{company.avgOrdersPerDay.toFixed(1)}</span> {t('dashboardTabs.companies.avgOrdersPerDay')}</span>
-                      <span><span className="font-semibold text-gray-800">{company.avgRidersPerDay.toFixed(1)}</span> {t('dashboardTabs.companies.avgRidersPerDay')}</span>
+                    <div className="mr-auto flex flex-wrap gap-5 text-xs text-slate-500">
+                      {[
+                        { label: 'الطلبات', value: company.totalOrders?.toLocaleString() },
+                        { label: 'الشيفتات', value: company.totalShifts?.toLocaleString() },
+                        { label: 'المناديب', value: company.totalUniqueRiders },
+                        { label: 'متوسط/يوم', value: company.avgOrdersPerDay?.toFixed(1) },
+                      ].map((s, j) => (
+                        <span key={j}>
+                          <span className="font-bold text-slate-700">{s.value}</span> {s.label}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Day-level table */}
+                  {/* Day table */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-                        <tr>
-                          <th className="px-4 py-2 text-start font-semibold">{t('dashboardTabs.companies.date')}</th>
-                          <th className="px-4 py-2 text-start font-semibold">{t('dashboardTabs.companies.dayOfWeek')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.accepted')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.rejected')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.uniqueRiders')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.shifts')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.avgOrdersPerRider')}</th>
-                          <th className="px-4 py-2 text-end font-semibold">{t('dashboardTabs.companies.workingHours')}</th>
+                      <thead>
+                        <tr className="bg-slate-50/80 border-b border-slate-100">
+                          {['التاريخ', 'اليوم', 'مقبول', 'مرفوض', 'المناديب', 'الشيفتات', 'متوسط/مندوب', 'ساعات العمل'].map((h, j) => (
+                            <th key={j} className={`px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider ${j > 1 ? 'text-end' : 'text-start'}`}>{h}</th>
+                          ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-slate-50">
                         {company.days?.map((day, di) => (
-                          <tr key={di} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-2 text-gray-700 font-medium whitespace-nowrap">
-                              {day.dateLabel ?? formatDate(day.date)}
-                            </td>
-                            <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{day.dayOfWeek}</td>
-                            <td className="px-4 py-2 text-end font-semibold text-emerald-600">{day.acceptedOrders.toLocaleString()}</td>
-                            <td className="px-4 py-2 text-end text-red-500">{day.rejectedOrders.toLocaleString()}</td>
-                            <td className="px-4 py-2 text-end text-purple-600">{day.uniqueRiders}</td>
-                            <td className="px-4 py-2 text-end text-blue-600">{day.totalShifts}</td>
-                            <td className="px-4 py-2 text-end text-gray-700">{day.avgOrdersPerRider.toFixed(1)}</td>
-                            <td className="px-4 py-2 text-end text-gray-700">{day.totalWorkingHours.toFixed(1)}</td>
+                          <tr key={di} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="px-4 py-3 text-slate-700 font-medium text-xs whitespace-nowrap">{day.dateLabel ?? formatDate(day.date)}</td>
+                            <td className="px-4 py-3 text-slate-400 text-xs">{day.dayOfWeek}</td>
+                            <td className="px-4 py-3 text-end font-bold text-emerald-600">{day.acceptedOrders?.toLocaleString()}</td>
+                            <td className="px-4 py-3 text-end text-rose-500">{day.rejectedOrders?.toLocaleString()}</td>
+                            <td className="px-4 py-3 text-end text-violet-600 font-medium">{day.uniqueRiders}</td>
+                            <td className="px-4 py-3 text-end text-blue-600 font-medium">{day.totalShifts}</td>
+                            <td className="px-4 py-3 text-end text-slate-600">{day.avgOrdersPerRider?.toFixed(1)}</td>
+                            <td className="px-4 py-3 text-end text-slate-500">{day.totalWorkingHours?.toFixed(1)}</td>
                           </tr>
                         ))}
                       </tbody>
