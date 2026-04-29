@@ -248,12 +248,12 @@ export default function Sidebar() {
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <button
+        {/* <button
           onClick={closeMobileMenu}
           className="absolute top-4 left-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
         >
           <X size={20} />
-        </button>
+        </button> */}
         <SidebarContent />
       </aside>
     </>
