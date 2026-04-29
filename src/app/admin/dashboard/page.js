@@ -547,27 +547,28 @@ export default function EnhancedDashboard() {
 
   const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background }) => (
     <Link href={link} className="block group">
-      <div className={`rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
+      <div className={`rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
         <div className="flex justify-between items-start mb-2">
-          <div className="p-2 rounded-lg transition-colors" style={getBgStyle(color)}>
-            <Icon size={20} color={color} />
+          <div className="p-1.5 md:p-2 rounded-lg transition-colors" style={getBgStyle(color)}>
+            <Icon size={16} className="md:hidden" color={color} />
+            <Icon size={20} className="hidden md:block" color={color} />
           </div>
           {/* Subtle background decoration */}
-          <Icon className="absolute -left-4 -bottom-4 opacity-30 transform rotate-12 transition-transform group-hover:scale-110" size={80} color="white" />
+          <Icon className="absolute -left-3 -bottom-3 opacity-30 transform rotate-12 transition-transform group-hover:scale-110 md:-left-4 md:-bottom-4" size={60} color="white" />
         </div>
 
-        <div className="relative z-10 ">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="relative z-10">
+          <div className="flex items-center gap-1.5 mb-1">
             {/* On first ever load (no cache) show a subtle pulse skeleton; otherwise always show the number */}
             {isFirstLoad && loading ? (
-              <div className="h-8 w-16 rounded-md bg-white/30 animate-pulse" />
+              <div className="h-6 md:h-8 w-12 md:w-16 rounded-md bg-white/30 animate-pulse" />
             ) : (
-              <h3 className="text-2xl font-bold text-white">{value}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white leading-tight">{value}</h3>
             )}
-            {value === "-*" && <EyeOff size={16} className="text-white/70" />}
+            {value === "-*" && <EyeOff size={14} className="text-white/70" />}
           </div>
-          <p className="font-medium text-white text-sm mb-1">{title}</p>
-          <p className="text-[10px] text-white">{subtitle}</p>
+          <p className="font-medium text-white text-xs md:text-sm mb-0.5 leading-tight">{title}</p>
+          <p className="text-[9px] md:text-[10px] text-white/80">{subtitle}</p>
         </div>
       </div>
     </Link>
@@ -814,7 +815,7 @@ export default function EnhancedDashboard() {
         <PageHeader />
 
         {/* Primary Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 mb-8">
           <StatCard
             title={t("dashboard.monthAcceptedOrders")}
             value={isPrivacyMode ? "-" : stats.monthAcceptedOrders}
