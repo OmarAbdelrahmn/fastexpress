@@ -27,11 +27,10 @@ const KEETA_ORG_ID = "2960";
 const REFRESH_INTERVAL = 30_000; // 30 s
 
 const KEETA_STATUS = {
-  20: { label: "بدون طلب", color: "#f59e0b", bg: "#fef3c7" },
-  30: { label: "لديه طلب", color: "#10b981", bg: "#d1fae5" },
-  40: { label: "غير متصل", color: "#6b7280", bg: "#f3f4f6" },
-  60: { label: "استراحة", color: "#000000ff", bg: "#a6a7a0ff" },
-  
+  20: { label: "بدون طلب", color: "#d97706", bg: "#fef3c7" },
+  30: { label: "لديه طلب", color: "#059669", bg: "#d1fae5" },
+  40: { label: "غير متصل", color: "#64748b", bg: "#f1f5f9" },
+  60: { label: "استراحة", color: "#7c3aed", bg: "#f5f3ff" },
 };
 
 
