@@ -18,8 +18,10 @@ import {
   ChevronUp,
   Activity,
   Filter,
+  FileDown,
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
+import * as XLSX from "xlsx";
 
 const API_BASE = "https://express-extension-manager.premiumasp.net/";
 const HUNGER_COMPANY_ID = "463";
@@ -90,6 +92,9 @@ function RiderRow({ rider, index }) {
       className="border-b border-gray-50 hover:bg-blue-50/40 transition-colors"
       style={{ animationDelay: `${index * 30}ms` }}
     >
+      <td className="px-4 py-2.5 text-center text-xs font-bold text-gray-400">
+        {index + 1}
+      </td>
       <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-right">
         {rider.riderName}
       </td>
@@ -119,6 +124,9 @@ function KeetaCourierRow({ courier, index }) {
       className="border-b border-gray-50 hover:bg-orange-50/40 transition-colors"
       style={{ animationDelay: `${index * 30}ms` }}
     >
+      <td className="px-4 py-2.5 text-center text-xs font-bold text-gray-400">
+        {index + 1}
+      </td>
       <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-right">
         {courier.courierName}
       </td>
@@ -154,18 +162,18 @@ function KeetaCourierRow({ courier, index }) {
   );
 }
 
-function Section({ title, badge, badgeColor, children, defaultOpen = true, accentColor }) {
+function Section({ title, badge, badgeColor, children, defaultOpen = true, accentColor, actions }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div
       className="bg-white rounded-2xl shadow-sm border overflow-hidden"
       style={{ borderColor: `${accentColor}30` }}
     >
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50/70 transition-colors"
-      >
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/70 transition-colors">
+        <div
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-3 cursor-pointer flex-grow"
+        >
           <div
             className="w-3 h-3 rounded-full"
             style={{ background: accentColor }}
@@ -180,8 +188,17 @@ function Section({ title, badge, badgeColor, children, defaultOpen = true, accen
             </span>
           )}
         </div>
-        {open ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
-      </button>
+
+        <div className="flex items-center gap-4">
+          {actions}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+        </div>
+      </div>
       {open && <div className="px-6 pb-5">{children}</div>}
     </div>
   );
@@ -200,6 +217,32 @@ export default function LiveStatsPage() {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const timerRef = useRef(null);
+
+  const exportToExcel = (data, fileName, type) => {
+    let sheetData;
+    if (type === "hunger") {
+      sheetData = data.riders.map((r) => ({
+        المندوب: r.riderName,
+        الطلبات: r.orders,
+        المحفظة: r.wallet,
+        "ساعات العمل": r.workingHours,
+      }));
+    } else {
+      sheetData = data.couriers.map((c) => ({
+        المندوب: c.courierName,
+        الحالة: KEETA_STATUS[c.statusCode]?.label || "غير معروف",
+        "تم التسليم": c.finishedTasks,
+        "جاري التسليم": c.deliveringTasks,
+        ملغاة: c.canceledTasks,
+        "ساعات أونلاين": c.onlineHours,
+      }));
+    }
+
+    const ws = XLSX.utils.json_to_sheet(sheetData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Stats");
+    XLSX.writeFile(wb, `${fileName}_${todayDate()}.xlsx`);
+  };
 
   const fetchAll = useCallback(async () => {
     const date = todayDate();
@@ -279,6 +322,18 @@ export default function LiveStatsPage() {
           badge={hungerData?.totalRiders}
           accentColor="#f59e0b"
           defaultOpen={true}
+          actions={
+            hungerData && (
+              <button
+                onClick={() => exportToExcel(hungerData, "HungerStats", "hunger")}
+                className="flex items-center gap-2 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-all border border-amber-200 shadow-sm"
+                title="تصدير إلى Excel"
+              >
+                <FileDown size={14} />
+                <span>Excel</span>
+              </button>
+            )
+          }
         >
           {loading && !hungerData ? (
             <SkeletonStats />
@@ -318,6 +373,7 @@ export default function LiveStatsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800">
+                        <th className="px-4 py-3 text-center font-semibold w-10">#</th>
                         <th className="px-4 py-3 text-right font-semibold">المندوب</th>
                         <th className="px-4 py-3 text-center font-semibold">الطلبات</th>
                         <th className="px-4 py-3 text-center font-semibold">المحفظة</th>
@@ -349,6 +405,18 @@ export default function LiveStatsPage() {
           badge={keetaData?.totalCouriers}
           accentColor="#6366f1"
           defaultOpen={true}
+          actions={
+            keetaData && (
+              <button
+                onClick={() => exportToExcel(keetaData, "KeetaStats", "keeta")}
+                className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-all border border-indigo-200 shadow-sm"
+                title="تصدير إلى Excel"
+              >
+                <FileDown size={14} />
+                <span>Excel</span>
+              </button>
+            )
+          }
         >
           {loading && !keetaData ? (
             <SkeletonStats />
@@ -394,6 +462,7 @@ export default function LiveStatsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-800">
+                        <th className="px-4 py-3 text-center font-semibold w-10">#</th>
                         <th className="px-4 py-3 text-right font-semibold">المندوب</th>
                         <th className="px-4 py-3 text-center font-semibold">
                           <div className="flex items-center justify-center gap-2 group">
@@ -426,7 +495,7 @@ export default function LiveStatsPage() {
                     <tbody>
                       {keetaData.couriers
                         .slice()
-                        .sort((a, b) => (b.finishedTasks ?? 0) - (a.finishedTasks ?? 0))
+                        .sort((a, b) => (b.onlineHours ?? 0) - (a.onlineHours ?? 0))
                         .filter(c => statusFilter === "all" || String(c.statusCode) === statusFilter)
                         .map((c, i) => (
                           <KeetaCourierRow key={c.courierId ? `${c.courierId}-${i}` : i} courier={c} index={i} />
