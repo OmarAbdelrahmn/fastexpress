@@ -525,8 +525,8 @@ export default function EnhancedDashboard() {
 
   const PageHeader = () => (
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center justify-center p-2 rounded-xl border border-blue-50">
+      <div className="flex items-center gap-4 ">
+        <div className="flex items-center justify-center p-2 rounded-xl border border-blue-50 bg-white">
           <img src="/5.png" alt="Logo" className="w-14 h-14 object-contain" />
         </div>
         <div>
