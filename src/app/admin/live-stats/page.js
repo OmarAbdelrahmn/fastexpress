@@ -359,7 +359,7 @@ export default function LiveStatsPage() {
                 <StatPill
                   icon={Users}
                   label="المناديب"
-                  value={keetaData.totalCouriers}
+                  value={keetaData.couriers?.filter(c => statusFilter === "all" || String(c.statusCode) === statusFilter).length}
                   color="linear-gradient(135deg,#6366f1,#4f46e5)"
                 />
                 <StatPill
@@ -385,12 +385,6 @@ export default function LiveStatsPage() {
                   label="ساعات أونلاين"
                   value={keetaData.totalOnlineHours?.toFixed(1)}
                   color="linear-gradient(135deg,#8b5cf6,#7c3aed)"
-                />
-                <StatPill
-                  icon={Users}
-                  label="العدد الحالي"
-                  value={keetaData.couriers?.filter(c => statusFilter === "all" || String(c.statusCode) === statusFilter).length}
-                  color="linear-gradient(135deg,#475569,#334155)"
                 />
               </div>
 
