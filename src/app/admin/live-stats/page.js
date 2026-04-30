@@ -30,7 +30,8 @@ const KEETA_STATUS = {
   20: { label: "بدون طلب", color: "#d97706", bg: "#fef3c7" },
   30: { label: "لديه طلب", color: "#059669", bg: "#d1fae5" },
   40: { label: "غير متصل", color: "#64748b", bg: "#f1f5f9" },
-  60: { label: "استراحة", color: "#7c3aed", bg: "#f5f3ff" },
+  50: { label: "مقيّد", color: "#dc2626", bg: "#fef2f2" },
+  60: { label: "مجدول، ولكن غير متصل", color: "#7c3aed", bg: "#f5f3ff" },
 };
 
 
