@@ -18,6 +18,7 @@ import {
   ChevronUp,
   Activity,
 } from "lucide-react";
+import PageHeader from "@/components/layout/pageheader";
 
 const API_BASE = "https://express-extension-manager.premiumasp.net/";
 const HUNGER_COMPANY_ID = "463";
@@ -25,14 +26,13 @@ const KEETA_ORG_ID = "2960";
 const REFRESH_INTERVAL = 30_000; // 30 s
 
 const KEETA_STATUS = {
-  20: { label: "Going", color: "#f59e0b", bg: "#fef3c7" },
-  30: { label: "Delivering", color: "#10b981", bg: "#d1fae5" },
-  40: { label: "Offline", color: "#6b7280", bg: "#f3f4f6" },
+  20: { label: "بدون طلب", color: "#f59e0b", bg: "#fef3c7" },
+  30: { label: "لديه طلب", color: "#10b981", bg: "#d1fae5" },
+  40: { label: "غير متصل", color: "#6b7280", bg: "#f3f4f6" },
+  60: { label: "استراحة", color: "#000000ff", bg: "#a6a7a0ff" },
+  
 };
 
-function getToken() {
-  return typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-}
 
 function todayDate() {
   return new Date().toISOString().split("T")[0];
@@ -48,28 +48,24 @@ async function fetchJson(url) {
 //  Sub-components
 // ────────────────────────────────────────────
 
-function CountdownBar({ interval, lastFetch }) {
-  const [pct, setPct] = useState(100);
+function CountdownTimer({ interval, lastFetch }) {
+  const [seconds, setSeconds] = useState(Math.ceil(interval / 1000));
 
   useEffect(() => {
     const tick = () => {
       const elapsed = Date.now() - lastFetch;
-      setPct(Math.max(0, 100 - (elapsed / interval) * 100));
+      const remaining = Math.max(0, Math.ceil((interval - elapsed) / 1000));
+      setSeconds(remaining);
     };
     tick();
-    const id = setInterval(tick, 500);
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [lastFetch, interval]);
 
   return (
-    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-      <div
-        className="h-full rounded-full transition-all duration-500"
-        style={{
-          width: `${pct}%`,
-          background: "linear-gradient(90deg,#2563eb,#7c3aed)",
-        }}
-      />
+    <div className="flex items-center gap-1.5 text-xs font-mono bg-white/20 text-white px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
+      <Clock size={12} className="animate-pulse" />
+      <span className="font-bold">{seconds}s</span>
     </div>
   );
 }
@@ -116,7 +112,7 @@ function RiderRow({ rider, index }) {
 }
 
 function KeetaCourierRow({ courier, index }) {
-  const status = KEETA_STATUS[courier.statusCode] ?? { label: "Unknown", color: "#9ca3af", bg: "#f3f4f6" };
+  const status = KEETA_STATUS[courier.statusCode] ?? { label: "غير معروف", color: "#9ca3af", bg: "#f3f4f6" };
   return (
     <tr
       className="border-b border-gray-50 hover:bg-orange-50/40 transition-colors"
@@ -235,49 +231,36 @@ export default function LiveStatsPage() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
-      {/* Header */}
-      <div
-        className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-md shadow-blue-200">
-              <Activity size={20} color="white" strokeWidth={2} />
-            </div>
-            <div>
-              <h1 className="text-xl font-extrabold text-gray-900 leading-tight">
-                لوحة الإحصاءات الحية
-              </h1>
-              <p className="text-xs text-gray-400 mt-0.5">{date} · يتجدد كل 30 ثانية</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
+      <PageHeader
+        title="لوحة الإحصاءات الحية"
+        subtitle={`${date} · يتجدد كل 30 ثانية`}
+        icon={Activity}
+        actions={
+          <>
             <span
-              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
+              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg backdrop-blur-sm border ${
                 online
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-red-100 text-red-600"
+                  ? "bg-emerald-400/20 text-emerald-50 border-emerald-400/30"
+                  : "bg-red-400/20 text-red-50 border-red-400/30"
               }`}
             >
               {online ? <Wifi size={12} /> : <WifiOff size={12} />}
               {online ? "متصل" : "غير متصل"}
             </span>
 
+            <CountdownTimer interval={REFRESH_INTERVAL} lastFetch={lastFetch} />
+
             <button
               onClick={fetchAll}
               disabled={loading}
-              className="flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 px-4 py-2 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.03] active:scale-100 transition-all disabled:opacity-60"
+              className="flex items-center gap-2 text-sm font-semibold text-blue-600 bg-white px-4 py-1.5 rounded-lg shadow-sm hover:bg-blue-50 hover:scale-[1.03] active:scale-100 transition-all disabled:opacity-60"
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
               تحديث
             </button>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <CountdownBar interval={REFRESH_INTERVAL} lastFetch={lastFetch} />
-      </div>
+          </>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Error Banner */}
@@ -344,7 +327,7 @@ export default function LiveStatsPage() {
                         .slice()
                         .sort((a, b) => (b.orders ?? 0) - (a.orders ?? 0))
                         .map((r, i) => (
-                          <RiderRow key={r.riderId} rider={r} index={i} />
+                          <RiderRow key={r.riderId ? `${r.riderId}-${i}` : i} rider={r} index={i} />
                         ))}
                     </tbody>
                   </table>
@@ -422,7 +405,7 @@ export default function LiveStatsPage() {
                         .slice()
                         .sort((a, b) => (b.finishedTasks ?? 0) - (a.finishedTasks ?? 0))
                         .map((c, i) => (
-                          <KeetaCourierRow key={c.courierId} courier={c} index={i} />
+                          <KeetaCourierRow key={c.courierId ? `${c.courierId}-${i}` : i} courier={c} index={i} />
                         ))}
                     </tbody>
                   </table>
