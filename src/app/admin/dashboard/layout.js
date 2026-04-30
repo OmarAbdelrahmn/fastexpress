@@ -1,4 +1,3 @@
-// File: src/app/dashboard/layout.js
 'use client';
 
 import { AuthProvider, useAuth } from '@/lib/auth/authContext';
@@ -11,22 +10,26 @@ function DashboardLayoutContent({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Loader2 className="animate-spin text-orange-500" size={48} />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+            <Loader2 className="animate-spin text-white" size={24} />
+          </div>
+          <p className="text-sm font-medium text-slate-400">جاري التحميل...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen "  style={{
-    background: "linear-gradient(0deg,rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 1) 50%,rgba(255, 255, 255, 1) 100%)"
-    }}
- dir="rtl">
+    <div className="min-h-screen bg-slate-50" dir="rtl">
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 p-4 lg:p-6 overflow-auto w-full">
-          {children}
+        <main className="flex-1 overflow-auto min-h-[calc(100vh-64px)]">
+          <div className="p-4 lg:p-6 max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
