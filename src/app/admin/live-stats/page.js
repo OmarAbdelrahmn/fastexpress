@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Activity,
+  Filter,
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 
@@ -197,6 +198,7 @@ export default function LiveStatsPage() {
   const [lastFetch, setLastFetch] = useState(Date.now());
   const [online, setOnline] = useState(true);
   const [error, setError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
   const timerRef = useRef(null);
 
   const fetchAll = useCallback(async () => {
@@ -393,7 +395,28 @@ export default function LiveStatsPage() {
                     <thead>
                       <tr className="bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-800">
                         <th className="px-4 py-3 text-right font-semibold">المندوب</th>
-                        <th className="px-4 py-3 text-center font-semibold">الحالة</th>
+                        <th className="px-4 py-3 text-center font-semibold">
+                          <div className="flex items-center justify-center gap-2 group">
+                            <span>الحالة</span>
+                            <div className="relative flex items-center">
+                              <Filter 
+                                size={14} 
+                                className={`transition-colors ${statusFilter !== 'all' ? 'text-indigo-600' : 'text-indigo-300 group-hover:text-indigo-500'}`}
+                              />
+                              <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full appearance-none"
+                                title="تصفية حسب الحالة"
+                              >
+                                <option value="all">الكل</option>
+                                {Object.entries(KEETA_STATUS).map(([code, { label }]) => (
+                                  <option key={code} value={code}>{label}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </th>
                         <th className="px-4 py-3 text-center font-semibold">منتهية</th>
                         <th className="px-4 py-3 text-center font-semibold">جارية</th>
                         <th className="px-4 py-3 text-center font-semibold">ملغاة</th>
@@ -404,6 +427,7 @@ export default function LiveStatsPage() {
                       {keetaData.couriers
                         .slice()
                         .sort((a, b) => (b.finishedTasks ?? 0) - (a.finishedTasks ?? 0))
+                        .filter(c => statusFilter === "all" || String(c.statusCode) === statusFilter)
                         .map((c, i) => (
                           <KeetaCourierRow key={c.courierId ? `${c.courierId}-${i}` : i} courier={c} index={i} />
                         ))}
