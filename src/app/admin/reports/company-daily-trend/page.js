@@ -186,13 +186,27 @@ export default function CompanyDailyTrendPage() {
             const start = new Date(startDate);
             const end = new Date(endDate);
 
-            // Previous period = same day range but one month earlier
-            // e.g. Apr 1–18 compares against Mar 1–18
-            const prevStart = new Date(start);
-            prevStart.setMonth(prevStart.getMonth() - 1);
+            let prevStart = new Date(start);
+            let prevEnd = new Date(end);
 
-            const prevEnd = new Date(end);
-            prevEnd.setMonth(prevEnd.getMonth() - 1);
+            const [sYear, sMonth, sDay] = startDate.split('-').map(Number);
+            const [eYear, eMonth, eDay] = endDate.split('-').map(Number);
+            
+            const lastDayOfStartMonth = new Date(sYear, sMonth, 0).getDate();
+            const isFullMonth = sDay === 1 && eDay === lastDayOfStartMonth && sMonth === eMonth && sYear === eYear;
+
+            if (isFullMonth) {
+                // Previous period should be the full previous month
+                prevStart.setMonth(prevStart.getMonth() - 1);
+                
+                prevEnd = new Date(prevStart);
+                prevEnd.setDate(new Date(prevStart.getFullYear(), prevStart.getMonth() + 1, 0).getDate());
+            } else {
+                // Previous period = same day range but one month earlier
+                // e.g. Apr 1–18 compares against Mar 1–18
+                prevStart.setMonth(prevStart.getMonth() - 1);
+                prevEnd.setMonth(prevEnd.getMonth() - 1);
+            }
 
             const previousData = rawData.filter(item => {
                 const itemDate = new Date(item.shiftDate);
