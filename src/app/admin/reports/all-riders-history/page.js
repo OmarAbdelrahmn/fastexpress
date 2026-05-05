@@ -27,8 +27,8 @@ export default function AllRidersHistoryPage() {
         setLoading(true);
         try {
             const queryParams = {};
-            if (startDate) queryParams.startDate = startDate;
-            if (endDate) queryParams.endDate = endDate;
+            if (startDate) queryParams.StartDate = startDate;
+            if (endDate) queryParams.EndDate = endDate;
             
             const cId = overrideCompanyId !== undefined ? overrideCompanyId : companyFilter;
             if (cId) queryParams.CompanyId = cId;
@@ -234,7 +234,7 @@ export default function AllRidersHistoryPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 md:flex gap-2 w-full">
                     <button
-                        onClick={fetchData}
+                        onClick={() => fetchData()}
                         disabled={loading}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
