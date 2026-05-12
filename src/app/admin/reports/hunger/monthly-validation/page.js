@@ -232,6 +232,84 @@ export default function HungerMonthlyValidationReport() {
         URL.revokeObjectURL(url);
     };
 
+    const handleSummaryExcelExport = async () => {
+        if (!reportData || !reportData.riderValidations) return;
+
+        const invalidRiders = reportData.riderValidations.filter(r => !r.isValidForMonth);
+        
+        if (invalidRiders.length === 0) {
+            setError('لا يوجد مناديب غير صالحين للتصدير');
+            return;
+        }
+
+        const COLOR = {
+            white:        'FFFFFFFF',
+            darkBlue:     'FF1F3864',
+            grey:         'FFBFBFBF',
+        };
+
+        const applyBorder = (cell) => {
+            ['top','left','bottom','right'].forEach(side => {
+                cell.border = {
+                    ...cell.border,
+                    [side]: { style: 'thin', color: { argb: COLOR.grey } },
+                };
+            });
+        };
+
+        const styleCell = (cell, { bgColor, fontColor = COLOR.darkBlue, bold = false } = {}) => {
+            if (bgColor) {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
+            }
+            cell.font = { bold, color: { argb: fontColor }, name: 'Calibri', size: 11 };
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            applyBorder(cell);
+        };
+
+        const wb = new ExcelJS.Workbook();
+        const wsSummary = wb.addWorksheet('Invalid Riders Summary');
+
+        const summaryHeaders = [
+            'المجموعة','اسم المندوب','الاقامة','المعرف',
+            'أيام العمل الصالحة','أيام الغياب','عجز الأيام',
+            'إجمالي الطلبات','عجز الطلبات','متوسط الساعات التزام',
+            'نسبة الأيام','نسبة الطلبات','نسبة الأداء','النتيجة',
+        ];
+
+        wsSummary.columns = summaryHeaders.map(h => ({ header: h, width: 20 }));
+        wsSummary.getRow(1).eachCell(cell => {
+            styleCell(cell, { bgColor: COLOR.darkBlue, fontColor: COLOR.white, bold: true });
+        });
+
+        invalidRiders.forEach(rider => {
+            wsSummary.addRow([
+                rider.housingName || '',
+                rider.riderNameAR || '',
+                rider.iqamaNo || '',
+                rider.workingId || '',
+                rider.totalValidWorkingDays,
+                rider.missingDaysCount,
+                rider.workingDaysDeficit,
+                rider.totalOrders,
+                rider.ordersDeficit,
+                Number(rider.averageHoursPerValidDay).toFixed(2),
+                `${rider.daysPercentage || 0}%`,
+                `${rider.ordersPercentage || 0}%`,
+                `${rider.performancePercentage || 0}%`,
+                rider.statusLabel || 'غير صالح',
+            ]);
+        });
+
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invalid_riders_summary_${form.year}_${form.month}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const handleSubmit = async () => {
         if (!form.year || !form.month) {
             setError('يرجى تحديد السنة والشهر');
@@ -461,13 +539,22 @@ export default function HungerMonthlyValidationReport() {
                             </button>
 
                             {reportData && (
-                                <button
-                                    onClick={handleExcelExport}
-                                    className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
-                                >
-                                    <FileSpreadsheet size={20} />
-                                    تصدير Excel
-                                </button>
+                                <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                                    <button
+                                        onClick={handleExcelExport}
+                                        className="flex-1 md:flex-none bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
+                                    >
+                                        <FileSpreadsheet size={20} />
+                                        تصدير Excel (كامل)
+                                    </button>
+                                    <button
+                                        onClick={handleSummaryExcelExport}
+                                        className="flex-1 md:flex-none bg-orange-600 text-white py-3 px-6 rounded-lg hover:bg-orange-700 hover:shadow-lg flex items-center justify-center gap-2 font-bold transition-all"
+                                    >
+                                        <Users size={20} />
+                                        تصدير ملخص غير الصالحين
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Calendar, FileText, Activity, AlertCircle, RefreshCw, Car, Search } from 'lucide-react';
+import { User, Calendar, FileText, Activity, AlertCircle, RefreshCw, Car, Search, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import Link from 'next/link';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -15,6 +16,22 @@ export default function PetrolRidersPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
+
+  const exportToExcel = () => {
+    const dataToExport = filteredRiders.map(r => ({
+      'الرقم المدني (الإقامة)': r.riderIqamaNo,
+      'اسم السائق': r.riderNameAR || r.riderNameEN || 'غير معروف',
+      'مجموع التكلفة (ريال)': r.totalCost || 0,
+      'عدد المركبات المستخدمة': r.uniqueVehiclesUsed || 0,
+      'عدد المرات': r.totalDaysWithCost || 0,
+      'إجمالي الطلبات': r.totalAcceptedOrders || 0
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Petrol Riders Summary");
+    XLSX.writeFile(workbook, `Petrol_Riders_Summary_${year}_${month}.xlsx`);
+  };
 
   const fetchRiders = async () => {
     setLoading(true);
@@ -87,6 +104,15 @@ export default function PetrolRidersPage() {
           >
             {loading ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
             تحديث
+          </button>
+
+          <button
+            onClick={exportToExcel}
+            disabled={loading || filteredRiders.length === 0}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2 transition-all w-full md:w-auto"
+          >
+            <Download size={18} />
+            استخراج Excel
           </button>
         </div>
 
