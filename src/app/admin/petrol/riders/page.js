@@ -141,7 +141,7 @@ export default function PetrolRidersPage() {
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">عدد المركبات المستخدمة</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">عدد المرات</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">الإجراءات</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">إجمالي الطلبات المقبولة</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">إجمالي الطلبات</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
