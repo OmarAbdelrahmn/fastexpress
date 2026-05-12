@@ -141,6 +141,7 @@ export default function PetrolRidersPage() {
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">عدد المركبات المستخدمة</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">عدد المرات</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">الإجراءات</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">إجمالي الطلبات المقبولة</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -178,11 +179,18 @@ export default function PetrolRidersPage() {
                             عرض التفاصيل
                           </Link>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                              {row.totalAcceptedOrders ?? 0}
+                            </span>
+                          </div>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                         <FileText size={48} className="mx-auto mb-4 text-gray-300" />
                         لا توجد بيانات بنزين للسائقين في هذا الشهر.
                       </td>
