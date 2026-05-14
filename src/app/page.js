@@ -703,39 +703,6 @@ export default function ComprehensiveLandingPage() {
         </div>
       </footer>
 
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animate-float-delayed { animation: float-delayed 5s ease-in-out infinite 1s; }
-        .animate-marquee { animation: marquee 30s linear infinite; }
-        
-        .reveal-on-scroll {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
-        }
-        .reveal-on-scroll.is-visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-      `}</style>
-
     </div>
   );
 } 
