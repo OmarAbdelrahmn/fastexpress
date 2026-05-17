@@ -252,7 +252,6 @@ export default function LiveStatsPage() {
         fetchJson(`${API_BASE}api/rider-stats/${HUNGER_COMPANY_ID}/${date}`),
         fetchJson(`${API_BASE}api/keeta-stats/${KEETA_ORG_ID}/${date}`),
       ]);
-      console.log(hunger, keeta);
       setHungerData(hunger);
       setKeetaData(keeta);
       setOnline(true);
