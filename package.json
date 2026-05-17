@@ -17,12 +17,15 @@
     "react-dom": "^19.2.1",
     "recharts": "^3.5.1",
     "workbox-build": "^7.4.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "babel-plugin-react-compiler": "1.0.0",
     "baseline-browser-mapping": "^2.9.0",
     "tailwindcss": "^4"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }
