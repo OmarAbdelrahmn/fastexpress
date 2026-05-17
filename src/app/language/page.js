@@ -7,7 +7,6 @@ import PageHeader from '@/components/layout/pageheader';
 const LANGUAGES = [
   { code: 'ar', label: 'العربية', sublabel: 'Arabic', flag: 'AR' },
   { code: 'en', label: 'English', sublabel: 'English', flag: 'EN' },
-  { code: 'bn', label: 'বাংলা', sublabel: 'Bengali', flag: 'BN' },
 ];
 
 export default function LanguagePage() {

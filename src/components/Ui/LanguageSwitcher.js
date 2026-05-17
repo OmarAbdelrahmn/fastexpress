@@ -16,7 +16,6 @@ export default function LanguageSwitcher() {
       >
         <option value="ar" className="bg-gray-800">العربية</option>
         <option value="en" className="bg-gray-800">English</option>
-        <option value="bn" className="bg-gray-800">বাংলা</option>
       </select>
     </div>
   );

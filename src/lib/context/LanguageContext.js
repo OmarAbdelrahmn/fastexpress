@@ -3,9 +3,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import ar from '@/i18n/locales/ar.json';
 import en from '@/i18n/locales/en.json';
-import bn from '@/i18n/locales/bn.json';
 
-const translations = { ar, en, bn };
+const translations = { ar, en };
 
 const LanguageContext = createContext();
 
