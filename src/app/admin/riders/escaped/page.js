@@ -12,8 +12,17 @@ import PageHeader from '@/components/layout/pageheader';
 import StatusBadge from '@/components/Ui/StatusBadge';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { AlertCircle, Calendar, FileText, Search, User, Trash2, Clock, Pin, Edit, Globe, ShieldAlert, NotebookTabs, Filter, Power, FileDown, Eye } from 'lucide-react';
-import moment from 'moment';
 import * as XLSX from 'xlsx';
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 export default function EscapedManagementPage() {
   const router = useRouter();
@@ -82,10 +91,10 @@ export default function EscapedManagementPage() {
   const handleOpenPathModal = (employee) => {
     setSelectedEmployee(employee);
     setFormData({
-      escapedAt: employee.escapedAt ? moment(employee.escapedAt).format('YYYY-MM-DD') : '',
-      reportedAt: employee.reportedAt ? moment(employee.reportedAt).format('YYYY-MM-DD') : '',
+      escapedAt: formatDate(employee.escapedAt),
+      reportedAt: formatDate(employee.reportedAt),
       isReported: employee.isReported || false,
-      outageDate: employee.outageDate ? moment(employee.outageDate).format('YYYY-MM-DD') : '',
+      outageDate: formatDate(employee.outageDate),
       outageVisaNumber: employee.outageVisaNumber || '',
     });
     
@@ -239,7 +248,7 @@ export default function EscapedManagementPage() {
       'رقم الإقامة': emp.iqamaNo,
       'الاسم': emp.nameAR,
       'الوظيفة': emp.jobTitle,
-      'تاريخ الهروب': emp.escapedAt ? moment(emp.escapedAt).format('YYYY-MM-DD') : '-',
+      'تاريخ الهروب': formatDate(emp.escapedAt) || '-',
       'تجاوز المهلة': emp.isOverdue ? 'نعم' : 'لا'
     }));
 
@@ -255,8 +264,8 @@ export default function EscapedManagementPage() {
       'الاسم': emp.nameAR,
       'الوظيفة': emp.jobTitle,
       'المسار': emp.activePath === 1 ? 'تم الإبلاغ' : 'خروج نهائي',
-      'تاريخ الهروب': emp.escapedAt ? moment(emp.escapedAt).format('YYYY-MM-DD') : '-',
-      'الموعد النهائي': emp.removalDeadline ? moment(emp.removalDeadline).format('YYYY-MM-DD') : '-',
+      'تاريخ الهروب': formatDate(emp.escapedAt) || '-',
+      'الموعد النهائي': formatDate(emp.removalDeadline) || '-',
       'الأيام المتبقية': emp.remainingDaysToRemoval ?? '-',
       'ملاحظات': emp.notes || ''
     }));
@@ -324,13 +333,13 @@ export default function EscapedManagementPage() {
           {row.escapedAt && (
             <div className="flex flex-col mb-1">
               <span className="text-gray-400 text-[10px] uppercase">تاريخ الهروب:</span>
-              <span className="font-medium">{moment(row.escapedAt).format('YYYY-MM-DD')}</span>
+              <span className="font-medium">{formatDate(row.escapedAt)}</span>
             </div>
           )}
           {row.removalDeadline && (
             <div className="flex flex-col">
               <span className="text-gray-400 text-[10px] uppercase text-red-500">الموعد النهائي:</span>
-              <span className="font-semibold text-red-600">{moment(row.removalDeadline).format('YYYY-MM-DD')}</span>
+              <span className="font-semibold text-red-600">{formatDate(row.removalDeadline)}</span>
             </div>
           )}
         </div>
