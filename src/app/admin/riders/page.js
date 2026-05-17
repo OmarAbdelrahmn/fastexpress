@@ -480,8 +480,8 @@ export default function RidersPage() {
               title={t('riders.workingIdHistory')}
               description={t('riders.viewWorkingIdHistoryDesc')}
               onClick={() => router.push('/admin/riders/working-id-history')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#0d9488" // orange-600
+              bgClass="bg-green-50"
             />
             <MiniStatRow
               icon={AlertCircle}
