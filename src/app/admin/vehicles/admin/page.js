@@ -242,8 +242,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.vehicleHistory')}
               description={t('vehicles.vehicleRecords')}
               onClick={() => router.push('/admin/vehicles/admin/history')}
-              color="#2563eb" // blue-600
-              bgClass="bg-blue-50"
+              color="#0fbe2cff" // blue-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
           </div>
@@ -341,8 +341,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.fixProblems')}
               description={t('vehicles.solveProblems')}
               onClick={() => router.push('/admin/vehicles/admin/fix-problems')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#0d9488ff" // orange-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
           </div>
@@ -386,8 +386,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.actualOutOfService')}
               description={t('vehicles.outOfServiceReason')}
               onClick={() => router.push('/admin/vehicles/admin/out-of-service')}
-              color="#475569" // slate-600
-              bgClass="bg-slate-50"
+              color="#2db656ff" // slate-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
           </div>
