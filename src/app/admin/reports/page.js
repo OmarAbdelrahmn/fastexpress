@@ -370,24 +370,6 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
-
-      {/* Other Reports Link */}
-      <div className="mx-4 my-6 md:m-6 flex justify-start">
-        <Link href="/admin/reports/other" className="w-full md:w-auto">
-          <button className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 group">
-            <BarChart3 size={20} />
-            <span className="font-semibold">{t('reports.otherReportsButton')}</span>
-            <svg
-              className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </Link>
-      </div>
     </div>
   );
 }
