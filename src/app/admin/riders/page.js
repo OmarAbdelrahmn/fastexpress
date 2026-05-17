@@ -51,7 +51,7 @@ export default function RidersPage() {
     setErrorMessage('');
     try {
       const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
-      
+
       setRiders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading riders:', err);
@@ -226,27 +226,28 @@ export default function RidersPage() {
       header: t('common.status'),
       accessor: 'status',
       render: (row) => (
-          <div className="flex">
-        <div className="flex flex-col gap-1">
-          <StatusBadge status={row.status} />
-          {row.updatedAd && !row.dateOfOutage && !row.reportedAt && (
-            <span className="text-xs text-gray-500">
-              {new Date(row.updatedAd).toLocaleDateString('ar-SA')}
-            </span>
-          )}
-          {statusFilter === 'outage' && row.dateOfOutage && (
-            <span className="text-xs text-amber-600 font-medium">
-              {new Date(row.dateOfOutage).toLocaleDateString('ar-SA')}
-            </span>
-          )}
-          {statusFilter === 'reported' && row.reportedAt && (
-            <span className="text-xs text-red-600 font-medium">
-              {new Date(row.reportedAt).toLocaleDateString('ar-SA')}
-            </span>
-          )}
+        <div className="flex">
+          <div className="flex flex-col gap-1">
+            <StatusBadge status={row.status} />
+            {row.updatedAd && !row.dateOfOutage && !row.reportedAt && (
+              <span className="text-xs text-gray-500">
+                {new Date(row.updatedAd).toLocaleDateString('ar-SA')}
+              </span>
+            )}
+            {statusFilter === 'outage' && row.dateOfOutage && (
+              <span className="text-xs text-amber-600 font-medium">
+                {new Date(row.dateOfOutage).toLocaleDateString('ar-SA')}
+              </span>
+            )}
+            {statusFilter === 'reported' && row.reportedAt && (
+              <span className="text-xs text-red-600 font-medium">
+                {new Date(row.reportedAt).toLocaleDateString('ar-SA')}
+              </span>
+            )}
+          </div>
         </div>
-        </div>
-      )    },
+      )
+    },
     {
       header: t('riders.actions'),
       render: (row) => (
@@ -703,17 +704,17 @@ export default function RidersPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                  <StatusBadge status={rider.status} />
-                  {statusFilter === 'outage' && rider.dateOfOutage && (
-                    <span className="text-xs text-amber-600 font-medium mt-1">
-                      {new Date(rider.dateOfOutage).toLocaleDateString('ar-SA')}
-                    </span>
-                  )}
-                  {statusFilter === 'reported' && rider.reportedAt && (
-                    <span className="text-xs text-red-600 font-medium mt-1">
-                      {new Date(rider.reportedAt).toLocaleDateString('ar-SA')}
-                    </span>
-                  )}                    </div>
+                      <StatusBadge status={rider.status} />
+                      {statusFilter === 'outage' && rider.dateOfOutage && (
+                        <span className="text-xs text-amber-600 font-medium mt-1">
+                          {new Date(rider.dateOfOutage).toLocaleDateString('ar-SA')}
+                        </span>
+                      )}
+                      {statusFilter === 'reported' && rider.reportedAt && (
+                        <span className="text-xs text-red-600 font-medium mt-1">
+                          {new Date(rider.reportedAt).toLocaleDateString('ar-SA')}
+                        </span>
+                      )}                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">

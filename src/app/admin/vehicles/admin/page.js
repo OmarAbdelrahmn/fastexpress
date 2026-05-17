@@ -221,7 +221,7 @@ export default function VehicleAdminDashboard() {
         </div> */}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4 mb-15">
         {/* 1. Search & Reports */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
           <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-base">
@@ -269,8 +269,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.returnVehicle')}
               description={t('vehicles.registerReturnVehicle')}
               onClick={() => router.push('/admin/vehicles/admin/return')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#0fbe2cff" // green-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -278,8 +278,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.switchVehicle') || 'تبديل مركبة'}
               description={t('vehicles.switchVehicleDesc') || 'تبديل مركبة لمندوب'}
               onClick={() => router.push('/admin/vehicles/admin/switch')}
-              color="#9333ea" // purple-600
-              bgClass="bg-purple-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
           </div>
@@ -305,8 +305,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.changeLocation')}
               description={t('vehicles.updateLocations')}
               onClick={() => router.push('/admin/vehicles/admin/change-location')}
-              color="#4b5563" // gray-600
-              bgClass="bg-gray-50"
+              color="#0fbe2cff" // gray-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -314,8 +314,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.supervisorRequests')}
               description={t('vehicles.supervisorRequestsDesc')}
               onClick={() => router.push('/admin/vehicles/admin/users-requests')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
           </div>
@@ -332,8 +332,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.reportProblem')}
               description={t('vehicles.reportProblemDesc')}
               onClick={() => router.push('/admin/vehicles/admin/problems')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -359,8 +359,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.stolenVehicles')}
               description={t('vehicles.reportedStolen')}
               onClick={() => router.push('/admin/vehicles/admin/stolen')}
-              color="#ea580c" // orange-600
-              bgClass="bg-orange-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -368,8 +368,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.recoverStolen')}
               description={t('vehicles.recoverStolenVehicles')}
               onClick={() => router.push('/admin/vehicles/admin/recover-stolen')}
-              color="#2563eb" // blue-600
-              bgClass="bg-blue-50"
+              color="#0d9488ff" // green-600
+              bgClass="bg-green-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -377,8 +377,8 @@ export default function VehicleAdminDashboard() {
               title={t('vehicles.outOfService')}
               description={t('vehicles.unusable')}
               onClick={() => router.push('/admin/vehicles/admin/breakup')}
-              color="#4b5563" // gray-600
-              bgClass="bg-gray-50"
+              color="#2563eb" // blue-600
+              bgClass="bg-blue-50"
               className="!p-2"
             />
             <MiniStatRow
@@ -395,107 +395,7 @@ export default function VehicleAdminDashboard() {
       </div>
 
       {/* Recent Activity */}
-      {loading ? (
-        <Card>
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600">{t("vehicles.loadingData")}</p>
-          </div>
-        </Card>
-      ) : (
-        <Card>
-          <h2 className="text-xl font-bold text-gray-800 mb-6">{t("vehicles.statusSummary")}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-            <div>
-              <h3 className="font-bold text-gray-700 mb-3">{t("vehicles.usageRates")}</h3>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">{t("vehicles.available")}</span>
-                    <span className="font-medium">
-                      {((stats.availableCount / totalVehicles) * 100).toFixed(
-                        1
-                      )}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${(stats.availableCount / totalVehicles) * 100
-                          }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">{t("vehicles.used")}</span>
-                    <span className="font-medium">
-                      {((stats.takenCount / totalVehicles) * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${(stats.takenCount / totalVehicles) * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">{t("vehicles.problems")}</span>
-                    <span className="font-medium">
-                      {((othervehicles / totalVehicles) * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-orange-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${(othervehicles / totalVehicles) * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div className="p-10">
-              <h3 className="font-bold text-gray-700 mb-3">{t("vehicles.quickStats")}</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">{t("vehicles.activeVehicles")}</span>
-                  <span className="font-bold text-blue-600">
-                    {activeVehicles}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">{t("vehicles.needsAttention")}</span>
-                  <span className="font-bold text-orange-600">
-                    {stats.problemCount + stats.stolenCount}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">{t("vehicles.outOfService")}</span>
-                  <span className="font-bold text-gray-600">
-                    {stats.breakUpCount}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm text-slate-600">{t("vehicles.actualOutOfService")}</span>
-                  <span className="font-bold text-slate-600">
-                    {stats.outOfServiceCount}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
