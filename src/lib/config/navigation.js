@@ -38,11 +38,6 @@ export const userNavigationConfig = {
       { path: "/member/requests/vehicles", label: "طلبات عمليات المركبات" },
     ],
   },
-  disabilities: {
-    title: "navigation.disabilities",
-    icon: "⚠️",
-    path: "/member/disabilities",
-  },
   reports: {
     title: "navigation.reports",
     icon: "📊",
