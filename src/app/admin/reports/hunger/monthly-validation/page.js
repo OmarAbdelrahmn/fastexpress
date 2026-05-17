@@ -5,7 +5,6 @@ import { Target, Users, Calendar, BarChart3, FileSpreadsheet, AlertTriangle, Che
 import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import ExcelJS from 'exceljs';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function HungerMonthlyValidationReport() {
@@ -67,6 +66,7 @@ export default function HungerMonthlyValidationReport() {
         };
 
         // ── Build workbook with ExcelJS ───────────────────────────────────────
+        const ExcelJS = (await import('exceljs')).default;
         const wb = new ExcelJS.Workbook();
 
         // ── SHEET 1 : Summary ────────────────────────────────────────────────
@@ -266,6 +266,7 @@ export default function HungerMonthlyValidationReport() {
             applyBorder(cell);
         };
 
+        const ExcelJS = (await import('exceljs')).default;
         const wb = new ExcelJS.Workbook();
         const wsSummary = wb.addWorksheet('Invalid Riders Summary');
 

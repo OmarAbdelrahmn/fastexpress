@@ -5,9 +5,32 @@ import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
-import * as XLSX from "xlsx";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import RidersSummaryReportPDF from "@/components/dashboard/RidersSummaryReportPDF";
+import dynamic from "next/dynamic";
+
+const DynamicRidersSummaryPDFLink = dynamic(
+    async () => {
+        const { PDFDownloadLink } = await import("@react-pdf/renderer");
+        const RidersSummaryReportPDF = (await import("@/components/dashboard/RidersSummaryReportPDF")).default;
+        
+        return function PDFLinkWrapper({ data, startDate, endDate, fileName, className }) {
+            return (
+                <PDFDownloadLink
+                    document={<RidersSummaryReportPDF data={data} startDate={startDate} endDate={endDate} />}
+                    fileName={fileName}
+                    className={className}
+                >
+                    {({ loading }) => (
+                        <>
+                            <Printer size={20} />
+                            <span className="font-medium">{loading ? '...PDF' : 'PDF'}</span>
+                        </>
+                    )}
+                </PDFDownloadLink>
+            );
+        };
+    },
+    { ssr: false, loading: () => <span className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-gray-400"><Printer size={20} /><span className="font-medium">PDF</span></span> }
+);
 import {
     ArrowRight,
     Search,
@@ -134,7 +157,7 @@ export default function RidersSummaryReportPage() {
 
     const finalData = getFilteredData();
 
-    const handleExport = () => {
+    const handleExport = async () => {
         if (!finalData?.riderSummaries) return;
 
         const data = finalData.riderSummaries.map(rider => {
@@ -153,6 +176,7 @@ export default function RidersSummaryReportPage() {
             };
         });
 
+        const XLSX = await import("xlsx");
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(data);
 
@@ -254,18 +278,13 @@ export default function RidersSummaryReportPage() {
                     </button>
 
                     {finalData && (
-                        <PDFDownloadLink
-                            document={<RidersSummaryReportPDF data={finalData} startDate={startDate} endDate={endDate} />}
+                        <DynamicRidersSummaryPDFLink
+                            data={finalData}
+                            startDate={startDate}
+                            endDate={endDate}
                             fileName={`Riders_Summary_${startDate}_to_${endDate}_${filterType}.pdf`}
                             className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {({ loading: pdfLoading }) => (
-                                <>
-                                    <Printer size={20} />
-                                    <span className="font-medium">{pdfLoading ? '...PDF' : 'PDF'}</span>
-                                </>
-                            )}
-                        </PDFDownloadLink>
+                        />
                     )}
                 </div>
             </div>
