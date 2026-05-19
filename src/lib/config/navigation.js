@@ -119,7 +119,11 @@ export const adminNavigationConfig = {
   vehicles: {
     title: "navigation.vehicles",
     icon: "🚗",
-    path: "/admin/vehicles",
+    routes: [
+      { path: "/admin/vehicles/with-riders", label: "navigation.vehiclesWithRiders" },
+      { path: "/admin/vehicles", label: "navigation.manageVehicles" },
+      { path: "/admin/vehicles/take", label: "navigation.takeVehicle" },
+    ],
   },
 
   riders: {
