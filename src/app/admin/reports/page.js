@@ -264,6 +264,23 @@ export default function ReportsPage() {
           <div className="p-4 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link
+                href="/admin/reports/dailyreports"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Calendar className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    {t('navigation.dailyReports')}
+                  </h3>
+                </div>
+                <p className="text-xs md:text-sm text-gray-600">
+                  {t('reports.dailyReportsDesc') || 'إدارة واستخراج التقارير اليومية، الإجمالية والتفصيلية، ومقارنة أداء مجموعات السائقين'}
+                </p>
+              </Link>
+
+              <Link
                 href="/admin/reports/performance"
                 className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
               >

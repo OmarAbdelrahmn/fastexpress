@@ -113,7 +113,6 @@ export const adminNavigationConfig = {
     routes: [
       { path: "/admin/reports", label: "navigation.reportsCenter" },
       { path: "/admin/reports/dashboard", label: "navigation.mainReport" },
-      { path: "/admin/reports/dailyreports", label: "navigation.dailyReports" },
     ],
   },
 

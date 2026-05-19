@@ -2008,6 +2008,7 @@
     "summaryDesc": "View comprehensive summary of hunger deficit"
   },
   "reports": {
+    "dailyReportsDesc": "Manage and extract daily, total, and detailed reports, and compare performance trends of rider groups.",
     "performance": "Performance",
     "pleaseSelectPeriods": "Please select both periods for comparison",
     "showRanking": "Show Ranking",
