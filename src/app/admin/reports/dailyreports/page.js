@@ -178,7 +178,7 @@ export default function DailyReportsPage() {
             resetReports();
             const formData = new FormData();
             formData.append('file', file5);
-            
+
             const response = await ApiService.uploadFormData('/api/Report/rider-recent-months/from-file', formData);
             setReportData5(response);
             setIsPrinting(true);

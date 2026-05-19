@@ -423,13 +423,13 @@ export default function VehiclesWithRidersPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredVehicles.map((vehicle) => {
+                    {filteredVehicles.map((vehicle, index) => {
                       const effectiveStatus = getEffectiveStatus(vehicle);
 
                       const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 
                       return (
-                        <tr key={vehicle.vehicleNumber} className="hover:bg-gray-50 transition-colors">
+                        <tr key={`${vehicle.vehicleNumber}-${index}`} className="hover:bg-gray-50 transition-colors">
                           <td className="p-2 align-top">
                             <div className="flex items-start gap-3">
                               <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
@@ -507,7 +507,7 @@ export default function VehiclesWithRidersPage() {
                           </td>
                           <td className="p-2 align-top text-center">
                             <Button
-                              onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                              onClick={() => router.push(`/admin/vehicles/details/${vehicle.plateNumberA}`)}
                               variant="secondary"
                               className="!py-1 !px-2 text-[10px] h-auto"
                             >
@@ -524,12 +524,12 @@ export default function VehiclesWithRidersPage() {
 
               {/* Mobile Card View */}
               <div className="md:hidden space-y-4">
-                {filteredVehicles.map((vehicle) => {
+                {filteredVehicles.map((vehicle, index) => {
                   const effectiveStatus = getEffectiveStatus(vehicle);
                   const attrs = getVehicleStatusAttributes(effectiveStatus, t);
 
                   return (
-                    <div key={vehicle.vehicleNumber} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm p-4">
+                    <div key={`${vehicle.vehicleNumber}-${index}`} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-lg ${attrs.styles.bg} ${attrs.styles.text}`}>
@@ -583,7 +583,7 @@ export default function VehiclesWithRidersPage() {
                       </div>
 
                       <Button
-                        onClick={() => router.push(`/admin/vehicles/admin/details/${vehicle.plateNumberA}`)}
+                        onClick={() => router.push(`/admin/vehicles/details/${vehicle.plateNumberA}`)}
                         variant="secondary"
                         className="w-full justify-center !py-2"
                       >

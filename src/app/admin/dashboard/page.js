@@ -896,7 +896,7 @@ export default function EnhancedDashboard() {
             title={t("dashboard.pendingApprovals")}
             count={stats.pendingRequests}
             icon={Car}
-            link="/admin/vehicles/admin/users-requests"
+            link="/admin/vehicles/users-requests"
           />
           <NotificationFab
             title={t("dashboard.pendingStatusChanges")}

@@ -408,7 +408,7 @@ export default function VehicleDetailsPage() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Button
-              onClick={() => router.push("/admin/vehicles/admin/change-location")}
+              onClick={() => router.push("/admin/vehicles/change-location")}
               variant="secondary"
             >
               <MapPin size={18} className="ml-2" />
@@ -416,7 +416,7 @@ export default function VehicleDetailsPage() {
             </Button>
             {vehicle.hasActiveProblem && (
               <Button
-                onClick={() => router.push("/admin/vehicles/admin/fix-problems")}
+                onClick={() => router.push("/admin/vehicles/fix-problems")}
                 variant="secondary"
               >
                 <AlertTriangle size={18} className="ml-2" />
@@ -424,7 +424,7 @@ export default function VehicleDetailsPage() {
               </Button>
             )}
             <Button
-              onClick={() => router.push("/admin/vehicles/admin/manage")}
+              onClick={() => router.push("/admin/vehicles/manage")}
               variant="secondary"
             >
               <Car size={18} className="ml-2" />

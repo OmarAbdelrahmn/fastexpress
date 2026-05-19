@@ -141,7 +141,7 @@ export default function SwitchVehiclePage() {
                 setPermission("");
                 loadAvailableVehicles();
                 // Optional: redirect back to admin or stay? 'take' page clears form.
-                router.push('/admin/vehicles/admin');
+                router.push('/admin/vehicles');
             }, 2000);
         } catch (err) {
             console.error("Error switching vehicle:", err);

@@ -36,7 +36,7 @@ export default function UsagePage() {
                             icon={History}
                             title="سجل صرف قطع الغيار"
                             description="عرض سجل صرف قطع الغيار حسب المركبة"
-                            onClick={() => router.push('/admin/maintenance/usage/spare-parts/history')}
+                            onClick={() => router.push('/admin/maintenance/money-spending?tab=sparePartsHistory')}
                             color="#ea580c"
                             bgClass="bg-orange-50"
                         />
@@ -62,7 +62,7 @@ export default function UsagePage() {
                             icon={History}
                             title="سجل صرف معدات السائقين"
                             description="عرض سجل صرف معدات السائقين حسب المركبة"
-                            onClick={() => router.push('/admin/maintenance/usage/rider-accessories/history')}
+                            onClick={() => router.push('/admin/maintenance/money-spending?tab=riderAccessoriesHistory')}
                             color="#7c3aed"
                             bgClass="bg-purple-50"
                         />

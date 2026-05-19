@@ -185,6 +185,7 @@ export const adminNavigationConfig = {
     icon: "🔧",
     routes: [
       { path: "/admin/maintenance/suppliers", label: "navigation.suppliers" },
+      { path: "/admin/maintenance/money-spending", label: "مركز تكلفة قطع الغيار و معدات السائقين" },
       { path: "/admin/maintenance/bills", label: "ادارة الفواتير" },
       { path: "/admin/maintenance/spare-parts", label: "ادارة القطع الغيار" },
       { path: "/admin/maintenance/rider-accessories", label: "ادارة معدات السائقين" },

@@ -7,7 +7,6 @@ import {
   ShoppingBag,
   Clock,
   Wallet,
-  TrendingUp,
   Bike,
   CheckCircle,
   Truck,

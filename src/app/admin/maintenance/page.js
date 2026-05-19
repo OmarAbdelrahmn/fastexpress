@@ -101,7 +101,7 @@ export default function MaintenancePage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6">
                 {/* Maintenance Management Card */}
                 <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
@@ -131,14 +131,6 @@ export default function MaintenancePage() {
                             onClick={() => router.push('/admin/maintenance/transfers')}
                             color="#2563eb"
                             bgClass="bg-blue-50"
-                        />
-                        <MiniStatRow
-                            icon={FileText}
-                            title="تفاصيل صرف السكنات"
-                            description="تفاصيل صرف قطع الغيار في السكنات"
-                            onClick={() => router.push('/admin/maintenance/all-housings-details')}
-                            color="#10b981"
-                            bgClass="bg-emerald-50"
                         />
                     </div>
                 </div>
@@ -173,11 +165,19 @@ export default function MaintenancePage() {
                             color="#f59e0b"
                             bgClass="bg-amber-50"
                         />
+                    </div>
+                </div>
+
+                    <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
+                        مركز التكلفة
+                    </h3>
+                    <div className="flex flex-col gap-3">
                         <MiniStatRow
                             icon={BadgeDollarSign}
-                            title="تكاليف السكن"
-                            description="عرض تكاليف قطع الغيار لكل سكن"
-                            onClick={() => router.push('/admin/maintenance/housing-costs')}
+                            title="مركز تكلفة قطع الغيار و معدات السائقين"
+                            description="عرض وتوزيع نفقات قطع الغيار ومعدات السائقين"
+                            onClick={() => router.push('/admin/maintenance/money-spending')}
                             color="#10b981"
                             bgClass="bg-emerald-50"
                         />

@@ -7,7 +7,7 @@ export default function RedirectPage() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/admin/maintenance/money-spending?tab=riderAccessoriesHistory');
+        router.replace('/admin/maintenance/money-spending?tab=vehiclesRiderCosts');
     }, [router]);
 
     return (
