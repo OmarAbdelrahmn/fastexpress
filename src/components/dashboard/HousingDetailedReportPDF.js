@@ -118,10 +118,11 @@ const styles = StyleSheet.create({
     },
 
     // Columns
-    colIndex: { width: '10%', textAlign: 'center' },
-    colName: { width: '35%', textAlign: 'right', paddingRight: 5 },
-    colOrders: { width: '25%', alignItems: 'center' },
-    colId: { width: '30%', textAlign: 'center' },
+    colIndex: { width: '8%', textAlign: 'center' },
+    colName: { width: '32%', textAlign: 'right', paddingRight: 5 },
+    colOrders: { width: '18%', alignItems: 'center' },
+    colWorkingHours: { width: '20%', alignItems: 'center' },
+    colId: { width: '22%', textAlign: 'center' },
 
     headerText: {
         fontSize: 13,
@@ -337,6 +338,7 @@ const HousingDetailedReportPDF = ({ data }) => {
                                     <View style={styles.colIndex}><Text style={styles.headerText}>م</Text></View>
                                     <View style={styles.colName}><Text style={styles.headerText}>اسم السائق</Text></View>
                                     <View style={styles.colOrders}><Text style={styles.headerText}>الطلبات</Text></View>
+                                    <View style={styles.colWorkingHours}><Text style={styles.headerText}>ساعات العمل</Text></View>
                                     <View style={styles.colId}><Text style={styles.headerText}>المعرف</Text></View>
                                 </View>
                             </>
@@ -357,6 +359,13 @@ const HousingDetailedReportPDF = ({ data }) => {
                                     <View style={styles.orderBadge}>
                                         <Text style={styles.orderText}>{rider.acceptedOrders}</Text>
                                     </View>
+                                </View>
+                                <View style={styles.colWorkingHours}>
+                                    <Text style={styles.cellText}>
+                                        {rider.workingHours !== undefined && rider.workingHours !== null
+                                            ? Number(rider.workingHours).toFixed(2)
+                                            : '0.00'}
+                                    </Text>
                                 </View>
                                 <View style={styles.colId}>
                                     <Text style={styles.idText}>

@@ -66,8 +66,9 @@ const HousingDetailedReportTemplate = ({ data }) => {
                             <thead>
                                 <tr className="bg-[#fde68a] text-black font-bold text-center border-b-2 border-white">
                                     <th className="py-2 px-2 w-[5%]">م</th>
-                                    <th className="py-2 px-4 w-[50%] text-right">اسم السائق</th>
-                                    <th className="py-2 px-4 w-[20%]">الطلبات</th>
+                                    <th className="py-2 px-4 w-[35%] text-right">اسم السائق</th>
+                                    <th className="py-2 px-4 w-[15%]">الطلبات</th>
+                                    <th className="py-2 px-4 w-[20%]">ساعات العمل</th>
                                     <th className="py-2 px-4 w-[25%]">المعرف</th>
                                 </tr>
                             </thead>
@@ -80,6 +81,11 @@ const HousingDetailedReportTemplate = ({ data }) => {
                                             <div className="border border-[#1e3a8a] text-[#1e3a8a] px-2 py-0.5 inline-block min-w-[3rem]">
                                                 {rider.acceptedOrders}
                                             </div>
+                                        </td>
+                                        <td className="py-1 px-4 text-[#1e3a8a]">
+                                            {rider.workingHours !== undefined && rider.workingHours !== null
+                                                ? Number(rider.workingHours).toFixed(2)
+                                                : '0.00'}
                                         </td>
                                         <td className="py-1 px-4 text-gray-700">{rider.workingId || rider.riderId}</td>
                                     </tr>

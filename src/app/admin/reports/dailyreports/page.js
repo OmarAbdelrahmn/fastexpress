@@ -109,7 +109,7 @@ export default function DailyReportsPage() {
                 companyName: "شركة الخدمة السريعة"
             };
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
-
+            console.log(data);
             setReportData2(data);
             setIsPrinting(true);
         } catch (error) {
@@ -133,7 +133,6 @@ export default function DailyReportsPage() {
                 companyName: "شركة الخدمة السريعة"
             };
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
-
             setReportData3(data);
             setIsPrinting(true);
         } catch (error) {
