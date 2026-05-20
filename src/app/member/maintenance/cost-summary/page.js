@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, Search, ArrowRight, Filter, Calendar, Truck, User, Hash, FileSpreadsheet } from 'lucide-react';
+import { DollarSign, Search, ArrowRight, Filter, Calendar, Truck, User, Hash, FileSpreadsheet, Eye } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -11,6 +11,7 @@ import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import Table from '@/components/Ui/Table';
+import Modal from '@/components/Ui/Model';
 
 export default function MemberCostSummaryPage() {
     const router = useRouter();
@@ -26,6 +27,9 @@ export default function MemberCostSummaryPage() {
         return d.toISOString().split('T')[0];
     });
     const [alert, setAlert] = useState(null);
+    const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' or 'riders'
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         loadCostSummary();
@@ -36,8 +40,8 @@ export default function MemberCostSummaryPage() {
         try {
             // Build query params
             const params = new URLSearchParams();
-            if (fromDate) params.append('fromDate', fromDate);
-            if (toDate) params.append('toDate', toDate);
+            if (fromDate) params.append('startDate', fromDate);
+            if (toDate) params.append('endDate', toDate);
 
             const queryString = params.toString() ? `?${params.toString()}` : '';
             const response = await ApiService.get(`${API_ENDPOINTS.MEMBER.COST_SUMMARY}${queryString}`);
@@ -63,37 +67,87 @@ export default function MemberCostSummaryPage() {
     };
 
     const handleVehicleExport = () => {
-        if (!summary?.vehicleCosts || summary.vehicleCosts.length === 0) {
+        const list = summary?.vehicleSpending || [];
+        if (list.length === 0) {
             showAlert('error', 'لا توجد بيانات لتصديرها');
             return;
         }
 
-        const dataToExport = summary.vehicleCosts.map(row => ({
-            'رقم اللوحة': row.vehiclePlate,
-            'إجمالي التكلفة (ر.س)': row.totalCost.toFixed(2)
-        }));
+        const dataToExport = [];
+        list.forEach(row => {
+            if (row.sparePartUsages && row.sparePartUsages.length > 0) {
+                row.sparePartUsages.forEach(usage => {
+                    dataToExport.push({
+                        'رقم اللوحة': row.vehiclePlate,
+                        'رقم المركبة': row.vehicleNumber || '-',
+                        'اسم قطعة الغيار': usage.sparePartName,
+                        'الكمية المستخدمة': usage.totalQuantityUsed,
+                        'سعر الوحدة (ر.س)': usage.unitPrice?.toFixed(2),
+                        'إجمالي تكلفة القطعة (ر.س)': usage.totalCost?.toFixed(2),
+                        'تواريخ الاستخدام': usage.usageDates?.map(d => new Date(d).toLocaleDateString('ar-SA')).join(', ') || '-',
+                        'إجمالي تكلفة المركبة الكلية (ر.س)': row.totalCost?.toFixed(2)
+                    });
+                });
+            } else {
+                dataToExport.push({
+                    'رقم اللوحة': row.vehiclePlate,
+                    'رقم المركبة': row.vehicleNumber || '-',
+                    'اسم قطعة الغيار': 'لا يوجد',
+                    'الكمية المستخدمة': '-',
+                    'سعر الوحدة (ر.س)': '-',
+                    'إجمالي تكلفة القطعة (ر.س)': '-',
+                    'تواريخ الاستخدام': '-',
+                    'إجمالي تكلفة المركبة الكلية (ر.س)': row.totalCost?.toFixed(2)
+                });
+            }
+        });
 
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Vehicle Costs');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Vehicle Costs Detailed');
         XLSX.writeFile(workbook, `vehicle_costs_${summary.housingName || 'export'}.xlsx`);
     };
 
     const handleRiderExport = () => {
-        if (!summary?.riderCosts || summary.riderCosts.length === 0) {
+        const list = summary?.riderSpending || [];
+        if (list.length === 0) {
             showAlert('error', 'لا توجد بيانات لتصديرها');
             return;
         }
 
-        const dataToExport = summary.riderCosts.map(row => ({
-            'اسم المندوب': row.riderName,
-            'معرف العمل': row.workingId,
-            'إجمالي التكلفة (ر.س)': row.totalCost.toFixed(2)
-        }));
+        const dataToExport = [];
+        list.forEach(row => {
+            const name = row.riderNameAR || row.riderNameEN || '-';
+            if (row.accessoryUsages && row.accessoryUsages.length > 0) {
+                row.accessoryUsages.forEach(usage => {
+                    dataToExport.push({
+                        'اسم المندوب': name,
+                        'معرف العمل': row.workingId,
+                        'اسم المعدة': usage.accessoryName,
+                        'الكمية المصروفة': usage.totalQuantityIssued,
+                        'سعر الوحدة (ر.س)': usage.unitPrice?.toFixed(2),
+                        'إجمالي تكلفة المعدة (ر.س)': usage.totalCost?.toFixed(2),
+                        'تواريخ الصرف': usage.issuanceDates?.map(d => new Date(d).toLocaleDateString('ar-SA')).join(', ') || '-',
+                        'إجمالي التكلفة الكلية للمندوب (ر.س)': row.totalCost?.toFixed(2)
+                    });
+                });
+            } else {
+                dataToExport.push({
+                    'اسم المندوب': name,
+                    'معرف العمل': row.workingId,
+                    'اسم المعدة': 'لا يوجد',
+                    'الكمية المصروفة': '-',
+                    'سعر الوحدة (ر.س)': '-',
+                    'إجمالي تكلفة المعدة (ر.س)': '-',
+                    'تواريخ الصرف': '-',
+                    'إجمالي التكلفة الكلية للمندوب (ر.س)': row.totalCost?.toFixed(2)
+                });
+            }
+        });
 
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Rider Costs');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Rider Costs Detailed');
         XLSX.writeFile(workbook, `rider_costs_${summary.housingName || 'export'}.xlsx`);
     };
 
@@ -104,6 +158,11 @@ export default function MemberCostSummaryPage() {
 
     const vehicleColumns = [
         {
+            header: 'رقم المركبة',
+            accessor: 'vehicleNumber',
+            render: (row) => row.vehicleNumber || '-'
+        },
+        {
             header: 'رقم اللوحة',
             accessor: 'vehiclePlate',
             render: (row) => formatPlateNumber(row.vehiclePlate) || '-'
@@ -112,6 +171,24 @@ export default function MemberCostSummaryPage() {
             header: 'إجمالي التكلفة',
             accessor: 'totalCost',
             render: (row) => `${row.totalCost?.toFixed(2) || '0.00'} ر.س`
+        },
+        {
+            header: 'التفاصيل',
+            accessor: 'actions',
+            render: (row) => (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                        setSelectedItem({ ...row, type: 'vehicle' });
+                        setIsModalOpen(true);
+                    }}
+                    className="flex items-center gap-1 text-blue-600 border-blue-600 hover:bg-blue-50 py-1 px-2 h-7 text-xs"
+                >
+                    <Eye size={14} className="ml-1" />
+                    عرض القطع ({row.sparePartUsages?.length || 0})
+                </Button>
+            )
         }
     ];
 
@@ -119,6 +196,7 @@ export default function MemberCostSummaryPage() {
         {
             header: 'اسم المندوب',
             accessor: 'riderName',
+            render: (row) => row.riderNameAR || row.riderNameEN || '-'
         },
         {
             header: 'معرف العمل',
@@ -128,6 +206,24 @@ export default function MemberCostSummaryPage() {
             header: 'إجمالي التكلفة',
             accessor: 'totalCost',
             render: (row) => `${row.totalCost?.toFixed(2) || '0.00'} ر.س`
+        },
+        {
+            header: 'التفاصيل',
+            accessor: 'actions',
+            render: (row) => (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                        setSelectedItem({ ...row, type: 'rider' });
+                        setIsModalOpen(true);
+                    }}
+                    className="flex items-center gap-1 text-purple-600 border-purple-600 hover:bg-purple-50 py-1 px-2 h-7 text-xs"
+                >
+                    <Eye size={14} className="ml-1" />
+                    عرض المعدات ({row.accessoryUsages?.length || 0})
+                </Button>
+            )
         }
     ];
 
@@ -190,111 +286,224 @@ export default function MemberCostSummaryPage() {
                     </div>
                 </form>
             </div>
-
-            {/* Summary Information Grid */}
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-2 md:mx-4 border-t-4 border-orange-500">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 className="text-md md:text-2xl font-bold text-gray-900">{summary?.housingName || 'جاري التحميل...'}</h2>
-                        <p className="text-xs md:text-base text-gray-500 mt-1">ملخص تكاليف السكن والصيانة</p>
+            {/* Tab Switcher */}
+            <div className="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto mx-2 md:mx-4 mt-6">
+                <button
+                    onClick={() => setActiveTab('vehicles')}
+                    className={`flex-1 md:flex-none px-6 py-2.5 rounded-md transition-all font-semibold flex items-center justify-center gap-2 cursor-pointer ${activeTab === 'vehicles'
+                        ? 'bg-white shadow text-blue-600'
+                        : 'text-gray-600 hover:text-gray-950'
+                        }`}
+                >
+                    <Truck size={16} />
+                    <span>سجل صرف المركبات ({summary?.vehicleSpending?.length || 0})</span>
+                </button>
+                <button
+                    onClick={() => setActiveTab('riders')}
+                    className={`flex-1 md:flex-none px-6 py-2.5 rounded-md transition-all font-semibold flex items-center justify-center gap-2 cursor-pointer ${activeTab === 'riders'
+                        ? 'bg-white shadow text-purple-600'
+                        : 'text-gray-600 hover:text-gray-950'
+                        }`}
+                >
+                    <User size={16} />
+                    <span>سجل صرف المناديب ({summary?.riderSpending?.length || 0})</span>
+                </button>
+            </div>
+            {/* De tail Tables depending on activeTab */}
+            <div className="mx-2 md:mx-4">
+                {activeTab === 'vehicles' ? (
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
+                        <div className="flex justify-between items-center mb-4 border-b pb-4">
+                            <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <Truck className="text-blue-600" size={18} />
+                                تكاليف المركبات التفصيلية
+                            </h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleVehicleExport}
+                                className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
+                                disabled={loading || !summary?.vehicleSpending?.length}
+                            >
+                                <FileSpreadsheet size={14} className="ml-1" />
+                                تصدير Excel
+                            </Button>
+                        </div>
+                        <Table
+                            columns={vehicleColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
+                            data={summary?.vehicleSpending || []}
+                            loading={loading}
+                        />
                     </div>
-                    <div className="text-left">
-                        <div className="text-xs md:text-sm text-gray-500">إجمالي التكلفة العام</div>
-                        <div className="text-xl md:text-3xl font-black text-orange-600">
-                            {loading ? '...' : summary?.grandTotal?.toFixed(2) || '0.00'}
-                            <span className="text-base md:text-lg font-normal text-gray-500 mr-1">ر.س</span>
+                ) : (
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
+                        <div className="flex justify-between items-center mb-4 border-b pb-4">
+                            <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <User className="text-purple-600" size={18} />
+                                تكاليف المناديب التفصيلية
+                            </h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleRiderExport}
+                                className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
+                                disabled={loading || !summary?.riderSpending?.length}
+                            >
+                                <FileSpreadsheet size={14} className="ml-1" />
+                                تصدير Excel
+                            </Button>
                         </div>
+                        <Table
+                            columns={riderColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
+                            data={summary?.riderSpending || []}
+                            loading={loading}
+                        />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-blue-600 mb-1 font-semibold text-xs md:text-base">
-                            <Truck size={16} />
-                            <span>المركبات</span>
-                        </div>
-                        <div className="text-lg md:text-2xl font-bold">{summary?.totalVehicles || 0}</div>
-                    </div>
-                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-purple-600 mb-1 font-semibold text-xs md:text-base">
-                            <User size={16} />
-                            <span>المناديب</span>
-                        </div>
-                        <div className="text-lg md:text-2xl font-bold">{summary?.totalRiders || 0}</div>
-                    </div>
-                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-blue-800 mb-1 font-semibold text-xs md:text-base">
-                            <Hash size={16} />
-                            <span>قطع الغيار</span>
-                        </div>
-                        <div className="text-base md:text-xl font-bold text-blue-900">
-                            {summary?.totalSparePartsCost?.toFixed(2) || '0.00'} <span className="text-xs">ر.س</span>
-                        </div>
-                    </div>
-                    <div className="p-2 md:p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2 text-purple-800 mb-1 font-semibold text-xs md:text-base">
-                            <Hash size={16} />
-                            <span>المعدات</span>
-                        </div>
-                        <div className="text-base md:text-xl font-bold text-purple-900">
-                            {summary?.totalAccessoriesCost?.toFixed(2) || '0.00'} <span className="text-xs">ر.س</span>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
 
-            {/* Detail Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mx-2 md:mx-4">
-                {/* Vehicle Costs Table */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
-                    <div className="flex justify-between items-center mb-4 border-b pb-4">
-                        <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Truck className="text-blue-600" size={18} />
-                            تكاليف المركبات
-                        </h3>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleVehicleExport}
-                            className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
-                            disabled={loading || !summary?.vehicleCosts?.length}
-                        >
-                            <FileSpreadsheet size={14} className="ml-1" />
-                            تصدير Excel
-                        </Button>
-                    </div>
-                    <Table
-                        columns={vehicleColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
-                        data={summary?.vehicleCosts || []}
-                        loading={loading}
-                    />
-                </div>
+            {/* Details Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedItem(null);
+                }}
+                title={selectedItem?.type === 'vehicle' 
+                    ? `تفاصيل تكاليف المركبة - ${selectedItem?.vehiclePlate ? formatPlateNumber(selectedItem.vehiclePlate) : selectedItem?.vehicleNumber}`
+                    : `تفاصيل تكاليف المندوب - ${selectedItem?.riderNameAR || selectedItem?.riderNameEN}`
+                }
+                size="lg"
+            >
+                {selectedItem && (
+                    <div className="space-y-4">
+                        {/* Header Info */}
+                        <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span className="text-xs text-gray-500 font-medium block">
+                                    {selectedItem.type === 'vehicle' ? 'رقم المركبة' : 'معرف العمل'}
+                                </span>
+                                <span className="text-sm md:text-base font-bold text-gray-800">
+                                    {selectedItem.type === 'vehicle' ? (selectedItem.vehicleNumber || '-') : (selectedItem.workingId || '-')}
+                                </span>
+                            </div>
+                            <div className="text-left">
+                                <span className="text-xs text-gray-500 font-medium block">إجمالي التكلفة الكلية</span>
+                                <span className="text-md md:text-lg font-black text-orange-600">
+                                    {selectedItem.totalCost?.toFixed(2) || '0.00'} ر.س
+                                </span>
+                            </div>
+                        </div>
 
-                {/* Rider Costs Table */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm overflow-x-auto">
-                    <div className="flex justify-between items-center mb-4 border-b pb-4">
-                        <h3 className="text-sm md:text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <User className="text-purple-600" size={18} />
-                            تكاليف المناديب
-                        </h3>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleRiderExport}
-                            className="text-green-600 border-green-600 hover:bg-green-50 h-7 text-xs px-2"
-                            disabled={loading || !summary?.riderCosts?.length}
-                        >
-                            <FileSpreadsheet size={14} className="ml-1" />
-                            تصدير Excel
-                        </Button>
+                        {/* Details Table */}
+                        {selectedItem.type === 'vehicle' ? (
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-blue-900 border-r-4 border-blue-500 pr-2">
+                                    سجل استخدام قطع الغيار ({selectedItem.sparePartUsages?.length || 0})
+                                </h4>
+                                <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                                    <table className="w-full text-right border-collapse">
+                                        <thead className="bg-blue-50 text-blue-900 font-bold border-b border-gray-150">
+                                            <tr>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">اسم القطعة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">الكمية المستخدمة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">سعر الوحدة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">التكلفة الإجمالية</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">تواريخ الاستخدام</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {selectedItem.sparePartUsages && selectedItem.sparePartUsages.length > 0 ? (
+                                                selectedItem.sparePartUsages.map((usage, idx) => (
+                                                    <tr key={idx} className="hover:bg-gray-50/50 text-xs md:text-sm text-gray-700">
+                                                        <td className="py-2.5 px-3 font-semibold text-gray-900">{usage.sparePartName}</td>
+                                                        <td className="py-2.5 px-3">{usage.totalQuantityUsed}</td>
+                                                        <td className="py-2.5 px-3">{usage.unitPrice?.toFixed(2)} ر.س</td>
+                                                        <td className="py-2.5 px-3 font-bold text-orange-600">{usage.totalCost?.toFixed(2)} ر.س</td>
+                                                        <td className="py-2.5 px-3 text-gray-500">
+                                                            <div className="flex flex-col gap-0.5 max-h-16 overflow-y-auto">
+                                                                {usage.usageDates?.map((d, i) => (
+                                                                    <span key={i} className="text-[10px] md:text-xs">
+                                                                        {new Date(d).toLocaleDateString('ar-SA')} {new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                     <td colSpan="5" className="py-6 text-center text-gray-400">
+                                                         لا يوجد سجل قطع غيار مستخدمة لهذه المركبة
+                                                     </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-purple-900 border-r-4 border-purple-500 pr-2">
+                                    سجل صرف العُهد والمعدات ({selectedItem.accessoryUsages?.length || 0})
+                                </h4>
+                                <div className="overflow-x-auto border border-gray-100 rounded-xl">
+                                    <table className="w-full text-right border-collapse">
+                                        <thead className="bg-purple-50 text-purple-900 font-bold border-b border-gray-150">
+                                            <tr>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">اسم المعدة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">الكمية المصروفة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">سعر الوحدة</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">التكلفة الإجمالية</th>
+                                                <th className="py-2.5 px-3 text-xs md:text-sm">تواريخ الصرف</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {selectedItem.accessoryUsages && selectedItem.accessoryUsages.length > 0 ? (
+                                                selectedItem.accessoryUsages.map((usage, idx) => (
+                                                    <tr key={idx} className="hover:bg-gray-50/50 text-xs md:text-sm text-gray-700">
+                                                        <td className="py-2.5 px-3 font-semibold text-gray-900">{usage.accessoryName}</td>
+                                                        <td className="py-2.5 px-3">{usage.totalQuantityIssued}</td>
+                                                        <td className="py-2.5 px-3">{usage.unitPrice?.toFixed(2)} ر.س</td>
+                                                        <td className="py-2.5 px-3 font-bold text-orange-600">{usage.totalCost?.toFixed(2)} ر.س</td>
+                                                        <td className="py-2.5 px-3 text-gray-500">
+                                                            <div className="flex flex-col gap-0.5 max-h-16 overflow-y-auto">
+                                                                {usage.issuanceDates?.map((d, i) => (
+                                                                    <span key={i} className="text-[10px] md:text-xs">
+                                                                        {new Date(d).toLocaleDateString('ar-SA')} {new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                     <td colSpan="5" className="py-6 text-center text-gray-400">
+                                                         لا يوجد سجل صرف عُهد أو معدات لهذا المندوب
+                                                     </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex justify-end pt-4 border-t border-gray-100">
+                            <Button
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                    setSelectedItem(null);
+                                }}
+                                className="bg-[#1b428e] hover:bg-[#153470] text-white px-6 text-xs md:text-sm"
+                            >
+                                إغلاق
+                            </Button>
+                        </div>
                     </div>
-                    <Table
-                        columns={riderColumns.map(col => ({ ...col, className: 'text-xs md:text-sm' }))}
-                        data={summary?.riderCosts || []}
-                        loading={loading}
-                    />
-                </div>
-            </div>
+                )}
+            </Modal>
         </div>
     );
 }
