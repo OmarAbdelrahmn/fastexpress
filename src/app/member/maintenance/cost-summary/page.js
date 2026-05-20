@@ -19,12 +19,17 @@ export default function MemberCostSummaryPage() {
     const [summary, setSummary] = useState(null);
     const [fromDate, setFromDate] = useState(() => {
         const d = new Date();
-        return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}-01`;
     });
     const [toDate, setToDate] = useState(() => {
         const d = new Date();
-        d.setDate(d.getDate() + 1); // ➕ tomorrow
-        return d.toISOString().split('T')[0];
+        d.setDate(d.getDate() - 1); // ➖ yesterday
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     });
     const [alert, setAlert] = useState(null);
     const [activeTab, setActiveTab] = useState('vehicles'); // 'vehicles' or 'riders'
@@ -35,13 +40,16 @@ export default function MemberCostSummaryPage() {
         loadCostSummary();
     }, []);
 
-    const loadCostSummary = async () => {
+    const loadCostSummary = async (overrideFrom = null, overrideTo = null) => {
         setLoading(true);
         try {
+            const start = overrideFrom !== null ? overrideFrom : fromDate;
+            const end = overrideTo !== null ? overrideTo : toDate;
+
             // Build query params
             const params = new URLSearchParams();
-            if (fromDate) params.append('startDate', fromDate);
-            if (toDate) params.append('endDate', toDate);
+            if (start) params.append('startDate', start);
+            if (end) params.append('endDate', end);
 
             const queryString = params.toString() ? `?${params.toString()}` : '';
             const response = await ApiService.get(`${API_ENDPOINTS.MEMBER.COST_SUMMARY}${queryString}`);
@@ -61,9 +69,20 @@ export default function MemberCostSummaryPage() {
 
     const handleReset = () => {
         const d = new Date();
-        setFromDate(new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]);
-        setToDate(new Date().toISOString().split('T')[0]);
-        loadCostSummary();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const startVal = `${year}-${month}-01`;
+
+        const prevDay = new Date();
+        prevDay.setDate(prevDay.getDate() - 1);
+        const prevYear = prevDay.getFullYear();
+        const prevMonth = String(prevDay.getMonth() + 1).padStart(2, '0');
+        const prevDateStr = String(prevDay.getDate()).padStart(2, '0');
+        const endVal = `${prevYear}-${prevMonth}-${prevDateStr}`;
+
+        setFromDate(startVal);
+        setToDate(endVal);
+        loadCostSummary(startVal, endVal);
     };
 
     const handleVehicleExport = () => {
