@@ -40,12 +40,17 @@ export default function VehicleReportProblemPage() {
         if (searchTerm.trim() === "") {
             setFilteredVehicles(vehicles);
         } else {
-            const filtered = vehicles.filter(v =>
-                v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.vehicleNumber?.toString().includes(searchTerm) ||
-                v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.riderIqamaNo?.toString().includes(searchTerm)
-            );
+            const filtered = vehicles.filter(v => {
+                const search = searchTerm.toLowerCase();
+                const riderName = v.riderName || v.assignedRiderName || v.currentRider?.riderName || v.currentRider?.riderNameE || "";
+                const iqama = v.riderIqamaNo || v.assignedRiderIqamaNo || v.currentRider?.employeeIqamaNo || "";
+                return (
+                    v.plateNumberA?.toLowerCase().includes(search) ||
+                    v.vehicleNumber?.toString().includes(search) ||
+                    riderName.toLowerCase().includes(search) ||
+                    iqama.toString().includes(search)
+                );
+            });
             setFilteredVehicles(filtered);
         }
     }, [searchTerm, vehicles]);
@@ -53,7 +58,7 @@ export default function VehicleReportProblemPage() {
     const loadVehicles = async () => {
         setLoadingVehicles(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.ALL_WITH_RIDERS);
             // Show all vehicles (both taken and returned)
             const allVehicles = Array.isArray(response) ? response : [];
             // Filter out vehicles that already have a problem
@@ -72,7 +77,7 @@ export default function VehicleReportProblemPage() {
         setFormData(prev => ({
             ...prev,
             vehiclePlate: vehicle.plateNumberA || "",
-            riderIqamaNo: vehicle.assignedRiderIqamaNo || vehicle.riderIqamaNo || ""
+            riderIqamaNo: vehicle.assignedRiderIqamaNo || vehicle.riderIqamaNo || vehicle.currentRider?.employeeIqamaNo || ""
         }));
         setMessage({ type: "", text: "" });
     };
@@ -235,12 +240,14 @@ export default function VehicleReportProblemPage() {
                                         </div>
                                         <div className="text-xs md:text-sm text-gray-600 space-y-1">
                                             <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
-                                            {vehicle.riderName && <p>المندوب: {vehicle.riderName}</p>}
-                                            {(vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo) && (
-                                                <p>رقم الإقامة: {vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo}</p>
+                                            {(vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName) && (
+                                                <p>المندوب: {vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName}</p>
+                                            )}
+                                            {(vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo || vehicle.currentRider?.employeeIqamaNo) && (
+                                                <p>رقم الإقامة: {vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo || vehicle.currentRider?.employeeIqamaNo}</p>
                                             )}
                                             {vehicle.vehicleType && <p>النوع: {vehicle.vehicleType}</p>}
-                                            {!vehicle.riderName && !vehicle.riderIqamaNo && !vehicle.assignedRiderIqamaNo && (
+                                            {!(vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName) && (
                                                 <p className="text-gray-400 italic">لا يوجد مندوب مسند</p>
                                             )}
                                         </div>

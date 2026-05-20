@@ -52,10 +52,10 @@ export default function VehicleTakeRequestPage() {
     const loadVehicles = async () => {
         setLoadingVehicles(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.ALL_WITH_RIDERS);
             // Filter for available vehicles only
             const availableVehicles = Array.isArray(response)
-                ? response.filter(v => v.currentStatus?.toLowerCase() === 'returned' || v.currentStatus?.toLowerCase() === 'متاح')
+                ? response.filter(v => v.currentStatus?.toLowerCase() === 'returned' || v.currentStatus?.toLowerCase() === 'متاح' || v.currentStatus?.toLowerCase() === 'available' || v.currentStatus?.toLowerCase() === 'متاحة')
                 : [];
             setVehicles(availableVehicles);
             setFilteredVehicles(availableVehicles);

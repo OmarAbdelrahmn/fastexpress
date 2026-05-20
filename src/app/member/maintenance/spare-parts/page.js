@@ -41,9 +41,8 @@ export default function MemberSparePartsPage() {
 
     const loadVehicles = async () => {
         try {
-            // Using member-specific endpoint for vehicles if available, or fallback to general list depending on permission
-            // Assuming MEMBER.VEHICLES is the correct endpoint for members
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+            // Load all vehicles from the vehicles with riders endpoint
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.ALL_WITH_RIDERS);
             setVehicles(response || []);
         } catch (error) {
             console.error('Error loading vehicles:', error);

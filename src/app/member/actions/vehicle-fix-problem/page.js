@@ -38,12 +38,17 @@ export default function VehicleFixProblemPage() {
         if (searchTerm.trim() === "") {
             setFilteredVehicles(vehicles);
         } else {
-            const filtered = vehicles.filter(v =>
-                v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.vehicleNumber?.toString().includes(searchTerm) ||
-                v.assignedRiderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.assignedRiderIqamaNo?.toString().includes(searchTerm)
-            );
+            const filtered = vehicles.filter(v => {
+                const search = searchTerm.toLowerCase();
+                const riderName = v.riderName || v.assignedRiderName || v.currentRider?.riderName || v.currentRider?.riderNameE || "";
+                const iqama = v.riderIqamaNo || v.assignedRiderIqamaNo || v.currentRider?.employeeIqamaNo || "";
+                return (
+                    v.plateNumberA?.toLowerCase().includes(search) ||
+                    v.vehicleNumber?.toString().includes(search) ||
+                    riderName.toLowerCase().includes(search) ||
+                    iqama.toString().includes(search)
+                );
+            });
             setFilteredVehicles(filtered);
         }
     }, [searchTerm, vehicles]);
@@ -51,9 +56,9 @@ export default function VehicleFixProblemPage() {
     const loadVehicles = async () => {
         setLoadingVehicles(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.ALL_WITH_RIDERS);
             const allVehicles = Array.isArray(response) ? response : [];
-            const problemVehicles = allVehicles.filter(v => v.currentStatus === 'Problem');
+            const problemVehicles = allVehicles.filter(v => v.currentStatus === 'Problem' || v.currentStatus?.toLowerCase() === 'problem' || v.currentStatus === 'صيانة');
             setVehicles(problemVehicles);
             setFilteredVehicles(problemVehicles);
         } catch (error) {
@@ -204,7 +209,9 @@ export default function VehicleFixProblemPage() {
                                     <div className="text-xs md:text-sm text-gray-600 space-y-1">
                                         <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
                                         <p>الموديل: {vehicle.manufacturer} {vehicle.manufactureYear}</p>
-                                        {vehicle.assignedRiderName && <p>المندوب: {vehicle.assignedRiderName}</p>}
+                                        {(vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName) && (
+                                            <p>المندوب: {vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName}</p>
+                                        )}
                                         {vehicle.location && <p>الموقع: {vehicle.location}</p>}
                                     </div>
                                 </div>

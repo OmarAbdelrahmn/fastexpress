@@ -40,8 +40,8 @@ export default function MemberRiderAccessoriesPage() {
 
     const loadRiders = async () => {
         try {
-            // Using member-specific endpoint for riders
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.RIDERS);
+            // Load all riders from the admin riders list API endpoint
+            const response = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
             setRiders(response || []);
         } catch (error) {
             console.error('Error loading riders:', error);
@@ -209,7 +209,7 @@ export default function MemberRiderAccessoriesPage() {
                                         onChange={(e) => handleRiderSelect(e.target.value, index)}
                                         options={riders.map(rider => ({
                                             id: rider.riderId,
-                                            name: `${rider.nameAR} - ${rider.employeeIqamaNo || ''}`
+                                            name: `${rider.nameAR} - ${rider.iqamaNo || rider.employeeIqamaNo || ''}`
                                         }))}
                                         placeholder="ابحث عن السائق (الاسم، الهوية...)"
                                         required

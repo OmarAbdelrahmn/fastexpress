@@ -40,12 +40,17 @@ export default function VehicleReturnRequestPage() {
         if (searchTerm.trim() === "") {
             setFilteredVehicles(vehicles);
         } else {
-            const filtered = vehicles.filter(v =>
-                v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.vehicleNumber?.toString().includes(searchTerm) ||
-                v.riderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.riderIqamaNo?.toString().includes(searchTerm)
-            );
+            const filtered = vehicles.filter(v => {
+                const search = searchTerm.toLowerCase();
+                const riderName = v.riderName || v.assignedRiderName || v.currentRider?.riderName || v.currentRider?.riderNameE || "";
+                const iqama = v.riderIqamaNo || v.assignedRiderIqamaNo || v.currentRider?.employeeIqamaNo || "";
+                return (
+                    v.plateNumberA?.toLowerCase().includes(search) ||
+                    v.vehicleNumber?.toString().includes(search) ||
+                    riderName.toLowerCase().includes(search) ||
+                    iqama.toString().includes(search)
+                );
+            });
             setFilteredVehicles(filtered);
         }
     }, [searchTerm, vehicles]);
@@ -53,7 +58,7 @@ export default function VehicleReturnRequestPage() {
     const loadVehicles = async () => {
         setLoadingVehicles(true);
         try {
-            const response = await ApiService.get(API_ENDPOINTS.MEMBER.VEHICLES);
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.ALL_WITH_RIDERS);
             // Filter for taken/used vehicles only
             const usedVehicles = Array.isArray(response)
                 ? response.filter(v => v.currentStatus?.toLowerCase() === 'taken' || v.currentStatus?.toLowerCase() === 'مستخدمة')
@@ -72,7 +77,7 @@ export default function VehicleReturnRequestPage() {
         setFormData(prev => ({
             ...prev,
             vehiclePlate: vehicle.plateNumberA || "",
-            riderIqamaNo: vehicle.assignedRiderIqamaNo || ""
+            riderIqamaNo: vehicle.assignedRiderIqamaNo || vehicle.riderIqamaNo || vehicle.currentRider?.employeeIqamaNo || ""
         }));
         setMessage({ type: "", text: "" });
     };
@@ -213,8 +218,12 @@ export default function VehicleReturnRequestPage() {
                                     </div>
                                     <div className="text-xs md:text-sm text-gray-600 space-y-1">
                                         <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
-                                        {vehicle.riderName && <p>المندوب: {vehicle.riderName}</p>}
-                                        {vehicle.riderIqamaNo && <p>رقم الإقامة: {vehicle.riderIqamaNo}</p>}
+                                        {(vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName) && (
+                                            <p>المندوب: {vehicle.riderName || vehicle.assignedRiderName || vehicle.currentRider?.riderName}</p>
+                                        )}
+                                        {(vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo || vehicle.currentRider?.employeeIqamaNo) && (
+                                            <p>رقم الإقامة: {vehicle.riderIqamaNo || vehicle.assignedRiderIqamaNo || vehicle.currentRider?.employeeIqamaNo}</p>
+                                        )}
                                         {vehicle.vehicleType && <p>النوع: {vehicle.vehicleType}</p>}
                                     </div>
                                 </div>
