@@ -20,7 +20,7 @@ export default function MemberSparePartsPage() {
 
     // Array to hold multiple usage entries
     const [usageEntries, setUsageEntries] = useState([
-        { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+        { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: 1 }
     ]);
 
     useEffect(() => {
@@ -76,7 +76,7 @@ export default function MemberSparePartsPage() {
     const addUsageEntry = () => {
         setUsageEntries([
             ...usageEntries,
-            { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+            { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: 1 }
         ]);
     };
 
@@ -128,7 +128,7 @@ export default function MemberSparePartsPage() {
 
             // Reset form
             setUsageEntries([
-                { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: '' }
+                { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: 1 }
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
