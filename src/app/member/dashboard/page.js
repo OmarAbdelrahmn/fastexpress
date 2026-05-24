@@ -90,21 +90,20 @@ export default function MemberDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 {/* Row 1: Employee/Rider Stats */}
-                <StatCard
+                {/* <StatCard
                     title={t("dashboard.member.totalEmployees")}
                     value={stats?.totalEmployees || 0}
                     icon={Users}
                     color="#ffffffff"
                     link="#"
                     background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
-                />
+                /> */}
                 <StatCard
                     title={t("dashboard.member.activeRiders")}
                     value={stats?.activeRiders || 0}
                     icon={CheckCircle}
-                    color="#ffffffff"
                     link="#"
                     background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
@@ -112,7 +111,6 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.inactiveRiders")}
                     value={stats?.inactiveRiders || 0}
                     icon={XCircle}
-                    color="#ffffffff"
                     link="#"
                     background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
@@ -122,7 +120,6 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.hungerAccepted")}
                     value={summary?.hunger?.acceptedOrders || 0}
                     icon={Activity}
-                    color="#ffffffff"
                     link="#"
                     background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
@@ -130,7 +127,6 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.ketaAccepted")}
                     value={summary?.keta?.acceptedOrders || 0}
                     icon={Clock}
-                    color="#ffffffff"
                     link="#"
                     background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
@@ -138,9 +134,8 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.totalDayOrders")}
                     value={summary?.totalDayOrders || 0}
                     icon={Clock}
-                    color="#ffffffff"
                     link="#"
-                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
 
                 {/* Row 3: Order Stats */}
@@ -148,25 +143,22 @@ export default function MemberDashboard() {
                     title={t("dashboard.member.hungerAcceptedMonth")}
                     value={summary?.hungerMonthToDate?.acceptedOrders || 0}
                     icon={ShoppingBag}
-                    color="#ffffffff"
                     link="#"
-                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
                 <StatCard
                     title={t("dashboard.member.ketaAcceptedMonth")}
                     value={summary?.ketaMonthToDate?.acceptedOrders || 0}
                     icon={ShoppingBag}
-                    color="#ffffffff"
                     link="#"
-                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
+                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
                 />
                 <StatCard
                     title={t("dashboard.member.totalMonthOrders")}
                     value={summary?.totalMonthOrders || 0}
                     icon={Calendar}
-                    color="#ffffffff"
                     link="#"
-                    background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"
+                    background="bg-gradient-to-r from-[#FFC52A] to-[#FF8A3D]"
                 />
             </div>
 
@@ -397,15 +389,15 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color, link, background,
         orange: "text-orange-600 bg-orange-100",
         purple: "text-purple-600 bg-purple-100",
         indigo: "text-indigo-600 bg-indigo-100",
-        gray: "text-gray-600 bg-gray-100",
-        white: "text-white bg-gray-100",
+        gray: "text-white bg-white/20",
+        white: "text-white bg-white/20",
     };
 
     return (
         <Link href={link} className="block group">
             <div className={`rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${background} h-full`}>
                 <div className="flex justify-between items-start mb-2">
-                    <div className={`p-2 rounded-lg transition-colors ${iconColors[color] || iconColors.gray}`}>
+                    <div className={`p-2 rounded-lg  transition-colors ${iconColors[color] || iconColors.gray}`}>
                         <Icon size={20} />
                     </div>
                     {/* Subtle background decoration */}
