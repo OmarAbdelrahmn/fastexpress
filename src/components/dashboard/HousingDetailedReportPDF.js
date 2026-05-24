@@ -361,7 +361,12 @@ const HousingDetailedReportPDF = ({ data }) => {
                                     </View>
                                 </View>
                                 <View style={styles.colWorkingHours}>
-                                    <Text style={styles.cellText}>
+                                    <Text style={[
+                                        styles.cellText,
+                                        rider.workingHours !== undefined && rider.workingHours !== null && Number(rider.workingHours) < 8
+                                            ? { color: '#ef4444' }
+                                            : {}
+                                    ]}>
                                         {rider.workingHours !== undefined && rider.workingHours !== null
                                             ? Number(rider.workingHours).toFixed(2)
                                             : '0.00'}

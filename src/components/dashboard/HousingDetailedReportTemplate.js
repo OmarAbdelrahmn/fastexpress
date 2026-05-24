@@ -82,7 +82,11 @@ const HousingDetailedReportTemplate = ({ data }) => {
                                                 {rider.acceptedOrders}
                                             </div>
                                         </td>
-                                        <td className="py-1 px-4 text-[#1e3a8a]">
+                                        <td className={`py-1 px-4 ${
+                                            rider.workingHours !== undefined && rider.workingHours !== null && Number(rider.workingHours) < 8
+                                                ? 'text-red-600 font-bold'
+                                                : 'text-[#1e3a8a]'
+                                        }`}>
                                             {rider.workingHours !== undefined && rider.workingHours !== null
                                                 ? Number(rider.workingHours).toFixed(2)
                                                 : '0.00'}
