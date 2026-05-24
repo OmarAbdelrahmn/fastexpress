@@ -28,6 +28,7 @@ export const userNavigationConfig = {
       { path: "/member/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
       { path: "/member/maintenance/cost-summary", label: "ملخص التكاليف" },
       { path: "/member/maintenance/transfers", label: "التحويلات" },
+      { path: "/member/maintenance/reminders", label: "تنبيهات الصيانة" },
     ],
   },
   requests: {

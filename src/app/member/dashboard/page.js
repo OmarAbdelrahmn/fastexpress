@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import {
@@ -11,18 +12,23 @@ import {
     Activity,
     AlertTriangle,
     ArrowUp,
+    ArrowRight,
     CheckCircle,
     XCircle,
     ShoppingBag,
-    Calendar
+    Calendar,
+    X,
+    Wrench
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function MemberDashboard() {
+    const router = useRouter();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [remindersCount, setRemindersCount] = useState(0);
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -37,7 +43,18 @@ export default function MemberDashboard() {
             }
         };
 
+        const fetchReminders = async () => {
+            try {
+                const res = await ApiService.get(API_ENDPOINTS.MEMBER.REMINDERS());
+                // totalAffectedVehicles is the count of vehicles with pending maintenance
+                setRemindersCount(res?.totalAffectedVehicles || 0);
+            } catch {
+                // silently ignore – notification is non-critical
+            }
+        };
+
         fetchData();
+        fetchReminders();
     }, [t]);
 
     if (loading) return (
@@ -58,6 +75,7 @@ export default function MemberDashboard() {
     const totalPeople = (stats?.totalEmployees || 0) + (stats?.activeRiders || 0) + (stats?.inactiveRiders || 0);
 
     return (
+        <>
         <div className="min-h-screen bg-gradient-to-br p-1 md:p-6 space-y-6 md:space-y-8 animate-fade-in" dir="rtl">
             {/* Header Info */}
             <div>
@@ -252,6 +270,18 @@ export default function MemberDashboard() {
             </div>
         </div>
 
+        {/* Maintenance Reminder FAB */}
+        <div className="fixed bottom-6 left-6 flex flex-col gap-4 z-50">
+            <NotificationFab
+                title="تنبيهات غيار الزيت"
+                count={remindersCount}
+                icon={Wrench}
+                link="/member/maintenance/reminders"
+                router={router}
+            />
+        </div>
+        </>
+
     );
 }
 
@@ -269,6 +299,79 @@ const COLORS = {
 const getBgStyle = (hex) => ({
     backgroundColor: `${hex}1A` // 1A is ~10% opacity in hex
 });
+
+const NotificationFab = ({ title, count, icon: Icon, link, router }) => {
+    const [showPopup, setShowPopup] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+
+    if (!isVisible) return null;
+
+    return (
+        <div className="relative group w-fit">
+            {/* Popup Rectangle */}
+            {showPopup && (
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(link);
+                    }}
+                    className="absolute left-full ml-4 top-1/2 -translate-y-1/2 w-max bg-white text-gray-800 px-4 py-3 rounded-lg shadow-xl border border-gray-100 cursor-pointer animate-fade-in flex items-center gap-3 z-50 print:hidden"
+                >
+                    {/* Close Button for Popup */}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPopup(false);
+                        }}
+                        className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-gray-100 hover:bg-gray-50 text-gray-400 hover:text-red-500 transition-colors z-50"
+                    >
+                        <X size={12} />
+                    </button>
+
+                    <div className="flex flex-col">
+                        <span className="font-bold text-sm">{title}</span>
+                        <span className="text-xs text-gray-500">{count} مركبة تحتاج صيانة</span>
+                    </div>
+                    <div className="bg-purple-50 p-1.5 rounded-full">
+                        <ArrowRight size={14} className="text-purple-600 rtl:rotate-180" />
+                    </div>
+                    {/* Arrow pointing to icon */}
+                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white transform rotate-45 border-l border-b border-gray-100"></div>
+                </div>
+            )}
+
+            {/* Icon Button */}
+            <button
+                onClick={() => setShowPopup(!showPopup)}
+                className={`p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 flex items-center justify-center relative group/btn
+                    ${count > 0
+                        ? 'bg-red-500 text-white hover:bg-red-600 animate-pulse-slow'
+                        : 'bg-green-500 text-white hover:bg-green-600'
+                    }`}
+            >
+                <Icon size={24} />
+
+                {/* Badge at top-left */}
+                {count > 0 && (
+                    <span className="absolute -top-1 -left-1 bg-white text-red-500 text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-red-500 shadow-sm z-10">
+                        {count > 9 ? '+9' : count}
+                    </span>
+                )}
+
+                {/* Close Circle Button (Appears on Hover at top-right) */}
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsVisible(false);
+                    }}
+                    className="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 rounded-full p-0.5 shadow-md border border-gray-100 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 z-20 cursor-pointer"
+                >
+                    <X size={14} />
+                </div>
+            </button>
+        </div>
+    );
+};
 
 const MiniStatRow = ({ label, value, icon: Icon, color }) => (
     <div className="flex items-center justify-between p-2 rounded-lg hover:bg-blue-100 transition-colors cursor-default group">

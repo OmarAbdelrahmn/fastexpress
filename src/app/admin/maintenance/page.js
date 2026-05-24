@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { Wrench, History, FileText, AlertCircle, Package, BadgeDollarSign } from 'lucide-react';
+import { Wrench, History, FileText, AlertCircle, Package, BadgeDollarSign, Bell } from 'lucide-react';
 import MiniStatRow from '@/components/Ui/MiniStatRow';
 
 export default function MaintenancePage() {
@@ -167,7 +167,6 @@ export default function MaintenancePage() {
                         />
                     </div>
                 </div>
-
                     <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <h3 className="font-bold text-gray-900 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
                         مركز التكلفة
@@ -180,6 +179,15 @@ export default function MaintenancePage() {
                             onClick={() => router.push('/admin/maintenance/money-spending')}
                             color="#10b981"
                             bgClass="bg-emerald-50"
+                        />
+
+                        <MiniStatRow
+                            icon={Bell}
+                            title="الصيانة الدورية"
+                            description="إدارة جداول صيانة المركبات و المعدات"
+                            onClick={() => router.push('/admin/maintenance/reminders')}
+                            color="#7c3aed"
+                            bgClass="bg-violet-50"
                         />
                     </div>
                 </div>

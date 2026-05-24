@@ -317,6 +317,7 @@ export const API_ENDPOINTS = {
       LIST: "/api/member/transfers",
     },
     EDIT_RIDER_COMPANY: "/api/Member/edit-rider-company",
+    REMINDERS: (checkDate = '') => `/api/member/maintenance/reminders${checkDate ? `?checkDate=${checkDate}` : ''}`,
   },
 
   // RiderAccessory
@@ -402,6 +403,17 @@ export const API_ENDPOINTS = {
     FORCE_DELETE: (iqamaNo) => `/api/escaped/${iqamaNo}/force`,
     DEACTIVATE: (iqamaNo) => `/api/escaped/${iqamaNo}/deactivate`,
     ACTIVATE: (iqamaNo) => `/api/escaped/${iqamaNo}/activate`,
+  },
+
+  // Maintenance Intervals & Reminders
+  MAINTENANCE_INTERVALS: {
+    LIST: '/api/maintenance/intervals',
+    CREATE: '/api/maintenance/intervals',
+    UPDATE: (id) => `/api/maintenance/intervals/${id}`,
+    DELETE: (id) => `/api/maintenance/intervals/${id}`,
+    TOGGLE: (id) => `/api/maintenance/intervals/${id}/toggle`,
+    REMINDERS: (checkDate = '') =>
+      `/api/maintenance/reminders${checkDate ? `?checkDate=${checkDate}` : ''}`,
   },
 
   // Petrol

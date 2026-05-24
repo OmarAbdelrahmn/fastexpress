@@ -180,6 +180,8 @@ const pathTranslationKeys = {
   "admin/maintenance/usage/spare-parts/history": "navigation.history",
   "admin/maintenance/housing-costs": "navigation.maintenanceHousingCosts",
   "admin/maintenance/returns": "navigation.returnsManagement",
+  "admin/maintenance/reminders": "الصيانة الدورية",
+  "admin/maintenance/vehicles-rider-costs": "تكاليف المركبات والسائقين",
 
   // ─── Hunger ────────────────────────────────────────────────────────────────
   "admin/hunger": "hunger.title",
@@ -254,6 +256,7 @@ const pathTranslationKeys = {
   "member/maintenance/spare-parts/history": "navigation.history",
   "member/maintenance/spare-parts/stock": "navigation.stock",
   "member/maintenance/transfers": "navigation.maintenanceTransfers",
+  "member/maintenance/reminders": "تنبيهات الصيانة",
 
   // Member Reports
   "member/reports": "reports.title",
