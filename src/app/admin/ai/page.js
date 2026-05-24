@@ -383,7 +383,6 @@ export default function AIChatPage() {
         history: buildHistory(messages),
       });
 
-      console.log('AI Response:', res);
 
       if (res.needsConfirmation && res.pendingAction) {
         setMessages(prev => [...prev, { role: 'model', content: res.message, data: null, time: now() }]);
@@ -407,7 +406,6 @@ export default function AIChatPage() {
         message: '',
         confirmationToken: confirmDialog.pendingAction.token,
       });
-      console.log('AI Confirmation Response:', res);
       setMessages(prev => [...prev, { role: 'model', content: res.message, data: res.data ?? null, time: now() }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'model', content: `❌ خطأ: ${err.message}`, data: null, time: now() }]);
