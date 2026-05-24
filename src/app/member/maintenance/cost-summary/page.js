@@ -94,11 +94,11 @@ export default function MemberCostSummaryPage() {
 
         const dataToExport = [];
         list.forEach(row => {
+            const formattedPlate = formatPlateNumber(row.vehiclePlate) || '-';
             if (row.sparePartUsages && row.sparePartUsages.length > 0) {
                 row.sparePartUsages.forEach(usage => {
                     dataToExport.push({
-                        'رقم اللوحة': row.vehiclePlate,
-                        'رقم المركبة': row.vehicleNumber || '-',
+                        'رقم اللوحة': formattedPlate,
                         'اسم قطعة الغيار': usage.sparePartName,
                         'الكمية المستخدمة': usage.totalQuantityUsed,
                         'سعر الوحدة (ر.س)': usage.unitPrice?.toFixed(2),
@@ -109,8 +109,7 @@ export default function MemberCostSummaryPage() {
                 });
             } else {
                 dataToExport.push({
-                    'رقم اللوحة': row.vehiclePlate,
-                    'رقم المركبة': row.vehicleNumber || '-',
+                    'رقم اللوحة': formattedPlate,
                     'اسم قطعة الغيار': 'لا يوجد',
                     'الكمية المستخدمة': '-',
                     'سعر الوحدة (ر.س)': '-',
@@ -176,11 +175,6 @@ export default function MemberCostSummaryPage() {
     };
 
     const vehicleColumns = [
-        {
-            header: 'رقم المركبة',
-            accessor: 'vehicleNumber',
-            render: (row) => row.vehicleNumber || '-'
-        },
         {
             header: 'رقم اللوحة',
             accessor: 'vehiclePlate',
@@ -389,7 +383,7 @@ export default function MemberCostSummaryPage() {
                     setSelectedItem(null);
                 }}
                 title={selectedItem?.type === 'vehicle' 
-                    ? `تفاصيل تكاليف المركبة - ${selectedItem?.vehiclePlate ? formatPlateNumber(selectedItem.vehiclePlate) : selectedItem?.vehicleNumber}`
+                    ? `تفاصيل تكاليف المركبة - ${selectedItem?.vehiclePlate ? formatPlateNumber(selectedItem.vehiclePlate) : '-'}`
                     : `تفاصيل تكاليف المندوب - ${selectedItem?.riderNameAR || selectedItem?.riderNameEN}`
                 }
                 size="lg"
@@ -400,10 +394,10 @@ export default function MemberCostSummaryPage() {
                         <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
                             <div>
                                 <span className="text-xs text-gray-500 font-medium block">
-                                    {selectedItem.type === 'vehicle' ? 'رقم المركبة' : 'معرف العمل'}
+                                    {selectedItem.type === 'vehicle' ? 'رقم اللوحة' : 'معرف العمل'}
                                 </span>
                                 <span className="text-sm md:text-base font-bold text-gray-800">
-                                    {selectedItem.type === 'vehicle' ? (selectedItem.vehicleNumber || '-') : (selectedItem.workingId || '-')}
+                                    {selectedItem.type === 'vehicle' ? (formatPlateNumber(selectedItem.vehiclePlate) || '-') : (selectedItem.workingId || '-')}
                                 </span>
                             </div>
                             <div className="text-left">
