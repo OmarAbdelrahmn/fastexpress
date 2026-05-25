@@ -19,6 +19,13 @@ export default function SparePartsUsagePage() {
     const [vehicles, setVehicles] = useState([]);
     const [alert, setAlert] = useState(null);
 
+    // Default usage date to current local datetime (datetime-local format: YYYY-MM-DDTHH:mm)
+    const toLocalDatetimeString = (date) => {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+    const [usageDate, setUsageDate] = useState(() => toLocalDatetimeString(new Date()));
+
     // Array to hold multiple usage entries
     const [usageEntries, setUsageEntries] = useState([
         { sparePartId: '', vehicleNumber: '', selectedVehicle: null, quantityUsed: 1, unitPrice: '' }
@@ -133,7 +140,8 @@ export default function SparePartsUsagePage() {
                 }))
             };
 
-            await ApiService.post(API_ENDPOINTS.SPARE_PARTS.RECORD_USAGE, requestBody);
+            const dateParam = encodeURIComponent(`${usageDate}:00`);
+            await ApiService.post(`${API_ENDPOINTS.SPARE_PARTS.RECORD_USAGE}?date=${dateParam}`, requestBody);
 
             showAlert('success', 'تم تسجيل الصرف بنجاح');
 
@@ -188,6 +196,20 @@ export default function SparePartsUsagePage() {
 
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
+
+                    {/* Usage Date */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            تاريخ ووقت الصرف <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="datetime-local"
+                            value={usageDate}
+                            onChange={(e) => setUsageDate(e.target.value)}
+                            required
+                            className="w-full md:w-72 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                    </div>
 
                     {/* Usage Entries */}
                     <div className="space-y-4">
