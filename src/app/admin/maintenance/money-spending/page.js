@@ -366,6 +366,7 @@ function AllHousingsDetailsTab() {
     });
     const [selectedHousing, setSelectedHousing] = useState('');
     const [availableHousings, setAvailableHousings] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         loadData();
@@ -543,9 +544,16 @@ function AllHousingsDetailsTab() {
         }
     ];
 
-    const displayData = selectedHousing
-        ? tableData.filter(row => row.housingName === selectedHousing)
-        : tableData;
+    const displayData = tableData
+        .filter(row => !selectedHousing || row.housingName === selectedHousing)
+        .filter(row => {
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.trim().toLowerCase();
+            return (
+                (row.itemName || '').toLowerCase().includes(q) ||
+                (row.entityName || '').toLowerCase().includes(q)
+            );
+        });
 
     const displaySummary = selectedHousing
         ? {
@@ -602,7 +610,7 @@ function AllHousingsDetailsTab() {
             </div>
 
             <Card>
-                <div className="flex flex-col md:flex-row gap-4 items-end mb-6">
+                <div className="flex flex-col md:flex-row gap-4 items-end mb-4 flex-wrap">
                     <div className="w-full md:w-auto">
                         <label className="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label>
                         <div className="relative">
@@ -656,11 +664,38 @@ function AllHousingsDetailsTab() {
                         variant="outline"
                         className="border-green-600 text-green-600 hover:bg-green-50 h-[42px] px-6 mr-auto"
                         onClick={handleExcelExport}
-                        disabled={!tableData || tableData.length === 0}
+                        disabled={displayData.length === 0}
                     >
                         <FileSpreadsheet size={18} className="ml-2" />
-                        تصدير إكسل
+                        تصدير إكسل ({displayData.length})
                     </Button>
+                </div>
+
+                {/* Text search row */}
+                <div className="mb-4">
+                    <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="ابحث بقطعة الغيار أو رقم لوحة المركبة..."
+                            className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm h-[42px]"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-xs"
+                            >
+                                ✕ مسح
+                            </button>
+                        )}
+                    </div>
+                    {searchQuery && (
+                        <p className="text-xs text-gray-500 mt-1">
+                            {displayData.length} نتيجة للبحث عن "{searchQuery}"
+                        </p>
+                    )}
                 </div>
 
                 <Table
