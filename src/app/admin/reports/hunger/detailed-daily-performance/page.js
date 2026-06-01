@@ -71,6 +71,8 @@ export default function DetailedDailyPerformanceReport() {
         const dates = reportData.housingDetails?.[0]?.riders?.[0]?.dailyEntries?.map(d => d.date) || [];
         const lastDate = dates[dates.length - 1];
         let grandTotalLastDayOrders = 0;
+        let grandTotalRejectedOrders = 0;
+        let grandTotalWalletAmount = 0;
 
         reportData.housingDetails?.forEach(housing => {
             housing.riders?.forEach(rider => {
@@ -100,8 +102,22 @@ export default function DetailedDailyPerformanceReport() {
                 riderRow['طلبات اليوم الأخير'] = lastDayOrders;
                 grandTotalLastDayOrders += lastDayOrders;
 
+                // Calculate rejected orders
+                const rejectedOrders = rider.periodSummary?.totalRejectedOrders !== undefined
+                    ? rider.periodSummary.totalRejectedOrders
+                    : (rider.dailyEntries?.reduce((sum, day) => sum + (day.rejectedOrders || 0), 0) || 0);
+                grandTotalRejectedOrders += Number(rejectedOrders) || 0;
+
+                // Calculate wallet amount
+                const walletAmount = rider.periodSummary?.totalWalletAmount !== undefined
+                    ? rider.periodSummary.totalWalletAmount
+                    : (rider.periodSummary?.totalWallet !== undefined ? rider.periodSummary.totalWallet : 0);
+                grandTotalWalletAmount += Number(walletAmount) || 0;
+
                 // Add summary metrics after all daily columns
                 riderRow['إجمالي الطلبات'] = rider.periodSummary?.totalAcceptedOrders || '0';
+                riderRow['إجمالي الطلبات المرفوضة'] = rejectedOrders;
+                riderRow['إجمالي المحفظة'] = walletAmount;
                 riderRow['تارجيت الطلبات'] = rider.periodSummary?.totalTargetOrders || '0';
                 riderRow['فرق الساعات'] = rider.periodSummary?.totalHoursDifference?.toFixed(2) || '0';
                 riderRow['إجمالي الساعات'] = rider.periodSummary?.totalWorkingHours?.toFixed(2) || '0';
@@ -124,6 +140,8 @@ export default function DetailedDailyPerformanceReport() {
                 'رقم العمل': `أيام العمل: ${summary.totalWorkingDays}`,
                 'طلبات اليوم الأخير': grandTotalLastDayOrders,
                 'إجمالي الطلبات': summary.grandTotalOrders || '0',
+                'إجمالي الطلبات المرفوضة': grandTotalRejectedOrders,
+                'إجمالي المحفظة': grandTotalWalletAmount,
                 'تارجيت الطلبات': summary.grandTotalTargetOrders || '0',
                 'فرق الساعات': '',
                 'إجمالي الساعات': summary.grandTotalHours?.toFixed(2) || '0',

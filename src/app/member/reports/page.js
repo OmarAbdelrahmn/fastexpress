@@ -80,7 +80,20 @@ export default function MemberReportsPage() {
                 const d = dailyDataMap[date];
                 row[date] = d ? (d.workingHours?.toFixed(2) || '0') : '0';
             });
+
+            // Calculate rejected orders
+            const rejectedOrders = rider.periodSummary?.totalRejectedOrders !== undefined
+                ? rider.periodSummary.totalRejectedOrders
+                : (rider.dailyEntries?.reduce((sum, day) => sum + (day.rejectedOrders || 0), 0) || 0);
+
+            // Calculate wallet amount
+            const walletAmount = rider.periodSummary?.totalWalletAmount !== undefined
+                ? rider.periodSummary.totalWalletAmount
+                : (rider.periodSummary?.totalWallet !== undefined ? rider.periodSummary.totalWallet : 0);
+
             row['إجمالي الطلبات'] = rider.periodSummary?.totalAcceptedOrders || '0';
+            row['إجمالي الطلبات المرفوضة'] = rejectedOrders;
+            row['إجمالي المحفظة'] = walletAmount;
             row['تارجيت الطلبات'] = rider.periodSummary?.totalTargetOrders || '0';
             row['إجمالي الساعات'] = rider.periodSummary?.totalWorkingHours?.toFixed(2) || '0';
             excelData.push(row);
