@@ -70,7 +70,7 @@ export default function DetailedDailyPerformanceReport() {
         // Get all unique dates from the first rider to create column headers
         const dates = reportData.housingDetails?.[0]?.riders?.[0]?.dailyEntries?.map(d => d.date) || [];
         const lastDate = dates[dates.length - 1];
-        let grandTotalLastDayOrders = 0;
+        
         let grandTotalRejectedOrders = 0;
         let grandTotalWalletAmount = 0;
 
