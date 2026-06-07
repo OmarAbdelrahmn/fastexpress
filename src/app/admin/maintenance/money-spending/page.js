@@ -17,7 +17,7 @@ import * as XLSX from 'xlsx';
 import {
     FileText, Search, Eye, Users, Download, Wrench, BadgeDollarSign,
     Calendar, FileSpreadsheet, DollarSign, Package, History, ArrowRight,
-    Truck, User, ChevronRight
+    Truck, User, ChevronRight, BarChart2, MapPin, ChevronDown, ChevronUp, Layers
 } from 'lucide-react';
 
 // ==========================================
@@ -1462,6 +1462,391 @@ function RiderAccessoriesHistoryTab() {
 }
 
 // ==========================================
+// TAB 6: Usages (Spare Parts + Accessories Movement Report)
+// ==========================================
+function UsagesTab() {
+    const [activeSubTab, setActiveSubTab] = useState('spareParts');
+
+    const subTabs = [
+        { id: 'spareParts', label: 'قطع الغيار', icon: Wrench, color: 'from-orange-500 to-orange-600' },
+        { id: 'accessories', label: 'معدات السائقين', icon: Package, color: 'from-purple-500 to-purple-600' },
+    ];
+
+    return (
+        <div className="space-y-4">
+            <div className="flex gap-1 bg-slate-50 border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
+                {subTabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveSubTab(tab.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                            activeSubTab === tab.id
+                                ? `bg-gradient-to-r ${tab.color} text-white shadow-md`
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-white'
+                        }`}
+                    >
+                        <tab.icon size={15} />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            <div key={activeSubTab} className="animate-in fade-in slide-in-from-bottom-1 duration-300">
+                {activeSubTab === 'spareParts' && <SparePartsMovementReport />}
+                {activeSubTab === 'accessories' && <AccessoriesMovementReport />}
+            </div>
+        </div>
+    );
+}
+
+function DateRangeFilter({ fromDate, toDate, setFromDate, setToDate, onSearch, loading, extraLeft }) {
+    return (
+        <Card>
+            <div className="flex flex-wrap gap-4 items-end">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label>
+                    <div className="relative">
+                        <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm h-[42px]" />
+                        <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
+                    </div>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">إلى تاريخ</label>
+                    <div className="relative">
+                        <input type="date" value={toDate} onChange={e => setToDate(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm h-[42px]" />
+                        <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
+                    </div>
+                </div>
+                <Button onClick={onSearch} disabled={loading} variant="primary"
+                    className="h-[42px] px-6 bg-blue-600 hover:bg-blue-700 text-white">
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Search size={16} className="mr-1" />بحث</>}
+                </Button>
+                {extraLeft}
+            </div>
+        </Card>
+    );
+}
+
+function ItemMovementCard({ item, type }) {
+    const [expanded, setExpanded] = useState(false);
+    const isSpare = type === 'spare';
+
+    const badgeClass = isSpare
+        ? 'bg-orange-100 text-orange-700'
+        : 'bg-purple-100 text-purple-700';
+
+    const summary = item.summary || {};
+    const totalCost = isSpare ? summary.totalUsageCost : summary.totalIssuanceCost;
+    const totalQtyUsed = isSpare ? summary.totalQuantityUsed : summary.totalTimesIssued;
+
+    return (
+        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
+            {/* Header */}
+            <div
+                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setExpanded(v => !v)}
+            >
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${isSpare ? 'bg-orange-50' : 'bg-purple-50'}`}>
+                        {isSpare ? <Wrench size={18} className="text-orange-600" /> : <Package size={18} className="text-purple-600" />}
+                    </div>
+                    <div>
+                        <p className="font-bold text-gray-900">{item.itemName}</p>
+                        <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
+                            {summary.locationsInvolved?.length > 0 && (
+                                <span className="flex items-center gap-1"><MapPin size={11} />{summary.locationsInvolved.join(' · ')}</span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-6">
+                    <div className="text-right">
+                        <p className="text-xs text-gray-400">الكمية المستخدمة</p>
+                        <p className="font-bold text-gray-800">{totalQtyUsed ?? '-'}</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-xs text-gray-400">إجمالي التكلفة</p>
+                        <p className="font-bold text-green-600">{Number(totalCost ?? 0).toFixed(2)} ر.س</p>
+                    </div>
+                    {expanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
+                </div>
+            </div>
+
+            {/* Expanded Content */}
+            {expanded && (
+                <div className="border-t border-gray-100 p-5 space-y-5 bg-gray-50">
+
+                    {/* Current Stock */}
+                    {item.currentStock?.length > 0 && (
+                        <div>
+                            <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <Layers size={14} className="text-blue-500" />المخزون الحالي
+                            </h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {item.currentStock.map((s, i) => (
+                                    <div key={i} className="bg-white border border-blue-100 rounded-lg p-3 text-sm">
+                                        <p className="font-medium text-gray-800">{s.location}</p>
+                                        <p className="text-gray-500">الكمية: <span className="font-bold text-blue-600">{s.currentQuantity}</span></p>
+                                        <p className="text-gray-500">السعر: <span className="font-bold">{Number(s.currentPrice).toFixed(2)} ر.س</span></p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Usages */}
+                    {item.usages?.length > 0 && (
+                        <div>
+                            <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                {isSpare ? <Wrench size={14} className="text-orange-500" /> : <Package size={14} className="text-purple-500" />}
+                                {isSpare ? 'سجل الاستخدام' : 'سجل الإصدار'}
+                            </h5>
+                            <div className="overflow-x-auto rounded-lg border border-gray-200">
+                                <table className="w-full text-xs text-right">
+                                    <thead className="bg-gray-100 text-gray-600">
+                                        <tr>
+                                            {isSpare ? (
+                                                <>
+                                                    <th className="px-3 py-2">المركبة</th>
+                                                    <th className="px-3 py-2">السائق</th>
+                                                    <th className="px-3 py-2">الموقع</th>
+                                                    <th className="px-3 py-2">الكمية</th>
+                                                    <th className="px-3 py-2">سعر الوحدة</th>
+                                                    <th className="px-3 py-2">الإجمالي</th>
+                                                    <th className="px-3 py-2">التاريخ</th>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <th className="px-3 py-2">السائق</th>
+                                                    <th className="px-3 py-2">الموقع</th>
+                                                    <th className="px-3 py-2">ID العمل</th>
+                                                    <th className="px-3 py-2">سعر الإصدار</th>
+                                                    <th className="px-3 py-2">التاريخ</th>
+                                                </>
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 bg-white">
+                                        {item.usages.map((u, i) => (
+                                            <tr key={i} className="hover:bg-gray-50">
+                                                {isSpare ? (
+                                                    <>
+                                                        <td className="px-3 py-2 font-medium">{u.vehicleNumber || '-'}</td>
+                                                        <td className="px-3 py-2">{u.assignedRiderNameAR || '-'}</td>
+                                                        <td className="px-3 py-2">{u.sourceLocation}</td>
+                                                        <td className="px-3 py-2 font-bold text-orange-600">{u.quantityUsed}</td>
+                                                        <td className="px-3 py-2">{Number(u.unitPriceAtUsage).toFixed(2)} ر.س</td>
+                                                        <td className="px-3 py-2 font-bold text-green-600">{Number(u.totalCost).toFixed(2)} ر.س</td>
+                                                        <td className="px-3 py-2 text-gray-400">{new Date(u.usedAt).toLocaleDateString('ar-SA')}</td>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <td className="px-3 py-2 font-medium">{u.riderNameAR || u.riderNameEN || '-'}</td>
+                                                        <td className="px-3 py-2">{u.riderHousing || u.sourceLocation}</td>
+                                                        <td className="px-3 py-2">{u.workingId || '-'}</td>
+                                                        <td className="px-3 py-2 font-bold text-green-600">{Number(u.priceAtIssuance).toFixed(2)} ر.س</td>
+                                                        <td className="px-3 py-2 text-gray-400">{new Date(u.issuedAt).toLocaleDateString('ar-SA')}</td>
+                                                    </>
+                                                )}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Transfers */}
+                    {item.transfers?.length > 0 && (
+                        <div>
+                            <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <ArrowRight size={14} className="text-teal-500" />سجل التحويلات
+                            </h5>
+                            <div className="overflow-x-auto rounded-lg border border-gray-200">
+                                <table className="w-full text-xs text-right">
+                                    <thead className="bg-gray-100 text-gray-600">
+                                        <tr>
+                                            <th className="px-3 py-2">من</th>
+                                            <th className="px-3 py-2">إلى</th>
+                                            <th className="px-3 py-2">الكمية</th>
+                                            <th className="px-3 py-2">بواسطة</th>
+                                            <th className="px-3 py-2">التاريخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 bg-white">
+                                        {item.transfers.map((tr, i) => (
+                                            <tr key={i} className="hover:bg-gray-50">
+                                                <td className="px-3 py-2">{tr.fromLocation}</td>
+                                                <td className="px-3 py-2">{tr.toLocation}</td>
+                                                <td className="px-3 py-2 font-bold text-teal-600">{tr.quantityTransferred}</td>
+                                                <td className="px-3 py-2">{tr.transferredBy}</td>
+                                                <td className="px-3 py-2 text-gray-400">{new Date(tr.transferredAt).toLocaleDateString('ar-SA')}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function SparePartsMovementReport() {
+    const [fromDate, setFromDate] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    });
+    const [toDate, setToDate] = useState(() => {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow.toISOString().split('T')[0];
+    });
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchData = async () => {
+        if (!fromDate || !toDate) return alert('الرجاء اختيار التاريخين');
+        setLoading(true);
+        try {
+            const res = await ApiService.get(`/api/ItemMovementReport/spare-parts?fromDate=${fromDate}T00:00:00&toDate=${toDate}T23:59:59`);
+            setData(res);
+        } catch (e) {
+            console.error(e);
+            alert('حدث خطأ أثناء جلب البيانات');
+        } finally { setLoading(false); }
+    };
+
+    const totals = data?.totals || {};
+    const items = data?.items || [];
+
+    return (
+        <div className="space-y-5">
+            <DateRangeFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} onSearch={fetchData} loading={loading} />
+
+            {data && (
+                <>
+                    {/* Summary cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {[
+                            { label: 'الأصناف', value: totals.totalItems, color: 'border-blue-500', icon: <Package size={18} className="text-blue-500" /> },
+                            { label: 'أحداث التحويل', value: totals.totalTransferEvents, color: 'border-teal-500', icon: <ArrowRight size={18} className="text-teal-500" /> },
+                            { label: 'أحداث الاستخدام', value: totals.totalUsageEvents, color: 'border-orange-500', icon: <Wrench size={18} className="text-orange-500" /> },
+                            { label: 'إجمالي التكلفة', value: `${Number(totals.totalCostOfUsages ?? 0).toFixed(2)} ر.س`, color: 'border-green-500', icon: <DollarSign size={18} className="text-green-500" /> },
+                            { label: 'الكمية المحوّلة', value: totals.totalQuantityTransferred, color: 'border-indigo-500', icon: <BarChart2 size={18} className="text-indigo-500" /> },
+                            { label: 'الكمية المستخدمة', value: totals.totalQuantityUsed, color: 'border-red-400', icon: <BarChart2 size={18} className="text-red-400" /> },
+                        ].map((s, i) => (
+                            <div key={i} className={`bg-white rounded-xl p-4 border-r-4 ${s.color} shadow-sm`}>
+                                <div className="flex items-center justify-between mb-1">{s.icon}</div>
+                                <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                                <p className="text-lg font-bold text-gray-800">{s.value ?? 0}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Items */}
+                    <div className="space-y-3">
+                        {items.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400">
+                                <Wrench size={40} className="mx-auto mb-3 opacity-40" />
+                                <p>لا توجد بيانات لهذه الفترة</p>
+                            </div>
+                        ) : (
+                            items.map((item, i) => <ItemMovementCard key={i} item={item} type="spare" />)
+                        )}
+                    </div>
+                </>
+            )}
+
+            {!data && !loading && (
+                <div className="text-center py-16 text-gray-400">
+                    <Search size={40} className="mx-auto mb-3 opacity-30" />
+                    <p>اختر الفترة الزمنية واضغط بحث لعرض تقرير حركة قطع الغيار</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function AccessoriesMovementReport() {
+    const [fromDate, setFromDate] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    });
+    const [toDate, setToDate] = useState(() => {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow.toISOString().split('T')[0];
+    });
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchData = async () => {
+        if (!fromDate || !toDate) return alert('الرجاء اختيار التاريخين');
+        setLoading(true);
+        try {
+            const res = await ApiService.get(`/api/ItemMovementReport/accessories?fromDate=${fromDate}T00:00:00&toDate=${toDate}T23:59:59`);
+            setData(res);
+        } catch (e) {
+            console.error(e);
+            alert('حدث خطأ أثناء جلب البيانات');
+        } finally { setLoading(false); }
+    };
+
+    const totals = data?.totals || {};
+    const items = data?.items || [];
+
+    return (
+        <div className="space-y-5">
+            <DateRangeFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} onSearch={fetchData} loading={loading} />
+
+            {data && (
+                <>
+                    {/* Summary cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {[
+                            { label: 'الأصناف', value: totals.totalItems, color: 'border-blue-500', icon: <Package size={18} className="text-blue-500" /> },
+                            { label: 'أحداث التحويل', value: totals.totalTransferEvents, color: 'border-teal-500', icon: <ArrowRight size={18} className="text-teal-500" /> },
+                            { label: 'أحداث الإصدار', value: totals.totalUsageEvents, color: 'border-purple-500', icon: <Package size={18} className="text-purple-500" /> },
+                            { label: 'تكلفة الإصدارات', value: `${Number(totals.totalCostOfIssuances ?? 0).toFixed(2)} ر.س`, color: 'border-green-500', icon: <DollarSign size={18} className="text-green-500" /> },
+                            { label: 'الكمية المحوّلة', value: totals.totalQuantityTransferred, color: 'border-indigo-500', icon: <BarChart2 size={18} className="text-indigo-500" /> },
+                            { label: 'مرات الإصدار', value: totals.totalTimesIssued, color: 'border-red-400', icon: <BarChart2 size={18} className="text-red-400" /> },
+                        ].map((s, i) => (
+                            <div key={i} className={`bg-white rounded-xl p-4 border-r-4 ${s.color} shadow-sm`}>
+                                <div className="flex items-center justify-between mb-1">{s.icon}</div>
+                                <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                                <p className="text-lg font-bold text-gray-800">{s.value ?? 0}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Items */}
+                    <div className="space-y-3">
+                        {items.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400">
+                                <Package size={40} className="mx-auto mb-3 opacity-40" />
+                                <p>لا توجد بيانات لهذه الفترة</p>
+                            </div>
+                        ) : (
+                            items.map((item, i) => <ItemMovementCard key={i} item={item} type="accessory" />)
+                        )}
+                    </div>
+                </>
+            )}
+
+            {!data && !loading && (
+                <div className="text-center py-16 text-gray-400">
+                    <Search size={40} className="mx-auto mb-3 opacity-30" />
+                    <p>اختر الفترة الزمنية واضغط بحث لعرض تقرير حركة المعدات</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ==========================================
 // MAIN COMPONENT CONTENT
 // ==========================================
 function MoneySpendingContent() {
@@ -1474,7 +1859,7 @@ function MoneySpendingContent() {
     // Sync tab state with query parameters
     useEffect(() => {
         const tabParam = searchParams.get('tab');
-        if (tabParam && ['vehiclesRiderCosts', 'allHousingsDetails', 'housingCosts', 'sparePartsHistory', 'riderAccessoriesHistory'].includes(tabParam)) {
+        if (tabParam && ['vehiclesRiderCosts', 'allHousingsDetails', 'housingCosts', 'sparePartsHistory', 'riderAccessoriesHistory', 'usages'].includes(tabParam)) {
             setActiveTab(tabParam);
         }
     }, [searchParams]);
@@ -1491,6 +1876,7 @@ function MoneySpendingContent() {
         { id: 'housingCosts', label: 'تكاليف السكن', icon: BadgeDollarSign, color: 'from-emerald-500 to-emerald-600' },
         { id: 'sparePartsHistory', label: 'سجل قطع الغيار', icon: History, color: 'from-violet-500 to-violet-600' },
         { id: 'riderAccessoriesHistory', label: 'سجل معدات السائقين', icon: Package, color: 'from-teal-500 to-teal-600' },
+        { id: 'usages', label: 'الاستخدامات', icon: BarChart2, color: 'from-rose-500 to-rose-600' },
     ];
 
     const activeTabConfig = tabs.find(t => t.id === activeTab);
@@ -1543,6 +1929,7 @@ function MoneySpendingContent() {
                 {activeTab === 'housingCosts' && <HousingCostsTab />}
                 {activeTab === 'sparePartsHistory' && <SparePartsHistoryTab />}
                 {activeTab === 'riderAccessoriesHistory' && <RiderAccessoriesHistoryTab />}
+                {activeTab === 'usages' && <UsagesTab />}
             </div>
         </div>
     );
