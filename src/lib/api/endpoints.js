@@ -224,6 +224,8 @@ export const API_ENDPOINTS = {
       IMPORT: "/api/KetaFreeLancer",
       BY_MONTH: (month) => `/api/KetaFreeLancer?month=${month}`,
     },
+    KETA_VALIDATION_SHIFTS: (from, to) => `/api/KetaValidation/shifts?from=${from}&to=${to}`,
+    KETA_VALIDATION_IMPORT: (uploadedBy = 'system') => `/api/KetaValidation/shifts/import?uploadedBy=${uploadedBy}`,
     WORKING_ID_HISTORY: (iqamaNo) => `/api/History/report/${iqamaNo}`,
     SUGGEST_WORKING_ID: (iqamaNo, companyId) => `/api/History/suggest-working-id?riderIqamaNo=${iqamaNo}&companyId=${companyId}`,
   },
