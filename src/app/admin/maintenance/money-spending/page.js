@@ -1706,6 +1706,7 @@ function SparePartsMovementReport() {
     });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchData = async () => {
         if (!fromDate || !toDate) return alert('الرجاء اختيار التاريخين');
@@ -1722,12 +1723,36 @@ function SparePartsMovementReport() {
     const totals = data?.totals || {};
     const items = data?.items || [];
 
+    const filteredItems = items.filter(item =>
+        !searchQuery.trim() || item.itemName?.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    );
+
     return (
         <div className="space-y-5">
             <DateRangeFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} onSearch={fetchData} loading={loading} />
 
             {data && (
                 <>
+                    {/* Search bar */}
+                    <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="ابحث باسم قطعة الغيار..."
+                            className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm h-[42px] bg-white"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-xs cursor-pointer"
+                            >
+                                ✕ مسح
+                            </button>
+                        )}
+                    </div>
+
                     {/* Summary cards */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         {[
@@ -1748,13 +1773,13 @@ function SparePartsMovementReport() {
 
                     {/* Items */}
                     <div className="space-y-3">
-                        {items.length === 0 ? (
+                        {filteredItems.length === 0 ? (
                             <div className="text-center py-12 text-gray-400">
                                 <Wrench size={40} className="mx-auto mb-3 opacity-40" />
-                                <p>لا توجد بيانات لهذه الفترة</p>
+                                <p>لا توجد نتائج تطابق البحث</p>
                             </div>
                         ) : (
-                            items.map((item, i) => <ItemMovementCard key={i} item={item} type="spare" />)
+                            filteredItems.map((item, i) => <ItemMovementCard key={i} item={item} type="spare" />)
                         )}
                     </div>
                 </>
@@ -1781,6 +1806,7 @@ function AccessoriesMovementReport() {
     });
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchData = async () => {
         if (!fromDate || !toDate) return alert('الرجاء اختيار التاريخين');
@@ -1797,12 +1823,36 @@ function AccessoriesMovementReport() {
     const totals = data?.totals || {};
     const items = data?.items || [];
 
+    const filteredItems = items.filter(item =>
+        !searchQuery.trim() || item.itemName?.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    );
+
     return (
         <div className="space-y-5">
             <DateRangeFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} onSearch={fetchData} loading={loading} />
 
             {data && (
                 <>
+                    {/* Search bar */}
+                    <div className="relative">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="ابحث باسم المعدة..."
+                            className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm h-[42px] bg-white"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-xs cursor-pointer"
+                            >
+                                ✕ مسح
+                            </button>
+                        )}
+                    </div>
+
                     {/* Summary cards */}
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         {[
@@ -1823,13 +1873,13 @@ function AccessoriesMovementReport() {
 
                     {/* Items */}
                     <div className="space-y-3">
-                        {items.length === 0 ? (
+                        {filteredItems.length === 0 ? (
                             <div className="text-center py-12 text-gray-400">
                                 <Package size={40} className="mx-auto mb-3 opacity-40" />
-                                <p>لا توجد بيانات لهذه الفترة</p>
+                                <p>لا توجد نتائج تطابق البحث</p>
                             </div>
                         ) : (
-                            items.map((item, i) => <ItemMovementCard key={i} item={item} type="accessory" />)
+                            filteredItems.map((item, i) => <ItemMovementCard key={i} item={item} type="accessory" />)
                         )}
                     </div>
                 </>
