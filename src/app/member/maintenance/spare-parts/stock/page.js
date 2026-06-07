@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Search, ArrowRight, PlusCircle } from 'lucide-react';
+import { Package, Search, ArrowRight, PlusCircle, FileText } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Button from '@/components/Ui/Button';
@@ -79,6 +79,15 @@ export default function MemberSparePartsStockPage() {
                 >
                     <ArrowRight size={18} className="ml-2" />
                     <span className="text-sm md:text-base">رجوع للتسجيل</span>
+                </Button>
+
+                <Button
+                    variant="outline"
+                    onClick={() => router.push('/member/maintenance/usage-history?tab=spare-parts')}
+                    className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                    <FileText size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">سجل الاستهلاك</span>
                 </Button>
             </div>
 

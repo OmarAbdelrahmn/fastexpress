@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Search, History, ArrowRight, User, Plus, Trash2 } from 'lucide-react';
+import { Package, Search, History, ArrowRight, User, Plus, Trash2, FileText } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Button from '@/components/Ui/Button';
@@ -157,6 +157,15 @@ export default function MemberRiderAccessoriesPage() {
                 >
                     <Package size={18} className="ml-2" />
                     <span className="text-sm md:text-base">عرض المخزون</span>
+                </Button>
+
+                <Button
+                    variant="outline"
+                    onClick={() => router.push('/member/maintenance/usage-history?tab=accessories')}
+                    className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                    <FileText size={18} className="ml-2" />
+                    <span className="text-sm md:text-base">سجل الاستهلاك</span>
                 </Button>
             </div>
 

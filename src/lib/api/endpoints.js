@@ -312,6 +312,7 @@ export const API_ENDPOINTS = {
       HISTORY: (riderId) => `/api/Member/riders/${riderId}/accessories-history`,
     },
     COST_SUMMARY: "/api/Member/reports/spending",
+    USAGE_HISTORY: "/api/member/usage-history",
     TRANSFERS: {
       CREATE: "/api/member/transfers",
       LIST: "/api/member/transfers",

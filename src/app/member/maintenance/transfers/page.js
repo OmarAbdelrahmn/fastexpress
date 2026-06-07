@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Plus, Trash2, Building2, Briefcase, FileSpreadsheet } from 'lucide-react';
+import { ArrowRight, Plus, Trash2, Building2, Briefcase, FileSpreadsheet, Eye } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -145,8 +145,9 @@ export default function MemberTransfersPage() {
                 transfer.items.forEach(item => {
                     dataToExport.push({
                         'رقم التحويل': transfer.id,
-                        'الوجهة': transfer.toLocation || 'الشركة الرئيسية',
-                        'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleDateString('ar-SA'),
+                        'من': transfer.fromLocation || 'غير محدد',
+                        'إلى': transfer.toLocation || 'الشركة الرئيسية',
+                        'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleString('ar-SA'),
                         'نوع العنصر': item.itemType === 1 || item.itemType === '1' ? 'قطعة غيار' : 'معدات سائقين',
                         'اسم العنصر': item.itemName || getItemName(item.itemType, item.itemId),
                         'الكمية': item.quantity,
@@ -156,8 +157,9 @@ export default function MemberTransfersPage() {
             } else {
                 dataToExport.push({
                     'رقم التحويل': transfer.id,
-                    'الوجهة': transfer.toLocation || 'الشركة الرئيسية',
-                    'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleDateString('ar-SA'),
+                    'من': transfer.fromLocation || 'غير محدد',
+                    'إلى': transfer.toLocation || 'الشركة الرئيسية',
+                    'تاريخ التحويل': new Date(transfer.transferredAt).toLocaleString('ar-SA'),
                     'نوع العنصر': 'لا يوجد',
                     'اسم العنصر': 'لا يوجد',
                     'الكمية': 0,
@@ -389,10 +391,11 @@ export default function MemberTransfersPage() {
                             <thead className="bg-gray-50 text-gray-600 font-medium border-y">
                                 <tr>
                                     <th className="py-3 px-2 md:px-4 text-xs md:text-sm">رقم التحويل</th>
-                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">الوجهة</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">من</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">إلى</th>
                                     <th className="py-3 px-2 md:px-4 text-xs md:text-sm">تاريخ التحويل</th>
-                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">العناصر</th>
-                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">الحالة</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">عدد الأصناف</th>
+                                    <th className="py-3 px-2 md:px-4 text-xs md:text-sm">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -400,8 +403,11 @@ export default function MemberTransfersPage() {
                                     transfers.map((transfer) => (
                                         <tr key={transfer.id} className="hover:bg-gray-50">
                                             <td className="py-3 px-4">#{transfer.id}</td>
+                                            <td className="py-3 px-4 text-gray-600">
+                                                {transfer.fromLocation || 'غير محدد'}
+                                            </td>
                                             <td className="py-3 px-4">
-                                                <span className="flex items-center gap-2 text-blue-600">
+                                                <span className="flex items-center gap-2 text-blue-600 font-medium">
                                                     {transfer.toLocation ? (
                                                         <>
                                                             <Briefcase size={12} /> {transfer.toLocation}
@@ -414,30 +420,32 @@ export default function MemberTransfersPage() {
                                                 </span>
                                             </td>
                                             <td className="py-3 px-4 text-gray-600">
-                                                {new Date(transfer.transferredAt).toLocaleDateString('ar-SA')}
+                                                {new Date(transfer.transferredAt).toLocaleString('ar-SA', {
+                                                    timeZone: 'Asia/Riyadh',
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </td>
+                                            <td className="py-3 px-4 font-semibold text-gray-700">
+                                                {transfer.items?.length || 0}
                                             </td>
                                             <td className="py-3 px-4">
-                                                <div className="text-sm space-y-1">
-                                                    {transfer.items?.map((item, idx) => (
-                                                        <div key={idx} className="flex gap-2">
-                                                            <span className="text-gray-500">{item.itemType === 1 || item.itemType === '1' ? 'قطعة غيار: ' : 'معدة: '}</span>
-                                                            <span className="font-medium">{item.itemName || getItemName(item.itemType, item.itemId)}</span>
-                                                            <span className="text-gray-400">x{item.quantity}</span>
-                                                        </div>
-                                                    ))}
-                                                    {(!transfer.items || transfer.items.length === 0) && <span className="text-gray-400">لا يوجد عناصر</span>}
-                                                </div>
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                                                    تم التحويل
-                                                </span>
+                                                <button
+                                                    onClick={() => router.push(`/member/maintenance/transfers/${transfer.id}`)}
+                                                    className="text-green-600 hover:text-green-800 cursor-pointer"
+                                                    title="عرض التفاصيل"
+                                                >
+                                                    <Eye size={18} />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="py-8 text-center text-gray-500">
+                                        <td colSpan="6" className="py-8 text-center text-gray-500">
                                             لا توجد تحويلات سابقة
                                         </td>
                                     </tr>
