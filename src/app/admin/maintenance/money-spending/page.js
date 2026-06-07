@@ -1479,11 +1479,10 @@ function UsagesTab() {
                     <button
                         key={tab.id}
                         onClick={() => setActiveSubTab(tab.id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
-                            activeSubTab === tab.id
-                                ? `bg-gradient-to-r ${tab.color} text-white shadow-md`
-                                : 'text-slate-500 hover:text-slate-700 hover:bg-white'
-                        }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeSubTab === tab.id
+                            ? `bg-gradient-to-r ${tab.color} text-white shadow-md`
+                            : 'text-slate-500 hover:text-slate-700 hover:bg-white'
+                            }`}
                     >
                         <tab.icon size={15} />
                         {tab.label}
@@ -1633,7 +1632,7 @@ function ItemMovementCard({ item, type }) {
                                             <tr key={i} className="hover:bg-gray-50">
                                                 {isSpare ? (
                                                     <>
-                                                        <td className="px-3 py-2 font-medium">{u.vehicleNumber || '-'}</td>
+                                                        <td className="px-3 py-2 font-medium">{formatPlateNumber(u.vehicleNumber) || '-'}</td>
                                                         <td className="px-3 py-2">{u.assignedRiderNameAR || '-'}</td>
                                                         <td className="px-3 py-2">{u.sourceLocation}</td>
                                                         <td className="px-3 py-2 font-bold text-orange-600">{u.quantityUsed}</td>
@@ -1681,7 +1680,7 @@ function ItemMovementCard({ item, type }) {
                                                 <td className="px-3 py-2">{tr.fromLocation}</td>
                                                 <td className="px-3 py-2">{tr.toLocation}</td>
                                                 <td className="px-3 py-2 font-bold text-teal-600">{tr.quantityTransferred}</td>
-                                                <td className="px-3 py-2">{tr.transferredBy}</td>
+                                                <td className="px-3 py-2">هادي</td>
                                                 <td className="px-3 py-2 text-gray-400">{new Date(tr.transferredAt).toLocaleDateString('ar-SA')}</td>
                                             </tr>
                                         ))}
@@ -1898,11 +1897,10 @@ function MoneySpendingContent() {
                             <button
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
-                                className={`relative flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex-shrink-0 cursor-pointer ${
-                                    isActive
-                                        ? `bg-gradient-to-r ${tab.color} text-white shadow-md`
-                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                }`}
+                                className={`relative flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex-shrink-0 cursor-pointer ${isActive
+                                    ? `bg-gradient-to-r ${tab.color} text-white shadow-md`
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                    }`}
                             >
                                 <tab.icon size={16} strokeWidth={isActive ? 2.5 : 2} />
                                 {tab.label}
