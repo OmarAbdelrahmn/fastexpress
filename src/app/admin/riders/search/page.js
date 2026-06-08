@@ -303,7 +303,7 @@ export default function RiderSearchPage() {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
             >
-              جميع الغير نشيط ({stats.other})
+              {t('riders.allInactive')} ({stats.other})
             </button>
             <button
               onClick={() => setStatusFilter("employees")}
@@ -358,9 +358,9 @@ export default function RiderSearchPage() {
         {/* Mobile Card View */}
         <div className="md:hidden space-y-4 p-4">
           {loading ? (
-            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+            <div className="text-center text-gray-500 py-8">{t('common.loading')}</div>
           ) : filteredRiders.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">لا توجد بيانات</div>
+            <div className="text-center text-gray-500 py-8">{t('common.noData')}</div>
           ) : (
             filteredRiders.map((rider, idx) => (
               <div key={rider.iqamaNo} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">

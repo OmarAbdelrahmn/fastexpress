@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Breadcrumb from '@/components/Ui/Breadcrumbs';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function PageHeader({
   title,
@@ -11,6 +12,7 @@ export default function PageHeader({
   stats
 }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -58,13 +60,13 @@ export default function PageHeader({
           {actions}
           <button
             onClick={() => router.back()}
-            title="Go back"
+            title={t('common.back')}
             className="cursor-pointer bg-white/20 hover:bg-white/30 active:bg-white/40 transition-colors duration-200 px-3 py-1 rounded-lg flex items-center gap-1 text-sm"
           >
-            للرجوع للصفحة السابقة
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="m12 19-7-7 7-7" />
             </svg>
+            {t('common.backToPrevious')}
           </button>
         </div>
       </div>

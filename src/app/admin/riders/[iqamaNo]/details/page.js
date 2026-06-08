@@ -334,7 +334,7 @@ export default function RiderDetailsPage() {
                 <span className={`${getDateStatusClass(rider.iqamaEndM, 'bg')} text-[13px] text-white px-1.5 py-0.5 rounded-sm`}>{getCompactHijriDate(rider.iqamaEndH)}</span>
                 {getRemainingDays(rider.iqamaEndM) !== null && (
                   <span className={`${getRemainingDays(rider.iqamaEndM) < 30 ? 'bg-red-600' : 'bg-blue-600'} text-[13px] text-white px-1.5 py-0.5 rounded-sm font-bold`}>
-                    {getRemainingDays(rider.iqamaEndM)} {locale === 'ar' ? 'يوم' : 'Days'}
+                    {getRemainingDays(rider.iqamaEndM)} {t('riders.days')}
                   </span>
                 )}
               </div>
@@ -521,9 +521,9 @@ export default function RiderDetailsPage() {
         <Card>
           <h3 className="text-base text-gray-800 mb-4 flex items-center gap-2">
             <ShieldAlert size={18} className={escapedInfo?.isActive === false ? 'text-red-500' : 'text-orange-500'} />
-            تفاصيل الهروب والخروج النهائي
+            {t('riders.escapedManagement')}
             {escapedInfo?.isActive === false && (
-              <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full mr-2">سجل معطل</span>
+              <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full mr-2">{t('riders.statusInactiveRecord')}</span>
             )}
           </h3>
           
@@ -534,14 +534,14 @@ export default function RiderDetailsPage() {
           ) : (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                <div>
-                  <p className="text-xs text-gray-500 mb-1">المسار الحالي</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('riders.filterStatus')}</p>
                   <p className="font-medium text-gray-800">
-                    {escapedInfo.activePath === 2 ? 'خروج نهائي' : escapedInfo.activePath === 1 ? 'تم الإبلاغ' : 'غير محدد'}
+                    {escapedInfo.activePath === 2 ? t('riders.finalExit') : escapedInfo.activePath === 1 ? t('riders.reported') : t('riders.notSpecified')}
                   </p>
                </div>
                {escapedInfo.escapedAt && (
                  <div>
-                    <p className="text-xs text-gray-500 mb-1">تاريخ الهروب</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('riders.escapeDate')}</p>
                     <p className="font-medium text-gray-800 flex items-center gap-1">
                       <Calendar size={13} /> {formatDate(escapedInfo.escapedAt)}
                     </p>
@@ -549,7 +549,7 @@ export default function RiderDetailsPage() {
                )}
                {escapedInfo.reportedAt && (
                  <div>
-                    <p className="text-xs text-gray-500 mb-1">تاريخ البلاغ</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('riders.reportSubmissionDate')}</p>
                     <p className="font-medium text-gray-800 flex items-center gap-1">
                        <Calendar size={13} /> {formatDate(escapedInfo.reportedAt)}
                     </p>
@@ -557,7 +557,7 @@ export default function RiderDetailsPage() {
                )}
                {(escapedInfo.dateOfOutage || escapedInfo.outageDate) ? (
                  <div>
-                    <p className="text-xs text-gray-500 mb-1">تاريخ الخروج النهائي</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('riders.exitSuspensionDate')}</p>
                     <p className="font-medium text-gray-800 flex items-center gap-1">
                        <Calendar size={13} /> {formatDate(escapedInfo.dateOfOutage || escapedInfo.outageDate)}
                     </p>
@@ -565,29 +565,29 @@ export default function RiderDetailsPage() {
                ) : null}
                {(escapedInfo.outageVisaNumber || escapedInfo.visaNumber) && (
                  <div>
-                    <p className="text-xs text-gray-500 mb-1">رقم التأشيرة</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('riders.exitVisaNumber')}</p>
                     <p className="font-medium text-gray-800 text-sm">{escapedInfo.outageVisaNumber || escapedInfo.visaNumber}</p>
-                 </div>
+                  </div>
                )}
                {escapedInfo.removalDeadline && (
                  <div>
-                    <p className="text-xs text-red-500 mb-1 font-bold">الموعد النهائي</p>
+                    <p className="text-xs text-red-500 mb-1 font-bold">{t('riders.deadlineDate')}</p>
                     <p className="font-bold text-red-500 flex items-center gap-1">
                       <Clock size={13} /> {formatDate(escapedInfo.removalDeadline)}
                     </p>
-                 </div>
+                  </div>
                )}
                {escapedInfo.remainingDaysToRemoval !== undefined && escapedInfo.remainingDaysToRemoval !== null && (
                  <div>
-                    <p className="text-xs text-gray-500 mb-1">الأيام المتبقية</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('riders.daysRemaining')}</p>
                     <p className={`font-bold text-lg ${escapedInfo.isOverdue ? 'text-red-700' : escapedInfo.remainingDaysToRemoval <= 10 ? 'text-orange-600' : 'text-blue-600'}`}>
-                      {escapedInfo.remainingDaysToRemoval} يوم
+                      {escapedInfo.remainingDaysToRemoval} {t('riders.days')}
                     </p>
                  </div>
                )}
                {escapedInfo.notes && (
                  <div className="col-span-1 md:col-span-2 lg:col-span-4 mt-2">
-                    <p className="text-xs text-gray-500 mb-1">ملاحظات</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('common.notes')}</p>
                     <p className="text-sm text-gray-700 bg-orange-50 p-3 rounded-lg border border-orange-100">{escapedInfo.notes}</p>
                  </div>
                )}

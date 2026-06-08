@@ -117,7 +117,7 @@ export default function Sidebar() {
 
         {/* Divider */}
         <div className="pt-3 pb-1 px-3">
-          <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">القائمة</p>
+          <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">{t('navigation.menu')}</p>
         </div>
 
         {/* Sections */}

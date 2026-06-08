@@ -58,11 +58,11 @@ export default function RiderImagesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="صور الموظفين"
-        subtitle={`إجمالي: ${riderImages.length} سجل`}
+        title={t('riderImages.listTitle')}
+        subtitle={t('riderImages.listSubtitle', { count: riderImages.length })}
         icon={Camera}
         actionButton={{
-          text: 'العودة للموظفين',
+          text: t('riderImages.backToRiders'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/admin/riders'),
         }}
@@ -73,7 +73,7 @@ export default function RiderImagesPage() {
         <div className="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-blue-600 mb-0.5">الإجمالي</p>
+              <p className="text-xs text-blue-600 mb-0.5">{t('riderImages.total')}</p>
               <p className="text-2xl font-bold text-blue-700">{riderImages.length}</p>
             </div>
             <Users className="text-blue-400" size={32} />
@@ -82,7 +82,7 @@ export default function RiderImagesPage() {
         <div className="bg-green-50 border-r-4 border-green-500 p-4 rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-green-600 mb-0.5">مع صورة</p>
+              <p className="text-xs text-green-600 mb-0.5">{t('riderImages.withPhoto')}</p>
               <p className="text-2xl font-bold text-green-700">{withPhoto}</p>
             </div>
             <Camera className="text-green-400" size={32} />
@@ -91,7 +91,7 @@ export default function RiderImagesPage() {
         <div className="bg-red-50 border-r-4 border-red-400 p-4 rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-red-500 mb-0.5">بدون صورة</p>
+              <p className="text-xs text-red-500 mb-0.5">{t('riderImages.withoutPhoto')}</p>
               <p className="text-2xl font-bold text-red-600">{withoutPhoto}</p>
             </div>
             <Image className="text-red-400" size={32} />
@@ -106,7 +106,7 @@ export default function RiderImagesPage() {
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
-            placeholder="ابحث بالاسم أو رقم الإقامة..."
+            placeholder={t('riderImages.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-10 pl-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 text-sm"
@@ -116,9 +116,9 @@ export default function RiderImagesPage() {
         {/* Filter tabs */}
         <div className="flex gap-2">
           {[
-            { key: 'all', label: 'الكل', color: 'blue' },
-            { key: 'with', label: 'مع صورة', color: 'green' },
-            { key: 'without', label: 'بدون صورة', color: 'red' },
+            { key: 'all', label: t('common.all') || 'الكل', color: 'blue' },
+            { key: 'with', label: t('riderImages.withPhoto'), color: 'green' },
+            { key: 'without', label: t('riderImages.withoutPhoto'), color: 'red' },
           ].map(({ key, label, color }) => (
             <button
               key={key}
@@ -144,12 +144,12 @@ export default function RiderImagesPage() {
         {loading ? (
           <div className="flex items-center justify-center py-20 gap-3">
             <div className="w-7 h-7 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-gray-500">جاري تحميل الصور...</span>
+            <span className="text-gray-500">{t('riderImages.loadingImages')}</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 gap-3">
             <Image size={48} className="opacity-30" />
-            <p className="text-sm">لا توجد نتائج</p>
+            <p className="text-sm">{t('common.noResults') || 'لا توجد نتائج'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
@@ -202,11 +202,11 @@ export default function RiderImagesPage() {
                 {/* Badge */}
                 {!rider.profileImageUrl ? (
                   <span className="text-[9px] bg-red-50 text-red-500 font-semibold px-2 py-0.5 rounded-full border border-red-100">
-                    بدون صورة
+                    {t('riderImages.noPhoto')}
                   </span>
                 ) : (
                   <span className="text-[9px] bg-green-50 text-green-600 font-semibold px-2 py-0.5 rounded-full border border-green-100">
-                    لديه صورة
+                    {t('riderImages.hasPhoto')}
                   </span>
                 )}
               </button>
