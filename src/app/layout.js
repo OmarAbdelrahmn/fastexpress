@@ -15,7 +15,7 @@ const customFont = localFont({
 export const metadata = {
   title: 'Express Service - Smart Logistics Solution',
   description: 'Express Service is a comprehensive Logistics Management System designed to streamline delivery operations. Manage riders, track shipments, and generate detailed reports efficiently.',
-  metadataBase: new URL('https://forsenex.com'), // ✅ add this
+  metadataBase: new URL('https://expserco.com'), // ✅ add this
   icons: {
     icon: '/5.png',
   },
