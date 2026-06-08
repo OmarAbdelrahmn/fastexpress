@@ -35,11 +35,11 @@ export default function RidersPage() {
   const [sponsorDropdownOpen, setSponsorDropdownOpen] = useState(false);
 
   const deleteReasons = [
-    'خرج ولم يعد',
-    'خروج نهائي',
-    'متغيب عن العمل',
-    'نقل كفالة',
-    'اخرى'
+    { key: 'reasonExitNoReturn', value: 'خرج ولم يعد' },
+    { key: 'reasonFinalExit', value: 'خروج نهائي' },
+    { key: 'reasonAbsent', value: 'متغيب عن العمل' },
+    { key: 'reasonSponsorshipTransfer', value: 'نقل كفالة' },
+    { key: 'reasonOther', value: 'اخرى' }
   ];
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function RidersPage() {
   };
 
   const confirmDelete = async () => {
-    const finalReason = selectedReason === 'اخرى' ? customReason : selectedReason;
+    const finalReason = selectedReason === 'reasonOther' ? customReason : (deleteReasons.find(r => r.key === selectedReason)?.value || selectedReason);
 
     if (!finalReason.trim()) {
       alert(t('common.required'));
@@ -78,7 +78,7 @@ export default function RidersPage() {
     }
 
     if (deletePassword !== '9999') {
-      alert(t('common.incorrectPassword') || 'كلمة المرور غير صحيحة');
+      alert(t('common.incorrectPassword'));
       return;
     }
 
@@ -109,12 +109,12 @@ export default function RidersPage() {
 
   const handleExportExcel = () => {
     const statusArabicMap = {
-      enable: 'نشط',
-      disable: 'غير نشط',
-      fleeing: 'هارب',
-      vacation: 'إجازة',
-      sick: 'مريض',
-      accident: 'حادث',
+      enable: t('common.active') || 'نشط',
+      disable: t('common.inactive') || 'غير نشط',
+      fleeing: t('status.fleeing') || 'هارب',
+      vacation: t('status.vacation') || 'إجازة',
+      sick: t('status.sick') || 'مريض',
+      accident: t('status.accident') || 'حادث',
     };
 
     const data = filteredRiders.map(rider => ({
@@ -188,7 +188,7 @@ export default function RidersPage() {
               ? 'text-orange-500 bg-orange-50'
               : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
               }`}
-            title="تصفية حسب الكفيل"
+            title={t('riders.filterBySponsor') || "تصفية حسب الكفيل"}
           >
             <Filter size={13} />
           </button>
@@ -486,8 +486,8 @@ export default function RidersPage() {
             />
             <MiniStatRow
               icon={AlertCircle}
-              title="تقرير انتهاء الإقامة "
-              description="تقرير الموظفين المرتبين حسب تاريخ انتهاء الإقامة لسرعة المتابعة"
+              title={t('riders.iqamaExpiryReport')}
+              description={t('riders.iqamaExpiryReportDesc')}
               onClick={() => router.push('/admin/riders/iqama-expiry-report')}
               color="#ea580c" // orange-600
               bgClass="bg-orange-50"
@@ -503,8 +503,8 @@ export default function RidersPage() {
           <div className="flex flex-col gap-3">
             <MiniStatRow
               icon={Camera}
-              title="صور الموظفين"
-              description="عرض وإدارة صور الموظفين"
+              title={t('employees.photos')}
+              description={t('employees.photosDesc')}
               onClick={() => router.push('/admin/riders/images')}
               color="#7c3aed" // purple-700
               bgClass="bg-purple-50"
@@ -512,7 +512,7 @@ export default function RidersPage() {
             <MiniStatRow
               icon={AlertCircle}
               title={t('navigation.escaped')}
-              description="إدارة بلاغات الموظفين الهاربين وبلاغات الخارج"
+              description={t('riders.escapedManagementSubtitle')}
               onClick={() => router.push('/admin/riders/escaped')}
               color="#dc2626" // red-600
               bgClass="bg-red-50"
@@ -575,7 +575,7 @@ export default function RidersPage() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
-                خروج نهائي ({stats.outage})
+                {t('riders.finalExit')} ({stats.outage})
               </button>
               <button
                 onClick={() => setStatusFilter("reported")}
@@ -584,7 +584,7 @@ export default function RidersPage() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
-                تم الابلاغ ({stats.reported})
+                {t('riders.reported')} ({stats.reported})
               </button>
               <button
                 onClick={() => setStatusFilter("vacation")}
@@ -620,7 +620,7 @@ export default function RidersPage() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
-                جميع الغير نشيط ({stats.other})
+                {t('riders.allInactive')} ({stats.other})
               </button>
               <button
                 onClick={() => setStatusFilter("employees")}
@@ -676,9 +676,9 @@ export default function RidersPage() {
         {/* Mobile Card View */}
         <div className="md:hidden space-y-4 p-4">
           {loading ? (
-            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+            <div className="text-center text-gray-500 py-8">{t('common.loading') || 'جاري التحميل...'}</div>
           ) : filteredRiders.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">لا توجد بيانات</div>
+            <div className="text-center text-gray-500 py-8">{t('common.noData') || 'لا توجد بيانات'}</div>
           ) : (
             filteredRiders.map((rider, idx) => (
               <div key={rider.iqamaNo} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -770,11 +770,11 @@ export default function RidersPage() {
       <Modal
         isOpen={sponsorDropdownOpen}
         onClose={() => setSponsorDropdownOpen(false)}
-        title="تصفية حسب الكفيل"
+        title={t('common.filterBySponsor')}
       >
         <div className="space-y-2 max-h-[60vh] overflow-y-auto p-1">
           <label className={`flex items-center justify-between gap-3 w-full text-right px-4 py-3 text-sm rounded-lg hover:bg-gray-50 transition-colors border cursor-pointer ${sponsorFilter === null ? 'border-blue-500 font-bold text-blue-600 bg-blue-50' : 'border-transparent text-gray-700'}`}>
-            <span>الكل</span>
+            <span>{t('common.all')}</span>
             <input
               type="checkbox"
               checked={sponsorFilter === null}
@@ -825,7 +825,7 @@ export default function RidersPage() {
         </div>
         <div className="mt-4 flex justify-end">
           <Button onClick={() => setSponsorDropdownOpen(false)} className="!bg-blue-600 hover:!bg-blue-700 text-white px-6">
-            إغلاق
+            {t('common.close')}
           </Button>
         </div>
       </Modal>
@@ -853,15 +853,15 @@ export default function RidersPage() {
               onChange={(e) => setSelectedReason(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             >
-              <option value="">{'اختر السبب'}</option>
+              <option value="">{t('common.selectReason')}</option>
               {deleteReasons.map((reason) => (
-                <option key={reason} value={reason}>
-                  {reason}
+                <option key={reason.key} value={reason.key}>
+                  {t(`riders.${reason.key}`)}
                 </option>
               ))}
             </select>
 
-            {selectedReason === 'اخرى' && (
+            {selectedReason === 'reasonOther' && (
               <textarea
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
@@ -872,14 +872,14 @@ export default function RidersPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                {t('common.password') || 'كلمة المرور'} <span className="text-red-500">*</span>
+                {t('common.password')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
                 value={deletePassword}
                 onChange={(e) => setDeletePassword(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mt-1"
-                placeholder={t('common.passwordPlaceholder') || 'أدخل كلمة المرور'}
+                placeholder={t('common.passwordPlaceholder')}
               />
             </div>
           </div>
@@ -894,7 +894,7 @@ export default function RidersPage() {
             <Button
               className="!bg-red-600 hover:!bg-red-700 text-white"
               onClick={confirmDelete}
-              disabled={!selectedReason || (selectedReason === 'اخرى' && !customReason.trim()) || !deletePassword}
+              disabled={!selectedReason || (selectedReason === 'reasonOther' && !customReason.trim()) || !deletePassword}
             >
               {t('common.delete')}
             </Button>

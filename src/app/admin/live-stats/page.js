@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 import * as XLSX from "xlsx";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 const API_BASE = "https://express-extension-manager.premiumasp.net/";
 const HUNGER_COMPANY_ID = "463";
@@ -28,11 +29,11 @@ const KEETA_ORG_ID = "2960";
 const REFRESH_INTERVAL = 30_000; // 30 s
 
 const KEETA_STATUS = {
-  20: { label: "بدون طلب", color: "#d97706", bg: "#fef3c7" },
-  30: { label: "لديه طلب", color: "#059669", bg: "#d1fae5" },
-  40: { label: "غير متصل", color: "#64748b", bg: "#f1f5f9" },
-  50: { label: "مقيّد", color: "#dc2626", bg: "#fef2f2" },
-  60: { label: "مجدول، ولكن غير متصل", color: "#7c3aed", bg: "#f5f3ff" },
+  20: { labelKey: "liveStats.keetaStatus.noOrder", color: "#d97706", bg: "#fef3c7" },
+  30: { labelKey: "liveStats.keetaStatus.hasOrder", color: "#059669", bg: "#d1fae5" },
+  40: { labelKey: "liveStats.keetaStatus.offline", color: "#64748b", bg: "#f1f5f9" },
+  50: { labelKey: "liveStats.keetaStatus.restricted", color: "#dc2626", bg: "#fef2f2" },
+  60: { labelKey: "liveStats.keetaStatus.scheduledOffline", color: "#7c3aed", bg: "#f5f3ff" },
 };
 
 
@@ -51,6 +52,7 @@ async function fetchJson(url) {
 // ────────────────────────────────────────────
 
 function CountdownTimer({ interval, lastFetch }) {
+  const { t } = useLanguage();
   const [seconds, setSeconds] = useState(Math.ceil(interval / 1000));
 
   useEffect(() => {
@@ -67,7 +69,7 @@ function CountdownTimer({ interval, lastFetch }) {
   return (
     <div className="flex items-center gap-1.5 text-xs font-mono bg-white/20 text-white px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
       <Clock size={12} className="animate-pulse" />
-      <span className="font-bold">{seconds}s</span>
+      <span className="font-bold">{seconds}{t("liveStats.secondsSuffix")}</span>
     </div>
   );
 }
@@ -86,6 +88,7 @@ function StatPill({ icon: Icon, label, value, color }) {
 }
 
 function RiderRow({ rider, index }) {
+  const { t } = useLanguage();
   return (
     <tr
       className="border-b border-gray-50 hover:bg-blue-50/40 transition-colors"
@@ -94,7 +97,7 @@ function RiderRow({ rider, index }) {
       <td className="px-4 py-2.5 text-center text-xs font-bold text-gray-400">
         {index + 1}
       </td>
-      <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-right">
+      <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-start">
         {rider.riderName}
       </td>
       <td className="px-4 py-2.5 text-center">
@@ -109,7 +112,7 @@ function RiderRow({ rider, index }) {
       </td>
       <td className="px-4 py-2.5 text-center">
         <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full">
-          <Clock size={11} /> {rider.workingHours?.toFixed(1)}h
+          <Clock size={11} /> {rider.workingHours?.toFixed(1)}{t("liveStats.hoursSuffix")}
         </span>
       </td>
     </tr>
@@ -117,7 +120,12 @@ function RiderRow({ rider, index }) {
 }
 
 function KeetaCourierRow({ courier, index }) {
-  const status = KEETA_STATUS[courier.statusCode] ?? { label: "غير معروف", color: "#9ca3af", bg: "#f3f4f6" };
+  const { t } = useLanguage();
+  const statusConfig = KEETA_STATUS[courier.statusCode];
+  const status = statusConfig 
+    ? { label: t(statusConfig.labelKey), color: statusConfig.color, bg: statusConfig.bg }
+    : { label: t("liveStats.unknown"), color: "#9ca3af", bg: "#f3f4f6" };
+
   return (
     <tr
       className="border-b border-gray-50 hover:bg-orange-50/40 transition-colors"
@@ -126,7 +134,7 @@ function KeetaCourierRow({ courier, index }) {
       <td className="px-4 py-2.5 text-center text-xs font-bold text-gray-400">
         {index + 1}
       </td>
-      <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-right">
+      <td className="px-4 py-2.5 text-sm font-medium text-gray-800 text-start">
         {courier.courierName}
       </td>
       <td className="px-4 py-2.5 text-center">
@@ -154,7 +162,7 @@ function KeetaCourierRow({ courier, index }) {
       </td>
       <td className="px-4 py-2.5 text-center">
         <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full">
-          <Clock size={11} /> {courier.onlineHours?.toFixed(1)}h
+          <Clock size={11} /> {courier.onlineHours?.toFixed(1)}{t("liveStats.hoursSuffix")}
         </span>
       </td>
     </tr>
@@ -208,6 +216,7 @@ function Section({ title, badge, badgeColor, children, defaultOpen = true, accen
 // ────────────────────────────────────────────
 
 export default function LiveStatsPage() {
+  const { t } = useLanguage();
   const [hungerData, setHungerData] = useState(null);
   const [keetaData, setKeetaData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -221,20 +230,24 @@ export default function LiveStatsPage() {
     let sheetData;
     if (type === "hunger") {
       sheetData = data.riders.map((r) => ({
-        المندوب: r.riderName,
-        الطلبات: r.orders,
-        المحفظة: r.wallet,
-        "ساعات العمل": r.workingHours,
+        [t("liveStats.excelHeaders.rider")]: r.riderName,
+        [t("liveStats.excelHeaders.orders")]: r.orders,
+        [t("liveStats.excelHeaders.wallet")]: r.wallet,
+        [t("liveStats.excelHeaders.workingHours")]: r.workingHours,
       }));
     } else {
-      sheetData = data.couriers.map((c) => ({
-        المندوب: c.courierName,
-        الحالة: KEETA_STATUS[c.statusCode]?.label || "غير معروف",
-        "تم التسليم": c.finishedTasks,
-        "جاري التسليم": c.deliveringTasks,
-        ملغاة: c.canceledTasks,
-        "ساعات أونلاين": c.onlineHours,
-      }));
+      sheetData = data.couriers.map((c) => {
+        const statusConfig = KEETA_STATUS[c.statusCode];
+        const statusLabel = statusConfig ? t(statusConfig.labelKey) : t("liveStats.unknown");
+        return {
+          [t("liveStats.excelHeaders.rider")]: c.courierName,
+          [t("liveStats.excelHeaders.status")]: statusLabel,
+          [t("liveStats.excelHeaders.delivered")]: c.finishedTasks,
+          [t("liveStats.excelHeaders.delivering")]: c.deliveringTasks,
+          [t("liveStats.excelHeaders.canceled")]: c.canceledTasks,
+          [t("liveStats.excelHeaders.onlineHours")]: c.onlineHours,
+        };
+      });
     }
 
     const ws = XLSX.utils.json_to_sheet(sheetData);
@@ -273,10 +286,10 @@ export default function LiveStatsPage() {
   const date = todayDate();
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
       <PageHeader
-        title="لوحة الإحصاءات الحية"
-        subtitle={`${date} · يتجدد كل 30 ثانية`}
+        title={t("liveStats.title")}
+        subtitle={`${date} · ${t("liveStats.refreshesEvery30s")}`}
         icon={Activity}
         actions={
           <>
@@ -288,7 +301,7 @@ export default function LiveStatsPage() {
               }`}
             >
               {online ? <Wifi size={12} /> : <WifiOff size={12} />}
-              {online ? "متصل" : "غير متصل"}
+              {online ? t("liveStats.online") : t("liveStats.offline")}
             </span>
 
             <CountdownTimer interval={REFRESH_INTERVAL} lastFetch={lastFetch} />
@@ -299,7 +312,7 @@ export default function LiveStatsPage() {
               className="flex items-center gap-2 text-sm font-semibold text-blue-600 bg-white px-4 py-1.5 rounded-lg shadow-sm hover:bg-blue-50 hover:scale-[1.03] active:scale-100 transition-all disabled:opacity-60"
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-              تحديث
+              {t("liveStats.refresh")}
             </button>
           </>
         }
@@ -310,13 +323,13 @@ export default function LiveStatsPage() {
         {error && (
           <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm font-medium">
             <XCircle size={18} className="flex-shrink-0" />
-            <span>تعذّر تحميل البيانات: {error}</span>
+            <span>{t("liveStats.loadError")}{error}</span>
           </div>
         )}
 
         {/* ── HUNGER SECTION ── */}
         <Section
-          title="إحصاءات Hunger Station"
+          title={t("liveStats.hungerTitle")}
           badge={hungerData?.totalRiders}
           accentColor="#f59e0b"
           defaultOpen={true}
@@ -325,10 +338,10 @@ export default function LiveStatsPage() {
               <button
                 onClick={() => exportToExcel(hungerData, "HungerStats", "hunger")}
                 className="flex items-center gap-2 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-all border border-amber-200 shadow-sm"
-                title="تصدير إلى Excel"
+                title={t("liveStats.exportExcel")}
               >
                 <FileDown size={14} />
-                <span>Excel</span>
+                <span>{t("liveStats.excel")}</span>
               </button>
             )
           }
@@ -341,25 +354,25 @@ export default function LiveStatsPage() {
               <div className="flex flex-wrap gap-3 mb-6">
                 <StatPill
                   icon={Users}
-                  label="المندوبون"
+                  label={t("liveStats.riders")}
                   value={hungerData.totalRiders}
                   color="linear-gradient(135deg,#f59e0b,#d97706)"
                 />
                 <StatPill
                   icon={ShoppingBag}
-                  label="الطلبات"
+                  label={t("liveStats.orders")}
                   value={hungerData.totalOrders}
                   color="linear-gradient(135deg,#3b82f6,#2563eb)"
                 />
                 <StatPill
                   icon={Wallet}
-                  label="المحفظة الكلية"
+                  label={t("liveStats.totalWallet")}
                   value={hungerData.totalWallet?.toFixed(1)}
                   color="linear-gradient(135deg,#10b981,#059669)"
                 />
                 <StatPill
                   icon={Clock}
-                  label="ساعات العمل"
+                  label={t("liveStats.workingHours")}
                   value={hungerData.totalWorkingHours?.toFixed(1)}
                   color="linear-gradient(135deg,#8b5cf6,#7c3aed)"
                 />
@@ -371,11 +384,11 @@ export default function LiveStatsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800">
-                        <th className="px-4 py-3 text-center font-semibold w-10">#</th>
-                        <th className="px-4 py-3 text-right font-semibold">المندوب</th>
-                        <th className="px-4 py-3 text-center font-semibold">الطلبات</th>
-                        <th className="px-4 py-3 text-center font-semibold">المحفظة</th>
-                        <th className="px-4 py-3 text-center font-semibold">ساعات العمل</th>
+                        <th className="px-4 py-3 text-center font-semibold w-10">{t("liveStats.hash")}</th>
+                        <th className="px-4 py-3 text-start font-semibold">{t("liveStats.rider")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.orders")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.wallet")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.workingHours")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -389,17 +402,17 @@ export default function LiveStatsPage() {
                   </table>
                 </div>
               ) : (
-                <EmptyState label="لا يوجد مندوبون لهذا اليوم" />
+                <EmptyState label={t("liveStats.noRidersToday")} />
               )}
             </>
           ) : (
-            <EmptyState label="لا توجد بيانات" />
+            <EmptyState label={t("liveStats.noData")} />
           )}
         </Section>
 
         {/* ── KEETA SECTION ── */}
         <Section
-          title="إحصاءات Keeta"
+          title={t("liveStats.keetaTitle")}
           badge={keetaData?.totalCouriers}
           accentColor="#6366f1"
           defaultOpen={true}
@@ -408,10 +421,10 @@ export default function LiveStatsPage() {
               <button
                 onClick={() => exportToExcel(keetaData, "KeetaStats", "keeta")}
                 className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-all border border-indigo-200 shadow-sm"
-                title="تصدير إلى Excel"
+                title={t("liveStats.exportExcel")}
               >
                 <FileDown size={14} />
-                <span>Excel</span>
+                <span>{t("liveStats.excel")}</span>
               </button>
             )
           }
@@ -424,31 +437,31 @@ export default function LiveStatsPage() {
               <div className="flex flex-wrap gap-3 mb-6">
                 <StatPill
                   icon={Users}
-                  label="المناديب"
+                  label={t("liveStats.couriers")}
                   value={keetaData.couriers?.filter(c => statusFilter === "all" || String(c.statusCode) === statusFilter).length}
                   color="linear-gradient(135deg,#6366f1,#4f46e5)"
                 />
                 <StatPill
                   icon={CheckCircle}
-                  label="تم التسليم"
+                  label={t("liveStats.delivered")}
                   value={keetaData.totalFinished}
                   color="linear-gradient(135deg,#10b981,#059669)"
                 />
                 <StatPill
                   icon={Truck}
-                  label="جاري التسليم"
+                  label={t("liveStats.delivering")}
                   value={keetaData.totalDelivering}
                   color="linear-gradient(135deg,#3b82f6,#2563eb)"
                 />
                 <StatPill
                   icon={XCircle}
-                  label="ملغاة"
+                  label={t("liveStats.canceled")}
                   value={keetaData.totalCanceled}
                   color="linear-gradient(135deg,#ef4444,#dc2626)"
                 />
                 <StatPill
                   icon={Clock}
-                  label="ساعات أونلاين"
+                  label={t("liveStats.onlineHours")}
                   value={keetaData.totalOnlineHours?.toFixed(1)}
                   color="linear-gradient(135deg,#8b5cf6,#7c3aed)"
                 />
@@ -460,11 +473,11 @@ export default function LiveStatsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-800">
-                        <th className="px-4 py-3 text-center font-semibold w-10">#</th>
-                        <th className="px-4 py-3 text-right font-semibold">المندوب</th>
+                        <th className="px-4 py-3 text-center font-semibold w-10">{t("liveStats.hash")}</th>
+                        <th className="px-4 py-3 text-start font-semibold">{t("liveStats.rider")}</th>
                         <th className="px-4 py-3 text-center font-semibold">
                           <div className="flex items-center justify-center gap-2 group">
-                            <span>الحالة</span>
+                            <span>{t("liveStats.status")}</span>
                             <div className="relative flex items-center">
                               <Filter 
                                 size={14} 
@@ -474,20 +487,20 @@ export default function LiveStatsPage() {
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full appearance-none"
-                                title="تصفية حسب الحالة"
+                                title={t("liveStats.filterByStatus")}
                               >
-                                <option value="all">الكل</option>
-                                {Object.entries(KEETA_STATUS).map(([code, { label }]) => (
-                                  <option key={code} value={code}>{label}</option>
+                                <option value="all">{t("liveStats.all")}</option>
+                                {Object.entries(KEETA_STATUS).map(([code, { labelKey }]) => (
+                                  <option key={code} value={code}>{t(labelKey)}</option>
                                 ))}
                               </select>
                             </div>
                           </div>
                         </th>
-                        <th className="px-4 py-3 text-center font-semibold">منتهية</th>
-                        <th className="px-4 py-3 text-center font-semibold">جارية</th>
-                        <th className="px-4 py-3 text-center font-semibold">ملغاة</th>
-                        <th className="px-4 py-3 text-center font-semibold">ساعات أونلاين</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.finished")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.current")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.canceled")}</th>
+                        <th className="px-4 py-3 text-center font-semibold">{t("liveStats.onlineHours")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -502,11 +515,11 @@ export default function LiveStatsPage() {
                   </table>
                 </div>
               ) : (
-                <EmptyState label="لا يوجد مناديب لهذا اليوم" />
+                <EmptyState label={t("liveStats.noCouriersToday")} />
               )}
             </>
           ) : (
-            <EmptyState label="لا توجد بيانات" />
+            <EmptyState label={t("liveStats.noData")} />
           )}
         </Section>
       </div>

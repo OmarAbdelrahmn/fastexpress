@@ -24,19 +24,19 @@ export const userNavigationConfig = {
     title: "navigation.maintenance",
     icon: "🔧",
     routes: [
-      { path: "/member/maintenance/spare-parts", label: "ادارة القطع الغيار" },
-      { path: "/member/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
-      { path: "/member/maintenance/cost-summary", label: "ملخص التكاليف" },
-      { path: "/member/maintenance/transfers", label: "التحويلات" },
-      { path: "/member/maintenance/reminders", label: "تنبيهات الصيانة" },
+      { path: "/member/maintenance/spare-parts", label: "navigation.spareParts" },
+      { path: "/member/maintenance/rider-accessories", label: "navigation.riderAccessories" },
+      { path: "/member/maintenance/cost-summary", label: "navigation.costSummary" },
+      { path: "/member/maintenance/transfers", label: "navigation.maintenanceTransfers" },
+      { path: "/member/maintenance/reminders", label: "navigation.reminders" },
     ],
   },
   requests: {
-    title: "الطلبات",
+    title: "navigation.requests",
     icon: "📝",
     routes: [
-      { path: "/member/requests/employee-status", label: "طلبات تغيير حالة الموظفين" },
-      { path: "/member/requests/vehicles", label: "طلبات عمليات المركبات" },
+      { path: "/member/requests/employee-status", label: "navigation.employeeStatusRequests" },
+      { path: "/member/requests/vehicles", label: "navigation.vehicleRequests" },
     ],
   },
   reports: {
@@ -47,33 +47,29 @@ export const userNavigationConfig = {
         path: "/member/reports",
         label: "navigation.reportsCenter",
       },
-      // {
-      //   path: `/member/reports/monthly?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`,
-      //   label: "navigation.monthlyReports",
-      // },
       {
         path: "/member/reports/daily",
-        label: "التقرير اليومي",
+        label: "navigation.dailyReports",
       },
       {
         path: "/member/reports/compare-periods",
-        label: "مقارنة الفترات",
+        label: "navigation.comparePeriods",
       },
       {
         path: "/member/reports/rejection",
-        label: "تقرير الطلبات المرفوضة",
+        label: "navigation.rejectedOrdersReport",
       },
       {
         path: "/member/reports/riders-summary",
-        label: "تقرير الغياب و عجز الساعات",
+        label: "navigation.ridersSummaryReport",
       },
       {
         path: "/member/reports/rider-daily",
-        label: "تقرير طلبات المندوب",
+        label: "navigation.riderDailyReport",
       },
       {
         path: "/member/reports/rider-history",
-        label: " تقرير الاداء السنوي للمندوب",
+        label: "navigation.riderYearlyPerformanceReport",
       }
     ],
   },
@@ -81,12 +77,12 @@ export const userNavigationConfig = {
     title: "common.others",
     icon: "⚡",
     routes: [
-      { path: "/member/actions/employee-status-change", label: "طلب تغيير حالة موظف" },
-      { path: "/member/actions/vehicle-take", label: "طلب استلام مركبة" },
-      { path: "/member/actions/vehicle-return", label: "طلب ايقاف مركبة" },
-      { path: "/member/actions/vehicle-report-problem", label: "تغيير حالة مركبة (تعطيل)" },
-      { path: "/member/actions/vehicle-fix-problem", label: "تغيير حالة مركبة (تشغيل)" },
-      { path: "/member/actions/switch-vehicle", label: "طلب استبدال مركبة" },
+      { path: "/member/actions/employee-status-change", label: "navigation.requestEmployeeStatusChange" },
+      { path: "/member/actions/vehicle-take", label: "navigation.requestVehicleTake" },
+      { path: "/member/actions/vehicle-return", label: "navigation.requestVehicleReturn" },
+      { path: "/member/actions/vehicle-report-problem", label: "navigation.requestVehicleDisable" },
+      { path: "/member/actions/vehicle-fix-problem", label: "navigation.requestVehicleEnable" },
+      { path: "/member/actions/switch-vehicle", label: "navigation.requestVehicleSwitch" },
     ],
   },
   account: {
@@ -131,9 +127,9 @@ export const adminNavigationConfig = {
     title: "navigation.employees",
     icon: "👥",
     routes: [
-      { path: "/admin/riders", label: "riders.manageEmployees" },
-      { path: "/admin/riders/search", label: "riders.searchEmployees" },
-      { path: "/admin/riders/manage", label: "riders.manageEmployee" },
+      { path: "/admin/riders", label: "employees.manageEmployees" },
+      { path: "/admin/riders/search", label: "employees.searchEmployee" },
+      { path: "/admin/riders/manage", label: "employees.manageEmployees" },
       { path: "/admin/riders/escaped", label: "navigation.escaped" },
     ],
   },
@@ -161,8 +157,6 @@ export const adminNavigationConfig = {
       { path: "/admin/shifts/update", label: "navigation.updateShifts" },
       { path: "/admin/hunger", label: "navigation.hunger" },
       { path: "/admin/keeta", label: "navigation.keeta" },
-      // { path: "/admin/reports/keta-validation", label: "navigation.monthlyShifts" },
-      // { path: "/admin/shifts/keta-freelancer", label: "navigation.ketaFreelancer" },
     ],
   },
 
@@ -172,7 +166,7 @@ export const adminNavigationConfig = {
     routes: [
       { path: "/admin/substitution", label: "navigation.allSubstitutes" },
       { path: "/admin/substitution/new", label: "navigation.addSubstitution" },
-      { path: "/admin/substitution/import", label: "استيراد من Excel" },
+      { path: "/admin/substitution/import", label: "navigation.importSubstitution" },
       { path: "/admin/substitution/history", label: "navigation.substituteHistory" },
     ],
   },
@@ -191,23 +185,23 @@ export const adminNavigationConfig = {
     icon: "🔧",
     routes: [
       { path: "/admin/maintenance/suppliers", label: "navigation.suppliers" },
-      { path: "/admin/maintenance/money-spending", label: "مركز تكلفة قطع الغيار و معدات السائقين" },
-      { path: "/admin/maintenance/bills", label: "ادارة الفواتير" },
-      { path: "/admin/maintenance/spare-parts", label: "ادارة القطع الغيار" },
-      { path: "/admin/maintenance/rider-accessories", label: "ادارة معدات السائقين" },
-      { path: "/admin/maintenance/transfers", label: "التحويلات" },
-      { path: "/admin/maintenance/returns", label: "ادارة المرتجعات" },
+      { path: "/admin/maintenance/money-spending", label: "navigation.maintenanceMoneySpending" },
+      { path: "/admin/maintenance/bills", label: "navigation.maintenanceBills" },
+      { path: "/admin/maintenance/spare-parts", label: "navigation.spareParts" },
+      { path: "/admin/maintenance/rider-accessories", label: "navigation.riderAccessories" },
+      { path: "/admin/maintenance/transfers", label: "navigation.maintenanceTransfers" },
+      { path: "/admin/maintenance/returns", label: "navigation.returnsManagement" },
     ],
   },
 
   petrol: {
-    title: "ادارة البنزين",
+    title: "navigation.petrol",
     icon: "⛽",
     routes: [
-      { path: "/admin/petrol/upload", label: "رفع وتخصيص الفواتير" },
-      { path: "/admin/petrol/riders", label: "تقارير بنزين السائقين" },
-      { path: "/admin/petrol/vehicles", label: "تقارير بنزين المركبات" },
-      { path: "/admin/petrol/unattributed", label: "سجلات غير مخصصة" },
+      { path: "/admin/petrol/upload", label: "navigation.petrolUpload" },
+      { path: "/admin/petrol/riders", label: "navigation.petrolRiders" },
+      { path: "/admin/petrol/vehicles", label: "navigation.petrolVehicles" },
+      { path: "/admin/petrol/unattributed", label: "navigation.petrolUnattributed" },
     ],
   },
 
@@ -230,7 +224,6 @@ export const adminNavigationConfig = {
       { path: "/admin/profile", label: "navigation.profile" },
       { path: "/admin/profile/change-password", label: "navigation.changePassword" },
     ],
-
   },
 
   sittings: {

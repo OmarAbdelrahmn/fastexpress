@@ -577,7 +577,7 @@ export default function EnhancedDashboard() {
   const StatusButton = ({ title, value, subtitle, icon: Icon, count, link }) => {
     const hasPending = count > 0;
     const indicatorColor = hasPending ? "bg-red-500" : "bg-green-500";
-    const indicatorText = hasPending ? "مطلوب إجراء" : "مكتمل";
+    const indicatorText = hasPending ? t("dashboard.actionRequired") : t("dashboard.completed");
 
     return (
       <Link href={link} className="block group w-full">
@@ -639,7 +639,7 @@ export default function EnhancedDashboard() {
 
             <div className="flex flex-col">
               <span className="font-bold text-sm">{title}</span>
-              <span className="text-xs text-gray-500">{count} طلب </span>
+              <span className="text-xs text-gray-500">{t("dashboard.requestsCount", { count })}</span>
             </div>
             <div className="bg-blue-50 p-1.5 rounded-full">
               <ArrowRight size={14} className="text-blue-600 rtl:rotate-180" />
@@ -717,7 +717,7 @@ export default function EnhancedDashboard() {
   );
 
   return (
-    <div dir="rtl">
+    <div>
       {/* Printable Components */}
       {/* Download Modal */}
       {isPrinting && (
@@ -734,18 +734,18 @@ export default function EnhancedDashboard() {
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Printer size={32} className="text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">تقرير جاهز للتحميل</h3>
-              <p className="text-gray-500">تم تجهيز التقرير بنجاح، يرجى الضغط أدناه للتحميل</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t("dashboard.reportReady")}</h3>
+              <p className="text-gray-500">{t("dashboard.reportReadySubtitle")}</p>
             </div>
 
             {housingDetailedReportData && (
               <PDFDownloadLink
                 document={<HousingDetailedReportPDF data={housingDetailedReportData} />}
-                fileName={`تقرير تفصيلي بتاريخ${housingDetailedReportData.reportDate}.pdf`}
+                fileName={t("dashboard.detailedReportFile", { date: housingDetailedReportData.reportDate })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
-                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                  loading ? t("dashboard.preparingFile") : t("dashboard.downloadReport")
                 }
               </PDFDownloadLink>
             )}
@@ -753,11 +753,11 @@ export default function EnhancedDashboard() {
             {specialReportData && (
               <PDFDownloadLink
                 document={<SpecialReportPDF data={specialReportData} />}
-                fileName={`تقرير الفرق و النسبة حتى${specialReportData.period1Start}_${specialReportData.period2End}.pdf`}
+                fileName={t("dashboard.diffReportFile", { start: specialReportData.period1Start, end: specialReportData.period2End })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
-                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                  loading ? t("dashboard.preparingFile") : t("dashboard.downloadReport")
                 }
               </PDFDownloadLink>
             )}
@@ -765,11 +765,11 @@ export default function EnhancedDashboard() {
             {housingReportData && (
               <PDFDownloadLink
                 document={<HousingSummaryReportPDF data={housingReportData} />}
-                fileName={`تقرير اجمالي بتاريخ${housingReportData.reportDate}.pdf`}
+                fileName={t("dashboard.summaryReportFile", { date: housingReportData.reportDate })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
-                  loading ? 'جاري تجهيز الملف...' : 'تحميل التقرير (PDF)'
+                  loading ? t("dashboard.preparingFile") : t("dashboard.downloadReport")
                 }
               </PDFDownloadLink>
             )}
@@ -795,15 +795,15 @@ export default function EnhancedDashboard() {
                   <AlertTriangle className="text-red-600" size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-sm mb-1">تنبيه: مهلة وشيكة</h4>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">{t("dashboard.urgentAlert")}</h4>
                   <p className="text-xs text-gray-600 leading-relaxed mb-3">
-                    يوجد {escapedAlerts.length} موظفاً هارباً يتبقى لهم أقل من 7 أيام على الموعد النهائي. هؤلاء يتطلبون إجراءً فورياً.
+                    {t("dashboard.escapedUrgentDesc", { count: escapedAlerts.length })}
                   </p>
                   <Link 
                     href="/admin/riders/escaped"
                     className="inline-flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 underline underline-offset-4"
                   >
-                    انتقل لصفحة الهاربين للمتابعة
+                    {t("dashboard.goToEscapedPage")}
                     <ArrowRight size={14} className="rtl:rotate-180" />
                   </Link>
                 </div>
@@ -986,8 +986,8 @@ export default function EnhancedDashboard() {
             />
 
             <QuickActionBtn
-              title="تقارير كيتا"
-              subtitle="لوحة التحكم بتقارير عمليات كيتا"
+              title={t("dashboard.ketaReports")}
+              subtitle={t("dashboard.ketaReportsSubtitle")}
               icon={LayoutList}
               color={COLORS.white}
               background="bg-gradient-to-r from-[#144CD5] to-[#00288A]"

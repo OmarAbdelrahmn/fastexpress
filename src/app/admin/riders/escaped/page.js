@@ -192,36 +192,36 @@ export default function EscapedManagementPage() {
   };
 
   const handleActivateRecord = async (iqamaNo) => {
-    if (!confirm('هل أنت متأكد من تفعيل هروب هذا الموظف؟')) return;
+    if (!confirm(t('riders.activateEscapedConfirm'))) return;
     try {
       const res = await escapedService.activate(iqamaNo);
-      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم التفعيل بنجاح'));
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || t('riders.activateSuccess')));
       loadData();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error activating record:', err);
-      setErrorMessage(err.message || 'حدث خطأ أثناء التفعيل');
+      setErrorMessage(err.message || t('riders.activationError'));
     }
   };
 
   const handleDeactivateRecord = async (iqamaNo) => {
-    if (!confirm('هل أنت متأكد من تعطيل هروب هذا الموظف؟')) return;
+    if (!confirm(t('riders.deactivateEscapedConfirm'))) return;
     try {
       const res = await escapedService.deactivate(iqamaNo);
-      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم التعطيل بنجاح'));
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || t('riders.deactivateSuccess')));
       loadData();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error deactivating record:', err);
-      setErrorMessage(err.message || 'حدث خطأ أثناء التعطيل');
+      setErrorMessage(err.message || t('riders.deactivationError'));
     }
   };
 
   const handleForceDeleteRecord = async (iqamaNo) => {
-    if (!confirm('هل أنت متأكد من الحذف النهائي لهذا البلاغ؟')) return;
+    if (!confirm(t('riders.forceDeleteConfirm'))) return;
     try {
       const res = await escapedService.forceDelete(iqamaNo);
-      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || 'تم الحذف النهائي بنجاح'));
+      setSuccessMessage(typeof res === 'string' ? res : (res?.message || res?.title || t('riders.forceDeleteSuccess')));
       loadData();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
@@ -245,34 +245,34 @@ export default function EscapedManagementPage() {
 
   const handleExportNoPath = () => {
     const dataToExport = escapedEmployees.filter(emp => emp.activePath === 0).map(emp => ({
-      'رقم الإقامة': emp.iqamaNo,
-      'الاسم': emp.nameAR,
-      'الوظيفة': emp.jobTitle,
-      'تاريخ الهروب': formatDate(emp.escapedAt) || '-',
-      'تجاوز المهلة': emp.isOverdue ? 'نعم' : 'لا'
+      [t('riders.iqamaNumber')]: emp.iqamaNo,
+      [t('riders.nameArabic')]: emp.nameAR,
+      [t('employees.jobTitle')]: emp.jobTitle,
+      [t('riders.escapeDate')]: formatDate(emp.escapedAt) || '-',
+      [t('riders.urgencyPeriod')]: emp.isOverdue ? (t('common.yes') || 'نعم') : (t('common.no') || 'لا')
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'بدون مسار');
+    XLSX.utils.book_append_sheet(workbook, worksheet, t('riders.exportNoPath') || 'بدون مسار');
     XLSX.writeFile(workbook, 'Escaped_No_Path.xlsx');
   };
 
   const handleExportWithPaths = () => {
     const dataToExport = escapedEmployees.filter(emp => emp.activePath !== 0).map(emp => ({
-      'رقم الإقامة': emp.iqamaNo,
-      'الاسم': emp.nameAR,
-      'الوظيفة': emp.jobTitle,
-      'المسار': emp.activePath === 1 ? 'تم الإبلاغ' : 'خروج نهائي',
-      'تاريخ الهروب': formatDate(emp.escapedAt) || '-',
-      'الموعد النهائي': formatDate(emp.removalDeadline) || '-',
-      'الأيام المتبقية': emp.remainingDaysToRemoval ?? '-',
-      'ملاحظات': emp.notes || ''
+      [t('riders.iqamaNumber')]: emp.iqamaNo,
+      [t('riders.nameArabic')]: emp.nameAR,
+      [t('employees.jobTitle')]: emp.jobTitle,
+      [t('riders.activePath')]: emp.activePath === 1 ? (t('riders.reported') || 'تم الإبلاغ') : (t('riders.finalExit') || 'خروج نهائي'),
+      [t('riders.escapeDate')]: formatDate(emp.escapedAt) || '-',
+      [t('riders.deadlineDate')]: formatDate(emp.removalDeadline) || '-',
+      [t('riders.daysRemaining')]: emp.remainingDaysToRemoval ?? '-',
+      [t('riders.employeeNotes')]: emp.notes || ''
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'محددي المسار');
+    XLSX.utils.book_append_sheet(workbook, worksheet, t('riders.exportWithPath') || 'محددي المسار');
     XLSX.writeFile(workbook, 'Escaped_With_Paths.xlsx');
   };
 
@@ -290,7 +290,7 @@ export default function EscapedManagementPage() {
     {
       header: (
         <div className="flex items-center gap-2">
-          <span>خروج / بلاغ</span>
+          <span>{t('riders.pathStatus') || 'خروج / بلاغ'}</span>
           <div className="relative flex items-center justify-center w-6 h-6 rounded-md hover:bg-gray-100 transition-colors">
             <Filter 
               size={14} 
@@ -300,45 +300,45 @@ export default function EscapedManagementPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-              title="تصفية حسب الحالة"
+              title={t('riders.filterStatus')}
             >
-              <option value="all">الكل</option>
-              <option value="reported">تم الإبلاغ</option>
-              <option value="outage">خروج نهائي</option>
-              <option value="none">غير محدد</option>
+              <option value="all">{t('common.all') || 'الكل'}</option>
+              <option value="reported">{t('riders.reported')}</option>
+              <option value="outage">{t('riders.finalExit')}</option>
+              <option value="none">{t('riders.notSpecified')}</option>
             </select>
           </div>
         </div>
       ),
       render: (row) => {
         let pathBadge;
-        if (row.activePath === 2) pathBadge = <StatusBadge status="outage" text="خروج نهائي" />;
-        else if (row.activePath === 1) pathBadge = <StatusBadge status="reported" text="تم الإبلاغ" />;
-        else pathBadge = <StatusBadge status="None" text="غير محدد" />;
+        if (row.activePath === 2) pathBadge = <StatusBadge status="outage" text={t('riders.finalExit')} />;
+        else if (row.activePath === 1) pathBadge = <StatusBadge status="reported" text={t('riders.reported')} />;
+        else pathBadge = <StatusBadge status="None" text={t('riders.notSpecified')} />;
 
         return (
           <div className="flex flex-col gap-1.5 items-start">
             {pathBadge}
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${row.isActive !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {row.isActive !== false ? 'سجل نشط' : 'سجل معطل'}
+              {row.isActive !== false ? t('riders.statusActiveRecord') : t('riders.statusInactiveRecord')}
             </span>
           </div>
         );
       }
     },
     {
-      header: 'تاريخ الهروب',
+      header: t('riders.escapeDate'),
       render: (row) => (
         <div className="text-sm">
           {row.escapedAt && (
             <div className="flex flex-col mb-1">
-              <span className="text-gray-400 text-[10px] uppercase">تاريخ الهروب:</span>
+              <span className="text-gray-400 text-[10px] uppercase">{t('riders.escapeDate')}:</span>
               <span className="font-medium">{formatDate(row.escapedAt)}</span>
             </div>
           )}
           {row.removalDeadline && (
             <div className="flex flex-col">
-              <span className="text-gray-400 text-[10px] uppercase text-red-500">الموعد النهائي:</span>
+              <span className="text-gray-400 text-[10px] uppercase text-red-500">{t('riders.deadlineDate')}:</span>
               <span className="font-semibold text-red-600">{formatDate(row.removalDeadline)}</span>
             </div>
           )}
@@ -346,7 +346,7 @@ export default function EscapedManagementPage() {
       )
     },
     {
-      header: 'الأيام المتبقية',
+      header: t('riders.daysRemaining'),
       render: (row) => {
         const remaining = row.remainingDaysToRemoval;
         if (remaining === null || remaining === undefined) return '-';
@@ -357,7 +357,7 @@ export default function EscapedManagementPage() {
         return (
           <div className={`flex items-center gap-1 font-bold ${isOverdue ? 'text-red-700' : isWarning ? 'text-orange-600 animate-pulse' : 'text-blue-600'}`}>
             <Clock size={16} />
-            <span>{remaining} يوم</span>
+            <span>{remaining} {t('riders.days')}</span>
             {(isWarning || isOverdue) && <ShieldAlert size={16} />}
           </div>
         );
@@ -370,21 +370,21 @@ export default function EscapedManagementPage() {
           <Button
             onClick={() => router.push(`/admin/riders/${row.iqamaNo}/details`)}
             className="!p-2 !bg-indigo-500 hover:!bg-indigo-600 text-indigo-600 border-none"
-            title="عرض تفاصيل الموظف"
+            title={t('riders.viewDetails')}
           >
             <Eye size={15} />
           </Button>
           <Button 
             onClick={() => handleOpenPathModal(row)}
             className="!p-2 !bg-blue-500 hover:!bg-blue-600 text-blue-600 border-none"
-            title="تحديد المسار"
+            title={t('riders.manageEmployeeStatus', { name: '' }).split(':')[0]}
           >
             <Edit size={15} />
           </Button>
           <Button 
             onClick={() => handleOpenNotesModal(row)}
             className="!p-2 !bg-gray-500 hover:!bg-gray-600 text-gray-600 border-none"
-            title="الملاحظات"
+            title={t('riders.employeeNotes')}
           >
             <NotebookTabs size={15} />
           </Button>
@@ -392,7 +392,7 @@ export default function EscapedManagementPage() {
             <Button 
               onClick={() => handleDeactivateRecord(row.iqamaNo)}
               className="!p-2 !bg-orange-500 hover:!bg-orange-600 text-orange-600 border-none"
-              title="تعطيل الموظف"
+              title={t('riders.statusInactiveRecord')}
             >
               <Power size={15} />
             </Button>
@@ -400,7 +400,7 @@ export default function EscapedManagementPage() {
             <Button 
               onClick={() => handleActivateRecord(row.iqamaNo)}
               className="!p-2 !bg-green-500 hover:!bg-green-600 text-green-600 border-none"
-              title="إعادة تفعيل الموظف"
+              title={t('riders.statusActiveRecord')}
             >
               <Power size={15} />
             </Button>
@@ -408,7 +408,7 @@ export default function EscapedManagementPage() {
           <Button 
             onClick={() => handleForceDeleteRecord(row.iqamaNo)}
             className="!p-2 !bg-red-500 hover:!bg-red-600 text-red-600 border-none"
-            title="حذف نهائي"
+            title={t('riders.delete')}
           >
             <Trash2 size={15} />
           </Button>
@@ -420,8 +420,8 @@ export default function EscapedManagementPage() {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="إدارة شؤون الموظفين الهاربين"
-        subtitle="متابعة بلاغات الهروب وتواريخ الخروج من البلاد"
+        title={t('riders.escapedManagement')}
+        subtitle={t('riders.escapedManagementSubtitle')}
         icon={AlertCircle}
       />
 
@@ -429,28 +429,28 @@ export default function EscapedManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-4 pl-4">
         <Card className="flex items-center justify-between p-4 bg-white border-r-4 border-blue-500 !shadow-sm">
           <div>
-            <p className="text-xs text-gray-500 mb-1">إجمالي الموظفين الهاربين</p>
+            <p className="text-xs text-gray-500 mb-1">{t('riders.totalEscaped')}</p>
             <p className="text-2xl font-bold text-blue-700">{stats.totalEscaped}</p>
           </div>
           <User className="text-blue-500 opacity-20" size={40} />
         </Card>
         <Card className="flex items-center justify-between p-4 bg-white border-r-4 border-red-500 !shadow-sm">
           <div>
-            <p className="text-xs text-gray-500 mb-1">فترة الانتهاء</p>
+            <p className="text-xs text-gray-500 mb-1">{t('riders.urgencyPeriod')}</p>
             <p className="text-2xl font-bold text-red-700">{stats.dueWithin10DaysCount}</p>
           </div>
           <Clock className="text-red-500 opacity-20" size={40} />
         </Card>
         <Card className="flex items-center justify-between p-4 bg-white border-r-4 border-orange-500 !shadow-sm">
           <div>
-            <p className="text-xs text-gray-500 mb-1">  تم الإبلاغات</p>
+            <p className="text-xs text-gray-500 mb-1">{t('riders.reportedEscapes')}</p>
             <p className="text-2xl font-bold text-orange-700">{stats.reportedPathCount}</p>
           </div>
           <FileText className="text-orange-500 opacity-20" size={40} />
         </Card>
         <Card className="flex items-center justify-between p-4 bg-white border-r-4 border-green-500 !shadow-sm">
           <div>
-            <p className="text-xs text-gray-500 mb-1">خروج نهائي</p>
+            <p className="text-xs text-gray-500 mb-1">{t('riders.finalExits')}</p>
             <p className="text-2xl font-bold text-green-700">{stats.outagePathCount}</p>
           </div>
           <Globe className="text-green-500 opacity-20" size={40} />
@@ -466,7 +466,7 @@ export default function EscapedManagementPage() {
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300" size={18} />
             <input 
               type="text" 
-              placeholder="بحث بالاسم أو رقم الإقامة..."
+              placeholder={t('riders.searchEscapedPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pr-10 pl-4 py-2 bg-gray-50/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
@@ -475,11 +475,11 @@ export default function EscapedManagementPage() {
           <div className="flex gap-2 whitespace-nowrap">
             <Button onClick={handleExportNoPath} className="!bg-green-600 hover:!bg-green-700 text-white flex items-center gap-2">
               <FileDown size={18} />
-              استخراج بدون مسار
+              {t('riders.exportNoPath')}
             </Button>
             <Button onClick={handleExportWithPaths} className="!bg-blue-600 hover:!bg-blue-700 text-white flex items-center gap-2">
               <FileDown size={18} />
-              استخراج بمسار
+              {t('riders.exportWithPath')}
             </Button>
           </div>
         </div>
@@ -496,7 +496,7 @@ export default function EscapedManagementPage() {
       <Modal
         isOpen={isPathModalOpen}
         onClose={() => setIsPathModalOpen(false)}
-        title={`إدارة حالة الموظف: ${selectedEmployee?.nameAR}`}
+        title={t('riders.manageEmployeeStatus', { name: selectedEmployee?.nameAR })}
         size="lg"
       >
         <div className="space-y-6 py-2">
@@ -509,12 +509,12 @@ export default function EscapedManagementPage() {
               {activePath === 'reported' && <div className="absolute top-0 right-0 p-1 bg-orange-500 text-white rounded-bl-lg"><ShieldAlert size={14} /></div>}
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-orange-100 rounded-lg"><FileText className="text-orange-600" size={20} /></div>
-                <h4 className="font-bold text-orange-900">مسار بلاغ الهروب</h4>
+                <h4 className="font-bold text-orange-900">{t('riders.escapeReportPath')}</h4>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">تاريخ تقديم البلاغ</label>
+                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">{t('riders.reportSubmissionDate')}</label>
                   <input 
                     type="date" 
                     value={formData.reportedAt}
@@ -532,7 +532,7 @@ export default function EscapedManagementPage() {
                     disabled={activePath !== 'reported'}
                     className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                   />
-                  <label htmlFor="isReported" className="text-sm font-semibold text-gray-700 cursor-pointer">تم تقديم البلاغ وتثبيته</label>
+                  <label htmlFor="isReported" className="text-sm font-semibold text-gray-700 cursor-pointer">{t('riders.reportSubmittedAndConfirmed')}</label>
                 </div>
               </div>
             </div>
@@ -545,12 +545,12 @@ export default function EscapedManagementPage() {
               {activePath === 'outage' && <div className="absolute top-0 right-0 p-1 bg-green-500 text-white rounded-bl-lg"><Globe size={14} /></div>}
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-green-100 rounded-lg"><Globe className="text-green-600" size={20} /></div>
-                <h4 className="font-bold text-green-900">مسارالخروج النهائي</h4>
+                <h4 className="font-bold text-green-900">{t('riders.finalExitPath')}</h4>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">تاريخ الخروج / الإيقاف</label>
+                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">{t('riders.exitTransitionDate') || t('riders.exitSuspensionDate')}</label>
                   <input 
                     type="date" 
                     value={formData.outageDate} 
@@ -560,10 +560,10 @@ export default function EscapedManagementPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">رقم تأشيرة الخروج</label>
+                  <label className="block text-[10px] uppercase font-bold text-gray-400 mb-1.5 px-1">{t('riders.exitVisaNumber')}</label>
                   <input 
                     type="text" 
-                    placeholder="أدخل رقم التأشيرة..."
+                    placeholder={t('riders.enterVisaNumberPlaceholder')}
                     value={formData.outageVisaNumber}
                     onChange={(e) => setFormData({...formData, outageVisaNumber: e.target.value})}
                     disabled={activePath !== 'outage'}
@@ -577,16 +577,16 @@ export default function EscapedManagementPage() {
           <div className="bg-blue-50/50 p-4 rounded-2xl flex items-start gap-4 border border-blue-100/50">
             <div className="p-2 bg-blue-100 rounded-full"><AlertCircle className="text-blue-600" size={18} /></div>
             <div className="space-y-1">
-              <p className="text-sm font-bold text-blue-900">تنيه حول المهل الزمنية</p>
+              <p className="text-sm font-bold text-blue-900">{t('riders.deadlineNoticeTitle')}</p>
               <p className="text-xs text-blue-700 leading-relaxed opacity-80">
-                اختيار مسار يغلق المسار الآخر تلقائياً. يتم احتساب مهلة الـ 60 يوماً وتنبيهات الـ 10 أيام بناءً على التواريخ المدخلة لكل مسار بشكل مستقل.
+                {t('riders.deadlineNoticeDesc')}
               </p>
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-            <Button onClick={() => setIsPathModalOpen(false)} className="!bg-white !text-gray-500 hover:!bg-gray-50 border-gray-200">إلغاء</Button>
-            <Button onClick={handleSavePath} className="!bg-blue-600 hover:!bg-blue-700 text-white px-10 rounded-xl shadow-lg shadow-blue-100 transition-all font-bold">حفظ الحالة الجديدة</Button>
+            <Button onClick={() => setIsPathModalOpen(false)} className="!bg-white !text-gray-500 hover:!bg-gray-50 border-gray-200">{t('common.cancel')}</Button>
+            <Button onClick={handleSavePath} className="!bg-blue-600 hover:!bg-blue-700 text-white px-10 rounded-xl shadow-lg shadow-blue-100 transition-all font-bold">{t('riders.saveNewStatus')}</Button>
           </div>
         </div>
       </Modal>
@@ -595,18 +595,18 @@ export default function EscapedManagementPage() {
       <Modal
         isOpen={isNotesModalOpen}
         onClose={() => setIsNotesModalOpen(false)}
-        title="ملاحظات الموظف"
+        title={t('riders.employeeNotes')}
       >
         <div className="space-y-4 py-2">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="w-full p-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none min-h-[150px] text-sm leading-relaxed"
-            placeholder="اكتب أي ملاحظات إضافية هنا..."
+            placeholder={t('riders.enterNotesPlaceholder')}
           />
           <div className="flex justify-end gap-2 pt-4">
-            <Button onClick={() => setIsNotesModalOpen(false)} className="!bg-gray-100 !text-gray-600">إغلاق</Button>
-            <Button onClick={handleSaveNotes} className="!bg-blue-600 text-white">حفظ الملاحظات</Button>
+            <Button onClick={() => setIsNotesModalOpen(false)} className="!bg-gray-100 !text-gray-600">{t('common.close')}</Button>
+            <Button onClick={handleSaveNotes} className="!bg-blue-600 text-white">{t('common.save')}</Button>
           </div>
         </div>
       </Modal>

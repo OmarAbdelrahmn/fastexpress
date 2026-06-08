@@ -11,23 +11,6 @@ import Table from '@/components/Ui/Table';
 import Button from '@/components/Ui/Button';
 import * as XLSX from 'xlsx';
 
-const URGENCY_LABELS = {
-  0: { label: 'منتهية', color: 'bg-red-600', text: 'text-white', border: 'border-red-500' },
-  1: { label: 'حرجة < 30 يوم', color: 'bg-orange-500', text: 'text-white', border: 'border-orange-400' },
-  2: { label: 'تحذير 31–90 يوم', color: 'bg-yellow-400', text: 'text-gray-900', border: 'border-yellow-300' },
-  3: { label: 'قريبة 91–180 يوم', color: 'bg-blue-400', text: 'text-white', border: 'border-blue-300' },
-  4: { label: 'آمنة +180 يوم', color: 'bg-green-500', text: 'text-white', border: 'border-green-400' },
-};
-
-const URGENCY_OPTIONS = [
-  { value: '', label: 'جميع المستويات' },
-  { value: '0', label: '🔴 منتهية' },
-  { value: '1', label: '🟠 حرجة (أقل من 30 يوم)' },
-  { value: '2', label: '🟡 تحذير (31–90 يوم)' },
-  { value: '3', label: '🔵 قريبة (91–180 يوم)' },
-  { value: '4', label: '🟢 آمنة (أكثر من 180 يوم)' },
-];
-
 function SummaryCard({ icon: Icon, label, count, colorClass, bgClass }) {
   return (
     <div className={`rounded-xl border-2 ${bgClass} p-4 flex items-center gap-3`}>
@@ -49,6 +32,23 @@ export default function IqamaExpiryReportPage() {
   const [filters, setFilters] = useState({ urgency: '', housingName: '', sponsor: '' });
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const URGENCY_LABELS = {
+    0: { label: t('riders.urgencyLevels.expired'), color: 'bg-red-600', text: 'text-white', border: 'border-red-500' },
+    1: { label: t('riders.urgencyLevels.critical'), color: 'bg-orange-500', text: 'text-white', border: 'border-orange-400' },
+    2: { label: t('riders.urgencyLevels.warning'), color: 'bg-yellow-400', text: 'text-gray-900', border: 'border-yellow-300' },
+    3: { label: t('riders.urgencyLevels.upcoming'), color: 'bg-blue-400', text: 'text-white', border: 'border-blue-300' },
+    4: { label: t('riders.urgencyLevels.safe'), color: 'bg-green-500', text: 'text-white', border: 'border-green-400' },
+  };
+
+  const URGENCY_OPTIONS = [
+    { value: '', label: t('riders.urgencyOptions.all') },
+    { value: '0', label: t('riders.urgencyOptions.expired') },
+    { value: '1', label: t('riders.urgencyOptions.critical') },
+    { value: '2', label: t('riders.urgencyOptions.warning') },
+    { value: '3', label: t('riders.urgencyOptions.upcoming') },
+    { value: '4', label: t('riders.urgencyOptions.safe') },
+  ];
 
   const stats = {
     total: report?.employees?.length || 0,
@@ -105,11 +105,6 @@ export default function IqamaExpiryReportPage() {
     loadReport();
   }, []);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleUrgencyChange = (e) => {
     const value = e.target.value;
     const newFilters = { ...filters, urgency: value };
@@ -122,26 +117,26 @@ export default function IqamaExpiryReportPage() {
   const handleExport = () => {
     if (!report?.employees?.length) return;
     const rows = report.employees.map(emp => ({
-      'رقم الإقامة': emp.iqamaNo,
-      'الاسم بالعربية': emp.nameAR,
-      'الاسم بالإنجليزية': emp.nameEN,
-      'المسمى الوظيفي': emp.jobTitle,
-      'الكفيل': emp.sponsor,
-      'رقم الكفيل': emp.sponsorNo,
-      'الجنسية': emp.country,
-      'الهاتف': emp.phone,
-      'انتهاء الإقامة (م)': emp.iqamaEndM,
-      'انتهاء الإقامة (هـ)': emp.iqamaEndH,
-      'الأيام المتبقية': emp.daysUntilExpiryM,
-      'مستوى الإلحاح': URGENCY_LABELS[emp.urgency]?.label ?? emp.urgency,
-      'السكن': emp.housingName ?? '–',
-      'عنوان السكن': emp.housingAddress ?? '–',
-      'الحالة': emp.status,
-      'داخل المملكة': emp.inksa ? 'نعم' : 'لا',
+      [t('employees.excelColumns.iqamaNumber')]: emp.iqamaNo,
+      [t('employees.excelColumns.nameAR')]: emp.nameAR,
+      [t('employees.excelColumns.nameEN')]: emp.nameEN,
+      [t('employees.excelColumns.jobTitle')]: emp.jobTitle,
+      [t('employees.excelColumns.sponsor')]: emp.sponsor,
+      [t('employees.excelColumns.sponsorNo')]: emp.sponsorNo,
+      [t('employees.excelColumns.country')]: emp.country,
+      [t('employees.excelColumns.phone')]: emp.phone,
+      [t('employees.excelColumns.iqamaEndM')]: emp.iqamaEndM,
+      [t('employees.excelColumns.iqamaEndH')]: emp.iqamaEndH,
+      [t('employees.excelColumns.daysUntilExpiryM')]: emp.daysUntilExpiryM,
+      [t('employees.excelColumns.urgency')]: URGENCY_LABELS[emp.urgency]?.label ?? emp.urgency,
+      [t('employees.excelColumns.housing')]: emp.housingName ?? '–',
+      [t('employees.excelColumns.housingAddress')]: emp.housingAddress ?? '–',
+      [t('employees.excelColumns.status')]: emp.status,
+      [t('employees.excelColumns.inksa')]: emp.inksa ? t('common.yes') : t('common.no'),
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'تقرير الإقامة');
+    XLSX.utils.book_append_sheet(wb, ws, t('riders.iqamaExpiryReport'));
     XLSX.writeFile(wb, `iqama-expiry-report-${Date.now()}.xlsx`);
   };
 
@@ -154,7 +149,7 @@ export default function IqamaExpiryReportPage() {
 
   const columns = [
     {
-      header: 'الاسم',
+      header: t('riders.nameArabic'),
       render: (row) => (
         <button
           onClick={() => router.push(`/admin/riders/${row.iqamaNo}/details`)}
@@ -164,9 +159,9 @@ export default function IqamaExpiryReportPage() {
         </button>
       ),
     },
-    { header: 'رقم الإقامة', accessor: 'iqamaNo' },
+    { header: t('riders.iqamaNumber'), accessor: 'iqamaNo' },
     {
-      header: 'الكفيل',
+      header: t('riders.sponsor'),
       render: (row) => (
         <div>
           <span>{row.sponsor ?? '–'}</span>
@@ -176,25 +171,28 @@ export default function IqamaExpiryReportPage() {
         </div>
       ),
     },
-    { header: 'السكن', render: (row) => row.housingName ?? '–' },
+    { header: t('riders.housing'), render: (row) => row.housingName ?? '–' },
     {
-      header: 'انتهاء الإقامة (م)',
+      header: t('employees.excelColumns.iqamaEndM'),
       render: (row) => <span className="font-mono text-sm">{getCompactDate(row.iqamaEndM)}</span>,
     },
     {
-      header: 'الأيام المتبقية',
+      header: t('riders.daysRemaining'),
       render: (row) => {
         const days = row.daysUntilExpiryM;
         const color = days < 0 ? 'bg-red-600' : days < 30 ? 'bg-orange-500' : days < 90 ? 'bg-yellow-400 text-gray-900' : 'bg-blue-500';
         return (
           <span className={`${color} text-white text-xs font-bold px-2 py-0.5 rounded-sm`}>
-            {days < 0 ? `منتهية (${Math.abs(days)} يوم)` : `${days} يوم`}
+            {days < 0 
+              ? `${t('riders.urgencyLevels.expired')} (${Math.abs(days)} ${t('riders.days')})` 
+              : `${days} ${t('riders.days')}`
+            }
           </span>
         );
       },
     },
     {
-      header: 'المستوى',
+      header: t('employees.excelColumns.urgency'),
       render: (row) => {
         const u = URGENCY_LABELS[row.urgency];
         if (!u) return row.urgency;
@@ -210,29 +208,29 @@ export default function IqamaExpiryReportPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title="تقرير انتهاء الإقامة"
-        subtitle="عرض جميع الموظفين مرتبين حسب أقرب تاريخ انتهاء إقامة"
+        title={t('riders.iqamaExpiryReport')}
+        subtitle={t('riders.iqamaExpiryReportDesc')}
         icon={AlertTriangle}
         actionButton={{
-          text: 'العودة للقائمة',
+          text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/admin/riders'),
         }}
       />
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 px-4 md:px-6">
-        <SummaryCard icon={XCircle}      label="منتهية"             count={report?.expiredCount}  colorClass="bg-red-600"    bgClass="border-red-200 bg-red-50" />
-        <SummaryCard icon={AlertTriangle} label="حرجة (< 30 يوم)"  count={report?.criticalCount}  colorClass="bg-orange-500" bgClass="border-orange-200 bg-orange-50" />
-        <SummaryCard icon={Clock}         label="تحذير (31–90 يوم)" count={report?.warningCount}   colorClass="bg-yellow-500" bgClass="border-yellow-200 bg-yellow-50" />
-        <SummaryCard icon={Shield}        label="قريبة (91–180 يوم)"count={report?.upcomingCount}  colorClass="bg-blue-500"   bgClass="border-blue-200 bg-blue-50" />
-        <SummaryCard icon={CheckCircle}   label="آمنة (> 180 يوم)"  count={report?.safeCount}      colorClass="bg-green-500"  bgClass="border-green-200 bg-green-50" />
+        <SummaryCard icon={XCircle}      label={t('riders.urgencyLevels.expired')}             count={report?.expiredCount}  colorClass="bg-red-600"    bgClass="border-red-200 bg-red-50" />
+        <SummaryCard icon={AlertTriangle} label={t('riders.urgencyLevels.critical')}  count={report?.criticalCount}  colorClass="bg-orange-500" bgClass="border-orange-200 bg-orange-50" />
+        <SummaryCard icon={Clock}         label={t('riders.urgencyLevels.warning')} count={report?.warningCount}   colorClass="bg-yellow-500" bgClass="border-yellow-200 bg-yellow-50" />
+        <SummaryCard icon={Shield}        label={t('riders.urgencyLevels.upcoming')}count={report?.upcomingCount}  colorClass="bg-blue-500"   bgClass="border-blue-200 bg-blue-50" />
+        <SummaryCard icon={CheckCircle}   label={t('riders.urgencyLevels.safe')}  count={report?.safeCount}      colorClass="bg-green-500"  bgClass="border-green-200 bg-green-50" />
       </div>
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm mx-4 md:mx-6 p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 border-b pb-4">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">مستوى الإلحاح</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{t('riders.filterUrgency')}</label>
             <select
               name="urgency"
               value={filters.urgency}
@@ -257,7 +255,7 @@ export default function IqamaExpiryReportPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <Filter size={18} className="text-gray-600" />
-            <h3 className="text-sm font-bold text-gray-800">{t('common.filter')} (الحالة)</h3>
+            <h3 className="text-sm font-bold text-gray-800">{t('riders.filterStatus')}</h3>
           </div>
           <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
             {[
@@ -284,8 +282,8 @@ export default function IqamaExpiryReportPage() {
 
         {report && (
           <p className="text-xs text-gray-400 mt-2">
-            نتائج البحث: <span className="font-bold text-gray-700">{filteredEmployees.length}</span> / <span className="font-bold text-gray-700">{report.totalEmployees}</span>
-            {report.generatedAt && ` · تم التوليد: ${new Date(report.generatedAt).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}`}
+            {t('riders.searchResultsCount', { count: filteredEmployees.length, total: report.totalEmployees })}
+            {report.generatedAt && ` · ${t('riders.generatedAt')}: ${new Date(report.generatedAt).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US', { timeZone: 'Asia/Riyadh' })}`}
           </p>
         )}
       </div>
@@ -299,7 +297,7 @@ export default function IqamaExpiryReportPage() {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="بحث باسم السائق أو رقم الإقامة..."
+              placeholder={t('riders.searchByRiderNameOrIqama')}
               className="w-full pr-9 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -308,7 +306,7 @@ export default function IqamaExpiryReportPage() {
               onClick={() => setSearchQuery('')}
               className="text-xs text-gray-500 hover:text-red-500 whitespace-nowrap"
             >
-              مسح
+              {t('riders.clearSearch')}
             </button>
           )}
         </div>

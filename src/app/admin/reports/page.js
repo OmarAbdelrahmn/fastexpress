@@ -85,14 +85,14 @@ export default function ReportsPage() {
           desc: t('keta.validationReportDesc'),
         },
         {
-          name: "Company Daily Trends",
+          name: t('reports.companyDailyTrends'),
           path: "/admin/reports/company-daily-trend",
-          desc: "Visualizing daily accepted orders with zoom.",
+          desc: t('reports.companyDailyTrendsDesc'),
         },
         {
-          name: "Keta Freelancer",
+          name: t('reports.ketaFreelancer'),
           path: "/admin/shifts/keta-freelancer",
-          desc: "إدارة واستيراد بيانات مناديب كيتا فري لانسر والشهرية",
+          desc: t('reports.ketaFreelancerDesc'),
         },
 
       ],
@@ -323,11 +323,11 @@ export default function ReportsPage() {
                     <History className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
                   <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {'سجل كل المناديب'}
+                    {t('reports.allRidersHistory')}
                   </h3>
                 </div>
                 <p className="text-xs md:text-sm text-gray-600">
-                  {'عرض سجل الأداء لجميع المناديب'}
+                  {t('reports.allRidersHistoryDesc')}
                 </p>
               </Link>
 
@@ -340,11 +340,11 @@ export default function ReportsPage() {
                     <History className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
                   <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {'سجل كل الشركات'}
+                    {t('reports.allCompaniesHistory')}
                   </h3>
                 </div>
                 <p className="text-xs md:text-sm text-gray-600">
-                  {'عرض سجل الأداء لجميع الشركات'}
+                  {t('reports.allCompaniesHistoryDesc')}
                 </p>
               </Link>
 
@@ -375,11 +375,11 @@ export default function ReportsPage() {
                     <Target className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
                   </div>
                   <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
-                    {t('hunger.reportsTitle') || "تقارير هنقرستيشن"}
+                    {t('hunger.reportsTitle')}
                   </h3>
                 </div>
                 <p className="text-xs md:text-sm text-gray-600">
-                  {t('hunger.reportsSubtitle') || "عرض تقارير هنقرستيشن، الرفض وسجل المناديب"}
+                  {t('hunger.reportsSubtitle')}
                 </p>
               </Link>
 
