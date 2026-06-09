@@ -741,7 +741,7 @@ export default function EnhancedDashboard() {
             {housingDetailedReportData && (
               <PDFDownloadLink
                 document={<HousingDetailedReportPDF data={housingDetailedReportData} />}
-                fileName={t("dashboard.detailedReportFile", { date: housingDetailedReportData.reportDate })}
+                fileName={t("dashboard.detailedReportFile", { date: housingDetailedReportData.reportDate || new Date().toISOString().split('T')[0] })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
@@ -753,7 +753,7 @@ export default function EnhancedDashboard() {
             {specialReportData && (
               <PDFDownloadLink
                 document={<SpecialReportPDF data={specialReportData} />}
-                fileName={t("dashboard.diffReportFile", { start: specialReportData.period1Start, end: specialReportData.period2End })}
+                fileName={t("dashboard.diffReportFile", { start: specialReportData.period1Start || new Date().toISOString().split('T')[0], end: specialReportData.period2End || new Date().toISOString().split('T')[0] })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
@@ -765,7 +765,7 @@ export default function EnhancedDashboard() {
             {housingReportData && (
               <PDFDownloadLink
                 document={<HousingSummaryReportPDF data={housingReportData} />}
-                fileName={t("dashboard.summaryReportFile", { date: housingReportData.reportDate })}
+                fileName={t("dashboard.summaryReportFile", { date: housingReportData.reportDate || new Date().toISOString().split('T')[0] })}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 {({ blob, url, loading, error }) =>
