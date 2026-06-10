@@ -451,7 +451,7 @@ export default function PetrolUploadPage() {
             <div className="bg-white rounded-xl shadow-md p-6 border-t-4 border-emerald-500 animate-in fade-in duration-300">
               <h2 className="text-xl font-bold text-gray-800 mb-1 flex items-center gap-2">
                 <ShieldCheck className="text-emerald-500" />
-                إذن بدء الوردية
+                تاخير استلام الدباب
               </h2>
               <p className="text-sm text-gray-500 mb-5">ابحث عن السائق ثم اضغط على الزر لتغيير موعد استلام الدباب بيوم واحد.</p>
 
