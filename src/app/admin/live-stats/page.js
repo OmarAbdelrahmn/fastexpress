@@ -222,7 +222,8 @@ export default function LiveStatsPage() {
   const [loading, setLoading] = useState(true);
   const [lastFetch, setLastFetch] = useState(Date.now());
   const [online, setOnline] = useState(true);
-  const [error, setError] = useState(null);
+  const [hungerError, setHungerError] = useState(null);
+  const [keetaError, setKeetaError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const timerRef = useRef(null);
 
@@ -258,23 +259,34 @@ export default function LiveStatsPage() {
 
   const fetchAll = useCallback(async () => {
     const date = todayDate();
-    setError(null);
-    try {
-      const [hunger, keeta] = await Promise.all([
-        fetchJson(`${API_BASE}api/rider-stats/${HUNGER_COMPANY_ID}/${date}`),
-        fetchJson(`${API_BASE}api/keeta-stats/${KEETA_ORG_ID}/${date}`),
-      ]);
-      setHungerData(hunger);
-      setKeetaData(keeta);
-      setOnline(true);
-    } catch (e) {
-      console.error("Live stats fetch error:", e);
-      setError(e.message);
-      setOnline(false);
-    } finally {
-      setLoading(false);
-      setLastFetch(Date.now());
+    setHungerError(null);
+    setKeetaError(null);
+    const [hungerResult, keetaResult] = await Promise.allSettled([
+      fetchJson(`${API_BASE}api/rider-stats/${HUNGER_COMPANY_ID}/${date}`),
+      fetchJson(`${API_BASE}api/keeta-stats/${KEETA_ORG_ID}/${date}`),
+    ]);
+
+    if (hungerResult.status === "fulfilled") {
+      console.log(hungerResult.value);
+      setHungerData(hungerResult.value);
+    } else {
+      console.error("Hunger fetch error:", hungerResult.reason);
+      setHungerError(hungerResult.reason?.message ?? "Error");
     }
+
+    if (keetaResult.status === "fulfilled") {
+      console.log(keetaResult.value);
+      setKeetaData(keetaResult.value);
+    } else {
+      console.error("Keeta fetch error:", keetaResult.reason);
+      setKeetaError(keetaResult.reason?.message ?? "Error");
+    }
+
+    setOnline(
+      hungerResult.status === "fulfilled" || keetaResult.status === "fulfilled"
+    );
+    setLoading(false);
+    setLastFetch(Date.now());
   }, []);
 
   useEffect(() => {
@@ -319,11 +331,17 @@ export default function LiveStatsPage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Error Banner */}
-        {error && (
+        {/* Error Banners */}
+        {hungerError && (
           <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm font-medium">
             <XCircle size={18} className="flex-shrink-0" />
-            <span>{t("liveStats.loadError")}{error}</span>
+            <span>{t("liveStats.hungerTitle")}: {t("liveStats.loadError")}{hungerError}</span>
+          </div>
+        )}
+        {keetaError && (
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm font-medium">
+            <XCircle size={18} className="flex-shrink-0" />
+            <span>{t("liveStats.keetaTitle")}: {t("liveStats.loadError")}{keetaError}</span>
           </div>
         )}
 
