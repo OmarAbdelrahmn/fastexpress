@@ -175,7 +175,7 @@ export default function PetrolUploadPage() {
               }`}
           >
             <ShieldCheck size={18} />
-            إذن بدء الوردية
+           تاخير استلام الباب
           </button>
         </div>
 
