@@ -27,7 +27,7 @@ export default function RiderPetrolDetailsPage() {
   const fetchMonthlyDetails = async () => {
     setLoading(true);
     setMessage('');
-    
+
     try {
       const data = await ApiService.get(API_ENDPOINTS.PETROL.RIDER_MONTHLY(iqamaNo, year, month));
       setDetails(data);
@@ -41,7 +41,7 @@ export default function RiderPetrolDetailsPage() {
   const fetchDayDetails = async (dateStr) => {
     setSelectedDate(dateStr);
     setDayLoading(true);
-    
+
     try {
       const data = await ApiService.get(API_ENDPOINTS.PETROL.RIDER_DATE(iqamaNo, dateStr));
       setDayDetails(Array.isArray(data) ? data : []);
@@ -68,7 +68,7 @@ export default function RiderPetrolDetailsPage() {
       />
 
       <div className="p-6 max-w-7xl mx-auto space-y-6">
-        
+
         {/* Navigation & Controls */}
         <div className="flex flex-col md:flex-row justify-between items-center bg-white rounded-xl shadow-md p-4 mb-6">
           <div className="flex gap-4 items-center w-full md:w-auto">
@@ -84,7 +84,7 @@ export default function RiderPetrolDetailsPage() {
                 ))}
               </select>
             </div>
-            
+
             <div className="flex items-center">
               <select
                 value={month}
@@ -138,13 +138,13 @@ export default function RiderPetrolDetailsPage() {
               </div>
 
               <div className="bg-white border-r-4 border-green-500 p-6 rounded-xl shadow-md">
-                 <p className="text-sm text-gray-500 font-bold mb-1">إجمالي أيام التعبئة</p>
-                 <div className="flex items-center gap-3">
+                <p className="text-sm text-gray-500 font-bold mb-1">إجمالي أيام التعبئة</p>
+                <div className="flex items-center gap-3">
                   <Activity className="text-green-500" size={32} />
                   <span className="text-3xl font-bold text-gray-800">
                     {details.totalDaysWithCost || 0} أيام
                   </span>
-                 </div>
+                </div>
               </div>
             </div>
 
@@ -218,14 +218,14 @@ export default function RiderPetrolDetailsPage() {
                 <Calendar size={24} />
                 سجلات التعبئة ليوم ({selectedDate})
               </h3>
-              <button 
+              <button
                 onClick={() => setSelectedDate(null)}
                 className="text-white hover:text-red-200 bg-blue-700 hover:bg-blue-800 p-2 rounded-full transition-colors"
               >
                 ✕
               </button>
             </div>
-            
+
             <div className="p-6">
               {dayLoading ? (
                 <div className="flex justify-center py-12">
@@ -235,28 +235,28 @@ export default function RiderPetrolDetailsPage() {
                 <div className="space-y-4">
                   {dayDetails.map((dayItem, idx) => (
                     <div key={idx} className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-                       <div className="flex justify-between items-start mb-3">
-                         <div>
-                           <p className="text-sm text-gray-500 font-semibold mb-1">مصدر التخصيص</p>
-                           <span className="font-bold text-gray-800 bg-white px-2 py-1 rounded border shadow-sm">
-                             {dayItem.attributionSource || 'مخصص من النظام'}
-                           </span>
-                         </div>
-                         <div className="text-left">
-                            <p className="text-sm text-gray-500 font-semibold mb-1">حصة التكلفة</p>
-                            <span className="text-xl font-extrabold text-blue-700">{dayItem.costShare?.toFixed(2) || dayItem.cost} ريال</span>
-                         </div>
-                       </div>
-                       
-                       <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-2">
-                         <AlertCircle className="text-blue-500 mt-0.5" size={18} />
-                         <div>
-                            <p className="text-sm text-blue-800 font-bold mb-1">طبيعة التوزيع والنظام</p>
-                            <p className="text-sm text-blue-900 leading-relaxed font-medium">
-                              {dayItem.notes || 'لا توجد ملاحظات إضافية حول التوزيع. التكلفة تم اعتمادها للمندوب مباشرة.'}
-                            </p>
-                         </div>
-                       </div>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="text-sm text-gray-500 font-semibold mb-1">مصدر التخصيص</p>
+                          <span className="font-bold text-gray-800 bg-white px-2 py-1 rounded border shadow-sm">
+                            {dayItem.attributionSource || 'مخصص من النظام'}
+                          </span>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm text-gray-500 font-semibold mb-1">حصة التكلفة</p>
+                          <span className="text-xl font-extrabold text-blue-700">{dayItem.costShare?.toFixed(2) || dayItem.cost} ريال</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-2">
+                        <AlertCircle className="text-blue-500 mt-0.5" size={18} />
+                        <div>
+                          <p className="text-sm text-blue-800 font-bold mb-1">طبيعة التوزيع والنظام</p>
+                          <p className="text-sm text-blue-900 leading-relaxed font-medium">
+                            {dayItem.notes || 'لا توجد ملاحظات إضافية حول التوزيع. التكلفة تم اعتمادها للمندوب مباشرة.'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -266,14 +266,14 @@ export default function RiderPetrolDetailsPage() {
                 </div>
               )}
             </div>
-            
+
             <div className="bg-gray-100 px-6 py-4 text-left">
-               <button 
-                 onClick={() => setSelectedDate(null)}
-                 className="px-6 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-300 hover:bg-gray-50 shadow-sm"
-               >
-                 إغلاق النافذة
-               </button>
+              <button
+                onClick={() => setSelectedDate(null)}
+                className="px-6 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-300 hover:bg-gray-50 shadow-sm"
+              >
+                إغلاق النافذة
+              </button>
             </div>
           </div>
         </div>

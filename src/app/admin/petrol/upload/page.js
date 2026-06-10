@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadCloud, CheckCircle, XCircle, AlertCircle, RefreshCw, FileSpreadsheet, CalendarDays, Search } from 'lucide-react';
+import { UploadCloud, CheckCircle, XCircle, AlertCircle, RefreshCw, FileSpreadsheet, CalendarDays, Search, ShieldCheck, User } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { ApiService } from '@/lib/api/apiService';
@@ -13,7 +13,13 @@ export default function PetrolUploadPage() {
   const [attributeLoading, setAttributeLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [uploadResult, setUploadResult] = useState(null);
-  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'attribute' | 'daily'
+  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'attribute' | 'daily' | 'permission'
+
+  // Permission tab state
+  const [allRiders, setAllRiders] = useState([]);
+  const [ridersLoading, setRidersLoading] = useState(false);
+  const [riderSearch, setRiderSearch] = useState('');
+  const [permissionResults, setPermissionResults] = useState({}); // { [iqamaNo]: { loading, status, msg } }
   
   const [dailyDate, setDailyDate] = useState(new Date().toISOString().split('T')[0]);
   const [dailyData, setDailyData] = useState(null);
@@ -24,6 +30,45 @@ export default function PetrolUploadPage() {
       setFile(e.target.files[0]);
     }
   };
+
+  const loadAllRiders = async () => {
+    if (allRiders.length > 0) return; // already loaded
+    setRidersLoading(true);
+    try {
+      const data = await ApiService.get(API_ENDPOINTS.RIDER.LIST);
+      setAllRiders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || 'خطأ في تحميل قائمة السائقين.' });
+    } finally {
+      setRidersLoading(false);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'permission') loadAllRiders();
+  };
+
+  const grantPermission = async (rider) => {
+    const { iqamaNo } = rider;
+    setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: true, status: '', msg: '' } }));
+    try {
+      await ApiService.patch(API_ENDPOINTS.PETROL.SHIFT_PERMISSION_START(iqamaNo));
+      setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: false, status: 'success', msg: 'تم منح الإذن ✓' } }));
+    } catch (error) {
+      setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: false, status: 'error', msg: error.message || 'حدث خطأ' } }));
+    }
+  };
+
+  const filteredRidersForPermission = allRiders.filter(r => {
+    const q = riderSearch.toLowerCase();
+    return (
+      (r.nameAR || '').toLowerCase().includes(q) ||
+      (r.nameEN || '').toLowerCase().includes(q) ||
+      (r.iqamaNo || '').toString().includes(q) ||
+      (r.workingId || '').toString().includes(q)
+    );
+  });
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -101,7 +146,7 @@ export default function PetrolUploadPage() {
         {/* Tabs */}
         <div className="flex space-x-1 space-x-reverse bg-white/50 p-1 rounded-xl shadow-sm border border-gray-200">
           <button
-            onClick={() => setActiveTab('upload')}
+            onClick={() => handleTabChange('upload')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-sm transition-all ${activeTab === 'upload' ? 'bg-white text-blue-600 shadow hover:bg-gray-50' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
               }`}
           >
@@ -109,7 +154,7 @@ export default function PetrolUploadPage() {
             رفع ملف البنزين
           </button>
           <button
-            onClick={() => setActiveTab('attribute')}
+            onClick={() => handleTabChange('attribute')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-sm transition-all ${activeTab === 'attribute' ? 'bg-white text-purple-600 shadow hover:bg-gray-50' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
               }`}
           >
@@ -117,12 +162,20 @@ export default function PetrolUploadPage() {
             تخصيص السجلات العالقة
           </button>
           <button
-            onClick={() => setActiveTab('daily')}
+            onClick={() => handleTabChange('daily')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-sm transition-all ${activeTab === 'daily' ? 'bg-white text-green-600 shadow hover:bg-gray-50' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
               }`}
           >
             <CalendarDays size={18} />
             البيانات اليومية
+          </button>
+          <button
+            onClick={() => handleTabChange('permission')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-sm transition-all ${activeTab === 'permission' ? 'bg-white text-emerald-600 shadow hover:bg-gray-50' : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'
+              }`}
+          >
+            <ShieldCheck size={18} />
+            إذن بدء الوردية
           </button>
         </div>
 
@@ -388,6 +441,106 @@ export default function PetrolUploadPage() {
                       </table>
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Shift Permission Section */}
+          {activeTab === 'permission' && (
+            <div className="bg-white rounded-xl shadow-md p-6 border-t-4 border-emerald-500 animate-in fade-in duration-300">
+              <h2 className="text-xl font-bold text-gray-800 mb-1 flex items-center gap-2">
+                <ShieldCheck className="text-emerald-500" />
+                إذن بدء الوردية
+              </h2>
+              <p className="text-sm text-gray-500 mb-5">ابحث عن السائق ثم اضغط على الزر لتغيير موعد استلام الدباب بيوم واحد.</p>
+
+              {/* Search box */}
+              <div className="relative mb-5">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  value={riderSearch}
+                  onChange={(e) => setRiderSearch(e.target.value)}
+                  placeholder="ابحث باسم السائق أو رقم الإقامة أو رقم العمل..."
+                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                />
+                {riderSearch && (
+                  <button
+                    onClick={() => setRiderSearch('')}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <XCircle size={16} />
+                  </button>
+                )}
+              </div>
+
+              {/* Riders list */}
+              {ridersLoading ? (
+                <div className="flex justify-center py-16">
+                  <div className="flex flex-col items-center gap-3">
+                    <RefreshCw className="animate-spin text-emerald-500" size={32} />
+                    <span className="text-sm text-gray-500">جاري تحميل السائقين...</span>
+                  </div>
+                </div>
+              ) : filteredRidersForPermission.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <User size={40} className="opacity-30 mb-3" />
+                  <p className="font-medium">{riderSearch ? 'لا توجد نتائج مطابقة' : 'لا يوجد سائقون'}</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[55vh] overflow-y-auto pl-1">
+                  <p className="text-xs text-gray-400 mb-3">{filteredRidersForPermission.length} سائق{riderSearch ? ` (من ${allRiders.length})` : ''}</p>
+                  {filteredRidersForPermission.map((rider) => {
+                    const res = permissionResults[rider.iqamaNo];
+                    return (
+                      <div
+                        key={rider.iqamaNo}
+                        className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all"
+                      >
+                        {/* Rider info */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
+                            <User size={16} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-900 text-sm truncate">{rider.nameAR || rider.nameEN || 'غير معروف'}</p>
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                              <span className="text-xs text-gray-500 font-mono">{rider.iqamaNo}</span>
+                              {rider.workingId && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-semibold">{rider.workingId}</span>
+                              )}
+                              {rider.companyName && (
+                                <span className="text-xs text-gray-400">{rider.companyName}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action / feedback */}
+                        <div className="flex items-center gap-2 shrink-0 mr-3">
+                          {res?.status === 'success' && (
+                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1">
+                              <CheckCircle size={12} /> {res.msg}
+                            </span>
+                          )}
+                          {res?.status === 'error' && (
+                            <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full flex items-center gap-1">
+                              <XCircle size={12} /> {res.msg}
+                            </span>
+                          )}
+                          <button
+                            onClick={() => grantPermission(rider)}
+                            disabled={res?.loading}
+                            className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold rounded-lg hover:from-emerald-600 hover:to-teal-700 disabled:opacity-60 transition-all shadow-sm"
+                          >
+                            {res?.loading ? <RefreshCw size={13} className="animate-spin" /> : <ShieldCheck size={13} />}
+                            تغيير موعد استلام الدباب
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

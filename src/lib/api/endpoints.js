@@ -433,5 +433,6 @@ export const API_ENDPOINTS = {
     UNATTRIBUTED: (year, month) => `/api/petrol/unattributed?year=${year}&month=${month}`,
     UPDATE_NOTE: (vehicleNumber) => `/api/Petrol/${vehicleNumber}/note`,
     DAILY: (date) => `/api/petrol/daily?date=${date}`,
+    SHIFT_PERMISSION_START: (iqamaNo) => `/api/Petrol/rider/${iqamaNo}/shift-permission-start`,
   },
 };
