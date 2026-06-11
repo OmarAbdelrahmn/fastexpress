@@ -54,7 +54,7 @@ export default function PetrolUploadPage() {
     setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: true, status: '', msg: '' } }));
     try {
       await ApiService.patch(API_ENDPOINTS.PETROL.SHIFT_PERMISSION_START(iqamaNo));
-      setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: false, status: 'success', msg: 'تم منح الإذن ✓' } }));
+      setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: false, status: 'success', msg: 'تم ✓' } }));
     } catch (error) {
       setPermissionResults(prev => ({ ...prev, [iqamaNo]: { loading: false, status: 'error', msg: error.message || 'حدث خطأ' } }));
     }
