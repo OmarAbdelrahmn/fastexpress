@@ -639,7 +639,7 @@ export default function EnhancedDashboard() {
 
             <div className="flex flex-col">
               <span className="font-bold text-sm">{title}</span>
-              <span className="text-xs text-gray-500">{t("dashboard.requestsCount", { count })}</span>
+              <span className="text-xs text-gray-500">{count} طلب </span>
             </div>
             <div className="bg-blue-50 p-1.5 rounded-full">
               <ArrowRight size={14} className="text-blue-600 rtl:rotate-180" />
@@ -795,15 +795,15 @@ export default function EnhancedDashboard() {
                   <AlertTriangle className="text-red-600" size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-sm mb-1">{t("dashboard.urgentAlert")}</h4>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">تنبيه: مهلة وشيكة</h4>
                   <p className="text-xs text-gray-600 leading-relaxed mb-3">
-                    {t("dashboard.escapedUrgentDesc", { count: escapedAlerts.length })}
+                    يوجد {escapedAlerts.length} موظفاً هارباً يتبقى لهم أقل من 7 أيام على الموعد النهائي. هؤلاء يتطلبون إجراءً فورياً.
                   </p>
                   <Link 
                     href="/admin/riders/escaped"
                     className="inline-flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 underline underline-offset-4"
                   >
-                    {t("dashboard.goToEscapedPage")}
+                    انتقل لصفحة الهاربين للمتابعة
                     <ArrowRight size={14} className="rtl:rotate-180" />
                   </Link>
                 </div>
