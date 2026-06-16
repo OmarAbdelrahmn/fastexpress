@@ -58,7 +58,7 @@ export class ApiService {
       if (!response.ok) {
         // Backend error format: { title, status, detail, error: { code, description } }
         const errorMessage = data?.title || 
-                           data?.error?.description || 
+                           (typeof data?.error === 'string' ? data.error : data?.error?.description) ||
                            data?.error?.code || 
                            data?.detail || 
                            `خطأ في الطلب: ${response.status}`;

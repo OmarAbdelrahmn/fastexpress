@@ -381,14 +381,14 @@ export const API_ENDPOINTS = {
 
   // Employee Documents (Images)
   EMPLOYEE_DOCUMENTS: {
-    ALL_IMAGES:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+    ALL_IMAGES: (iqamaNo) => `/api/employees/${iqamaNo}/images`,
     PROFILE_IMAGE: (iqamaNo) => `/api/employees/${iqamaNo}/images/profile`,
-    ALL_PROFILES:  `/api/employees/images/profiles`,
-    ALL:           `/api/Images/all`,
-    UPLOAD_ONE:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
-    UPLOAD_BULK:   (iqamaNo) => `/api/employees/${iqamaNo}/images/bulk`,
-    DELETE_ONE:    (iqamaNo, imageType) => `/api/employees/${iqamaNo}/images/${imageType}`,
-    DELETE_ALL:    (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+    ALL_PROFILES: `/api/employees/images/profiles`,
+    ALL: `/api/Images/all`,
+    UPLOAD_ONE: (iqamaNo) => `/api/employees/${iqamaNo}/images`,
+    UPLOAD_BULK: (iqamaNo) => `/api/employees/${iqamaNo}/images/bulk`,
+    DELETE_ONE: (iqamaNo, imageType) => `/api/employees/${iqamaNo}/images/${imageType}`,
+    DELETE_ALL: (iqamaNo) => `/api/employees/${iqamaNo}/images`,
   },
 
   // Escaped Employee
@@ -434,5 +434,6 @@ export const API_ENDPOINTS = {
     UPDATE_NOTE: (vehicleNumber) => `/api/Petrol/${vehicleNumber}/note`,
     DAILY: (date) => `/api/petrol/daily?date=${date}`,
     SHIFT_PERMISSION_START: (iqamaNo) => `/api/Petrol/rider/${iqamaNo}/shift-permission-start`,
+    COMPANY_HOUSING_REPORT: (year, month) => `/api/Petrol/riders/company-housing-report?year=${year}&month=${month}`,
   },
-};
+};
