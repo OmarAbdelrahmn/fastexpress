@@ -1775,6 +1775,7 @@
     "forceDeleteSuccess": "تم الحذف النهائي بنجاح",
     "activationError": "حدث خطأ أثناء التفعيل",
     "deactivationError": "حدث خطأ أثناء التعطيل",
+    "pathStatus": "حالة المسار",
     "urgencyLevels": {
       "expired": "منتهية",
       "critical": "حرجة < 30 يوم",

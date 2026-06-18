@@ -1555,6 +1555,7 @@
     "reportsNote": "Reports: New reports will use the new ID",
     "recordsNote": "Records: Iqama number remains constant and does not change",
     "enterBothNumbers": "Please enter both numbers",
+    "pathStatus": "Path Status",
     "newMustBeDifferent": "New ID must be different from the old one",
     "workingIdChangedSuccess": "ID changed successfully",
     "workingIdChangeError": "An error occurred while changing the ID",
