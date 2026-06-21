@@ -11,13 +11,15 @@ import Input from '@/components/Ui/Input';
 import Modal from '@/components/Ui/Model';
 import Table from '@/components/Ui/Table';
 import Alert from '@/components/Ui/Alert';
+import SearchableSelect from '@/components/Ui/SearchableSelect';
 import { formatPlateNumber } from '@/lib/utils/formatters';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 import {
     FileText, Search, Eye, Users, Download, Wrench, BadgeDollarSign,
     Calendar, FileSpreadsheet, DollarSign, Package, History, ArrowRight,
-    Truck, User, ChevronRight, BarChart2, MapPin, ChevronDown, ChevronUp, Layers
+    Truck, User, ChevronRight, BarChart2, MapPin, ChevronDown, ChevronUp, Layers,
+    Pencil, Trash2
 } from 'lucide-react';
 
 // ==========================================
@@ -368,9 +370,43 @@ function AllHousingsDetailsTab() {
     const [availableHousings, setAvailableHousings] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Modal & action states
+    const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+    const [password, setPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [pendingAction, setPendingAction] = useState(null); // { type: 'edit' | 'delete', row }
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editRow, setEditRow] = useState(null);
+    const [editForm, setEditForm] = useState({
+        vehicleNumber: '',
+        quantityUsed: '',
+        usedAt: '',
+        location: ''
+    });
+    const [editError, setEditError] = useState('');
+    const [editLoading, setEditLoading] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteRow, setDeleteRow] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
+    const [vehicles, setVehicles] = useState([]);
+    const [alert, setAlert] = useState(null);
+
     useEffect(() => {
         loadData();
+        loadVehicles();
     }, []);
+
+    const loadVehicles = async () => {
+        try {
+            const response = await ApiService.get(API_ENDPOINTS.VEHICLES.LIST);
+            setVehicles(response || []);
+        } catch (error) {
+            console.error('Error loading vehicles:', error);
+        }
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -401,6 +437,97 @@ function AllHousingsDetailsTab() {
         }
     };
 
+    const toDatetimeLocal = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        const pad = (n) => String(n).padStart(2, '0');
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - offset * 60 * 1000);
+        return localDate.toISOString().slice(0, 16);
+    };
+
+    const handleActionClick = (type, row) => {
+        setPassword('');
+        setPasswordError('');
+        setPendingAction({ type, row });
+        setPasswordModalOpen(true);
+    };
+
+    const handlePasswordSubmit = (e) => {
+        e.preventDefault();
+        if (password === '0123') {
+            setPasswordModalOpen(false);
+            const { type, row } = pendingAction;
+
+            if (row.type === 'معدات السائقين') {
+                setAlert({
+                    type: 'warning',
+                    message: 'هذا الإجراء غير مدعوم لمعدات السائقين حالياً.'
+                });
+                setTimeout(() => setAlert(null), 5000);
+                return;
+            }
+
+            if (type === 'delete') {
+                setDeleteRow(row);
+                setDeleteModalOpen(true);
+            } else if (type === 'edit') {
+                setEditRow(row);
+                setEditForm({
+                    vehicleNumber: row.vehicleNumber || '',
+                    quantityUsed: row.quantity || 1,
+                    usedAt: toDatetimeLocal(row.date),
+                    location: row.housingName === 'مستودع الشركة / المخزون العام' ? '' : row.housingName
+                });
+                setEditError('');
+                setEditModalOpen(true);
+            }
+        } else {
+            setPasswordError('رمز المرور غير صحيح!');
+        }
+    };
+
+    const handleDeleteConfirm = async () => {
+        setDeleteLoading(true);
+        try {
+            await ApiService.delete(API_ENDPOINTS.SPARE_PARTS.DELETE_USAGE(deleteRow.usageId));
+            setAlert({ type: 'success', message: 'تم حذف السجل بنجاح' });
+            setTimeout(() => setAlert(null), 3000);
+            setDeleteModalOpen(false);
+            loadData();
+        } catch (error) {
+            console.error(error);
+            setAlert({ type: 'error', message: error.message || 'حدث خطأ أثناء حذف السجل' });
+            setTimeout(() => setAlert(null), 4000);
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
+    const handleEditSave = async (e) => {
+        e.preventDefault();
+        setEditLoading(true);
+        setEditError('');
+        try {
+            const payload = {
+                vehicleNumber: editForm.vehicleNumber,
+                quantityUsed: parseInt(editForm.quantityUsed),
+                usedAt: new Date(editForm.usedAt).toISOString(),
+                location: editForm.location
+            };
+            await ApiService.put(API_ENDPOINTS.SPARE_PARTS.UPDATE_USAGE(editRow.usageId), payload);
+            setAlert({ type: 'success', message: 'تم تعديل السجل بنجاح' });
+            setTimeout(() => setAlert(null), 3000);
+            setEditModalOpen(false);
+            loadData();
+        } catch (error) {
+            console.error(error);
+            setEditError(error.message || 'حدث خطأ أثناء تعديل السجل');
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
     const processData = (data) => {
         let rows = [];
 
@@ -420,7 +547,10 @@ function AllHousingsDetailsTab() {
                                 quantity: item.quantityUsed,
                                 cost: item.totalCost,
                                 originalItem: item,
-                                isCompanyStock
+                                isCompanyStock,
+                                vehicleNumber: vehicleUsage.vehicleNumber,
+                                vehiclePlate: vehicleUsage.vehiclePlate || '',
+                                usageId: item.id
                             });
                         });
                     }
@@ -440,7 +570,8 @@ function AllHousingsDetailsTab() {
                                 quantity: 1,
                                 cost: item.price,
                                 originalItem: item,
-                                isCompanyStock
+                                isCompanyStock,
+                                usageId: item.id
                             });
                         });
                     }
@@ -541,6 +672,27 @@ function AllHousingsDetailsTab() {
             header: 'التكلفة',
             accessor: 'cost',
             render: (row) => <span className="font-bold text-green-600">{Number(row.cost).toFixed(2)} ر.س</span>
+        },
+        {
+            header: 'الإجراءات',
+            render: (row) => (
+                <div className="flex gap-2 justify-center">
+                    <button
+                        title="تعديل"
+                        onClick={() => handleActionClick('edit', row)}
+                        className="p-1.5 rounded-lg bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                        <Pencil size={15} />
+                    </button>
+                    <button
+                        title="حذف"
+                        onClick={() => handleActionClick('delete', row)}
+                        className="p-1.5 rounded-lg bg-red-100 hover:bg-red-600 text-red-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                        <Trash2 size={15} />
+                    </button>
+                </div>
+            )
         }
     ];
 
@@ -549,9 +701,13 @@ function AllHousingsDetailsTab() {
         .filter(row => {
             if (!searchQuery.trim()) return true;
             const q = searchQuery.trim().toLowerCase();
+            const qNoSpace = q.replace(/\s/g, '');
             return (
                 (row.itemName || '').toLowerCase().includes(q) ||
-                (row.entityName || '').toLowerCase().includes(q)
+                (row.entityName || '').toLowerCase().includes(q) ||
+                (row.entityName || '').replace(/\s/g, '').toLowerCase().includes(qNoSpace) ||
+                (row.vehicleNumber || '').toLowerCase().includes(q) ||
+                (row.vehiclePlate || '').replace(/\s/g, '').toLowerCase().includes(qNoSpace)
             );
         });
 
@@ -565,6 +721,13 @@ function AllHousingsDetailsTab() {
 
     return (
         <div className="space-y-6">
+            {alert && (
+                <Alert
+                    type={alert.type}
+                    message={alert.message}
+                    onClose={() => setAlert(null)}
+                />
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white p-4 rounded-lg shadow-sm border-r-4 border-blue-500">
                     <div className="flex justify-between items-center">
@@ -705,6 +868,160 @@ function AllHousingsDetailsTab() {
                     emptyMessage="الرجاء اختيار الفترة وعمل بحث لعرض البيانات"
                 />
             </Card>
+
+            {/* Password Modal */}
+            <Modal
+                isOpen={passwordModalOpen}
+                onClose={() => setPasswordModalOpen(false)}
+                title="تأكيد الهوية"
+                size="sm"
+            >
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    <p className="text-sm text-gray-600">الرجاء إدخال رمز المرور للمتابعة:</p>
+                    <Input
+                        type="password"
+                        placeholder="رمز المرور"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={passwordError}
+                        required
+                        autoFocus
+                    />
+                    <div className="flex gap-2 justify-end">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setPasswordModalOpen(false)}
+                        >
+                            إلغاء
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer"
+                        >
+                            موافق
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Edit Modal */}
+            <Modal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                title="تعديل سجل صرف قطع الغيار"
+                size="md"
+            >
+                <form onSubmit={handleEditSave} className="space-y-4">
+                    {editError && (
+                        <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                            {editError}
+                        </div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4" dir="rtl">
+                        {/* Vehicle select using SearchableSelect */}
+                        <SearchableSelect
+                            label="المركبة"
+                            value={editForm.vehicleNumber}
+                            onChange={(e) => setEditForm({ ...editForm, vehicleNumber: e.target.value })}
+                            options={vehicles.map(v => ({
+                                id: v.vehicleNumber,
+                                name: `[${v.plateNumberE || '---'}] ${formatPlateNumber(v.plateNumberA) || v.vehicleNumber} - ${v.vehicleType || ''}`
+                            }))}
+                            placeholder="ابحث عن المركبة..."
+                            required
+                        />
+
+                        {/* Quantity */}
+                        <Input
+                            label="الكمية المستخدمة"
+                            type="number"
+                            min="1"
+                            value={editForm.quantityUsed}
+                            onChange={(e) => setEditForm({ ...editForm, quantityUsed: e.target.value })}
+                            required
+                        />
+
+                        {/* Date/Time */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ ووقت الاستخدام</label>
+                            <input
+                                type="datetime-local"
+                                value={editForm.usedAt}
+                                onChange={(e) => setEditForm({ ...editForm, usedAt: e.target.value })}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            />
+                        </div>
+
+                        {/* Location / Housing */}
+                        <Input
+                            label="الموقع / السكن"
+                            value={editForm.location}
+                            onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                            placeholder="مثال: سكن الرياض"
+                        />
+                    </div>
+
+                    <div className="flex gap-2 justify-end pt-4 border-t border-gray-100">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setEditModalOpen(false)}
+                            disabled={editLoading}
+                        >
+                            إلغاء
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-green-600 hover:bg-green-700 text-white rounded-lg cursor-pointer"
+                            disabled={editLoading}
+                        >
+                            {editLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Delete Modal */}
+            <Modal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="تأكيد حذف السجل"
+                size="sm"
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                        هل أنت متأكد من رغبتك في حذف هذا السجل بشكل نهائي؟ لا يمكن التراجع عن هذا الإجراء.
+                    </p>
+                    {deleteRow && (
+                        <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-700 space-y-1">
+                            <div><strong>الموقع/السكن:</strong> {deleteRow.housingName}</div>
+                            <div><strong>الصنف:</strong> {deleteRow.itemName}</div>
+                            <div><strong>الكمية:</strong> {deleteRow.quantity}</div>
+                            <div><strong>التكلفة:</strong> {deleteRow.cost} ر.س</div>
+                        </div>
+                    )}
+                    <div className="flex gap-2 justify-end pt-4 border-t border-gray-100">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setDeleteModalOpen(false)}
+                            disabled={deleteLoading}
+                        >
+                            إلغاء
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleDeleteConfirm}
+                            className="bg-red-600 hover:bg-red-700 text-white rounded-lg cursor-pointer"
+                            disabled={deleteLoading}
+                        >
+                            {deleteLoading ? 'جاري الحذف...' : 'تأكيد الحذف'}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

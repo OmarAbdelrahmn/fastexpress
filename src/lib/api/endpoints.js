@@ -363,6 +363,8 @@ export const API_ENDPOINTS = {
     VEHICLE_HISTORY: (vehicleNumber) => `/api/SparePart/vehicle/${vehicleNumber}/history`,
     ALL_HOUSINGS_COSTS: (fromDate, toDate) => `/api/sparepart/all-housings?fromDate=${fromDate}&toDate=${toDate}`,
     ALL_HOUSINGS_DETAILS: (fromDate, toDate) => `/api/SparePart/all-housings/details?fromDate=${fromDate}&toDate=${toDate}`,
+    UPDATE_USAGE: (usageId) => `/api/SparePart/usage/${usageId}`,
+    DELETE_USAGE: (usageId) => `/api/SparePart/usage/${usageId}`,
   },
 
   // Transfer
