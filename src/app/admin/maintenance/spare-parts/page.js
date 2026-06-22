@@ -30,6 +30,10 @@ export default function SparePartsPage() {
     const [historyData, setHistoryData] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [alert, setAlert] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteTargetId, setDeleteTargetId] = useState(null);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [deletePasswordError, setDeletePasswordError] = useState('');
 
     useEffect(() => {
         loadData();
@@ -94,17 +98,29 @@ export default function SparePartsPage() {
         return matchesSearch && matchesLocation;
     });
 
-    const handleDelete = async (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذه القطعة؟')) return;
+    const openDeleteModal = (id) => {
+        setDeleteTargetId(id);
+        setDeletePassword('');
+        setDeletePasswordError('');
+        setIsDeleteModalOpen(true);
+    };
 
+    const handleDelete = async () => {
+        if (deletePassword !== '0123') {
+            setDeletePasswordError('كلمة المرور غير صحيحة');
+            return;
+        }
+        setIsDeleteModalOpen(false);
         try {
-            const response = await ApiService.delete(API_ENDPOINTS.SPARE_PARTS.DELETE(id));
+            await ApiService.delete(API_ENDPOINTS.SPARE_PARTS.DELETE(deleteTargetId));
             showAlert('success', 'تم حذف القطعة بنجاح');
             loadData();
-            console.log(response)
         } catch (error) {
             console.error('Error deleting:', error);
             showAlert('error', 'حدث خطأ أثناء الحذف');
+        } finally {
+            setDeleteTargetId(null);
+            setDeletePassword('');
         }
     };
 
@@ -204,7 +220,7 @@ export default function SparePartsPage() {
                         <Edit size={18} />
                     </button>
                     <button
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => openDeleteModal(row.id)}
                         className="text-red-600 hover:text-red-800"
                         title="حذف"
                     >
@@ -342,6 +358,55 @@ export default function SparePartsPage() {
                     data={historyData}
                     loading={historyLoading}
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeletePassword('');
+                    setDeletePasswordError('');
+                }}
+                title="تأكيد الحذف"
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-600 text-sm text-right">أدخل كلمة المرور لتأكيد حذف هذه القطعة.</p>
+                    <div>
+                        <input
+                            type="password"
+                            value={deletePassword}
+                            onChange={(e) => {
+                                setDeletePassword(e.target.value);
+                                setDeletePasswordError('');
+                            }}
+                            onKeyDown={(e) => e.key === 'Enter' && handleDelete()}
+                            placeholder="كلمة المرور"
+                            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400"
+                            autoFocus
+                        />
+                        {deletePasswordError && (
+                            <p className="mt-1 text-red-500 text-xs text-right">{deletePasswordError}</p>
+                        )}
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                        <button
+                            onClick={() => {
+                                setIsDeleteModalOpen(false);
+                                setDeletePassword('');
+                                setDeletePasswordError('');
+                            }}
+                            className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+                        >
+                            إلغاء
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            حذف
+                        </button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );
