@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Search, Wrench, History, FileSpreadsheet, MapPin } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Wrench, History, FileSpreadsheet, MapPin } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -98,9 +98,10 @@ export default function SparePartsPage() {
         if (!confirm('هل أنت متأكد من حذف هذه القطعة؟')) return;
 
         try {
-            await ApiService.delete(API_ENDPOINTS.SPARE_PARTS.DELETE(id));
+            const response = await ApiService.delete(API_ENDPOINTS.SPARE_PARTS.DELETE(id));
             showAlert('success', 'تم حذف القطعة بنجاح');
             loadData();
+            console.log(response)
         } catch (error) {
             console.error('Error deleting:', error);
             showAlert('error', 'حدث خطأ أثناء الحذف');
@@ -201,6 +202,13 @@ export default function SparePartsPage() {
                         title="تعديل"
                     >
                         <Edit size={18} />
+                    </button>
+                    <button
+                        onClick={() => handleDelete(row.id)}
+                        className="text-red-600 hover:text-red-800"
+                        title="حذف"
+                    >
+                        <Trash2 size={18} />
                     </button>
                 </div>
             ),
