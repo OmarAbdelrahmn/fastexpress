@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { AlertTriangle, Shield, Clock, CheckCircle, XCircle, Search, RefreshCw, Download, ArrowRight, Filter } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -27,6 +28,7 @@ function SummaryCard({ icon: Icon, label, count, colorClass, bgClass }) {
 
 export default function IqamaExpiryReportPage() {
   const { t, locale } = useLanguage();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
   const [filters, setFilters] = useState({ urgency: '', housingName: '', sponsor: '' });
