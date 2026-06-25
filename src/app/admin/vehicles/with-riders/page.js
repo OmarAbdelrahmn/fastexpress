@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import Card from "@/components/Ui/Card";
@@ -23,7 +23,6 @@ import {
   Download,
   Ban
 } from "lucide-react";
-import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import {
   VehicleStatusType,
@@ -69,7 +68,7 @@ export default function VehiclesWithRidersPage() {
           (!v.isAvailable ? VehicleStatusType.Taken : VehicleStatusType.Returned);
   };
 
-  const searchFilteredVehicles = vehicles.filter((v) => {
+  const searchFilteredVehicles = useMemo(() => vehicles.filter((v) => {
     if (!searchTerm) return true;
     return (
       v.plateNumberA?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,9 +85,9 @@ export default function VehiclesWithRidersPage() {
       v.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.manufactureYear?.toString().includes(searchTerm)
     );
-  });
+  }), [vehicles, searchTerm]);
 
-  const filteredVehicles = searchFilteredVehicles.filter((v) => {
+  const filteredVehicles = useMemo(() => searchFilteredVehicles.filter((v) => {
     const effectiveStatus = getEffectiveStatus(v);
 
     const matchesStatus =
@@ -109,13 +108,13 @@ export default function VehiclesWithRidersPage() {
       v.manufactureYear?.toString() === yearFilter;
 
     return matchesStatus && matchesManufacturer && matchesYear;
-  });
+  }), [searchFilteredVehicles, statusFilter, manufacturerFilter, yearFilter]);
 
   const getStatsCount = (statusType) => {
     return searchFilteredVehicles.filter(v => getEffectiveStatus(v) === statusType).length;
   };
 
-  const stats = {
+  const stats = useMemo(() => ({
     total: searchFilteredVehicles.length,
     returned: getStatsCount(VehicleStatusType.Returned),
     taken: getStatsCount(VehicleStatusType.Taken),
@@ -123,10 +122,11 @@ export default function VehiclesWithRidersPage() {
     stolen: getStatsCount(VehicleStatusType.Stolen),
     breakup: getStatsCount(VehicleStatusType.BreakUp),
     outOfService: getStatsCount(VehicleStatusType.OutOfService),
-  };
+  }), [searchFilteredVehicles]);
 
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    const XLSX = await import('xlsx');
     const data = filteredVehicles.map(v => {
       const effectiveStatus = getEffectiveStatus(v);
 

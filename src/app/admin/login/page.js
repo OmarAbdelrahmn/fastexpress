@@ -11,6 +11,7 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Truck, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { APP_ROLES, getAppForUser, getAppUrl, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,9 +26,10 @@ export default function LoginPage() {
 
   // Check if already logged in
   useEffect(() => {
-    const token = TokenManager.getToken();
-    if (token) {
-      router.push('/admin/dashboard');
+    const user = TokenManager.getUserFromToken();
+    if (user) {
+      const app = getAppForUser(user);
+      if (app) router.push(getAppUrl(app, getDashboardPathForApp(app)));
     }
   }, [router]);
 
@@ -57,10 +59,22 @@ export default function LoginPage() {
 
       if (response?.token) {
         TokenManager.setToken(response.token);
-        // Small delay to ensure token is saved
-        setTimeout(() => {
-          router.push('/admin/dashboard');
-        }, 100);
+        const user = TokenManager.getUserFromToken();
+
+        if (!hasAnyRole(user, APP_ROLES.admin)) {
+          const app = getAppForUser(user);
+          if (app) {
+            router.push(getAppUrl(app, getDashboardPathForApp(app)));
+            return;
+          }
+
+          TokenManager.clearToken();
+          setError('This login is for admin users only.');
+          setLoading(false);
+          return;
+        }
+
+        router.push('/admin/dashboard');
       } else {
         setError(t('errors.loginFailed'));
         setLoading(false);

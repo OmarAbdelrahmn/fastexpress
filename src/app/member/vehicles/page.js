@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
-import * as XLSX from 'xlsx';
 import Link from "next/link";
 import {
     Bike,
@@ -40,7 +39,7 @@ export default function MemberVehiclesPage() {
     }, []);
 
     // Filter vehicles based on search term and status
-    const filteredVehicles = vehicles.filter(vehicle => {
+    const filteredVehicles = useMemo(() => vehicles.filter(vehicle => {
         const search = searchTerm.toLowerCase();
         const matchesSearch = !searchTerm || (
             vehicle.vehicleNumber?.toLowerCase().includes(search) ||
@@ -63,17 +62,18 @@ export default function MemberVehiclesPage() {
             (statusFilter === 'problem' && vehicle.currentStatus?.toLowerCase() === 'problem');
 
         return matchesSearch && matchesStatus;
-    });
+    }), [vehicles, searchTerm, statusFilter]);
 
     // Calculate statistics based on full data
-    const stats = {
+    const stats = useMemo(() => ({
         total: vehicles.length,
         returned: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'returned').length,
         taken: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'taken').length,
         problem: vehicles.filter(v => v.currentStatus?.toLowerCase() === 'problem').length
-    };
+    }), [vehicles]);
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
+        const XLSX = await import('xlsx');
         // Prepare data for Excel
         const excelData = filteredVehicles.map(vehicle => ({
             'رقم اللوحة': formatPlateNumber(vehicle.plateNumberA),

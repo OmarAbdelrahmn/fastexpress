@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
-import * as XLSX from 'xlsx';
 import {
     Users,
     Car,
@@ -66,7 +65,7 @@ export default function MemberRiders() {
     );
 
     // Filter riders based on search term and status
-    const filteredRiders = riders.filter(rider => {
+    const filteredRiders = useMemo(() => riders.filter(rider => {
         const search = searchTerm.toLowerCase();
         const matchesSearch = !searchTerm || (
             rider.employeeIqamaNo?.toString().includes(search) ||
@@ -89,10 +88,10 @@ export default function MemberRiders() {
             (statusFilter === 'vacation' && rider.status?.toLowerCase() === 'vacation');
 
         return matchesSearch && matchesStatus;
-    });
+    }), [riders, searchTerm, statusFilter]);
 
     // Calculate statistics based on full data
-    const stats = {
+    const stats = useMemo(() => ({
         total: riders.length,
         active: riders.filter(r => r.status?.toLowerCase() === 'enable').length,
         other: riders.length - riders.filter(r => r.status?.toLowerCase() === 'enable').length,
@@ -104,9 +103,10 @@ export default function MemberRiders() {
         withHousing: riders.filter(r => r.housingAddress).length,
         hunger: riders.filter(r => r.companyName === 'Hunger').length,
         keta: riders.filter(r => r.companyName === 'Keta').length
-    };
+    }), [riders]);
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
+        const XLSX = await import('xlsx');
         const statusArabicMap = {
             enable: 'نشط',
             disable: 'غير نشط',

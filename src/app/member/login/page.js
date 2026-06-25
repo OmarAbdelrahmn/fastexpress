@@ -10,6 +10,7 @@ import Input from "@/components/Ui/Input";
 import Alert from "@/components/Ui/Alert";
 import { Users, Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import { APP_ROLES, getAppForUser, getAppUrl, getDashboardPathForApp, hasAnyRole } from "@/lib/config/appConfig";
 
 export default function MemberLoginPage() {
     const router = useRouter();
@@ -23,9 +24,10 @@ export default function MemberLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
-        const token = TokenManager.getToken();
-        if (token) {
-            router.push("/member/dashboard");
+        const user = TokenManager.getUserFromToken();
+        if (user) {
+            const app = getAppForUser(user);
+            if (app) router.push(getAppUrl(app, getDashboardPathForApp(app)));
         }
     }, [router]);
 
@@ -52,9 +54,22 @@ export default function MemberLoginPage() {
 
             if (response?.token) {
                 TokenManager.setToken(response.token);
-                setTimeout(() => {
-                    router.push("/member/dashboard");
-                }, 100);
+                const user = TokenManager.getUserFromToken();
+
+                if (!hasAnyRole(user, APP_ROLES.supervisor)) {
+                    const app = getAppForUser(user);
+                    if (app) {
+                        router.push(getAppUrl(app, getDashboardPathForApp(app)));
+                        return;
+                    }
+
+                    TokenManager.clearToken();
+                    setError("This login is for supervisor users only.");
+                    setLoading(false);
+                    return;
+                }
+
+                router.push("/member/dashboard");
             } else {
                 setError(t("errors.loginFailed") || "Login Failed");
                 setLoading(false);

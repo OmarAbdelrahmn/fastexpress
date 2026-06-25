@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TokenManager } from '@/lib/auth/tokenManager';
+import { APP_ROLES, hasAnyRole } from '@/lib/config/appConfig';
 
 function MemberLayoutContent({ children }) {
     const { loading } = useAuth();
@@ -34,9 +35,7 @@ function MemberLayoutContent({ children }) {
                 return;
             }
 
-            // Check if user has admin role
-            const userRole = user.roles?.[0];
-            const isAdmin = userRole === 'Admin' || userRole === 'Master';
+            const isAdmin = hasAnyRole(user, APP_ROLES.admin);
 
             if (isAdmin) {
                 // User is admin, redirect to admin dashboard

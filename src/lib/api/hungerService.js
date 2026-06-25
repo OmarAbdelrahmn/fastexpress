@@ -1,9 +1,10 @@
 import { ApiService } from './apiService';
 import { TokenManager } from '../auth/tokenManager';
+import { API_BASE_URL } from './apiService';
 export const hungerService = {
     importHungerFile: async (file, shiftDate) => {
 
-        const API_BASE = 'https://fastexpress.tryasp.net/api';
+        const API_BASE = `${API_BASE_URL}/api`;
         const url = `${API_BASE}/hunger/import?shiftDate=${shiftDate}`;
 
         const formData = new FormData();

@@ -34,11 +34,6 @@ const PDFDownloadLink = dynamic(
   { ssr: false, loading: () => <p>Loading PDF...</p> }
 );
 
-// PDF Components
-import HousingDetailedReportPDF from "@/components/dashboard/HousingDetailedReportPDF";
-import SpecialReportPDF from "@/components/dashboard/SpecialReportPDF";
-import HousingSummaryReportPDF from "@/components/dashboard/HousingSummaryReportPDF";
-
 const TokenManager = {
   getToken: () =>
     typeof window !== "undefined" ? localStorage.getItem("auth_token") : null,
@@ -458,6 +453,33 @@ export default function EnhancedDashboard() {
   const [housingReportData, setHousingReportData] = useState(null);
   const [housingDetailedReportData, setHousingDetailedReportData] = useState(null);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [pdfReports, setPdfReports] = useState({
+    HousingDetailedReportPDF: null,
+    SpecialReportPDF: null,
+    HousingSummaryReportPDF: null,
+  });
+
+  useEffect(() => {
+    if (!isPrinting) return;
+
+    let mounted = true;
+    Promise.all([
+      import("@/components/dashboard/HousingDetailedReportPDF"),
+      import("@/components/dashboard/SpecialReportPDF"),
+      import("@/components/dashboard/HousingSummaryReportPDF"),
+    ]).then(([housingDetailed, special, housingSummary]) => {
+      if (!mounted) return;
+      setPdfReports({
+        HousingDetailedReportPDF: housingDetailed.default,
+        SpecialReportPDF: special.default,
+        HousingSummaryReportPDF: housingSummary.default,
+      });
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [isPrinting]);
 
   const handleHousingDetailedReport = async () => {
     try {
@@ -738,9 +760,9 @@ export default function EnhancedDashboard() {
               <p className="text-gray-500">{t("dashboard.reportReadySubtitle")}</p>
             </div>
 
-            {housingDetailedReportData && (
+            {housingDetailedReportData && pdfReports.HousingDetailedReportPDF && (
               <PDFDownloadLink
-                document={<HousingDetailedReportPDF data={housingDetailedReportData} />}
+                document={<pdfReports.HousingDetailedReportPDF data={housingDetailedReportData} />}
                 fileName={`تقرير تفصيلي بتاريخ${housingDetailedReportData.reportDate}.pdf`}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
@@ -750,9 +772,9 @@ export default function EnhancedDashboard() {
               </PDFDownloadLink>
             )}
 
-            {specialReportData && (
+            {specialReportData && pdfReports.SpecialReportPDF && (
               <PDFDownloadLink
-                document={<SpecialReportPDF data={specialReportData} />}
+                document={<pdfReports.SpecialReportPDF data={specialReportData} />}
                 fileName={`تقرير الفرق و النسبة حتى${specialReportData.period1Start}_${specialReportData.period2End}.pdf`}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
@@ -762,9 +784,9 @@ export default function EnhancedDashboard() {
               </PDFDownloadLink>
             )}
 
-            {housingReportData && (
+            {housingReportData && pdfReports.HousingSummaryReportPDF && (
               <PDFDownloadLink
-                document={<HousingSummaryReportPDF data={housingReportData} />}
+                document={<pdfReports.HousingSummaryReportPDF data={housingReportData} />}
                 fileName={`تقرير اجمالي بتاريخ${housingReportData.reportDate}.pdf`}
                 className="w-full bg-[#1e3a8a] text-white py-3 px-6 rounded-xl hover:bg-blue-900 flex items-center justify-center gap-3 font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >

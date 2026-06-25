@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
@@ -18,8 +19,11 @@ import {
     History,
     Printer
 } from "lucide-react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderHistoryReportPDF from "@/components/dashboard/RiderHistoryReportPDF";
+
+const PDFDownloadLink = dynamic(
+    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+    { ssr: false, loading: () => <span className="px-6 py-2 text-sm text-gray-500">Loading PDF...</span> }
+);
 
 export default function RiderHistoryPage() {
     const router = useRouter();
@@ -28,6 +32,7 @@ export default function RiderHistoryPage() {
     // State
     const [iqamaNo, setIqamaNo] = useState(searchParams.get('iqamaNo') || "");
     const [reportData, setReportData] = useState(null);
+    const [PdfReport, setPdfReport] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -137,6 +142,22 @@ export default function RiderHistoryPage() {
         }
     }, [riders]);
 
+    useEffect(() => {
+        if (!reportData) {
+            setPdfReport(null);
+            return;
+        }
+
+        let mounted = true;
+        import("@/components/dashboard/RiderHistoryReportPDF").then((mod) => {
+            if (mounted) setPdfReport(() => mod.default);
+        });
+
+        return () => {
+            mounted = false;
+        };
+    }, [reportData]);
+
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in text-right" dir="rtl">
             {/* Header */}
@@ -224,10 +245,10 @@ export default function RiderHistoryPage() {
                         )}
                     </button>
 
-                    {reportData && (
+                    {reportData && PdfReport && (
                         <PDFDownloadLink
                             key={reportData.workingId + (reportData.firstShiftDate || '')}
-                            document={<RiderHistoryReportPDF data={reportData} />}
+                            document={<PdfReport data={reportData} />}
                             fileName={`Rider_History_${reportData.riderName || 'Report'}.pdf`}
                             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >

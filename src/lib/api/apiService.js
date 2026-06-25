@@ -3,7 +3,7 @@
 
 import { TokenManager } from '../auth/tokenManager';
 
-const API_BASE_URL = 'https://fastexpress.tryasp.net';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fastexpress.tryasp.net';
 
 export class ApiService {
   static async request(endpoint, options = {}) {

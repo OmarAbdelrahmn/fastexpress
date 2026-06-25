@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LogOut, Clock, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -30,10 +30,35 @@ export default function Header() {
       setRemainingTime(`${minutes}:${seconds.toString().padStart(2, '0')}`);
     };
 
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    let interval = null;
 
-    return () => clearInterval(interval);
+    const startTimer = () => {
+      if (interval) return;
+      updateTimer();
+      interval = setInterval(updateTimer, 1000);
+    };
+
+    const stopTimer = () => {
+      if (!interval) return;
+      clearInterval(interval);
+      interval = null;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    };
+
+    startTimer();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      stopTimer();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [logout]);
 
   useEffect(() => {

@@ -20,7 +20,6 @@ import {
   FileDown,
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
-import * as XLSX from "xlsx";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 const API_BASE = "https://express-extension-manager.premiumasp.net/";
@@ -226,8 +225,10 @@ export default function LiveStatsPage() {
   const [keetaError, setKeetaError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const timerRef = useRef(null);
+  const requestInFlightRef = useRef(false);
 
-  const exportToExcel = (data, fileName, type) => {
+  const exportToExcel = async (data, fileName, type) => {
+    const XLSX = await import("xlsx");
     let sheetData;
     if (type === "hunger") {
       sheetData = data.riders.map((r) => ({
@@ -258,41 +259,75 @@ export default function LiveStatsPage() {
   };
 
   const fetchAll = useCallback(async () => {
+    if (requestInFlightRef.current) return;
+    requestInFlightRef.current = true;
     const date = todayDate();
     setHungerError(null);
     setKeetaError(null);
-    const [hungerResult, keetaResult] = await Promise.allSettled([
-      fetchJson(`${API_BASE}api/rider-stats/${HUNGER_COMPANY_ID}/${date}`),
-      fetchJson(`${API_BASE}api/keeta-stats/${KEETA_ORG_ID}/${date}`),
-    ]);
 
-    if (hungerResult.status === "fulfilled") {
-      console.log(hungerResult.value);
-      setHungerData(hungerResult.value);
-    } else {
-      console.error("Hunger fetch error:", hungerResult.reason);
-      setHungerError(hungerResult.reason?.message ?? "Error");
+    try {
+      const [hungerResult, keetaResult] = await Promise.allSettled([
+        fetchJson(`${API_BASE}api/rider-stats/${HUNGER_COMPANY_ID}/${date}`),
+        fetchJson(`${API_BASE}api/keeta-stats/${KEETA_ORG_ID}/${date}`),
+      ]);
+
+      if (hungerResult.status === "fulfilled") {
+        setHungerData(hungerResult.value);
+      } else {
+        console.error("Hunger fetch error:", hungerResult.reason);
+        setHungerError(hungerResult.reason?.message ?? "Error");
+      }
+
+      if (keetaResult.status === "fulfilled") {
+        setKeetaData(keetaResult.value);
+      } else {
+        console.error("Keeta fetch error:", keetaResult.reason);
+        setKeetaError(keetaResult.reason?.message ?? "Error");
+      }
+
+      setOnline(
+        hungerResult.status === "fulfilled" || keetaResult.status === "fulfilled"
+      );
+      setLoading(false);
+      setLastFetch(Date.now());
+    } finally {
+      requestInFlightRef.current = false;
     }
-
-    if (keetaResult.status === "fulfilled") {
-      console.log(keetaResult.value);
-      setKeetaData(keetaResult.value);
-    } else {
-      console.error("Keeta fetch error:", keetaResult.reason);
-      setKeetaError(keetaResult.reason?.message ?? "Error");
-    }
-
-    setOnline(
-      hungerResult.status === "fulfilled" || keetaResult.status === "fulfilled"
-    );
-    setLoading(false);
-    setLastFetch(Date.now());
   }, []);
 
   useEffect(() => {
+    const startPolling = () => {
+      if (timerRef.current) return;
+      timerRef.current = setInterval(() => {
+        if (document.visibilityState === "visible") {
+          fetchAll();
+        }
+      }, REFRESH_INTERVAL);
+    };
+
+    const stopPolling = () => {
+      if (!timerRef.current) return;
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchAll();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
     fetchAll();
-    timerRef.current = setInterval(fetchAll, REFRESH_INTERVAL);
-    return () => clearInterval(timerRef.current);
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [fetchAll]);
 
   const date = todayDate();

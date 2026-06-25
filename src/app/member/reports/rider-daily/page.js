@@ -2,8 +2,8 @@
 
 
 import { useEffect, useState, useRef } from "react";
-import * as XLSX from "xlsx";
 import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
@@ -23,8 +23,11 @@ import {
     ChevronDown,
     Printer // Added Printer icon
 } from "lucide-react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import RiderDailyReportPDF from "@/components/dashboard/RiderDailyReportPDF";
+
+const PDFDownloadLink = dynamic(
+    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+    { ssr: false, loading: () => <span className="px-4 py-2 text-sm text-gray-500">Loading PDF...</span> }
+);
 export default function RiderDailyDetailReportPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -34,6 +37,7 @@ export default function RiderDailyDetailReportPage() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [reportData, setReportData] = useState(null);
+    const [PdfReport, setPdfReport] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -157,6 +161,22 @@ export default function RiderDailyDetailReportPage() {
         }
     }, [riders]); // Run once when riders are loaded (and thus page is ready)
 
+    useEffect(() => {
+        if (!reportData) {
+            setPdfReport(null);
+            return;
+        }
+
+        let mounted = true;
+        import("@/components/dashboard/RiderDailyReportPDF").then((mod) => {
+            if (mounted) setPdfReport(() => mod.default);
+        });
+
+        return () => {
+            mounted = false;
+        };
+    }, [reportData]);
+
     const StatCard = ({ title, value, icon: Icon, color, suffix = "", subValue = null, subValueClass = "text-sm" }) => (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${color.bg}`}>
@@ -188,8 +208,9 @@ export default function RiderDailyDetailReportPage() {
         return { text: status || 'مجَدول', className: 'bg-blue-100 text-blue-700' };
     };
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
         if (!reportData?.dailyDetails) return;
+        const XLSX = await import("xlsx");
 
         const data = reportData.dailyDetails.map(day => {
             const statusConfig = getShiftStatusConfig(day.hasShift, day.shiftStatus);
@@ -378,19 +399,21 @@ export default function RiderDailyDetailReportPage() {
                                     <span className="font-medium">Excel</span>
                                 </button>
 
-                                <PDFDownloadLink
-                                    key={reportData.workingId + startDate + endDate}
-                                    document={<RiderDailyReportPDF data={reportData} startDate={startDate} endDate={endDate} />}
-                                    fileName={`Rider_Daily_${reportData.riderNameAR || 'Report'}_${startDate}_${endDate}.pdf`}
-                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {({ loading: pdfLoading }) => (
-                                        <>
-                                            <Printer size={20} />
-                                            <span className="font-medium">{pdfLoading ? '...PDF' : 'PDF'}</span>
-                                        </>
-                                    )}
-                                </PDFDownloadLink>
+                                {PdfReport && (
+                                    <PDFDownloadLink
+                                        key={reportData.workingId + startDate + endDate}
+                                        document={<PdfReport data={reportData} startDate={startDate} endDate={endDate} />}
+                                        fileName={`Rider_Daily_${reportData.riderNameAR || 'Report'}_${startDate}_${endDate}.pdf`}
+                                        className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {({ loading: pdfLoading }) => (
+                                            <>
+                                                <Printer size={20} />
+                                                <span className="font-medium">{pdfLoading ? '...PDF' : 'PDF'}</span>
+                                            </>
+                                        )}
+                                    </PDFDownloadLink>
+                                )}
                             </div>
                         </div>
                     </div>
