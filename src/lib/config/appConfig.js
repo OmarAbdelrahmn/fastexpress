@@ -1,8 +1,8 @@
 export const APP_HOSTS = {
-  website: process.env.NEXT_PUBLIC_WEBSITE_HOST || '',
-  admin: process.env.NEXT_PUBLIC_ADMIN_HOST || '',
-  supervisor: process.env.NEXT_PUBLIC_SUPERVISOR_HOST || '',
-  accountant: process.env.NEXT_PUBLIC_ACCOUNTANT_HOST || '',
+  website: process.env.NEXT_PUBLIC_WEBSITE_HOST || 'expserco.com',
+  admin: process.env.NEXT_PUBLIC_ADMIN_HOST || 'admin.expserco.com',
+  supervisor: process.env.NEXT_PUBLIC_SUPERVISOR_HOST || 'supervisor.expserco.com',
+  accountant: process.env.NEXT_PUBLIC_ACCOUNTANT_HOST || 'accountant.expserco.com',
 };
 
 export const APP_ROLES = {
