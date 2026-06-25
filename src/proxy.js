@@ -29,19 +29,6 @@ export function proxy(request) {
   const app = getAppFromHost(request.headers.get('host') || '');
 
   if (app === 'website') {
-    if (isLocalDevHost(request)) {
-      return NextResponse.next();
-    }
-
-    if (pathname.startsWith('/admin')) {
-      return redirectToHost(request, APP_HOSTS.admin, pathname);
-    }
-    if (pathname.startsWith('/member')) {
-      return redirectToHost(request, APP_HOSTS.supervisor, pathname);
-    }
-    if (pathname.startsWith('/accountant')) {
-      return redirectToHost(request, APP_HOSTS.accountant, pathname);
-    }
     return NextResponse.next();
   }
 
