@@ -3,10 +3,8 @@
 import Alert from '@/components/Ui/Alert';
 import Button from '@/components/Ui/Button';
 import Input from '@/components/Ui/Input';
-import { ApiService } from '@/lib/api/apiService';
-import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { TokenManager } from '@/lib/auth/tokenManager';
-import { APP_ROLES, getAppForUser, getAppUrl, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
+import { accountantAuthService } from '@/lib/api/accountantAuthService';
+import { getCurrentAccountantUser, getRedirectForAuthenticatedUser } from '@/lib/auth/accountantAuth';
 import { Calculator, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -19,10 +17,10 @@ export default function AccountantLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const user = TokenManager.getUserFromToken();
+    const user = getCurrentAccountantUser();
     if (user) {
-      const app = getAppForUser(user);
-      if (app) router.push(getAppUrl(app, getDashboardPathForApp(app)));
+      const redirectTo = getRedirectForAuthenticatedUser(user);
+      if (redirectTo) router.push(redirectTo);
     }
   }, [router]);
 
@@ -42,45 +40,28 @@ export default function AccountantLoginPage() {
     setError(null);
 
     try {
-      const response = await ApiService.post(API_ENDPOINTS.AUTH.LOGIN, formData);
-      if (!response?.token) {
-        setError('Login failed');
-        setLoading(false);
-        return;
-      }
-
-      TokenManager.setToken(response.token);
-      const user = TokenManager.getUserFromToken();
-
-      if (!hasAnyRole(user, APP_ROLES.accountant)) {
-        const app = getAppForUser(user);
-        if (app) {
-          router.push(getAppUrl(app, getDashboardPathForApp(app)));
-          return;
-        }
-
-        TokenManager.clearToken();
-        setError('This login is for accountant users only.');
-        setLoading(false);
-        return;
-      }
-
-      router.push('/accountant/dashboard');
+      const result = await accountantAuthService.login(formData);
+      router.push(result.redirectTo);
     } catch (err) {
-      setError(err.message || 'Login error');
+      if (err.redirectTo) {
+        router.push(err.redirectTo);
+        return;
+      }
+
+      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-700 p-4">
-      <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-4 border-emerald-500">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1b428e] via-[#2555a8] to-[#ebb62b] p-4">
+      <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-4 border-[#ebb62b]">
         <div className="text-center mb-8">
-          <div className="bg-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+          <div className="bg-gradient-to-br from-[#ebb62b] to-[#e08911] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
             <Calculator className="text-white w-10 h-10" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Accountant Login</h1>
-          <p className="text-gray-600 font-medium text-sm md:text-base">Express Service Finance</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">تسجيل دخول المحاسب</h1>
+          <p className="text-gray-600 font-medium text-sm md:text-base">الحسابات المالية - Express Service</p>
         </div>
 
         {error && (
@@ -91,7 +72,7 @@ export default function AccountantLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <Input
-            label="Username"
+            label="اسم المستخدم"
             type="text"
             name="username"
             value={formData.username}
@@ -103,7 +84,7 @@ export default function AccountantLoginPage() {
 
           <div className="relative">
             <Input
-              label="Password"
+              label="كلمة المرور"
               type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
@@ -115,7 +96,7 @@ export default function AccountantLoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
-              className="absolute left-3 top-[38px] text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
               disabled={loading}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -126,9 +107,9 @@ export default function AccountantLoginPage() {
             type="submit"
             loading={loading}
             disabled={loading || !formData.username || !formData.password}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 text-lg"
+            className="w-full bg-gradient-to-r from-[#ebb62b] to-[#e08911] hover:from-[#e08911] hover:to-[#ebb62b] text-white font-bold py-3 text-lg"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </Button>
         </form>
       </div>

@@ -25,8 +25,10 @@ import {
   AlertTriangle,
   Zap,
   BookOpen,
+  ReceiptText,
+  RotateCcw,
 } from 'lucide-react';
-import { adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
+import { accountantNavigationConfig, adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 // Map navigation keys to Lucide icons
@@ -49,6 +51,9 @@ const ICON_MAP = {
   actions: Zap,
   disabilities: AlertTriangle,
   requests: BookOpen,
+  suppliers: Building2,
+  bills: ReceiptText,
+  returns: RotateCcw,
 };
 
 function NavIcon({ sectionKey, size = 18 }) {
@@ -63,7 +68,12 @@ export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isMemberPath = pathname.startsWith('/member');
-  const currentConfig = isMemberPath ? userNavigationConfig : adminNavigationConfig;
+  const isAccountantPath = pathname.startsWith('/accountant');
+  const currentConfig = isAccountantPath
+    ? accountantNavigationConfig
+    : isMemberPath
+      ? userNavigationConfig
+      : adminNavigationConfig;
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({

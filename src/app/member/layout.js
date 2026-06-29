@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TokenManager } from '@/lib/auth/tokenManager';
-import { APP_ROLES, hasAnyRole } from '@/lib/config/appConfig';
+import { APP_ROLES, getAppForUser, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
 
 function MemberLayoutContent({ children }) {
     const { loading } = useAuth();
@@ -35,11 +35,11 @@ function MemberLayoutContent({ children }) {
                 return;
             }
 
-            const isAdmin = hasAnyRole(user, APP_ROLES.admin);
+            const isSupervisor = hasAnyRole(user, APP_ROLES.supervisor);
 
-            if (isAdmin) {
-                // User is admin, redirect to admin dashboard
-                router.push('/admin/dashboard');
+            if (!isSupervisor) {
+                const app = getAppForUser(user);
+                router.push(app ? getDashboardPathForApp(app) : '/admin/dashboard');
                 setHasAccess(false);
             } else {
                 setHasAccess(true);

@@ -5,6 +5,28 @@ import { TokenManager } from '../auth/tokenManager';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fastexpress.tryasp.net';
 
+function isLoginEndpoint(endpoint) {
+  return /\/login(?:[/?#]|$)/i.test(endpoint);
+}
+
+function getCurrentLoginPath() {
+  if (typeof window === 'undefined') return '/admin/login';
+
+  const pathname = window.location.pathname;
+  if (pathname.startsWith('/accountant')) return '/accountant/login';
+  if (pathname.startsWith('/member')) return '/member/login';
+  return '/admin/login';
+}
+
+function redirectToCurrentLogin() {
+  if (typeof window === 'undefined') return;
+
+  const loginPath = getCurrentLoginPath();
+  if (window.location.pathname !== loginPath) {
+    window.location.href = loginPath;
+  }
+}
+
 export class ApiService {
   static async request(endpoint, options = {}) {
     const token = TokenManager.getToken();
@@ -26,10 +48,7 @@ export class ApiService {
 
       // Handle 401 Unauthorized - but NOT on login endpoint
       if (response.status === 401) {
-        // Check if this is a login attempt
-        const isLoginEndpoint = endpoint.includes('/admin/login') || endpoint.includes('/admin/auth/login');
-        
-        if (isLoginEndpoint) {
+        if (isLoginEndpoint(endpoint)) {
           // For login endpoint, just throw error without redirecting or clearing token
           const errorMessage = data?.title || 
                              data?.error?.description || 
@@ -47,9 +66,7 @@ export class ApiService {
         } else {
           // For other endpoints, clear token and redirect
           TokenManager.clearToken();
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
-            window.location.href = '/admin/login';
-          }
+          redirectToCurrentLogin();
           throw new Error('انتهت صلاحية الجلسة');
         }
       }
@@ -181,7 +198,7 @@ export class ApiService {
 
       if (response.status === 401) {
         TokenManager.clearToken();
-        if (typeof window !== 'undefined') window.location.href = '/admin/login';
+        redirectToCurrentLogin();
         throw new Error('انتهت صلاحية الجلسة');
       }
 
