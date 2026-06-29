@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TokenManager } from '@/lib/auth/tokenManager';
-import { APP_ROLES, hasAnyRole } from '@/lib/config/appConfig';
+import { APP_ROLES, getAppForUser, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
 
 function AdminLayoutContent({ children }) {
     const { loading } = useAuth();
@@ -36,8 +36,8 @@ function AdminLayoutContent({ children }) {
             const isAdmin = hasAnyRole(user, APP_ROLES.admin);
 
             if (!isAdmin) {
-                // User is not admin, redirect to member dashboard
-                router.push('/member/dashboard');
+                const app = getAppForUser(user);
+                router.push(app ? getDashboardPathForApp(app) : '/member/dashboard');
                 setHasAccess(false);
             } else {
                 setHasAccess(true);

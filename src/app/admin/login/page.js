@@ -11,7 +11,7 @@ import Input from '@/components/Ui/Input';
 import Alert from '@/components/Ui/Alert';
 import { Truck, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { APP_ROLES, getAppForUser, getAppUrl, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
+import { APP_ROLES, getAppForUser, getDashboardPathForApp, hasAnyRole } from '@/lib/config/appConfig';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,8 +28,8 @@ export default function LoginPage() {
   useEffect(() => {
     const user = TokenManager.getUserFromToken();
     if (user) {
-      const app = getAppForUser(user);
-      if (app) router.push(getAppUrl(app, getDashboardPathForApp(app)));
+      const app = getAppForUser(user, 'admin');
+      if (app) router.push(getDashboardPathForApp(app));
     }
   }, [router]);
 
@@ -64,7 +64,7 @@ export default function LoginPage() {
         if (!hasAnyRole(user, APP_ROLES.admin)) {
           const app = getAppForUser(user);
           if (app) {
-            router.push(getAppUrl(app, getDashboardPathForApp(app)));
+            router.push(getDashboardPathForApp(app));
             return;
           }
 
