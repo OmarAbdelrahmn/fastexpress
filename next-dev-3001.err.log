@@ -1,0 +1,8 @@
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          20868
+- Dir:          C:\Users\omarf\repos\fastexpress
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 20868 /F to stop it.

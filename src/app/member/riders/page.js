@@ -51,19 +51,6 @@ export default function MemberRiders() {
         }
     };
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-    );
-
-    if (error) return (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2">
-            <AlertTriangle size={20} />
-            <span>{error}</span>
-        </div>
-    );
-
     // Filter riders based on search term and status
     const filteredRiders = useMemo(() => riders.filter(rider => {
         const search = searchTerm.toLowerCase();
@@ -105,10 +92,22 @@ export default function MemberRiders() {
         keta: riders.filter(r => r.companyName === 'Keta').length
     }), [riders]);
 
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 flex items-center gap-2">
+            <AlertTriangle size={20} />
+            <span>{error}</span>
+        </div>
+    );
+
     const handleExportExcel = async () => {
         const XLSX = await import('xlsx');
         const statusArabicMap = {
-            enable: 'نشط',
             disable: 'غير نشط',
             fleeing: 'هارب',
             vacation: 'إجازة',
