@@ -338,7 +338,6 @@ export default function AccountantCompanyBillsPage() {
               ]}
               data={normalizeList(selected.sheets)}
             />
-            
           </div>
           {!!normalizeList(selected.issues).length && (
             <div>
