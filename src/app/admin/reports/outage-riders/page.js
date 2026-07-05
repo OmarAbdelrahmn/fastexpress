@@ -69,7 +69,7 @@ const labels = {
     },
   },
   en: {
-    title: 'Outage Riders Report',
+    title: 'Outside Riders Report',
     subtitle: 'Detailed report for selected outside riders',
     periodTitle: 'Select Period',
     savedRiders: 'saved riders',
@@ -79,7 +79,7 @@ const labels = {
     loading: 'Loading...',
     exportExcel: 'Export Excel',
     fillDates: 'Please select start and end dates',
-    success: 'Outage riders report loaded successfully',
+    success: 'Outside riders report loaded successfully',
     noData: 'No data for the selected period',
     loadError: 'Error loading report',
     riderCount: 'Riders',
@@ -87,7 +87,7 @@ const labels = {
     totalRejections: 'Total Rejections',
     workingDays: 'Working Days',
     totalHours: 'Total Hours',
-    detailsTitle: 'Outage Rider Details',
+    detailsTitle: 'Outside Rider Details',
     detailsSubtitle: 'Direct performance view',
     searchPlaceholder: 'Search by ID or phone...',
     workingId: 'ID',
@@ -98,7 +98,7 @@ const labels = {
     hours: 'Hours',
     absentDays: 'Absent Days',
     empty: 'No data for these riders in the selected period',
-    sheetName: 'Outage Riders',
+    sheetName: 'Outside Riders',
     filePrefix: 'outage_riders',
     excel: {
       workingId: 'Working ID',
@@ -168,8 +168,8 @@ const flattenOutageRiders = (data) => {
 };
 
 export default function OutageRidersReportPage() {
-  const { language } = useLanguage();
-  const isRtl = language === 'ar';
+  const { locale } = useLanguage();
+  const isRtl = locale === 'ar';
   const text = labels[isRtl ? 'ar' : 'en'];
   const [form, setForm] = useState(getInitialRange);
   const [loading, setLoading] = useState(false);
