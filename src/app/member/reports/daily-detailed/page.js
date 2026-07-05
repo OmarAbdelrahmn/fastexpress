@@ -6,6 +6,7 @@ import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import { ArrowRight, Building2, Calendar, User, FileText, LayoutDashboard } from "lucide-react";
+import { applyGenericHungerReportExclusions } from "@/lib/utils/hungerRiderExclusions";
 
 export default function DailyDetailedReportPage() {
     const searchParams = useSearchParams();
@@ -36,7 +37,7 @@ export default function DailyDetailedReportPage() {
         try {
             const url = `${API_ENDPOINTS.MEMBER.REPORTS_DAILY_DETAILED}?date=${date}`;
             const response = await ApiService.get(url);
-            setReportData(response);
+            setReportData(applyGenericHungerReportExclusions(response));
         } catch (err) {
             setError(err.message || "حدث خطأ أثناء تحميل التقرير");
         } finally {

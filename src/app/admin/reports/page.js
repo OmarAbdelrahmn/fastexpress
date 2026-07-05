@@ -12,7 +12,8 @@ import {
   Clock,
   History,
   LayoutList,
-  Target
+  Target,
+  AlertTriangle
 } from "lucide-react";
 import PageHeader from "@/components/layout/pageheader";
 import Link from "next/link";
@@ -21,9 +22,18 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function ReportsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
+  const outageReportText = language === 'ar'
+    ? {
+      title: 'تقرير مناديب الخارج',
+      desc: 'عرض المناديب الخارج فقط بشكل مفصل وبدون بيانات الاسم أو الإقامة أو السكن',
+    }
+    : {
+      title: 'Outside Riders Report',
+      desc: 'View outside riders only with operational data, without name, iqama, or housing fields',
+    };
 
   useEffect(() => {
     loadDashboard();
@@ -380,6 +390,23 @@ export default function ReportsPage() {
                 </div>
                 <p className="text-xs md:text-sm text-gray-600">
                   {t('hunger.reportsSubtitle')}
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/outage-riders"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <AlertTriangle className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    {outageReportText.title}
+                  </h3>
+                </div>
+                <p className="text-xs md:text-sm text-gray-600">
+                  {outageReportText.desc}
                 </p>
               </Link>
 

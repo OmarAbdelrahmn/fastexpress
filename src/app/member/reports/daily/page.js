@@ -23,6 +23,7 @@ import * as XLSX from 'xlsx';
 import dynamic from "next/dynamic";
 import HousingReportPDF from "@/components/dashboard/HousingReportPDF";
 import DailyDetailsReportPDF from "@/components/dashboard/DailyDetailsReportPDF";
+import { applyGenericHungerReportExclusions } from "@/lib/utils/hungerRiderExclusions";
 
 const PDFDownloadLink = dynamic(
     () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
@@ -90,7 +91,7 @@ export default function DailyReportPage() {
             }
 
             const response = await ApiService.get(url);
-            setReportData(response);
+            setReportData(applyGenericHungerReportExclusions(response));
         } catch (err) {
             setError(err.message || "حدث خطأ أثناء تحميل التقرير");
         } finally {

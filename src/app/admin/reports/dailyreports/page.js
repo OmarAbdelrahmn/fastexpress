@@ -22,6 +22,7 @@ import HousingSummaryReportPDF from "@/components/dashboard/HousingSummaryReport
 import Special7ReportPDF from "@/components/dashboard/Special7ReportPDF";
 import RiderRecentMonthsReportPDF from "@/components/dashboard/RiderRecentMonthsReportPDF";
 import { Upload } from 'lucide-react';
+import { applyGenericHungerReportExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function DailyReportsPage() {
     const { t } = useLanguage();
@@ -86,7 +87,7 @@ export default function DailyReportsPage() {
             // Ensure companyName exists if API returns object without it
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
 
-            setReportData1(data);
+            setReportData1(applyGenericHungerReportExclusions(data));
             setIsPrinting(true);
         } catch (error) {
             console.error(error);
@@ -109,7 +110,7 @@ export default function DailyReportsPage() {
                 companyName: "شركة الخدمة السريعة"
             };
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
-            setReportData2(data);
+            setReportData2(applyGenericHungerReportExclusions(data));
             setIsPrinting(true);
         } catch (error) {
             console.error(error);
@@ -132,7 +133,7 @@ export default function DailyReportsPage() {
                 companyName: "شركة الخدمة السريعة"
             };
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
-            setReportData3(data);
+            setReportData3(applyGenericHungerReportExclusions(data));
             setIsPrinting(true);
         } catch (error) {
             console.error(error);
@@ -156,7 +157,7 @@ export default function DailyReportsPage() {
             };
             if (data && !data.companyName) data.companyName = "شركة الخدمة السريعة";
 
-            setReportData4(data);
+            setReportData4(applyGenericHungerReportExclusions(data));
             setIsPrinting(true);
         } catch (error) {
             console.error(error);
@@ -178,7 +179,7 @@ export default function DailyReportsPage() {
             formData.append('file', file5);
 
             const response = await ApiService.uploadFormData('/api/Report/rider-recent-months/from-file', formData);
-            setReportData5(response);
+            setReportData5(applyGenericHungerReportExclusions(response));
             setIsPrinting(true);
         } catch (error) {
             console.error(error);

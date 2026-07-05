@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { applyHousingPerformanceExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export const useHousingPerformance = (t) => {
     const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ export const useHousingPerformance = (t) => {
             });
 
             if (data && data.length > 0) {
-                setReportData(data);
+                setReportData(applyHousingPerformanceExclusions(data));
                 setSuccessMessage(t('common.successLoad'));
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {

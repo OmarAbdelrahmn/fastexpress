@@ -7,6 +7,7 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { applyDetailedDailyPerformanceExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function DetailedDailyPerformanceReport() {
     const { t, language } = useLanguage();
@@ -173,7 +174,7 @@ export default function DetailedDailyPerformanceReport() {
             });
 
             if (data) {
-                setReportData(data);
+                setReportData(applyDetailedDailyPerformanceExclusions(data));
                 setSuccessMessage('تم تحميل التقرير بنجاح');
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {

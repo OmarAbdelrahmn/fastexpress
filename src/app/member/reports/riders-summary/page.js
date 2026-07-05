@@ -6,6 +6,7 @@ import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { applyGenericHungerReportExclusions } from "@/lib/utils/hungerRiderExclusions";
 
 const DynamicRidersSummaryPDFLink = dynamic(
     async () => {
@@ -78,7 +79,7 @@ export default function RidersSummaryReportPage() {
         try {
             const url = `${API_ENDPOINTS.MEMBER.REPORTS_RIDERS_SUMMARY}?startDate=${startDate}&endDate=${endDate}`;
             const response = await ApiService.get(url);
-            setReportData(response);
+            setReportData(applyGenericHungerReportExclusions(response));
         } catch (err) {
             setError(err.message || "حدث خطأ أثناء تحميل التقرير");
             console.error(err);
