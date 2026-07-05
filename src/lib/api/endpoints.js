@@ -116,6 +116,23 @@ export const API_ENDPOINTS = {
     RESOLVE_COMPARISONS: "/api/shift/comparisons/resolve",
   },
 
+  OUTAGE_SHIFT_PERFORMANCES: {
+    LIST: "/api/outage-shift-performances",
+    CREATE: "/api/outage-shift-performances",
+    UPLOAD: "/api/outage-shift-performances/upload",
+    BY_ID: (id) => `/api/outage-shift-performances/${id}`,
+    UPDATE: (id) => `/api/outage-shift-performances/${id}`,
+    DELETE: (id) => `/api/outage-shift-performances/${id}`,
+  },
+
+  OUT_RIDER_INFOS: {
+    LIST: "/api/out-rider-infos",
+    CREATE: "/api/out-rider-infos",
+    BY_ID: (id) => `/api/out-rider-infos/${id}`,
+    UPDATE: (id) => `/api/out-rider-infos/${id}`,
+    DELETE: (id) => `/api/out-rider-infos/${id}`,
+  },
+
   // Substitution
   SUBSTITUTION: {
     LIST: "/api/substitution",

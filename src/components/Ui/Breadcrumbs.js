@@ -140,6 +140,7 @@ const pathTranslationKeys = {
   "admin/shifts/comparisons": "navigation.comparisons",
   "admin/shifts/date-range": "navigation.shiftsByPeriod",
   "admin/shifts/update": "navigation.updateShifts",
+  "admin/shifts/outage-riders": "navigation.outageRiderStatuses",
   "admin/shifts/hunger-disabilities": "navigation.hungerDeficit",
   "admin/shifts/hunger-disabilities/import": "navigation.importShifts",
   "admin/shifts/hunger-disabilities/date-range": "navigation.shiftsByPeriod",
