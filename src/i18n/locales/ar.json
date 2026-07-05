@@ -2673,6 +2673,10 @@
     "detailedDailyPerformance": "التقرير التفصيلي اليومي",
     "detailedDailyPerformanceDesc": "مؤشرات الأداء اليومية الشاملة",
     "otherReportsButton": "عرض التقارير الأخرى",
+    "outageRiders": {
+      "title": "تقرير مناديب الخارج",
+      "desc": "عرض المناديب الخارج فقط بشكل مفصل وبدون بيانات الاسم أو الإقامة أو السكن"
+    },
     "dashboardPage": {
       "failedToLoadData": "فشل تحميل البيانات",
       "pleaseSelectDates": "يرجى تحديد تاريخ البداية والنهاية",

@@ -22,18 +22,13 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
 export default function ReportsPage() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
-  const outageReportText = language === 'ar'
-    ? {
-      title: 'تقرير مناديب الخارج',
-      desc: 'عرض المناديب الخارج فقط بشكل مفصل وبدون بيانات الاسم أو الإقامة أو السكن',
-    }
-    : {
-      title: 'Outside Riders Report',
-      desc: 'View outside riders only with operational data, without name, iqama, or housing fields',
-    };
+  const outageReportText = {
+    title: t('reports.outageRiders.title'),
+    desc: t('reports.outageRiders.desc'),
+  };
 
   useEffect(() => {
     loadDashboard();

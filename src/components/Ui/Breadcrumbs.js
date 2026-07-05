@@ -38,6 +38,7 @@ const pathTranslationKeys = {
   "admin/reports/performance": "reports.performance",
   "admin/reports/keta-validation": "keta.validationReport",
   "admin/reports/company-daily-trend": "companyDailyTrend.title",
+  "admin/reports/outage-riders": "reports.outageRiders.title",
 
   // Keta Reports
   "admin/reports/keta": "keta.reportsTitle",
