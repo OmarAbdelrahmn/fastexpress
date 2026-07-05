@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import { applyGenericHungerReportExclusions } from "@/lib/utils/hungerRiderExclusions";
 
 export default function MemberDashboard() {
     const router = useRouter();
@@ -35,7 +36,7 @@ export default function MemberDashboard() {
         const fetchData = async () => {
             try {
                 const response = await ApiService.get(API_ENDPOINTS.MEMBER.DASHBOARD);
-                setData(response);
+                setData(applyGenericHungerReportExclusions(response));
             } catch (err) {
                 setError(err.message || t("common.loadError"));
             } finally {

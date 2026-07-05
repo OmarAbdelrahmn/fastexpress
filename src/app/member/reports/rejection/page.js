@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import RejectionReportPDF from "@/components/dashboard/RejectionReportPDF";
+import { applyGenericHungerReportExclusions } from "@/lib/utils/hungerRiderExclusions";
 
 export default function RejectionReportPage() {
     const router = useRouter();
@@ -56,7 +57,7 @@ export default function RejectionReportPage() {
         try {
             const url = `${API_ENDPOINTS.MEMBER.REPORTS_REJECTION}?startDate=${startDate}&endDate=${endDate}`;
             const response = await ApiService.get(url);
-            setReportData(response);
+            setReportData(applyGenericHungerReportExclusions(response));
         } catch (err) {
             setError(err.message || "حدث خطأ أثناء تحميل التقرير");
             console.error(err);

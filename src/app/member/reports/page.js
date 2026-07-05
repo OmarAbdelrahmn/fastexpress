@@ -5,6 +5,7 @@ import { Users, Calendar, BarChart3, FileSpreadsheet, TrendingUp, Clock, Target,
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import * as XLSX from 'xlsx';
+import { applyGenericHungerReportExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function MemberReportsPage() {
     const [loading, setLoading] = useState(false);
@@ -51,7 +52,7 @@ export default function MemberReportsPage() {
                 endDate: form.endDate
             });
             if (data) {
-                setReportData(data);
+                setReportData(applyGenericHungerReportExclusions(data));
                 setSuccessMessage('تم تحميل التقرير بنجاح');
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {

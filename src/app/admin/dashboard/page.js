@@ -28,6 +28,7 @@ import { useLanguage } from "@/lib/context/LanguageContext";
 // import HousingDetailedReportTemplate from "@/components/dashboard/HousingDetailedReportTemplate";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { applyGenericHungerReportExclusions, filterExcludedHungerRiders } from "@/lib/utils/hungerRiderExclusions";
 
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
@@ -299,7 +300,7 @@ export default function EnhancedDashboard() {
       const takenVehicles = vehiclesSummary?.takenCount || 0;
       const problemVehicles = vehiclesSummary?.problemCount || 0;
 
-      const allRiders = ridersRes.data || [];
+      const allRiders = filterExcludedHungerRiders(ridersRes.data || []);
       const totalRiders = allRiders.length;
       const activeRiders = allRiders.filter(rider => rider.status === 'enable' && !rider.isEmployee).length;
       const inactiveRiders = allRiders.filter(rider => !rider.isEmployee).length - activeRiders;
@@ -378,11 +379,12 @@ export default function EnhancedDashboard() {
         previousDayOrdersRes.data &&
         Array.isArray(previousDayOrdersRes.data)
       ) {
-        previousDayTotal = previousDayOrdersRes.data.reduce(
+        const previousDayOrders = filterExcludedHungerRiders(previousDayOrdersRes.data);
+        previousDayTotal = previousDayOrders.reduce(
           (sum, shift) => sum + (shift.acceptedDailyOrders || 0),
           0
         );
-        previousDayRiders = previousDayOrdersRes.data.length;
+        previousDayRiders = previousDayOrders.length;
       }
       // Handle Statistics Response (assuming structure, normalizing keys just in case)
       const statsData = statisticsRes?.data || {};
@@ -489,7 +491,7 @@ export default function EnhancedDashboard() {
         alert("لا توجد بيانات لعرض التقرير");
         return;
       }
-      setHousingDetailedReportData(response.data);
+      setHousingDetailedReportData(applyGenericHungerReportExclusions(response.data));
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing detailed report:", error);
@@ -505,7 +507,7 @@ export default function EnhancedDashboard() {
         alert("لا توجد بيانات لعرض التقرير");
         return;
       }
-      setSpecialReportData(response.data);
+      setSpecialReportData(applyGenericHungerReportExclusions(response.data));
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch special report:", error);
@@ -521,7 +523,7 @@ export default function EnhancedDashboard() {
         alert("لا توجد بيانات لعرض التقرير");
         return;
       }
-      setHousingReportData(response.data);
+      setHousingReportData(applyGenericHungerReportExclusions(response.data));
       setIsPrinting(true);
     } catch (error) {
       console.error("Failed to fetch housing report:", error);

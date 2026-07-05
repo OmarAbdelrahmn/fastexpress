@@ -12,6 +12,7 @@ import { Users, Award, Building2, Calendar, Star } from 'lucide-react';
 import {
   StatCard, ChartCard, FilterBar, TOOLTIP_STYLE, PALETTE
 } from './shared';
+import { filterExcludedHungerRiders } from '@/lib/utils/hungerRiderExclusions';
 
 const PIE_COLORS = [PALETTE.blue, PALETTE.rose, PALETTE.emerald, PALETTE.violet, PALETTE.amber, PALETTE.cyan];
 const langTag = () => (typeof document !== 'undefined' ? document.documentElement.lang : 'en');
@@ -55,7 +56,7 @@ export default function RidersTab() {
         ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.RIDERS_TOP(year, month, null, topCount)),
         ApiService.get(API_ENDPOINTS.DASHBOARD_NEW.RIDERS_BY_COMPANY),
       ]);
-      setData({ topRiders: top, byCompany: byComp });
+      setData({ topRiders: filterExcludedHungerRiders(top), byCompany: byComp });
     } catch (err) {
       console.error('Riders error:', err);
     } finally {

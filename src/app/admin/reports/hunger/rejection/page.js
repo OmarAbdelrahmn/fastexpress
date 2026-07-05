@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import HousingRejectionReportPDF from '@/components/dashboard/HousingRejectionReportPDF';
+import { applyRejectionReportExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function HousingRejectionReport() {
     const { t, language } = useLanguage();
@@ -86,7 +87,7 @@ export default function HousingRejectionReport() {
             });
 
             if (data && data.length > 0) {
-                setReportData(data);
+                setReportData(applyRejectionReportExclusions(data));
                 setSuccessMessage(t('common.successLoad'));
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {

@@ -7,6 +7,7 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { applyHungerSummaryExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function HungerSummaryReport() {
     const { t, language } = useLanguage();
@@ -165,7 +166,7 @@ export default function HungerSummaryReport() {
             });
 
             if (data) {
-                setReportData(data);
+                setReportData(applyHungerSummaryExclusions(data));
                 setSuccessMessage('تم تحميل التقرير بنجاح');
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {

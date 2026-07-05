@@ -6,6 +6,7 @@ import PageHeader from "@/components/layout/pageheader";
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { applyMonthlyValidationExclusions } from '@/lib/utils/hungerRiderExclusions';
 
 export default function HungerMonthlyValidationReport() {
     const { t, language } = useLanguage();
@@ -328,7 +329,7 @@ export default function HungerMonthlyValidationReport() {
                 month: form.month
             });
             if (data) {
-                setReportData(data);
+                setReportData(applyMonthlyValidationExclusions(data));
                 setSuccessMessage('تم تحميل التقرير بنجاح');
                 setTimeout(() => setSuccessMessage(''), 3000);
             } else {
