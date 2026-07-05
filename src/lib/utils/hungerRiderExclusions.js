@@ -23,6 +23,8 @@ const EXCLUDED_HUNGER_RIDERS = [
   { workingId: "1842559", iqamaNo: "2536467240", phoneNumber: "581942627" },
 ];
 
+const HUNGER_RIDER_EXCLUSIONS_ENABLED = false;
+
 const normalizeIdentifier = (value) => {
   if (value === null || value === undefined) return "";
   return String(value).trim();
@@ -35,9 +37,11 @@ const EXCLUDED_PHONE_NUMBERS = new Set(EXCLUDED_HUNGER_RIDERS.map((rider) => rid
 const numberValue = (value) => Number(value) || 0;
 const percent = (part, total) => (total > 0 ? (part / total) * 100 : 0);
 
-export const hungerRiderExclusions = EXCLUDED_HUNGER_RIDERS;
+export const hungerRiderExclusions = HUNGER_RIDER_EXCLUSIONS_ENABLED ? EXCLUDED_HUNGER_RIDERS : [];
 
 export const isExcludedHungerRider = (rider = {}) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return false;
+
   const workingId = normalizeIdentifier(
     rider.workingId ?? rider.workingID ?? rider.workId ?? rider.idNumber ?? rider.ID_NUMBER
   );
@@ -56,6 +60,8 @@ export const isExcludedHungerRider = (rider = {}) => {
 };
 
 export const getExcludedHungerRiderMatch = (rider = {}) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return undefined;
+
   const workingId = normalizeIdentifier(
     rider.workingId ?? rider.workingID ?? rider.workId ?? rider.idNumber ?? rider.ID_NUMBER
   );
@@ -76,11 +82,13 @@ export const getExcludedHungerRiderMatch = (rider = {}) => {
 
 export const filterOnlyExcludedHungerRiders = (riders = []) => {
   if (!Array.isArray(riders)) return [];
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return [];
   return riders.filter((rider) => isExcludedHungerRider(rider));
 };
 
 export const filterExcludedHungerRiders = (riders = []) => {
   if (!Array.isArray(riders)) return [];
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return riders;
   return riders.filter((rider) => !isExcludedHungerRider(rider));
 };
 
@@ -112,6 +120,7 @@ const rebuildTierDistribution = (riders = [], previous = {}) => {
 };
 
 export const applyHungerSummaryExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!data?.housingDistributions) return data;
 
   const housingDistributions = data.housingDistributions
@@ -147,6 +156,7 @@ export const applyHungerSummaryExclusions = (data) => {
 };
 
 export const applyDetailedDailyPerformanceExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!data?.housingDetails) return data;
 
   const housingDetails = data.housingDetails
@@ -195,6 +205,7 @@ export const applyDetailedDailyPerformanceExclusions = (data) => {
 };
 
 export const applyRejectionReportExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!Array.isArray(data)) return data;
 
   return data
@@ -216,6 +227,7 @@ export const applyRejectionReportExclusions = (data) => {
 };
 
 export const applyMonthlyValidationExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!data?.riderValidations) return data;
 
   const riderValidations = filterExcludedHungerRiders(data.riderValidations);
@@ -231,6 +243,7 @@ export const applyMonthlyValidationExclusions = (data) => {
 };
 
 export const applyHousingPerformanceExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!Array.isArray(data)) return data;
 
   return data
@@ -252,6 +265,7 @@ export const applyHousingPerformanceExclusions = (data) => {
 };
 
 export const applyGenericHungerReportExclusions = (data) => {
+  if (!HUNGER_RIDER_EXCLUSIONS_ENABLED) return data;
   if (!data) return data;
 
   if (Array.isArray(data)) {
