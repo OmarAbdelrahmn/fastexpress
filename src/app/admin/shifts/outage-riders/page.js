@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle, Edit, FileSpreadsheet, Plus, RefreshCw, Search, Trash2, Upload, UserRound, XCircle } from 'lucide-react';
+import { AlertCircle, BarChart3, CheckCircle, Clock, Edit, FileSpreadsheet, ListChecks, Phone, Plus, RefreshCw, Search, Trash2, Upload, UserRound, Users, XCircle } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -11,7 +11,10 @@ const labels = {
   en: {
     title: 'Outside Rider Performances',
     subtitle: 'Manage outside rider info and import outage shift performance',
+    performanceTab: 'Import & Performance Records',
+    ridersTab: 'Outside Riders Info',
     riderInfoTitle: 'Outside Rider Info',
+    riderInfoCreateTitle: 'Create New Outside Rider Info',
     riderInfoListTitle: 'Outside Riders',
     performanceTitle: 'Manual Performance Record',
     importTitle: 'Import Shift Excel',
@@ -41,6 +44,10 @@ const labels = {
     totalRowsProcessed: 'Rows Processed',
     recordsCreated: 'Records Created',
     warnings: 'Warnings',
+    totalRiders: 'Outside Riders',
+    totalWorkingHours: 'Working Hours',
+    avgWorkingHours: 'Avg. Working Hours',
+    importResults: 'Import Results',
     parserWarningsOnly: 'Parser Warnings',
     noRiders: 'No outside rider info records found',
     noRecords: 'No performance records found',
@@ -63,7 +70,10 @@ const labels = {
   ar: {
     title: 'أداء مناديب الخارج',
     subtitle: 'إدارة بيانات مناديب الخارج واستيراد أداء الشفتات',
+    performanceTab: 'الاستيراد وسجلات الأداء',
+    ridersTab: 'بيانات مناديب الخارج',
     riderInfoTitle: 'بيانات مندوب الخارج',
+    riderInfoCreateTitle: 'إنشاء بيانات مندوب خارج جديد',
     riderInfoListTitle: 'مناديب الخارج',
     performanceTitle: 'سجل أداء يدوي',
     importTitle: 'استيراد ملف الشفتات',
@@ -93,6 +103,10 @@ const labels = {
     totalRowsProcessed: 'الصفوف المعالجة',
     recordsCreated: 'السجلات المنشأة',
     warnings: 'التحذيرات',
+    totalRiders: 'مناديب الخارج',
+    totalWorkingHours: 'ساعات العمل',
+    avgWorkingHours: 'متوسط ساعات العمل',
+    importResults: 'نتائج الاستيراد',
     parserWarningsOnly: 'تحذيرات القراءة',
     noRiders: 'لا توجد بيانات مناديب خارج',
     noRecords: 'لا توجد سجلات أداء',
@@ -151,9 +165,47 @@ const formatDateTime = (value) => {
   return date.toLocaleString();
 };
 
+const TabButton = ({ active, icon: Icon, label, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
+      active
+        ? 'bg-blue-600 text-white shadow-sm'
+        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+    }`}
+  >
+    <Icon size={18} />
+    {label}
+  </button>
+);
+
+const StatCard = ({ icon: Icon, label, value, tone = 'blue' }) => {
+  const tones = {
+    blue: 'bg-blue-50 text-blue-700 border-blue-100',
+    green: 'bg-green-50 text-green-700 border-green-100',
+    red: 'bg-red-50 text-red-700 border-red-100',
+    amber: 'bg-amber-50 text-amber-700 border-amber-100',
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+    slate: 'bg-slate-50 text-slate-700 border-slate-100',
+  };
+
+  return (
+    <div className={`rounded-xl border p-4 ${tones[tone] || tones.blue}`}>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium opacity-80">{label}</p>
+          <p className="mt-1 text-2xl font-bold">{value}</p>
+        </div>
+        <Icon size={28} className="opacity-75" />
+      </div>
+    </div>
+  );
+};
+
 export default function OutageRiderPerformancesPage() {
   const { locale } = useLanguage();
   const text = labels[locale === 'en' ? 'en' : 'ar'];
+  const [activeTab, setActiveTab] = useState('performance');
   const [riders, setRiders] = useState([]);
   const [records, setRecords] = useState([]);
   const [riderFilters, setRiderFilters] = useState({ riderId: '', phoneNumber: '' });
@@ -182,11 +234,23 @@ export default function OutageRiderPerformancesPage() {
         acc.total += 1;
         acc.acceptedOrders += Number(record.acceptedOrders) || 0;
         acc.rejectedOrders += Number(record.rejectedOrders) || 0;
+        acc.workingHours += Number(record.workingHours) || 0;
         return acc;
       },
-      { total: 0, acceptedOrders: 0, rejectedOrders: 0 }
+      { total: 0, acceptedOrders: 0, rejectedOrders: 0, workingHours: 0 }
     );
   }, [records]);
+
+  const riderStats = useMemo(() => {
+    const withPhone = riders.filter((rider) => Boolean(rider.phoneNumber)).length;
+    return {
+      total: riders.length,
+      withPhone,
+      withoutPhone: Math.max(riders.length - withPhone, 0),
+    };
+  }, [riders]);
+
+  const averageWorkingHours = stats.total > 0 ? (stats.workingHours / stats.total).toFixed(1) : '0';
 
   const showMessage = (type, value) => {
     setMessage({ type, text: value });
@@ -196,7 +260,10 @@ export default function OutageRiderPerformancesPage() {
     setLoadingRiders(true);
     try {
       const data = await ApiService.get(API_ENDPOINTS.OUT_RIDER_INFOS.LIST, compactParams(nextFilters));
-      setRiders(Array.isArray(data) ? data : []);
+      const sortedRiders = Array.isArray(data)
+        ? [...data].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0))
+        : [];
+      setRiders(sortedRiders);
     } catch (error) {
       showMessage('error', error.message || text.loadError);
     } finally {
@@ -394,11 +461,6 @@ export default function OutageRiderPerformancesPage() {
         title={text.title}
         subtitle={text.subtitle}
         icon={FileSpreadsheet}
-        stats={[
-          { label: text.performanceListTitle, value: stats.total },
-          { label: text.acceptedOrders, value: stats.acceptedOrders },
-          { label: text.rejectedOrders, value: stats.rejectedOrders },
-        ]}
       />
 
       <div className="p-6 space-y-6">
@@ -414,11 +476,42 @@ export default function OutageRiderPerformancesPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <section className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="flex gap-1 bg-white rounded-2xl p-1.5 shadow-sm border border-gray-100 overflow-x-auto w-fit max-w-full">
+          <TabButton
+            active={activeTab === 'performance'}
+            onClick={() => setActiveTab('performance')}
+            icon={FileSpreadsheet}
+            label={text.performanceTab}
+          />
+          <TabButton
+            active={activeTab === 'riders'}
+            onClick={() => setActiveTab('riders')}
+            icon={Users}
+            label={text.ridersTab}
+          />
+        </div>
+
+        {activeTab === 'performance' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+            <StatCard icon={ListChecks} label={text.performanceListTitle} value={stats.total} tone="blue" />
+            <StatCard icon={CheckCircle} label={text.acceptedOrders} value={stats.acceptedOrders} tone="green" />
+            <StatCard icon={XCircle} label={text.rejectedOrders} value={stats.rejectedOrders} tone="red" />
+            <StatCard icon={Clock} label={text.totalWorkingHours} value={stats.workingHours.toFixed(1)} tone="indigo" />
+            <StatCard icon={BarChart3} label={text.avgWorkingHours} value={averageWorkingHours} tone="slate" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatCard icon={Users} label={text.totalRiders} value={riderStats.total} tone="blue" />
+            <StatCard icon={Phone} label={text.phoneNumber} value={riderStats.withPhone} tone="green" />
+            <StatCard icon={AlertCircle} label={text.warnings} value={riderStats.withoutPhone} tone="amber" />
+          </div>
+        )}
+
+        <div className="space-y-6">
+          <section className={`${activeTab === 'riders' ? '' : 'hidden'} bg-white rounded-xl shadow-md border border-gray-100 p-6`}>
             <div className="flex items-center gap-2 mb-5">
               <UserRound className="text-blue-600" size={22} />
-              <h2 className="text-xl font-bold text-gray-900">{text.riderInfoTitle}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{text.riderInfoCreateTitle}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -463,7 +556,7 @@ export default function OutageRiderPerformancesPage() {
             </div>
           </section>
 
-          <section className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+          <section className={`${activeTab === 'performance' ? '' : 'hidden'} bg-white rounded-xl shadow-md border border-gray-100 p-6`}>
             <div className="flex items-center gap-2 mb-5">
               <Upload className="text-green-600" size={22} />
               <h2 className="text-xl font-bold text-gray-900">{text.importTitle}</h2>
@@ -538,7 +631,7 @@ export default function OutageRiderPerformancesPage() {
           </section>
         </div>
 
-        <section className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <section className={`${activeTab === 'performance' ? '' : 'hidden'} bg-white rounded-xl shadow-md border border-gray-100 p-6`}>
           <div className="flex items-center gap-2 mb-5">
             <Plus className="text-indigo-600" size={22} />
             <h2 className="text-xl font-bold text-gray-900">{text.performanceTitle}</h2>
@@ -621,7 +714,7 @@ export default function OutageRiderPerformancesPage() {
           </div>
         </section>
 
-        <section className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <section className={`${activeTab === 'riders' ? '' : 'hidden'} bg-white rounded-xl shadow-md border border-gray-100 p-6`}>
           <div className="flex items-center gap-2 mb-5">
             <Search className="text-blue-600" size={22} />
             <h2 className="text-xl font-bold text-gray-900">{text.riderInfoListTitle}</h2>
@@ -706,7 +799,7 @@ export default function OutageRiderPerformancesPage() {
           </div>
         </section>
 
-        <section className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <section className={`${activeTab === 'performance' ? '' : 'hidden'} bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden`}>
           <div className="bg-blue-600 px-6 py-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">{text.performanceListTitle}</h2>
             <button
