@@ -2713,7 +2713,11 @@
       "iqama": "الإقامة",
       "workingId": "الرقم التشغيلي",
       "empty": "لا يوجد مناديب أقل من المستهدف لهذه الفترة",
-      "footerSummary": "المناديب المعروضون قبلوا {{acceptedOrders}} طلباً ويتبقى لهم {{remainingMonthly}} طلباً للوصول للمستهدف الشهري."
+      "footerSummary": "المناديب المعروضون قبلوا {{acceptedOrders}} طلباً ويتبقى لهم {{remainingMonthly}} طلباً للوصول للمستهدف الشهري.",
+      "companyFilter": "فلترة الشركة",
+      "allCompanies": "جميع الشركات",
+      "hunger": "هنقرستيشن",
+      "keeta": "كيتا"
     },
     "dashboardPage": {
       "failedToLoadData": "فشل تحميل البيانات",

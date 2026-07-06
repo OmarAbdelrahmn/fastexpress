@@ -2681,7 +2681,11 @@
       "iqama": "Iqama",
       "workingId": "Working ID",
       "empty": "No riders below target for this period",
-      "footerSummary": "Filtered riders accepted {{acceptedOrders}} orders and still need {{remainingMonthly}} orders for the monthly target."
+      "footerSummary": "Filtered riders accepted {{acceptedOrders}} orders and still need {{remainingMonthly}} orders for the monthly target.",
+      "companyFilter": "Company Filter",
+      "allCompanies": "All Companies",
+      "hunger": "HungerStation",
+      "keeta": "Keeta"
     },
     "dashboardPage": {
       "failedToLoadData": "Failed to load data",

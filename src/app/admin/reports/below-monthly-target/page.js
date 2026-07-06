@@ -49,16 +49,27 @@ export default function BelowMonthlyTargetPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('all');
 
   const labels = t('reports.belowMonthlyTarget');
 
   const filteredRiders = useMemo(() => {
     const riders = Array.isArray(report?.riders) ? report.riders : [];
+    
+    let result = riders;
+    if (selectedCompany === 'hunger') {
+      result = result.filter((rider) => (rider.companyName || '').toLowerCase().includes('hunger'));
+    } else if (selectedCompany === 'keeta') {
+      result = result.filter((rider) => {
+        const name = (rider.companyName || '').toLowerCase();
+        return name.includes('keeta') || name.includes('keta');
+      });
+    }
+
     const query = searchQuery.trim().toLowerCase();
+    if (!query) return result;
 
-    if (!query) return riders;
-
-    return riders.filter((rider) => {
+    return result.filter((rider) => {
       const riderName = locale === 'ar' ? rider.riderNameAR : rider.riderNameEN;
       return [
         riderName,
@@ -72,11 +83,31 @@ export default function BelowMonthlyTargetPage() {
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(query));
     });
-  }, [locale, report, searchQuery]);
+  }, [locale, report, searchQuery, selectedCompany]);
+
+  const ridersBelowTargetFilteredCount = useMemo(() => {
+    const riders = Array.isArray(report?.riders) ? report.riders : [];
+    if (selectedCompany === 'all') return report?.totalRidersBelowTarget ?? riders.length;
+    
+    return riders.filter((rider) => {
+      const name = (rider.companyName || '').toLowerCase();
+      if (selectedCompany === 'hunger') return name.includes('hunger');
+      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
+      return true;
+    }).length;
+  }, [report, selectedCompany]);
 
   const totals = useMemo(() => {
     const riders = Array.isArray(report?.riders) ? report.riders : [];
-    return riders.reduce(
+    const companyFiltered = riders.filter((rider) => {
+      if (selectedCompany === 'all') return true;
+      const name = (rider.companyName || '').toLowerCase();
+      if (selectedCompany === 'hunger') return name.includes('hunger');
+      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
+      return true;
+    });
+
+    return companyFiltered.reduce(
       (acc, rider) => {
         acc.acceptedOrders += numberValue(rider.totalAcceptedOrders);
         acc.remainingToDate += numberValue(rider.remainingToTargetToDate);
@@ -85,7 +116,7 @@ export default function BelowMonthlyTargetPage() {
       },
       { acceptedOrders: 0, remainingToDate: 0, remainingMonthly: 0 }
     );
-  }, [report]);
+  }, [report, selectedCompany]);
 
   const loadReport = async () => {
     setLoading(true);
@@ -191,7 +222,7 @@ export default function BelowMonthlyTargetPage() {
               <StatCard
                 icon={AlertTriangle}
                 title={labels.totalRidersBelowTarget}
-                value={report.totalRidersBelowTarget ?? 0}
+                value={ridersBelowTargetFilteredCount}
                 tone="text-red-600"
               />
               <StatCard
@@ -219,17 +250,25 @@ export default function BelowMonthlyTargetPage() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {(report.companyTargets || []).map((company) => (
-                    <div key={company.companyId} className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                      <p className="font-bold text-gray-800">{company.companyName}</p>
-                      <p className="text-sm text-gray-600">
-                        {labels.monthlyTarget}: <span className="font-semibold">{company.monthlyTarget}</span>
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {labels.targetToDate}: <span className="font-semibold">{company.targetToDate}</span>
-                      </p>
-                    </div>
-                  ))}
+                  {(report.companyTargets || [])
+                    .filter((company) => {
+                      if (selectedCompany === 'all') return true;
+                      const name = (company.companyName || '').toLowerCase();
+                      if (selectedCompany === 'hunger') return name.includes('hunger');
+                      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
+                      return true;
+                    })
+                    .map((company) => (
+                      <div key={company.companyId} className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                        <p className="font-bold text-gray-800">{company.companyName}</p>
+                        <p className="text-sm text-gray-600">
+                          {labels.monthlyTarget}: <span className="font-semibold">{company.monthlyTarget}</span>
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {labels.targetToDate}: <span className="font-semibold">{company.targetToDate}</span>
+                        </p>
+                      </div>
+                    ))}
                 </div>
               </div>
             </Card>
@@ -242,14 +281,25 @@ export default function BelowMonthlyTargetPage() {
                     {labels.ridersSubtitle.replace('{{count}}', filteredRiders.length)}
                   </p>
                 </div>
-                <div className="relative w-full md:w-96">
-                  <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-3 text-gray-400`} size={18} />
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={labels.searchPlaceholder}
-                    className={`w-full py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
-                  />
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                  <select
+                    value={selectedCompany}
+                    onChange={(e) => setSelectedCompany(e.target.value)}
+                    className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                  >
+                    <option value="all">{labels.allCompanies}</option>
+                    <option value="hunger">{labels.hunger}</option>
+                    <option value="keeta">{labels.keeta}</option>
+                  </select>
+                  <div className="relative w-full sm:w-80">
+                    <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-2.5 text-gray-400`} size={18} />
+                    <input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={labels.searchPlaceholder}
+                      className={`w-full py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
+                    />
+                  </div>
                 </div>
               </div>
 
