@@ -125,6 +125,39 @@ const compactParams = (params) => {
   return cleaned;
 };
 
+const groupPerformanceRecords = (list) => {
+  const groups = new Map();
+
+  list.forEach((record) => {
+    const key = String(record.riderId || record.outRiderInfoId || record.id || 'unknown');
+    const existing = groups.get(key) || {
+      key,
+      riderId: record.riderId || '-',
+      outRiderInfoId: record.outRiderInfoId || '-',
+      records: [],
+      acceptedOrders: 0,
+      rejectedOrders: 0,
+      workingHours: 0,
+    };
+
+    existing.records.push(record);
+    existing.acceptedOrders += numberValue(record.acceptedOrders);
+    existing.rejectedOrders += numberValue(record.rejectedOrders);
+    existing.workingHours += numberValue(record.workingHours);
+    groups.set(key, existing);
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      records: group.records.sort((a, b) => {
+        const dateCompare = String(formatDateOnly(a.shiftDate)).localeCompare(String(formatDateOnly(b.shiftDate)));
+        return dateCompare || (numberValue(a.id) - numberValue(b.id));
+      }),
+    }))
+    .sort((a, b) => String(a.riderId).localeCompare(String(b.riderId), undefined, { numeric: true }));
+};
+
 export default function OutageRidersReportPage() {
   const { locale } = useLanguage();
   const isRtl = locale === 'ar';
@@ -133,6 +166,7 @@ export default function OutageRidersReportPage() {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedRiders, setExpandedRiders] = useState({});
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -171,6 +205,8 @@ export default function OutageRidersReportPage() {
       totalRiders: riderIds.size,
     };
   }, [filteredRecords]);
+
+  const groupedRecords = useMemo(() => groupPerformanceRecords(filteredRecords), [filteredRecords]);
 
   const handleSubmit = async () => {
     if (!form.startDate || !form.endDate) {
@@ -245,6 +281,18 @@ export default function OutageRidersReportPage() {
     const rejected = numberValue(record.rejectedOrders);
     const total = accepted + rejected;
     return total > 0 ? (rejected / total) * 100 : 0;
+  };
+
+  const getGroupRejectionRate = (group) => {
+    const total = group.acceptedOrders + group.rejectedOrders;
+    return total > 0 ? (group.rejectedOrders / total) * 100 : 0;
+  };
+
+  const toggleRider = (key) => {
+    setExpandedRiders((prev) => ({
+      ...prev,
+      [key]: !(prev[key] ?? true),
+    }));
   };
 
   const StatCard = ({ icon: Icon, title, value, color }) => (
@@ -377,55 +425,99 @@ export default function OutageRidersReportPage() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className={`w-full ${isRtl ? 'text-right' : 'text-left'} border-collapse`}>
-                  <thead className="bg-slate-100">
-                    <tr>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.id}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.outRiderInfoId}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.riderId}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.shiftDate}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b text-center">{text.acceptedOrders}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b text-center">{text.rejectedOrders}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b text-center">{text.rejectionRate}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b text-center">{text.workingHours}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.uploadedAt}</th>
-                      <th className="p-4 text-sm font-bold text-gray-600 border-b">{text.uploadedBy}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredRecords.map((record) => {
-                      const rejectionRate = getRejectionRate(record);
-                      return (
-                        <tr key={record.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-4 font-medium text-gray-700">{record.id}</td>
-                          <td className="p-4 text-gray-700">{record.outRiderInfoId || '-'}</td>
-                          <td className="p-4 font-mono font-bold text-indigo-700">{record.riderId || '-'}</td>
-                          <td className="p-4">{formatDateOnly(record.shiftDate)}</td>
-                          <td className="p-4 text-center font-bold text-green-700">{record.acceptedOrders ?? 0}</td>
-                          <td className="p-4 text-center font-bold text-red-600">{record.rejectedOrders ?? 0}</td>
-                          <td className="p-4 text-center">
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              rejectionRate >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                            }`}>
-                              {rejectionRate.toFixed(2)}%
-                            </span>
-                          </td>
-                          <td className="p-4 text-center font-semibold text-blue-700">{numberValue(record.workingHours).toFixed(1)}</td>
-                          <td className="p-4 text-sm text-gray-600">{formatDateTime(record.uploadedAt)}</td>
-                          <td className="p-4">{record.uploadedBy || '-'}</td>
-                        </tr>
-                      );
-                    })}
-                    {!filteredRecords.length && (
-                      <tr>
-                        <td colSpan="10" className="p-10 text-center text-gray-500">
-                          {text.empty}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="p-5 space-y-4">
+                {!filteredRecords.length ? (
+                  <div className="p-10 text-center text-gray-500">
+                    {text.empty}
+                  </div>
+                ) : (
+                  groupedRecords.map((group) => {
+                    const isExpanded = expandedRiders[group.key] ?? true;
+                    const groupRejectionRate = getGroupRejectionRate(group);
+
+                    return (
+                      <div key={group.key} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                        <button
+                          type="button"
+                          onClick={() => toggleRider(group.key)}
+                          className="w-full bg-gray-50 hover:bg-gray-100 px-5 py-4 transition-colors"
+                        >
+                          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <Users className="text-indigo-600 shrink-0" size={24} />
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="font-bold text-gray-900">{text.riderId}: {group.riderId}</span>
+                                  <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-mono">
+                                    {text.outRiderInfoId}: {group.outRiderInfoId}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">{group.records.length} {text.recordCount}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-4 text-sm">
+                              <span className="font-semibold text-green-700">{text.acceptedOrders}: {group.acceptedOrders}</span>
+                              <span className="font-semibold text-red-700">{text.rejectedOrders}: {group.rejectedOrders}</span>
+                              <span className="font-semibold text-blue-700">{text.workingHours}: {group.workingHours.toFixed(1)}</span>
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                groupRejectionRate >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                              }`}>
+                                {text.rejectionRate}: {groupRejectionRate.toFixed(2)}%
+                              </span>
+                              <span className="text-gray-600 text-xl">{isExpanded ? '▲' : '▼'}</span>
+                            </div>
+                          </div>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="p-4">
+                            <div className="overflow-x-auto">
+                              <table className={`min-w-full divide-y divide-gray-200 text-sm ${isRtl ? 'text-right' : 'text-left'}`}>
+                                <thead className="bg-gray-100">
+                                  <tr>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">{text.id}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">{text.shiftDate}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700 text-center">{text.acceptedOrders}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700 text-center">{text.rejectedOrders}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700 text-center">{text.rejectionRate}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700 text-center">{text.workingHours}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">{text.uploadedAt}</th>
+                                    <th className="px-4 py-3 font-semibold text-gray-700">{text.uploadedBy}</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                  {group.records.map((record) => {
+                                    const rejectionRate = getRejectionRate(record);
+
+                                    return (
+                                      <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-4 py-3 font-medium text-gray-700">{record.id}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">{formatDateOnly(record.shiftDate)}</td>
+                                        <td className="px-4 py-3 text-center font-bold text-green-700">{record.acceptedOrders ?? 0}</td>
+                                        <td className="px-4 py-3 text-center font-bold text-red-600">{record.rejectedOrders ?? 0}</td>
+                                        <td className="px-4 py-3 text-center">
+                                          <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                            rejectionRate >= 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                                          }`}>
+                                            {rejectionRate.toFixed(2)}%
+                                          </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center font-semibold text-blue-700">{numberValue(record.workingHours).toFixed(1)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{formatDateTime(record.uploadedAt)}</td>
+                                        <td className="px-4 py-3">{record.uploadedBy || '-'}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </>
