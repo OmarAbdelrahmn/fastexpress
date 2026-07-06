@@ -165,6 +165,41 @@ const formatDateTime = (value) => {
   return date.toLocaleString();
 };
 
+const numberValue = (value) => Number(value) || 0;
+
+const groupPerformanceRecords = (list) => {
+  const groups = new Map();
+
+  list.forEach((record) => {
+    const key = String(record.riderId || record.outRiderInfoId || record.id || 'unknown');
+    const existing = groups.get(key) || {
+      key,
+      riderId: record.riderId || '-',
+      outRiderInfoId: record.outRiderInfoId || '-',
+      records: [],
+      acceptedOrders: 0,
+      rejectedOrders: 0,
+      workingHours: 0,
+    };
+
+    existing.records.push(record);
+    existing.acceptedOrders += numberValue(record.acceptedOrders);
+    existing.rejectedOrders += numberValue(record.rejectedOrders);
+    existing.workingHours += numberValue(record.workingHours);
+    groups.set(key, existing);
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      records: group.records.sort((a, b) => {
+        const dateCompare = String(formatDateOnly(a.shiftDate)).localeCompare(String(formatDateOnly(b.shiftDate)));
+        return dateCompare || (numberValue(a.id) - numberValue(b.id));
+      }),
+    }))
+    .sort((a, b) => String(a.riderId).localeCompare(String(b.riderId), undefined, { numeric: true }));
+};
+
 const TabButton = ({ active, icon: Icon, label, onClick }) => (
   <button
     onClick={onClick}
@@ -226,6 +261,7 @@ export default function OutageRiderPerformancesPage() {
   const [savingRider, setSavingRider] = useState(false);
   const [savingPerformance, setSavingPerformance] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [expandedPerformanceRiders, setExpandedPerformanceRiders] = useState({});
   const [message, setMessage] = useState({ type: '', text: '' });
 
   const stats = useMemo(() => {
@@ -251,6 +287,8 @@ export default function OutageRiderPerformancesPage() {
   }, [riders]);
 
   const averageWorkingHours = stats.total > 0 ? (stats.workingHours / stats.total).toFixed(1) : '0';
+
+  const groupedPerformanceRecords = useMemo(() => groupPerformanceRecords(records), [records]);
 
   const showMessage = (type, value) => {
     setMessage({ type, text: value });
@@ -454,6 +492,13 @@ export default function OutageRiderPerformancesPage() {
   };
 
   const selectedRiderLabel = (rider) => `${rider.riderId || '-'} - ${rider.phoneNumber || '-'}`;
+
+  const togglePerformanceGroup = (key) => {
+    setExpandedPerformanceRiders((prev) => ({
+      ...prev,
+      [key]: !(prev[key] ?? true),
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
@@ -776,7 +821,7 @@ export default function OutageRiderPerformancesPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="p-6">
             {loadingRecords ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -787,45 +832,85 @@ export default function OutageRiderPerformancesPage() {
                 {text.noRecords}
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ID</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.outRiderInfo}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.riderId}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.shiftDate}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.acceptedOrders}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.rejectedOrders}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.workingHours}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.uploadedAt}</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.uploadedBy}</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{text.actions}</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {records.map((record) => (
-                    <tr key={record.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-700">{record.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{record.outRiderInfoId || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap font-mono text-blue-700">{record.riderId || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{formatDateOnly(record.shiftDate)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-green-700">{record.acceptedOrders ?? 0}</td>
-                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-red-700">{record.rejectedOrders ?? 0}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{record.workingHours ?? 0}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDateTime(record.uploadedAt)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{record.uploadedBy || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <button onClick={() => handleEditPerformance(record)} className="text-blue-600 hover:text-blue-900 mx-2" title={text.update}>
-                          <Edit size={18} />
-                        </button>
-                        <button onClick={() => handleDeletePerformance(record)} className="text-red-600 hover:text-red-900 mx-2" title={text.deletePerformanceConfirm}>
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="space-y-4">
+                {groupedPerformanceRecords.map((group) => {
+                  const isExpanded = expandedPerformanceRiders[group.key] ?? true;
+
+                  return (
+                    <div key={group.key} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                      <button
+                        type="button"
+                        onClick={() => togglePerformanceGroup(group.key)}
+                        className="w-full bg-gray-50 hover:bg-gray-100 px-5 py-4 transition-colors"
+                      >
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 text-right">
+                          <div className="flex items-center gap-3">
+                            <Users className="text-indigo-600" size={22} />
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-bold text-gray-900">{text.riderId}: {group.riderId}</span>
+                                <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-mono">
+                                  {text.outRiderInfo}: {group.outRiderInfoId}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-500 mt-1">{group.records.length} {text.performanceListTitle}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-4 text-sm">
+                            <span className="font-semibold text-green-700">{text.acceptedOrders}: {group.acceptedOrders}</span>
+                            <span className="font-semibold text-red-700">{text.rejectedOrders}: {group.rejectedOrders}</span>
+                            <span className="font-semibold text-blue-700">{text.workingHours}: {group.workingHours.toFixed(1)}</span>
+                            <span className="text-gray-600 text-xl">{isExpanded ? '▲' : '▼'}</span>
+                          </div>
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="p-4">
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200 text-sm">
+                              <thead className="bg-gray-100">
+                                <tr>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">ID</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.shiftDate}</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.acceptedOrders}</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.rejectedOrders}</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.workingHours}</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.uploadedAt}</th>
+                                  <th className="px-4 py-3 text-right font-semibold text-gray-700">{text.uploadedBy}</th>
+                                  <th className="px-4 py-3 text-center font-semibold text-gray-700">{text.actions}</th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-gray-200">
+                                {group.records.map((record) => (
+                                  <tr key={record.id} className="hover:bg-gray-50">
+                                    <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-700">{record.id}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap">{formatDateOnly(record.shiftDate)}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-green-700">{record.acceptedOrders ?? 0}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-red-700">{record.rejectedOrders ?? 0}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-700">{numberValue(record.workingHours).toFixed(1)}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-gray-600">{formatDateTime(record.uploadedAt)}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap">{record.uploadedBy || '-'}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-center">
+                                      <button onClick={() => handleEditPerformance(record)} className="text-blue-600 hover:text-blue-900 mx-2" title={text.update}>
+                                        <Edit size={18} />
+                                      </button>
+                                      <button onClick={() => handleDeletePerformance(record)} className="text-red-600 hover:text-red-900 mx-2" title={text.deletePerformanceConfirm}>
+                                        <Trash2 size={18} />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </section>
