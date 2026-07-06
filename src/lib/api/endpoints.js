@@ -233,6 +233,7 @@ export const API_ENDPOINTS = {
     RIDER_HISTORY2: (iqamaNo) => `/api/Report/rider-history2?riderIqamaNo=${iqamaNo}`,
     ALL_RIDERS_HISTORY: "/api/Report/all-riders-history",
     RIDER_PERFORMANCE_DETAIL: "/api/Report/rider-daily-detail",
+    RIDERS_BELOW_MONTHLY_TARGET: "/api/Report/riders/below-monthly-target",
     HUNGER_SUMMARY: "/api/Report/hunger/summary",
     HUNGER_MONTHLY_VALIDATION: "/api/HungerReports/monthly-validation",
     FROM_START: "/api/report/from-start",
