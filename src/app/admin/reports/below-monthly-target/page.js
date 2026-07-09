@@ -307,6 +307,7 @@ export default function BelowMonthlyTargetPage() {
                 <table className={`min-w-full divide-y divide-gray-200 text-sm ${isRtl ? 'text-right' : 'text-left'}`}>
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className="px-4 py-3 font-semibold text-gray-700">#</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">{labels.rider}</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">{labels.company}</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">{labels.housing}</th>
@@ -321,18 +322,19 @@ export default function BelowMonthlyTargetPage() {
                   <tbody className="bg-white divide-y divide-gray-100">
                     {filteredRiders.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="px-4 py-10 text-center text-gray-500">
+                        <td colSpan={10} className="px-4 py-10 text-center text-gray-500">
                           {labels.empty}
                         </td>
                       </tr>
                     ) : (
-                      filteredRiders.map((rider) => {
+                      filteredRiders.map((rider, index) => {
                         const riderName = locale === 'ar'
                           ? rider.riderNameAR || rider.riderNameEN
                           : rider.riderNameEN || rider.riderNameAR;
 
                         return (
                           <tr key={`${rider.riderId}-${rider.workingId}`} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-gray-500 font-medium">{index + 1}</td>
                             <td className="px-4 py-3">
                               <div className="font-bold text-gray-900">{riderName || '-'}</div>
                               <div className="text-xs text-gray-500">
