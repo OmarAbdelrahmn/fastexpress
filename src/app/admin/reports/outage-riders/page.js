@@ -62,6 +62,7 @@ const labels = {
     workingHours: 'ساعات العمل',
     uploadedAt: 'تاريخ الرفع',
     uploadedBy: 'رفع بواسطة',
+    lastDayOrders: 'طلبات آخر يوم',
     empty: 'لا توجد سجلات أداء مطابقة',
     sheetName: 'أداء مناديب الخارج',
     filePrefix: 'outage_shift_performance',
@@ -98,6 +99,7 @@ const labels = {
     workingHours: 'Working Hours',
     uploadedAt: 'Uploaded At',
     uploadedBy: 'Uploaded By',
+    lastDayOrders: 'Last Day Orders',
     empty: 'No matching performance records',
     sheetName: 'Outside Rider Performance',
     filePrefix: 'outage_shift_performance',
@@ -249,10 +251,14 @@ export default function OutageRidersReportPage() {
       .filter(Boolean)
       .sort((a, b) => a.localeCompare(b));
 
+    const lastDate = dates[dates.length - 1];
+    const lastDayLabel = lastDate ? `${text.lastDayOrders} (${lastDate})` : text.lastDayOrders;
+
     const excelData = [];
     let grandTotalAccepted = 0;
     let grandTotalRejected = 0;
     let grandTotalHours = 0;
+    let grandTotalLastDayOrders = 0;
 
     // Keep track of date totals for the grand summary row
     const dateTotals = {};
@@ -294,6 +300,12 @@ export default function OutageRidersReportPage() {
         dateTotals[date] += dayHours;
       });
 
+      // Add last day accepted orders (right after the date columns)
+      const lastDayData = lastDate ? dailyDataMap[lastDate] : null;
+      const lastDayOrders = lastDayData ? numberValue(lastDayData.acceptedOrders) : 0;
+      grandTotalLastDayOrders += lastDayOrders;
+      riderRow[lastDayLabel] = lastDayOrders;
+
       // Add summary metrics
       riderRow[text.acceptedOrders] = accepted;
       riderRow[text.rejectedOrders] = rejected;
@@ -325,6 +337,9 @@ export default function OutageRidersReportPage() {
       grandSummaryRow[date] = dateTotals[date].toFixed(2);
     });
 
+    // Last day orders sum
+    grandSummaryRow[lastDayLabel] = grandTotalLastDayOrders;
+
     grandSummaryRow[text.acceptedOrders] = grandTotalAccepted;
     grandSummaryRow[text.rejectedOrders] = grandTotalRejected;
     grandSummaryRow[text.rejectionRate] = grandRejectionRate.toFixed(2) + '%';
@@ -344,6 +359,8 @@ export default function OutageRidersReportPage() {
     dates.forEach(() => {
       cols.push({ wch: 14 });
     });
+    // Last day orders column width
+    cols.push({ wch: 20 }); // Last Day Orders
     // Summary columns width
     cols.push(
       { wch: 18 }, // Completed Deliveries
