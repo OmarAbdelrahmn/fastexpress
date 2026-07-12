@@ -244,25 +244,69 @@ export default function OutageRidersReportPage() {
   const handleExcelExport = () => {
     if (!filteredRecords.length) return;
 
-    const data = filteredRecords.map((record) => ({
-      [text.id]: record.id,
-      [text.outRiderInfoId]: record.outRiderInfoId,
-      [text.riderId]: record.riderId,
-      [text.shiftDate]: formatDateOnly(record.shiftDate),
-      [text.acceptedOrders]: record.acceptedOrders ?? 0,
-      [text.rejectedOrders]: record.rejectedOrders ?? 0,
-      [text.rejectionRate]: getRejectionRate(record).toFixed(2) + '%',
-      [text.workingHours]: numberValue(record.workingHours).toFixed(2),
-      [text.uploadedAt]: formatDateTime(record.uploadedAt),
-      [text.uploadedBy]: record.uploadedBy || '',
-    }));
+    const excelData = [];
+    let grandTotalAccepted = 0;
+    let grandTotalRejected = 0;
+    let grandTotalHours = 0;
+
+    groupedRecords.forEach((group) => {
+      group.records.forEach((record) => {
+        const accepted = numberValue(record.acceptedOrders);
+        const rejected = numberValue(record.rejectedOrders);
+        const hours = numberValue(record.workingHours);
+
+        grandTotalAccepted += accepted;
+        grandTotalRejected += rejected;
+        grandTotalHours += hours;
+
+        excelData.push({
+          [text.id]: record.id,
+          [text.outRiderInfoId]: record.outRiderInfoId,
+          [text.riderId]: record.riderId,
+          [text.shiftDate]: formatDateOnly(record.shiftDate),
+          [text.acceptedOrders]: accepted,
+          [text.rejectedOrders]: rejected,
+          [text.rejectionRate]: getRejectionRate(record).toFixed(2) + '%',
+          [text.workingHours]: hours.toFixed(2),
+          [text.uploadedAt]: formatDateTime(record.uploadedAt),
+          [text.uploadedBy]: record.uploadedBy || '',
+        });
+      });
+
+      // Add empty row after each rider group for separation
+      excelData.push({});
+    });
+
+    // Add grand summary row at the end
+    const totalShifts = filteredRecords.length;
+    const uniqueRidersCount = groupedRecords.length;
+    const grandRejectionRate = (grandTotalAccepted + grandTotalRejected) > 0
+      ? (grandTotalRejected / (grandTotalAccepted + grandTotalRejected)) * 100
+      : 0;
+
+    const summaryText = isRtl ? '*** الإجمالي العام ***' : '*** Grand Total ***';
+    const ridersCountText = isRtl ? `عدد المناديب: ${uniqueRidersCount}` : `Riders: ${uniqueRidersCount}`;
+    const recordsCountText = isRtl ? `عدد السجلات: ${totalShifts}` : `Records: ${totalShifts}`;
+
+    excelData.push({
+      [text.id]: summaryText,
+      [text.outRiderInfoId]: ridersCountText,
+      [text.riderId]: recordsCountText,
+      [text.shiftDate]: '',
+      [text.acceptedOrders]: grandTotalAccepted,
+      [text.rejectedOrders]: grandTotalRejected,
+      [text.rejectionRate]: grandRejectionRate.toFixed(2) + '%',
+      [text.workingHours]: grandTotalHours.toFixed(2),
+      [text.uploadedAt]: '',
+      [text.uploadedBy]: '',
+    });
 
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(data);
+    const ws = XLSX.utils.json_to_sheet(excelData);
     ws['!cols'] = [
-      { wch: 8 },
-      { wch: 18 },
-      { wch: 14 },
+      { wch: 22 },
+      { wch: 22 },
+      { wch: 22 },
       { wch: 14 },
       { wch: 18 },
       { wch: 18 },
