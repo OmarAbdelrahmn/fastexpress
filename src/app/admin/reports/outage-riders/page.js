@@ -244,41 +244,69 @@ export default function OutageRidersReportPage() {
   const handleExcelExport = () => {
     if (!filteredRecords.length) return;
 
+    // Get all unique dates from the filtered records to create column headers
+    const dates = Array.from(new Set(filteredRecords.map((r) => formatDateOnly(r.shiftDate))))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+
     const excelData = [];
     let grandTotalAccepted = 0;
     let grandTotalRejected = 0;
     let grandTotalHours = 0;
 
-    groupedRecords.forEach((group) => {
-      group.records.forEach((record) => {
-        const accepted = numberValue(record.acceptedOrders);
-        const rejected = numberValue(record.rejectedOrders);
-        const hours = numberValue(record.workingHours);
-
-        grandTotalAccepted += accepted;
-        grandTotalRejected += rejected;
-        grandTotalHours += hours;
-
-        excelData.push({
-          [text.id]: record.id,
-          [text.outRiderInfoId]: record.outRiderInfoId,
-          [text.riderId]: record.riderId,
-          [text.shiftDate]: formatDateOnly(record.shiftDate),
-          [text.acceptedOrders]: accepted,
-          [text.rejectedOrders]: rejected,
-          [text.rejectionRate]: getRejectionRate(record).toFixed(2) + '%',
-          [text.workingHours]: hours.toFixed(2),
-          [text.uploadedAt]: formatDateTime(record.uploadedAt),
-          [text.uploadedBy]: record.uploadedBy || '',
-        });
-      });
-
-      // Add empty row after each rider group for separation
-      excelData.push({});
+    // Keep track of date totals for the grand summary row
+    const dateTotals = {};
+    dates.forEach((date) => {
+      dateTotals[date] = 0;
     });
 
+    groupedRecords.forEach((group) => {
+      // Create a map of dates to daily data for easy lookup
+      const dailyDataMap = {};
+      group.records.forEach((record) => {
+        const d = formatDateOnly(record.shiftDate);
+        if (d) {
+          dailyDataMap[d] = record;
+        }
+      });
+
+      const accepted = numberValue(group.acceptedOrders);
+      const rejected = numberValue(group.rejectedOrders);
+      const hours = numberValue(group.workingHours);
+
+      grandTotalAccepted += accepted;
+      grandTotalRejected += rejected;
+      grandTotalHours += hours;
+
+      const groupRejectionRate = getGroupRejectionRate(group);
+
+      // Single row per rider
+      const riderRow = {
+        [text.riderId]: group.riderId,
+        [text.outRiderInfoId]: group.outRiderInfoId,
+      };
+
+      // Add working hours for each date
+      dates.forEach((date) => {
+        const dayData = dailyDataMap[date];
+        const dayHours = dayData ? numberValue(dayData.workingHours) : 0;
+        riderRow[date] = dayHours > 0 ? dayHours.toFixed(2) : '0.00';
+        dateTotals[date] += dayHours;
+      });
+
+      // Add summary metrics
+      riderRow[text.acceptedOrders] = accepted;
+      riderRow[text.rejectedOrders] = rejected;
+      riderRow[text.rejectionRate] = groupRejectionRate.toFixed(2) + '%';
+      riderRow[text.workingHours] = hours.toFixed(2);
+
+      excelData.push(riderRow);
+    });
+
+    // Add empty row for separation before grand summary
+    excelData.push({});
+
     // Add grand summary row at the end
-    const totalShifts = filteredRecords.length;
     const uniqueRidersCount = groupedRecords.length;
     const grandRejectionRate = (grandTotalAccepted + grandTotalRejected) > 0
       ? (grandTotalRejected / (grandTotalAccepted + grandTotalRejected)) * 100
@@ -286,35 +314,45 @@ export default function OutageRidersReportPage() {
 
     const summaryText = isRtl ? '*** الإجمالي العام ***' : '*** Grand Total ***';
     const ridersCountText = isRtl ? `عدد المناديب: ${uniqueRidersCount}` : `Riders: ${uniqueRidersCount}`;
-    const recordsCountText = isRtl ? `عدد السجلات: ${totalShifts}` : `Records: ${totalShifts}`;
 
-    excelData.push({
-      [text.id]: summaryText,
+    const grandSummaryRow = {
+      [text.riderId]: summaryText,
       [text.outRiderInfoId]: ridersCountText,
-      [text.riderId]: recordsCountText,
-      [text.shiftDate]: '',
-      [text.acceptedOrders]: grandTotalAccepted,
-      [text.rejectedOrders]: grandTotalRejected,
-      [text.rejectionRate]: grandRejectionRate.toFixed(2) + '%',
-      [text.workingHours]: grandTotalHours.toFixed(2),
-      [text.uploadedAt]: '',
-      [text.uploadedBy]: '',
+    };
+
+    // Add date sums to grand summary
+    dates.forEach((date) => {
+      grandSummaryRow[date] = dateTotals[date].toFixed(2);
     });
+
+    grandSummaryRow[text.acceptedOrders] = grandTotalAccepted;
+    grandSummaryRow[text.rejectedOrders] = grandTotalRejected;
+    grandSummaryRow[text.rejectionRate] = grandRejectionRate.toFixed(2) + '%';
+    grandSummaryRow[text.workingHours] = grandTotalHours.toFixed(2);
+
+    excelData.push(grandSummaryRow);
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
-    ws['!cols'] = [
-      { wch: 22 },
-      { wch: 22 },
-      { wch: 22 },
-      { wch: 14 },
-      { wch: 18 },
-      { wch: 18 },
-      { wch: 14 },
-      { wch: 16 },
-      { wch: 22 },
-      { wch: 18 },
+
+    // Dynamic column widths
+    const cols = [
+      { wch: 22 }, // Rider ID / Grand Total
+      { wch: 22 }, // Out Rider Info ID / Riders Count
     ];
+    // Dates columns width
+    dates.forEach(() => {
+      cols.push({ wch: 14 });
+    });
+    // Summary columns width
+    cols.push(
+      { wch: 18 }, // Completed Deliveries
+      { wch: 18 }, // Declined Deliveries
+      { wch: 14 }, // Rejection Rate
+      { wch: 16 }  // Working Hours
+    );
+
+    ws['!cols'] = cols;
 
     XLSX.utils.book_append_sheet(wb, ws, text.sheetName);
     XLSX.writeFile(wb, `${text.filePrefix}_${form.startDate}_${form.endDate}.xlsx`);
