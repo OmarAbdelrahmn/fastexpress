@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, BarChart3, Calendar, FileSpreadsheet, RefreshCcw, Search, Target, Users } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { AlertTriangle, BarChart3, Calendar, RefreshCcw, Search, Target, Users } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Card from '@/components/Ui/Card';
@@ -145,83 +144,6 @@ export default function BelowMonthlyTargetPage() {
     loadReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleExcelExport = () => {
-    if (!report || !filteredRiders.length) return;
-
-    const excelData = [];
-
-    // Group riders by housingName
-    const groups = {};
-    filteredRiders.forEach((rider) => {
-      const hName = rider.housingName || '-';
-      if (!groups[hName]) {
-        groups[hName] = [];
-      }
-      groups[hName].push(rider);
-    });
-
-    let grandTotalAcceptedOrders = 0;
-    let grandTotalTargetToDate = 0;
-    let grandTotalRemainingToDate = 0;
-    let grandTotalRemainingMonthly = 0;
-    let grandTotalShifts = 0;
-
-    Object.entries(groups).forEach(([housingName, riders]) => {
-      riders.forEach((rider) => {
-        const accepted = numberValue(rider.totalAcceptedOrders);
-        const target = numberValue(rider.targetToDate);
-        const remainingToDate = numberValue(rider.remainingToTargetToDate);
-        const remainingMonthly = numberValue(rider.remainingToMonthlyTarget);
-        const shifts = numberValue(rider.totalShifts);
-
-        grandTotalAcceptedOrders += accepted;
-        grandTotalTargetToDate += target;
-        grandTotalRemainingToDate += remainingToDate;
-        grandTotalRemainingMonthly += remainingMonthly;
-        grandTotalShifts += shifts;
-
-        excelData.push({
-          'السكن': housingName,
-          'اسم المندوب (AR)': rider.riderNameAR || '',
-          'اسم المندوب (EN)': rider.riderNameEN || '',
-          'رقم العمل': rider.workingId || '',
-          'رقم الإقامة': rider.iqamaNo || '',
-          'الشركة': rider.companyName || '',
-          'الطلبات المقبولة': accepted,
-          'المستهدف حتى تاريخه': target,
-          'المتبقي حتى تاريخه': remainingToDate,
-          'المتبقي الشهري': remainingMonthly,
-          'الشيفتات': shifts,
-          'معدل الطلبات/الشيفت': numberValue(rider.averageOrdersPerShift).toFixed(2),
-        });
-      });
-
-      // Add empty row after each housing group for separation
-      excelData.push({});
-    });
-
-    // Add grand summary row
-    excelData.push({
-      'السكن': '*** الإجمالي العام ***',
-      'اسم المندوب (AR)': `عدد السكنات: ${Object.keys(groups).length}`,
-      'اسم المندوب (EN)': `عدد المناديب: ${filteredRiders.length}`,
-      'رقم العمل': '',
-      'رقم الإقامة': '',
-      'الشركة': '',
-      'الطلبات المقبولة': grandTotalAcceptedOrders,
-      'المستهدف حتى تاريخه': grandTotalTargetToDate,
-      'المتبقي حتى تاريخه': grandTotalRemainingToDate,
-      'المتبقي الشهري': grandTotalRemainingMonthly,
-      'الشيفتات': grandTotalShifts,
-      'معدل الطلبات/الشيفت': grandTotalShifts > 0 ? (grandTotalAcceptedOrders / grandTotalShifts).toFixed(2) : '0.00',
-    });
-
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Below Monthly Target');
-    XLSX.writeFile(wb, `below_monthly_target_${filters.year}_${filters.month || 'current'}.xlsx`);
-  };
 
   const StatCard = ({ icon: Icon, title, value, tone }) => (
     <div className="bg-white rounded-lg shadow-md p-5 border border-gray-100">
@@ -378,13 +300,6 @@ export default function BelowMonthlyTargetPage() {
                       className={`w-full py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
                     />
                   </div>
-                  <Button
-                    onClick={handleExcelExport}
-                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white h-10 flex items-center justify-center gap-2"
-                  >
-                    <FileSpreadsheet size={16} />
-                    {isRtl ? 'تصدير Excel' : 'Export Excel'}
-                  </Button>
                 </div>
               </div>
 
