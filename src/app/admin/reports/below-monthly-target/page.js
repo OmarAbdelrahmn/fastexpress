@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, BarChart3, Calendar, RefreshCcw, Search, Target, Users } from 'lucide-react';
+import { AlertTriangle, BarChart3, Calendar, FileSpreadsheet, Home, RefreshCcw, Search, Target, Users } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import PageHeader from '@/components/layout/pageheader';
 import Button from '@/components/Ui/Button';
 import Card from '@/components/Ui/Card';
@@ -41,6 +42,70 @@ const compactParams = (params) => {
   return cleaned;
 };
 
+// Build the row object for Excel export
+const buildExcelRow = (rider, labels, locale) => {
+  const riderName = locale === 'ar'
+    ? rider.riderNameAR || rider.riderNameEN
+    : rider.riderNameEN || rider.riderNameAR;
+
+  return {
+    [labels.rider]: riderName || '-',
+    [labels.workingId]: rider.workingId || '-',
+    [labels.iqama]: rider.iqamaNo || '-',
+    [labels.company]: rider.companyName || '-',
+    [labels.housing]: rider.housingName || '-',
+    [labels.acceptedOrders]: numberValue(rider.totalAcceptedOrders),
+    [labels.targetToDate]: rider.targetToDate ?? 0,
+    [labels.remainingToDate]: numberValue(rider.remainingToTargetToDate),
+    [labels.remainingMonthly]: numberValue(rider.remainingToMonthlyTarget),
+    [labels.shifts]: rider.totalShifts ?? 0,
+    [labels.averageOrders]: numberValue(rider.averageOrdersPerShift).toFixed(2),
+  };
+};
+
+// Append a summary row to the rows array
+const appendSummaryRow = (rows, riders, labels, locale) => {
+  const totals = riders.reduce(
+    (acc, rider) => {
+      acc.acceptedOrders += numberValue(rider.totalAcceptedOrders);
+      acc.remainingToDate += numberValue(rider.remainingToTargetToDate);
+      acc.remainingMonthly += numberValue(rider.remainingToMonthlyTarget);
+      acc.shifts += numberValue(rider.totalShifts);
+      return acc;
+    },
+    { acceptedOrders: 0, remainingToDate: 0, remainingMonthly: 0, shifts: 0 }
+  );
+
+  const grandLabel = locale === 'ar' ? '*** الإجمالي ***' : '*** Grand Total ***';
+  rows.push({
+    [labels.rider]: grandLabel,
+    [labels.workingId]: '',
+    [labels.iqama]: '',
+    [labels.company]: '',
+    [labels.housing]: '',
+    [labels.acceptedOrders]: totals.acceptedOrders,
+    [labels.targetToDate]: '',
+    [labels.remainingToDate]: totals.remainingToDate,
+    [labels.remainingMonthly]: totals.remainingMonthly,
+    [labels.shifts]: totals.shifts,
+    [labels.averageOrders]: '',
+  });
+};
+
+const COL_WIDTHS = [
+  { wch: 28 }, // Rider Name
+  { wch: 14 }, // Working ID
+  { wch: 16 }, // Iqama
+  { wch: 20 }, // Company
+  { wch: 22 }, // Housing
+  { wch: 16 }, // Accepted Orders
+  { wch: 16 }, // Target to Date
+  { wch: 18 }, // Remaining to Date
+  { wch: 18 }, // Remaining Monthly
+  { wch: 10 }, // Shifts
+  { wch: 14 }, // Average Orders
+];
+
 export default function BelowMonthlyTargetPage() {
   const { locale, t } = useLanguage();
   const isRtl = locale === 'ar';
@@ -50,20 +115,35 @@ export default function BelowMonthlyTargetPage() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('all');
+  const [selectedHousing, setSelectedHousing] = useState('all');
 
   const labels = t('reports.belowMonthlyTarget');
 
-  const filteredRiders = useMemo(() => {
+  // Derive unique housing names from the full rider list (company-filtered first)
+  const companyFilteredRiders = useMemo(() => {
     const riders = Array.isArray(report?.riders) ? report.riders : [];
-    
-    let result = riders;
-    if (selectedCompany === 'hunger') {
-      result = result.filter((rider) => (rider.companyName || '').toLowerCase().includes('hunger'));
-    } else if (selectedCompany === 'keeta') {
-      result = result.filter((rider) => {
-        const name = (rider.companyName || '').toLowerCase();
-        return name.includes('keeta') || name.includes('keta');
-      });
+    if (selectedCompany === 'all') return riders;
+    return riders.filter((rider) => {
+      const name = (rider.companyName || '').toLowerCase();
+      if (selectedCompany === 'hunger') return name.includes('hunger');
+      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
+      return true;
+    });
+  }, [report, selectedCompany]);
+
+  const uniqueHousings = useMemo(() => {
+    const names = new Set();
+    companyFilteredRiders.forEach((rider) => {
+      if (rider.housingName) names.add(rider.housingName);
+    });
+    return Array.from(names).sort();
+  }, [companyFilteredRiders]);
+
+  const filteredRiders = useMemo(() => {
+    let result = companyFilteredRiders;
+
+    if (selectedHousing !== 'all') {
+      result = result.filter((rider) => rider.housingName === selectedHousing);
     }
 
     const query = searchQuery.trim().toLowerCase();
@@ -83,31 +163,17 @@ export default function BelowMonthlyTargetPage() {
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(query));
     });
-  }, [locale, report, searchQuery, selectedCompany]);
+  }, [locale, companyFilteredRiders, searchQuery, selectedHousing]);
 
   const ridersBelowTargetFilteredCount = useMemo(() => {
-    const riders = Array.isArray(report?.riders) ? report.riders : [];
-    if (selectedCompany === 'all') return report?.totalRidersBelowTarget ?? riders.length;
-    
-    return riders.filter((rider) => {
-      const name = (rider.companyName || '').toLowerCase();
-      if (selectedCompany === 'hunger') return name.includes('hunger');
-      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
-      return true;
-    }).length;
-  }, [report, selectedCompany]);
+    if (selectedCompany === 'all' && selectedHousing === 'all') {
+      return report?.totalRidersBelowTarget ?? filteredRiders.length;
+    }
+    return filteredRiders.length;
+  }, [report, selectedCompany, selectedHousing, filteredRiders]);
 
   const totals = useMemo(() => {
-    const riders = Array.isArray(report?.riders) ? report.riders : [];
-    const companyFiltered = riders.filter((rider) => {
-      if (selectedCompany === 'all') return true;
-      const name = (rider.companyName || '').toLowerCase();
-      if (selectedCompany === 'hunger') return name.includes('hunger');
-      if (selectedCompany === 'keeta') return name.includes('keeta') || name.includes('keta');
-      return true;
-    });
-
-    return companyFiltered.reduce(
+    return filteredRiders.reduce(
       (acc, rider) => {
         acc.acceptedOrders += numberValue(rider.totalAcceptedOrders);
         acc.remainingToDate += numberValue(rider.remainingToTargetToDate);
@@ -116,7 +182,7 @@ export default function BelowMonthlyTargetPage() {
       },
       { acceptedOrders: 0, remainingToDate: 0, remainingMonthly: 0 }
     );
-  }, [report, selectedCompany]);
+  }, [filteredRiders]);
 
   const loadReport = async () => {
     setLoading(true);
@@ -131,6 +197,7 @@ export default function BelowMonthlyTargetPage() {
         })
       );
       setReport(data);
+      setSelectedHousing('all'); // reset housing filter on reload
     } catch (err) {
       console.error('Below monthly target report error:', err);
       setReport(null);
@@ -144,6 +211,64 @@ export default function BelowMonthlyTargetPage() {
     loadReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // --- Excel Export: All riders in one sheet ---
+  const handleExportAll = () => {
+    if (!filteredRiders.length) return;
+
+    const rows = filteredRiders.map((rider) => buildExcelRow(rider, labels, locale));
+    rows.push({}); // blank separator
+    appendSummaryRow(rows, filteredRiders, labels, locale);
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = COL_WIDTHS;
+
+    const wb = XLSX.utils.book_new();
+    const sheetName = locale === 'ar' ? 'المناديب' : 'Riders';
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    const period = `${filters.year}_${filters.month}`;
+    XLSX.writeFile(wb, `below_target_all_${period}.xlsx`);
+  };
+
+  // --- Excel Export: One sheet per housing (up to 5 per file) ---
+  const handleExportByHousing = () => {
+    if (!filteredRiders.length) return;
+
+    // Group riders by housing
+    const housingMap = new Map();
+    filteredRiders.forEach((rider) => {
+      const key = rider.housingName || (locale === 'ar' ? 'بدون سكن' : 'No Housing');
+      if (!housingMap.has(key)) housingMap.set(key, []);
+      housingMap.get(key).push(rider);
+    });
+
+    const housings = Array.from(housingMap.entries()); // [[name, riders], ...]
+    const SHEETS_PER_FILE = 5;
+    const numFiles = Math.ceil(housings.length / SHEETS_PER_FILE);
+    const period = `${filters.year}_${filters.month}`;
+
+    for (let fileIndex = 0; fileIndex < numFiles; fileIndex++) {
+      const wb = XLSX.utils.book_new();
+      const slice = housings.slice(fileIndex * SHEETS_PER_FILE, (fileIndex + 1) * SHEETS_PER_FILE);
+
+      slice.forEach(([housingName, riders]) => {
+        const rows = riders.map((rider) => buildExcelRow(rider, labels, locale));
+        rows.push({});
+        appendSummaryRow(rows, riders, labels, locale);
+
+        const ws = XLSX.utils.json_to_sheet(rows);
+        ws['!cols'] = COL_WIDTHS;
+
+        // Sheet names max 31 chars in Excel
+        const safeSheetName = housingName.substring(0, 31);
+        XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+      });
+
+      const suffix = numFiles > 1 ? `_part${fileIndex + 1}` : '';
+      XLSX.writeFile(wb, `below_target_by_housing_${period}${suffix}.xlsx`);
+    }
+  };
 
   const StatCard = ({ icon: Icon, title, value, tone }) => (
     <div className="bg-white rounded-lg shadow-md p-5 border border-gray-100">
@@ -281,17 +406,33 @@ export default function BelowMonthlyTargetPage() {
                     {labels.ridersSubtitle.replace('{{count}}', filteredRiders.length)}
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto flex-wrap">
+                  {/* Company filter */}
                   <select
                     value={selectedCompany}
-                    onChange={(e) => setSelectedCompany(e.target.value)}
-                    className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                    onChange={(e) => { setSelectedCompany(e.target.value); setSelectedHousing('all'); }}
+                    className="w-full sm:w-44 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
                   >
                     <option value="all">{labels.allCompanies}</option>
                     <option value="hunger">{labels.hunger}</option>
                     <option value="keeta">{labels.keeta}</option>
                   </select>
-                  <div className="relative w-full sm:w-80">
+
+                  {/* Housing filter */}
+                  <select
+                    value={selectedHousing}
+                    onChange={(e) => setSelectedHousing(e.target.value)}
+                    className="w-full sm:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                    title={labels.housingFilter}
+                  >
+                    <option value="all">{labels.allHousings}</option>
+                    {uniqueHousings.map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+
+                  {/* Search */}
+                  <div className="relative w-full sm:w-72">
                     <Search className={`absolute ${isRtl ? 'right-3' : 'left-3'} top-2.5 text-gray-400`} size={18} />
                     <input
                       value={searchQuery}
@@ -300,6 +441,28 @@ export default function BelowMonthlyTargetPage() {
                       className={`w-full py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm ${isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
                     />
                   </div>
+
+                  {/* Export All button */}
+                  <button
+                    onClick={handleExportAll}
+                    disabled={!filteredRiders.length}
+                    className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap"
+                    title={labels.exportAll}
+                  >
+                    <FileSpreadsheet size={16} />
+                    {labels.exportAll}
+                  </button>
+
+                  {/* Export by Housing button */}
+                  <button
+                    onClick={handleExportByHousing}
+                    disabled={!filteredRiders.length}
+                    className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all whitespace-nowrap"
+                    title={labels.exportByHousing}
+                  >
+                    <Home size={16} />
+                    {labels.exportByHousing}
+                  </button>
                 </div>
               </div>
 

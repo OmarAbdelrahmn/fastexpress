@@ -2686,7 +2686,11 @@
       "companyFilter": "Company Filter",
       "allCompanies": "All Companies",
       "hunger": "HungerStation",
-      "keeta": "Keeta"
+      "keeta": "Keeta",
+      "housingFilter": "Filter by Housing",
+      "allHousings": "All Housings",
+      "exportAll": "Export All (1 Sheet)",
+      "exportByHousing": "Export by Housing (5 Sheets)"
     },
     "dashboardPage": {
       "failedToLoadData": "Failed to load data",

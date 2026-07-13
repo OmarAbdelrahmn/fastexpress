@@ -2718,7 +2718,11 @@
       "companyFilter": "فلترة الشركة",
       "allCompanies": "جميع الشركات",
       "hunger": "هنقرستيشن",
-      "keeta": "كيتا"
+      "keeta": "كيتا",
+      "housingFilter": "فلترة بالسكن",
+      "allHousings": "كل السكنات",
+      "exportAll": "تصدير الكل (ورقة واحدة)",
+      "exportByHousing": "تصدير حسب السكن (5 أوراق)"
     },
     "dashboardPage": {
       "failedToLoadData": "فشل تحميل البيانات",
