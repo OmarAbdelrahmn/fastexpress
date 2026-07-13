@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Car, XCircle, Edit3, FileText } from 'lucide-react';
+import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Car, XCircle, Edit3, FileText, UserPlus } from 'lucide-react';
 import PageHeader from '@/components/layout/pageheader';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { ApiService } from '@/lib/api/apiService';
@@ -18,6 +18,11 @@ export default function PetrolUnattributedPage() {
   const [selectedRecordForNote, setSelectedRecordForNote] = useState(null);
   const [noteInputValue, setNoteInputValue] = useState('');
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedRecordForAssign, setSelectedRecordForAssign] = useState(null);
+  const [iqamaInputValue, setIqamaInputValue] = useState('');
+  const [isSavingAssign, setIsSavingAssign] = useState(false);
+  const [assignError, setAssignError] = useState('');
 
   const fetchUnattributed = async () => {
     setLoading(true);
@@ -85,6 +90,46 @@ export default function PetrolUnattributedPage() {
       alert(error.message || 'فشلت عملية تحديث الملاحظة.');
     } finally {
       setIsSavingNote(false);
+    }
+  };
+
+  const openAssignModal = (record) => {
+    setSelectedRecordForAssign(record);
+    setIqamaInputValue('');
+    setAssignError('');
+    setIsAssignModalOpen(true);
+  };
+
+  const handleSaveAssign = async () => {
+    if (!selectedRecordForAssign) return;
+    if (!iqamaInputValue.trim()) {
+      setAssignError('يرجى إدخال رقم الإقامة.');
+      return;
+    }
+
+    const vehicleNumber = selectedRecordForAssign.plateNumberE || selectedRecordForAssign.vehicle || selectedRecordForAssign.Vehicle;
+    let recordDate = selectedRecordForAssign.date || selectedRecordForAssign.Date;
+    
+    if (recordDate && recordDate.includes('T')) {
+      recordDate = recordDate.split('T')[0];
+    }
+
+    const recordId = selectedRecordForAssign.id || selectedRecordForAssign.Id;
+    setIsSavingAssign(true);
+    setAssignError('');
+    
+    try {
+      await ApiService.request(API_ENDPOINTS.PETROL.ASSIGN_RIDER(vehicleNumber, recordDate, iqamaInputValue.trim()), {
+        method: 'PATCH'
+      });
+      
+      setRows(prev => prev.filter(r => (r.id || r.Id) !== recordId));
+      setIsAssignModalOpen(false);
+      alert('تم تخصيص السائق للسجل بنجاح.');
+    } catch (error) {
+      setAssignError(error.message || 'فشلت عملية تخصيص السائق.');
+    } finally {
+      setIsSavingAssign(false);
     }
   };
 
@@ -215,6 +260,15 @@ export default function PetrolUnattributedPage() {
                                 <Edit3 size={16} />
                                 ملاحظة
                               </button>
+                              <button
+                                onClick={() => openAssignModal(row)}
+                                disabled={isProcessing}
+                                className="px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white font-bold rounded-lg transition-colors border border-emerald-200 hover:border-emerald-600 disabled:opacity-50 inline-flex items-center gap-1 text-sm"
+                                title="تخصيص سائق"
+                              >
+                                <UserPlus size={16} />
+                                تخصيص سائق
+                              </button>
                               {/* <button
                                 onClick={() => handleAttributeId(recordId)}
                                 disabled={isProcessing}
@@ -294,6 +348,86 @@ export default function PetrolUnattributedPage() {
                 <button
                   onClick={() => setIsNoteModalOpen(false)}
                   disabled={isSavingNote}
+                  className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Rider Modal */}
+      {isAssignModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-4 flex justify-between items-center">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <UserPlus size={20} />
+                تخصيص سائق للسجل
+              </h3>
+              <button 
+                onClick={() => setIsAssignModalOpen(false)}
+                className="text-white/80 hover:text-white transition-colors"
+                disabled={isSavingAssign}
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4" dir="rtl">
+              {assignError && (
+                <div className="bg-red-50 text-red-800 border border-red-200 p-3 rounded-lg flex items-center gap-2 text-sm">
+                  <XCircle className="shrink-0" size={16} />
+                  <span>{assignError}</span>
+                </div>
+              )}
+
+              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">المركبة:</span>
+                  <span className="font-bold text-gray-800">{selectedRecordForAssign?.plateNumberE || selectedRecordForAssign?.vehicle || selectedRecordForAssign?.Vehicle || '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">التاريخ:</span>
+                  <span className="font-bold text-gray-800">{(selectedRecordForAssign?.date || selectedRecordForAssign?.Date || '').split('T')[0]}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">التكلفة:</span>
+                  <span className="font-bold text-gray-800">{selectedRecordForAssign?.costAmount || selectedRecordForAssign?.CostAmount || selectedRecordForAssign?.cost || selectedRecordForAssign?.Cost || 0} ريال</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">رقم إقامة السائق</label>
+                <input
+                  type="text"
+                  value={iqamaInputValue}
+                  onChange={(e) => setIqamaInputValue(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-left font-medium"
+                  placeholder="مثال: 2345678901"
+                  disabled={isSavingAssign}
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSaveAssign}
+                  disabled={isSavingAssign}
+                  className="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isSavingAssign ? (
+                    <RefreshCw className="animate-spin" size={20} />
+                  ) : (
+                    <CheckCircle size={20} />
+                  )}
+                  تخصيص السائق
+                </button>
+                <button
+                  onClick={() => setIsAssignModalOpen(false)}
+                  disabled={isSavingAssign}
                   className="px-6 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                 >
                   إلغاء

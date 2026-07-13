@@ -474,6 +474,7 @@ export const API_ENDPOINTS = {
     DAILY: (date) => `/api/petrol/daily?date=${date}`,
     SHIFT_PERMISSION_START: (iqamaNo) => `/api/Petrol/rider/${iqamaNo}/shift-permission-start`,
     COMPANY_HOUSING_REPORT: (year, month) => `/api/Petrol/riders/company-housing-report?year=${year}&month=${month}`,
+    ASSIGN_RIDER: (vehicleNumber, date, riderIqamaNo) => `/api/petrol/${vehicleNumber}/assign-rider?date=${date}&riderIqamaNo=${riderIqamaNo}`,
   },
 
   // Accounting API contracts
