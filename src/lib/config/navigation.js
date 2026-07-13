@@ -29,6 +29,7 @@ export const userNavigationConfig = {
       { path: "/member/maintenance/cost-summary", label: "navigation.costSummary" },
       { path: "/member/maintenance/transfers", label: "navigation.maintenanceTransfers" },
       { path: "/member/maintenance/reminders", label: "navigation.reminders" },
+      { path: "/member/maintenance/inventory-audit", label: "navigation.inventoryAudit" },
     ],
   },
   requests: {
@@ -192,6 +193,7 @@ export const adminNavigationConfig = {
       { path: "/admin/maintenance/rider-accessories", label: "navigation.riderAccessories" },
       { path: "/admin/maintenance/transfers", label: "navigation.maintenanceTransfers" },
       { path: "/admin/maintenance/returns", label: "navigation.returnsManagement" },
+      { path: "/admin/maintenance/inventory-audit", label: "navigation.inventoryAudit" },
     ],
   },
 

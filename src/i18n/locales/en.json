@@ -483,7 +483,8 @@
     "requestVehicleEnable": "Request Vehicle Fix",
     "requestVehicleSwitch": "Request Vehicle Switch",
     "reminders": "Maintenance Reminders",
-    "maintenanceMoneySpending": "Maintenance Spending"
+    "maintenanceMoneySpending": "Maintenance Spending",
+    "inventoryAudit": "Inventory Audit Log"
   },
   "dashboard": {
     "periodHousingReport": "Total Housing Report for Period",

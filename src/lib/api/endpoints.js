@@ -336,6 +336,13 @@ export const API_ENDPOINTS = {
       CREATE: "/api/member/transfers",
       LIST: "/api/member/transfers",
     },
+    INVENTORY_AUDIT_LOG: (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.fromDate) qs.append('fromDate', params.fromDate);
+      if (params.toDate) qs.append('toDate', params.toDate);
+      const q = qs.toString();
+      return `/api/member/inventory/audit-log${q ? '?' + q : ''}`;
+    },
     EDIT_RIDER_COMPANY: "/api/Member/edit-rider-company",
     REMINDERS: (checkDate = '') => `/api/member/maintenance/reminders${checkDate ? `?checkDate=${checkDate}` : ''}`,
   },
@@ -438,6 +445,19 @@ export const API_ENDPOINTS = {
       `/api/maintenance/reminders${checkDate ? `?checkDate=${checkDate}` : ''}`,
   },
 
+
+  // Inventory Audit Log
+  INVENTORY_AUDIT: {
+    LIST: (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.fromDate) qs.append('fromDate', params.fromDate);
+      if (params.toDate) qs.append('toDate', params.toDate);
+      if (params.page) qs.append('page', params.page);
+      if (params.pageSize) qs.append('pageSize', params.pageSize);
+      const q = qs.toString();
+      return `/api/inventory-audit${q ? '?' + q : ''}`;
+    },
+  },
   // Petrol
   PETROL: {
     UPLOAD: "/api/petrol/upload",

@@ -499,7 +499,8 @@
     "requestVehicleEnable": "طلب إصلاح مشكلة المركبة",
     "requestVehicleSwitch": "طلب تبديل مركبة",
     "reminders": "تذكيرات الصيانة",
-    "maintenanceMoneySpending": "مصروفات الصيانة"
+    "maintenanceMoneySpending": "مصروفات الصيانة",
+    "inventoryAudit": "سجل حركات المخزون"
   },
   "dashboard": {
     "periodHousingReport": "تقرير المجموعات الاجمالي خلال فترة",

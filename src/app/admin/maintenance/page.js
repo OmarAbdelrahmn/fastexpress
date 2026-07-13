@@ -189,6 +189,15 @@ export default function MaintenancePage() {
                             color="#7c3aed"
                             bgClass="bg-violet-50"
                         />
+
+                        <MiniStatRow
+                            icon={History}
+                            title="سجل حركات المخزون"
+                            description="متابعة عمليات الإضافة والتعديل والحذف للمخزون"
+                            onClick={() => router.push('/admin/maintenance/inventory-audit')}
+                            color="#3b82f6"
+                            bgClass="bg-blue-50"
+                        />
                     </div>
                 </div>
             </div>
