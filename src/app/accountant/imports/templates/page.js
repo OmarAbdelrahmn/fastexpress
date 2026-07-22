@@ -54,6 +54,7 @@ export default function ImportTemplatesPage() {
   const locale = selectedLocale(isRtl);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const [templates, setTemplates] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [form, setForm] = useState(initialForm);
@@ -66,14 +67,19 @@ export default function ImportTemplatesPage() {
   const load = useCallback(async () => {
     if (!legalEntityId) {
       setTemplates([]);
+      setPlatforms([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const payload = await callApi(accountingApi.imports, ['listTemplates', 'templates'], { legalEntityId, pageNumber: 1, pageSize: 100 });
+      const [payload, platformPayload] = await Promise.all([
+        callApi(accountingApi.imports, ['listTemplates', 'templates'], { legalEntityId, pageNumber: 1, pageSize: 100 }),
+        accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100, active: true, sortBy: 'code', sortDirection: 'asc' }),
+      ]);
       setTemplates(collectionItems(payload));
+      setPlatforms(collectionItems(platformPayload));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
     } finally {
@@ -168,7 +174,7 @@ export default function ImportTemplatesPage() {
         <>
           <Panel title={copy.createTitle} description={copy.createDescription}>
             <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" onSubmit={createTemplate}>
-              <FormField label={copy.platform} required><input className={controlClass} required inputMode="numeric" value={form.platformAccountId} onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))} /></FormField>
+              <FormField label={copy.platform} required><select className={controlClass} required value={form.platformAccountId} onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))}><option value="">{copy.platform}</option>{platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{platform.platformName}</option>)}</select></FormField>
               <FormField label={copy.code} required><input className={controlClass} required maxLength={64} dir="ltr" value={form.code} onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))} /></FormField>
               <FormField label={copy.name} required><input className={controlClass} required maxLength={200} value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} /></FormField>
               <FormField label={copy.adapter} required><input className={controlClass} required dir="ltr" value={form.adapterKey} onChange={(event) => setForm((current) => ({ ...current, adapterKey: event.target.value }))} /></FormField>
