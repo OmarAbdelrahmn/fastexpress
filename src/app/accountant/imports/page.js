@@ -15,7 +15,7 @@ import {
 import { accountingOptionLabel, useAccountingI18n } from '@/lib/accounting/i18n';
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { accountingApi } from '@/lib/api/accountingApi';
-import { FileSpreadsheet, Layers3, Plus, RefreshCw, UploadCloud } from 'lucide-react';
+import { FileSpreadsheet, Plus, RefreshCw, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -35,14 +35,12 @@ const COPY = {
     eyebrow: 'الاستيراد والأدلة',
     title: 'دفعات استيراد المنصات',
     description: 'ارفع كشوف المنصات، راقب المعالجة، ثم عالج الملاحظات قبل الاعتماد.',
-    templates: 'قوالب الاستيراد',
     refresh: 'تحديث',
     uploadTitle: 'رفع كشف جديد',
     uploadDescription: 'يُحفظ الملف الأصلي بشكل خاص، ولا ينشئ الرفع رواتب أو قيوداً محاسبية.',
     legalEntityMissing: 'اختر كياناً قانونياً من شريط مساحة العمل أولاً.',
     platform: 'حساب المنصة',
-    template: 'القالب',
-    noTemplate: 'بدون قالب — اكتشاف البنية أولاً',
+    importType: 'نوع ملف المنصة',
     externalReference: 'مرجع الكشف',
     periodStart: 'بداية الفترة',
     periodEnd: 'نهاية الفترة',
@@ -76,14 +74,12 @@ const COPY = {
     eyebrow: 'Imports & evidence',
     title: 'Platform import batches',
     description: 'Upload platform statements, monitor processing, and resolve issues before approval.',
-    templates: 'Import templates',
     refresh: 'Refresh',
     uploadTitle: 'Upload a new statement',
     uploadDescription: 'The original file is stored privately. Uploading never creates payroll or journal entries.',
     legalEntityMissing: 'Select a legal entity from the workspace bar first.',
     platform: 'Platform account',
-    template: 'Template',
-    noTemplate: 'No template — inspect structure first',
+    importType: 'Platform workbook type',
     externalReference: 'Statement reference',
     periodStart: 'Period start',
     periodEnd: 'Period end',
@@ -116,6 +112,12 @@ const COPY = {
 };
 
 const STATUSES = ['Received', 'Parsing', 'NeedsResolution', 'Reconciled', 'Approved', 'Rejected', 'Failed'];
+const IMPORT_TYPES = [
+  { key: 'amazon', method: 'uploadAmazon', ar: 'أمازون ANOW', en: 'Amazon ANOW' },
+  { key: 'hunger', method: 'uploadHunger', ar: 'هنقرستيشن FTR', en: 'HungerStation FTR' },
+  { key: 'keetaPayPerOrder', method: 'uploadKeetaPayPerOrder', ar: 'كيتا — الدفع لكل طلب', en: 'Keeta pay-per-order' },
+  { key: 'keetaSegments', method: 'uploadKeetaSegments', ar: 'كيتا — الشرائح / المستقلون', en: 'Keeta segments' },
+];
 
 export default function ImportBatchesPage() {
   const router = useRouter();
@@ -125,7 +127,6 @@ export default function ImportBatchesPage() {
   const locale = selectedLocale(isRtl);
   const month = useMemo(() => currentMonthRange(), []);
   const [batches, setBatches] = useState([]);
-  const [templates, setTemplates] = useState([]);
   const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -134,7 +135,7 @@ export default function ImportBatchesPage() {
   const [uploadError, setUploadError] = useState('');
   const [form, setForm] = useState({
     platformAccountId: '',
-    templateId: '',
+    importType: 'hunger',
     externalReference: '',
     periodStart: month.start,
     periodEnd: month.end,
@@ -145,7 +146,6 @@ export default function ImportBatchesPage() {
   const load = useCallback(async () => {
     if (!legalEntityId) {
       setBatches([]);
-      setTemplates([]);
       setPlatforms([]);
       setLoading(false);
       return;
@@ -153,7 +153,7 @@ export default function ImportBatchesPage() {
     setLoading(true);
     setError('');
     try {
-      const [batchPayload, templatePayload, platformPayload] = await Promise.all([
+      const [batchPayload, platformPayload] = await Promise.all([
         callApi(accountingApi.imports, ['list', 'getAll'], {
           legalEntityId,
           search: filters.search || undefined,
@@ -161,15 +161,9 @@ export default function ImportBatchesPage() {
           pageNumber: 1,
           pageSize: 50,
         }),
-        callApi(accountingApi.imports, ['listTemplates', 'templates'], {
-          legalEntityId,
-          pageNumber: 1,
-          pageSize: 100,
-        }).catch(() => []),
         accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100 }).catch(() => []),
       ]);
       setBatches(collectionItems(batchPayload));
-      setTemplates(collectionItems(templatePayload));
       setPlatforms(collectionItems(platformPayload));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
@@ -193,10 +187,10 @@ export default function ImportBatchesPage() {
     setUploading(true);
     setUploadError('');
     try {
-      const created = await callApi(accountingApi.imports, ['upload', 'create'], {
+      const selectedType = IMPORT_TYPES.find((type) => type.key === form.importType);
+      const created = await accountingApi.imports[selectedType.method]({
         legalEntityId: Number(legalEntityId),
         platformAccountId: Number(form.platformAccountId),
-        templateId: form.templateId || undefined,
         externalReference: form.externalReference.trim(),
         periodStart: form.periodStart,
         periodEnd: form.periodEnd,
@@ -265,9 +259,6 @@ export default function ImportBatchesPage() {
         description={copy.description}
         actions={(
           <div className="flex flex-wrap gap-2">
-            <Link className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="/accountant/imports/templates">
-              <Layers3 size={17} /> {copy.templates}
-            </Link>
             <ActionButton variant="secondary" icon={RefreshCw} onClick={load} disabled={loading}>
               {copy.refresh}
             </ActionButton>
@@ -294,10 +285,9 @@ export default function ImportBatchesPage() {
                   {platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{platform.platformName ?? platform.name}</option>)}
                 </select>
               </FormField>
-              <FormField label={copy.template}>
-                <select className={controlClass} value={form.templateId} onChange={(event) => setForm((current) => ({ ...current, templateId: event.target.value }))}>
-                  <option value="">{copy.noTemplate}</option>
-                  {templates.map((template) => <option key={template.id} value={template.id}>{template.code} · {template.name}</option>)}
+              <FormField label={copy.importType} required>
+                <select className={controlClass} required value={form.importType} onChange={(event) => setForm((current) => ({ ...current, importType: event.target.value }))}>
+                  {IMPORT_TYPES.map((type) => <option key={type.key} value={type.key}>{isRtl ? type.ar : type.en}</option>)}
                 </select>
               </FormField>
               <FormField label={copy.externalReference} required>

@@ -207,26 +207,10 @@ export const accountingApi = {
     createTemplate: (payload) => post('/api/accounting/platform-templates', payload),
     activateTemplate: (templateId, payload) =>
       post(`/api/accounting/platform-templates/${routeValue(templateId)}/activate`, payload),
-    upload: ({
-      legalEntityId,
-      platformAccountId,
-      templateId,
-      externalReference,
-      periodStart,
-      periodEnd,
-      sourceControlTotal,
-      file,
-    }) =>
-      uploadForm('/api/accounting/platform-imports', {
-        legalEntityId,
-        platformAccountId,
-        templateId,
-        externalReference,
-        periodStart,
-        periodEnd,
-        sourceControlTotal,
-        file,
-      }),
+    uploadAmazon: (values) => uploadForm('/api/accounting/platform-imports/amazon', values),
+    uploadHunger: (values) => uploadForm('/api/accounting/platform-imports/hunger', values),
+    uploadKeetaPayPerOrder: (values) => uploadForm('/api/accounting/platform-imports/keeta/pay-per-order', values),
+    uploadKeetaSegments: (values) => uploadForm('/api/accounting/platform-imports/keeta/segments', values),
     // Backend handoff: live thin query route
     list: (params = {}) => get('/api/accounting/platform-imports', params),
     getBatch: (importId) =>

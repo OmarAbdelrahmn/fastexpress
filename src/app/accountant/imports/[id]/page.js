@@ -41,7 +41,7 @@ const COPY = {
     issuesTitle: 'الملاحظات والمطابقة', issuesDescription: 'يجب معالجة كل ملاحظة مانعة قبل اعتماد الدفعة.', noIssues: 'لا توجد ملاحظات على هذه الدفعة.', severity: 'الأهمية', code: 'الرمز', message: 'الرسالة', status: 'الحالة', sourceRow: 'صف المصدر', resolve: 'معالجة', resolution: 'شرح المعالجة', waive: 'تجاوز الملاحظة بسبب موثق', saveResolution: 'حفظ المعالجة',
     remapTitle: 'ربط معرّف عامل بسائق', remapDescription: 'أنشئ ربطاً مؤرخاً مع الحفاظ على معرّف المنصة الأصلي.', externalWorker: 'معرّف العامل الخارجي', riderIqama: 'رقم إقامة السائق', effectiveFrom: 'ساري من', effectiveTo: 'ساري إلى', reason: 'السبب', remap: 'حفظ الربط',
     factsTitle: 'الحقائق الموحّدة', noFacts: 'لا توجد حقائق متاحة للعرض.', rider: 'السائق', metric: 'المؤشر', value: 'القيمة', date: 'التاريخ', valid: 'الصلاحية', override: 'تعديل الصلاحية', true: 'صالح', false: 'غير صالح', saveOverride: 'حفظ التعديل',
-    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.', rawRows: 'عينة صفوف المصدر', sheet: 'الورقة', rowNumber: 'رقم الصف', rawData: 'البيانات الأصلية', lifecycle: 'إعادة المعالجة والاستبدال', templateId: 'معرّف القالب', reprocess: 'إعادة المعالجة', replacementBatch: 'معرّف الدفعة البديلة', supersede: 'استبدال هذه الدفعة',
+    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.', rawRows: 'عينة صفوف المصدر', sheet: 'الورقة', rowNumber: 'رقم الصف', rawData: 'البيانات الأصلية',
   },
   en: {
     eyebrow: 'Import review', back: 'Import batches', refresh: 'Refresh', download: 'Download source', approve: 'Approve', reject: 'Reject', platform: 'Platform account',
@@ -49,7 +49,7 @@ const COPY = {
     issuesTitle: 'Issues and reconciliation', issuesDescription: 'Every blocking issue must be resolved before approval.', noIssues: 'This batch has no recorded issues.', severity: 'Severity', code: 'Code', message: 'Message', status: 'Status', sourceRow: 'Source row', resolve: 'Resolve', resolution: 'Resolution explanation', waive: 'Waive with documented reason', saveResolution: 'Save resolution',
     remapTitle: 'Map an external worker to a rider', remapDescription: 'Create an effective-dated identity mapping while preserving the source platform ID.', externalWorker: 'External worker ID', riderIqama: 'Rider Iqama', effectiveFrom: 'Effective from', effectiveTo: 'Effective to', reason: 'Reason', remap: 'Save mapping',
     factsTitle: 'Normalized facts', noFacts: 'No facts are available for display.', rider: 'Rider', metric: 'Metric', value: 'Value', date: 'Date', valid: 'Validity', override: 'Override validity', true: 'Valid', false: 'Invalid', saveOverride: 'Save override',
-    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.', rawRows: 'Source-row sample', sheet: 'Sheet', rowNumber: 'Row', rawData: 'Raw data', lifecycle: 'Reprocessing & replacement', templateId: 'Template ID', reprocess: 'Reprocess batch', replacementBatch: 'Replacement batch ID', supersede: 'Supersede this batch',
+    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.', rawRows: 'Source-row sample', sheet: 'Sheet', rowNumber: 'Row', rawData: 'Raw data',
   },
 };
 
@@ -74,8 +74,6 @@ export default function ImportBatchDetailPage() {
   const [remap, setRemap] = useState({ externalWorkerId: '', riderIqamaNo: '', effectiveFrom: '', effectiveTo: '', reason: '' });
   const [selectedFact, setSelectedFact] = useState(null);
   const [validity, setValidity] = useState({ isValid: true, reason: '' });
-  const [reprocessForm, setReprocessForm] = useState({ templateId: '' });
-  const [supersedeForm, setSupersedeForm] = useState({ replacementBatchId: '', reason: '' });
 
   const load = useCallback(async ({ quiet = false } = {}) => {
     if (!quiet) setLoading(true);
@@ -146,17 +144,6 @@ export default function ImportBatchDetailPage() {
     const action = confirmAction;
     const ok = await runAction(action, () => callApi(accountingApi.imports, [action], batchId, { comment: null }));
     if (ok) setConfirmAction('');
-  };
-
-  const reprocess = (event) => {
-    event.preventDefault();
-    return runAction('reprocess', () => accountingApi.imports.reprocess(batchId, { templateId: reprocessForm.templateId.trim() || null, rowVersion: batch.rowVersion || null }));
-  };
-
-  const supersede = async (event) => {
-    event.preventDefault();
-    const ok = await runAction('supersede', () => accountingApi.imports.supersede(batchId, { replacementBatchId: supersedeForm.replacementBatchId.trim(), reason: supersedeForm.reason.trim(), rowVersion: batch.rowVersion || null }));
-    if (ok) setSupersedeForm({ replacementBatchId: '', reason: '' });
   };
 
   const download = () => runAction('download', async () => {
@@ -283,20 +270,6 @@ export default function ImportBatchDetailPage() {
 
       <Panel title={copy.rawRows}>
         <DataTable columns={rowColumns} data={rows} rowKey={(item, index) => item.id || `${item.sheetName || 'sheet'}-${item.rowNumber || index}`} />
-      </Panel>
-
-      <Panel title={copy.lifecycle}>
-        <div className="grid gap-5 xl:grid-cols-2">
-          <form className="grid gap-4 md:grid-cols-[1fr_auto]" onSubmit={reprocess}>
-            <FormField label={copy.templateId}><input dir="ltr" value={reprocessForm.templateId} onChange={(event) => setReprocessForm({ templateId: event.target.value })} /></FormField>
-            <div className="flex items-end"><ActionButton type="submit" variant="secondary" icon={RefreshCw} loading={busy === 'reprocess'}>{copy.reprocess}</ActionButton></div>
-          </form>
-          <form className="grid gap-4 md:grid-cols-2" onSubmit={supersede}>
-            <FormField label={copy.replacementBatch} required><input dir="ltr" required value={supersedeForm.replacementBatchId} onChange={(event) => setSupersedeForm((current) => ({ ...current, replacementBatchId: event.target.value }))} /></FormField>
-            <FormField label={copy.reason} required><input required value={supersedeForm.reason} onChange={(event) => setSupersedeForm((current) => ({ ...current, reason: event.target.value }))} /></FormField>
-            <div className="md:col-span-2 flex justify-end"><ActionButton type="submit" variant="danger" loading={busy === 'supersede'}>{copy.supersede}</ActionButton></div>
-          </form>
-        </div>
       </Panel>
 
       <ConfirmDialog
