@@ -31,30 +31,22 @@ const COPY = {
   ar: {
     eyebrow: 'الاستيراد والأدلة', title: 'قوالب استيراد المنصات', description: 'عرّف بنية الملف مرة واحدة ثم ثبّت نسخة القالب قبل استخدامها.',
     back: 'دفعات الاستيراد', refresh: 'تحديث', createTitle: 'إنشاء مسودة قالب', createDescription: 'أنشئ قالباً بسيطاً لكل منصة وفترة سريان.',
-    platform: 'حساب المنصة', code: 'الرمز', name: 'الاسم', adapter: 'معالج الملف', from: 'ساري من', to: 'ساري إلى', create: 'إنشاء المسودة', creating: 'جاري الإنشاء…',
+    sourceBatch: 'دفعة المصدر غير المرتبطة بقالب', selectBatch: 'اختر دفعة مرفوعة لا تستخدم قالباً', platform: 'حساب المنصة', code: 'الرمز', name: 'الاسم', adapter: 'معالج الملف', from: 'ساري من', to: 'ساري إلى', create: 'إنشاء القالب واعتماده', creating: 'جارٍ إنشاء القالب واعتماده…',
     register: 'سجل القوالب', empty: 'لا توجد قوالب لهذا الكيان.', loadError: 'تعذر تحميل القوالب.', createError: 'تعذر إنشاء القالب.', activateError: 'تعذر تفعيل القالب.', retireError: 'تعذر إيقاف القالب.', status: 'الحالة', version: 'الإصدار', effective: 'السريان', activate: 'تفعيل', retire: 'إيقاف', activateTitle: 'تفعيل القالب؟', activateDescription: 'سيصبح هذا الإصدار معتمداً للاستيرادات الواقعة ضمن فترة سريانه. لا يمكن تعديل قواعده بعد الاعتماد.', retireTitle: 'إيقاف القالب؟', retireDescription: 'سيتوقف اختياره للاستيرادات الجديدة مع بقاء الأثر التاريخي.', confirm: 'تأكيد', cancel: 'إلغاء', comment: 'ملاحظة الاعتماد', requiredEntity: 'اختر كياناً قانونياً أولاً.',
   },
   en: {
     eyebrow: 'Imports & evidence', title: 'Platform import templates', description: 'Define the workbook structure once, then certify a version before using it.',
     back: 'Import batches', refresh: 'Refresh', createTitle: 'Create a template draft', createDescription: 'Create a simple template for each platform and effective period.',
-    platform: 'Platform account', code: 'Code', name: 'Name', adapter: 'File adapter', from: 'Effective from', to: 'Effective to', create: 'Create draft', creating: 'Creating…',
+    sourceBatch: 'Untemplated source batch', selectBatch: 'Select an uploaded batch with no template', platform: 'Platform account', code: 'Code', name: 'Name', adapter: 'File adapter', from: 'Effective from', to: 'Effective to', create: 'Create and certify template', creating: 'Creating and certifying…',
     register: 'Template register', empty: 'No templates exist for this entity.', loadError: 'Templates could not be loaded.', createError: 'The template could not be created.', activateError: 'The template could not be activated.', retireError: 'The template could not be retired.', status: 'Status', version: 'Version', effective: 'Effective dates', activate: 'Activate', retire: 'Retire', activateTitle: 'Activate this template?', activateDescription: 'This version becomes authoritative for imports in its effective range. Its rules should be treated as immutable after activation.', retireTitle: 'Retire this template?', retireDescription: 'It will no longer be selected for new imports, while historical lineage remains intact.', confirm: 'Confirm', cancel: 'Cancel', comment: 'Certification note', requiredEntity: 'Select a legal entity first.',
   },
 };
 
 const initialForm = {
-  platformAccountId: '', code: '', name: '', adapterKey: 'generic-tabular-v1', effectiveFrom: '', effectiveTo: '',
+  sourceBatchId: '', platformAccountId: '', code: '', name: '', adapterKey: 'hunger-ftr-v1', effectiveFrom: '', effectiveTo: '',
 };
 
-// The API requires these values, but accountants should not need to configure
-// technical column mappings or hashes by hand for a standard platform template.
-const defaultMappingConfiguration = JSON.stringify({ columns: [] });
-
-async function sha256(value) {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
+const BUILT_IN_ADAPTERS = ['amazon-anow-v1', 'hunger-ftr-v1', 'keeta-pay-per-order-v1', 'keeta-segments-v1'];
 
 export default function ImportTemplatesPage() {
   const { isRtl } = useAccountingI18n();
@@ -64,6 +56,7 @@ export default function ImportTemplatesPage() {
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const [templates, setTemplates] = useState([]);
   const [platforms, setPlatforms] = useState([]);
+  const [sourceBatches, setSourceBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [form, setForm] = useState(initialForm);
@@ -77,18 +70,21 @@ export default function ImportTemplatesPage() {
     if (!legalEntityId) {
       setTemplates([]);
       setPlatforms([]);
+      setSourceBatches([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const [payload, platformPayload] = await Promise.all([
+      const [payload, platformPayload, batchPayload] = await Promise.all([
         callApi(accountingApi.imports, ['listTemplates', 'templates'], { legalEntityId, pageNumber: 1, pageSize: 100 }),
         accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100, active: true, sortBy: 'code', sortDirection: 'asc' }),
+        accountingApi.imports.list({ legalEntityId, pageNumber: 1, pageSize: 100 }),
       ]);
       setTemplates(collectionItems(payload));
       setPlatforms(collectionItems(platformPayload));
+      setSourceBatches(collectionItems(batchPayload).filter((batch) => batch.schemaFingerprint && !batch.templateId && !batch.platformTemplateId));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
     } finally {
@@ -104,20 +100,22 @@ export default function ImportTemplatesPage() {
     setCreating(true);
     setFormError('');
     try {
-      const configurationJson = defaultMappingConfiguration;
-      const schemaFingerprint = await sha256(configurationJson);
+      const sourceBatch = sourceBatches.find((batch) => String(batch.id) === String(form.sourceBatchId));
+      if (!sourceBatch?.schemaFingerprint || !sourceBatch?.rowVersion) throw new Error(copy.selectBatch);
       const created = await callApi(accountingApi.imports, ['createTemplate'], {
         legalEntityId: Number(legalEntityId),
         platformAccountId: Number(form.platformAccountId),
         code: form.code.trim(),
         name: form.name.trim(),
         adapterKey: form.adapterKey.trim(),
-        configurationJson,
-        schemaFingerprint,
+        configurationJson: '{}',
+        schemaFingerprint: sourceBatch.schemaFingerprint,
         effectiveFrom: form.effectiveFrom,
         effectiveTo: form.effectiveTo || null,
       });
-      setTemplates((current) => [created, ...current]);
+      const activated = await accountingApi.imports.activateTemplate(created.id, { comment: 'Certified against the uploaded source workbook.' });
+      await accountingApi.imports.reprocess(sourceBatch.id, { templateId: created.id, rowVersion: sourceBatch.rowVersion });
+      setTemplates((current) => [activated, ...current]);
       setForm(initialForm);
     } catch (requestError) {
       setFormError(apiErrorMessage(requestError, copy.createError));
@@ -184,10 +182,11 @@ export default function ImportTemplatesPage() {
         <>
           <Panel title={copy.createTitle} description={copy.createDescription}>
             <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" onSubmit={createTemplate}>
+              <FormField label={copy.sourceBatch} required><select className={controlClass} required value={form.sourceBatchId} onChange={(event) => { const batch = sourceBatches.find((item) => String(item.id) === event.target.value); setForm((current) => ({ ...current, sourceBatchId: event.target.value, platformAccountId: batch?.platformAccountId ? String(batch.platformAccountId) : current.platformAccountId })); }}><option value="">{copy.selectBatch}</option>{sourceBatches.map((batch) => <option key={batch.id} value={batch.id}>{batch.externalReference || batch.id}</option>)}</select></FormField>
               <FormField label={copy.platform} required><select className={controlClass} required value={form.platformAccountId} onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))}><option value="">{copy.platform}</option>{platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{platform.platformName}</option>)}</select></FormField>
               <FormField label={copy.code} required><input className={controlClass} required maxLength={64} dir="ltr" value={form.code} onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))} /></FormField>
               <FormField label={copy.name} required><input className={controlClass} required maxLength={200} value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} /></FormField>
-              <FormField label={copy.adapter} required><input className={controlClass} required dir="ltr" value={form.adapterKey} onChange={(event) => setForm((current) => ({ ...current, adapterKey: event.target.value }))} /></FormField>
+              <FormField label={copy.adapter} required><select className={controlClass} required dir="ltr" value={form.adapterKey} onChange={(event) => setForm((current) => ({ ...current, adapterKey: event.target.value }))}>{BUILT_IN_ADAPTERS.map((adapter) => <option key={adapter} value={adapter}>{adapter}</option>)}</select></FormField>
               <FormField label={copy.from} required><input className={controlClass} type="date" required value={form.effectiveFrom} onChange={(event) => setForm((current) => ({ ...current, effectiveFrom: event.target.value }))} /></FormField>
               <FormField label={copy.to}><input className={controlClass} type="date" min={form.effectiveFrom} value={form.effectiveTo} onChange={(event) => setForm((current) => ({ ...current, effectiveTo: event.target.value }))} /></FormField>
               {formError && <div className="md:col-span-2 xl:col-span-3"><ErrorState description={formError} compact /></div>}
