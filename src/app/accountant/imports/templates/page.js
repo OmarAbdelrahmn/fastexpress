@@ -25,27 +25,36 @@ import {
   controlClass,
   formatDate,
   selectedLocale,
-  textAreaClass,
 } from '../_shared/accountingWorkspaceUtils';
 
 const COPY = {
   ar: {
     eyebrow: 'الاستيراد والأدلة', title: 'قوالب استيراد المنصات', description: 'عرّف بنية الملف مرة واحدة ثم ثبّت نسخة القالب قبل استخدامها.',
-    back: 'دفعات الاستيراد', refresh: 'تحديث', createTitle: 'إنشاء مسودة قالب', createDescription: 'استخدم بصمة البنية الناتجة من دفعة تجريبية غير مرتبطة بقالب.',
-    platform: 'حساب المنصة', code: 'الرمز', name: 'الاسم', adapter: 'معالج الملف', fingerprint: 'بصمة البنية SHA-256', config: 'إعدادات المطابقة JSON', from: 'ساري من', to: 'ساري إلى', create: 'إنشاء المسودة', creating: 'جاري الإنشاء…',
+    back: 'دفعات الاستيراد', refresh: 'تحديث', createTitle: 'إنشاء مسودة قالب', createDescription: 'أنشئ قالباً بسيطاً لكل منصة وفترة سريان.',
+    platform: 'حساب المنصة', code: 'الرمز', name: 'الاسم', adapter: 'معالج الملف', from: 'ساري من', to: 'ساري إلى', create: 'إنشاء المسودة', creating: 'جاري الإنشاء…',
     register: 'سجل القوالب', empty: 'لا توجد قوالب لهذا الكيان.', loadError: 'تعذر تحميل القوالب.', createError: 'تعذر إنشاء القالب.', activateError: 'تعذر تفعيل القالب.', retireError: 'تعذر إيقاف القالب.', status: 'الحالة', version: 'الإصدار', effective: 'السريان', activate: 'تفعيل', retire: 'إيقاف', activateTitle: 'تفعيل القالب؟', activateDescription: 'سيصبح هذا الإصدار معتمداً للاستيرادات الواقعة ضمن فترة سريانه. لا يمكن تعديل قواعده بعد الاعتماد.', retireTitle: 'إيقاف القالب؟', retireDescription: 'سيتوقف اختياره للاستيرادات الجديدة مع بقاء الأثر التاريخي.', confirm: 'تأكيد', cancel: 'إلغاء', comment: 'ملاحظة الاعتماد', requiredEntity: 'اختر كياناً قانونياً أولاً.',
   },
   en: {
     eyebrow: 'Imports & evidence', title: 'Platform import templates', description: 'Define the workbook structure once, then certify a version before using it.',
-    back: 'Import batches', refresh: 'Refresh', createTitle: 'Create a template draft', createDescription: 'Use the schema fingerprint returned by an untemplated trial batch.',
-    platform: 'Platform account', code: 'Code', name: 'Name', adapter: 'File adapter', fingerprint: 'SHA-256 schema fingerprint', config: 'Mapping configuration JSON', from: 'Effective from', to: 'Effective to', create: 'Create draft', creating: 'Creating…',
+    back: 'Import batches', refresh: 'Refresh', createTitle: 'Create a template draft', createDescription: 'Create a simple template for each platform and effective period.',
+    platform: 'Platform account', code: 'Code', name: 'Name', adapter: 'File adapter', from: 'Effective from', to: 'Effective to', create: 'Create draft', creating: 'Creating…',
     register: 'Template register', empty: 'No templates exist for this entity.', loadError: 'Templates could not be loaded.', createError: 'The template could not be created.', activateError: 'The template could not be activated.', retireError: 'The template could not be retired.', status: 'Status', version: 'Version', effective: 'Effective dates', activate: 'Activate', retire: 'Retire', activateTitle: 'Activate this template?', activateDescription: 'This version becomes authoritative for imports in its effective range. Its rules should be treated as immutable after activation.', retireTitle: 'Retire this template?', retireDescription: 'It will no longer be selected for new imports, while historical lineage remains intact.', confirm: 'Confirm', cancel: 'Cancel', comment: 'Certification note', requiredEntity: 'Select a legal entity first.',
   },
 };
 
 const initialForm = {
-  platformAccountId: '', code: '', name: '', adapterKey: 'generic-tabular-v1', schemaFingerprint: '', configurationJson: '{\n  "columns": []\n}', effectiveFrom: '', effectiveTo: '',
+  platformAccountId: '', code: '', name: '', adapterKey: 'generic-tabular-v1', effectiveFrom: '', effectiveTo: '',
 };
+
+// The API requires these values, but accountants should not need to configure
+// technical column mappings or hashes by hand for a standard platform template.
+const defaultMappingConfiguration = JSON.stringify({ columns: [] });
+
+async function sha256(value) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
 
 export default function ImportTemplatesPage() {
   const { isRtl } = useAccountingI18n();
@@ -95,15 +104,16 @@ export default function ImportTemplatesPage() {
     setCreating(true);
     setFormError('');
     try {
-      JSON.parse(form.configurationJson);
+      const configurationJson = defaultMappingConfiguration;
+      const schemaFingerprint = await sha256(configurationJson);
       const created = await callApi(accountingApi.imports, ['createTemplate'], {
         legalEntityId: Number(legalEntityId),
         platformAccountId: Number(form.platformAccountId),
         code: form.code.trim(),
         name: form.name.trim(),
         adapterKey: form.adapterKey.trim(),
-        schemaFingerprint: form.schemaFingerprint.trim(),
-        configurationJson: form.configurationJson,
+        configurationJson,
+        schemaFingerprint,
         effectiveFrom: form.effectiveFrom,
         effectiveTo: form.effectiveTo || null,
       });
@@ -178,10 +188,8 @@ export default function ImportTemplatesPage() {
               <FormField label={copy.code} required><input className={controlClass} required maxLength={64} dir="ltr" value={form.code} onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))} /></FormField>
               <FormField label={copy.name} required><input className={controlClass} required maxLength={200} value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} /></FormField>
               <FormField label={copy.adapter} required><input className={controlClass} required dir="ltr" value={form.adapterKey} onChange={(event) => setForm((current) => ({ ...current, adapterKey: event.target.value }))} /></FormField>
-              <FormField label={copy.fingerprint} required className="md:col-span-2"><input className={controlClass} required minLength={64} maxLength={64} pattern="[A-Fa-f0-9]{64}" dir="ltr" value={form.schemaFingerprint} onChange={(event) => setForm((current) => ({ ...current, schemaFingerprint: event.target.value }))} /></FormField>
               <FormField label={copy.from} required><input className={controlClass} type="date" required value={form.effectiveFrom} onChange={(event) => setForm((current) => ({ ...current, effectiveFrom: event.target.value }))} /></FormField>
               <FormField label={copy.to}><input className={controlClass} type="date" min={form.effectiveFrom} value={form.effectiveTo} onChange={(event) => setForm((current) => ({ ...current, effectiveTo: event.target.value }))} /></FormField>
-              <FormField label={copy.config} required className="md:col-span-2 xl:col-span-4"><textarea className={`${textAreaClass} min-h-44 font-mono text-xs`} required dir="ltr" spellCheck={false} value={form.configurationJson} onChange={(event) => setForm((current) => ({ ...current, configurationJson: event.target.value }))} /></FormField>
               {formError && <div className="md:col-span-2 xl:col-span-3"><ErrorState description={formError} compact /></div>}
               <div className="flex items-end justify-end"><ActionButton type="submit" icon={Plus} loading={creating} loadingLabel={copy.creating}>{copy.create}</ActionButton></div>
             </form>
