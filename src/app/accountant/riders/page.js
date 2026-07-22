@@ -32,7 +32,7 @@ const COPY = {
     code: 'الرمز',
     name: 'الاسم',
     category: 'التصنيف',
-    rider: 'الإقامة',
+    rider: 'السائق',
     amount: 'المبلغ',
     date: 'تاريخ السريان',
     status: 'الحالة',
@@ -53,7 +53,7 @@ const COPY = {
     code: 'Code',
     name: 'Name',
     category: 'Category',
-    rider: 'Iqama',
+    rider: 'Rider',
     amount: 'Amount',
     date: 'Effective date',
     status: 'Status',
@@ -131,7 +131,11 @@ export default function RiderFinancialProfilesPage() {
   ];
 
   const itemColumns = [
-    { key: 'riderIqamaNo', header: text.rider, render: (row) => <span dir="ltr">{row.riderIqamaNo ?? row.iqamaNo}</span> },
+    {
+      key: 'riderIqamaNo',
+      header: text.rider,
+      render: (row) => <div className="min-w-32"><div className="font-semibold text-slate-900">{row.riderNameAr ?? row.riderNameAR ?? '—'}</div><span dir="ltr" className="text-xs text-slate-500">{row.riderIqamaNo ?? row.iqamaNo}</span></div>,
+    },
     { key: 'itemTypeName', header: text.name, render: (row) => row.itemTypeName ?? row.financialItemTypeName ?? row.description },
     { key: 'amount', header: text.amount, numeric: true, render: (row) => formatMoney(row.amount ?? row.value ?? 0, row.currencyCode ?? 'SAR') },
     { key: 'effectiveDate', header: text.date, render: (row) => row.effectiveDate ?? row.transactionDate ?? row.createdAt },

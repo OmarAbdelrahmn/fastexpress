@@ -39,17 +39,17 @@ const COPY = {
     eyebrow: 'مراجعة الاستيراد', back: 'دفعات الاستيراد', refresh: 'تحديث', download: 'تنزيل المصدر', approve: 'اعتماد', reject: 'رفض', platform: 'حساب المنصة',
     loadError: 'تعذر تحميل تفاصيل دفعة الاستيراد.', actionError: 'تعذر إكمال العملية.', source: 'المصدر', period: 'الفترة', totals: 'مطابقة الإجماليات', sourceTotal: 'إجمالي المصدر', normalizedTotal: 'الإجمالي الموحّد', sheets: 'الأوراق', rows: 'الصفوف', facts: 'الحقائق', blocking: 'ملاحظات مانعة',
     issuesTitle: 'الملاحظات والمطابقة', issuesDescription: 'يجب معالجة كل ملاحظة مانعة قبل اعتماد الدفعة.', noIssues: 'لا توجد ملاحظات على هذه الدفعة.', severity: 'الأهمية', code: 'الرمز', message: 'الرسالة', status: 'الحالة', sourceRow: 'صف المصدر', resolve: 'معالجة', resolution: 'شرح المعالجة', waive: 'تجاوز الملاحظة بسبب موثق', saveResolution: 'حفظ المعالجة',
-    remapTitle: 'ربط معرّف عامل بسائق', remapDescription: 'أنشئ ربطاً مؤرخاً مع الحفاظ على معرّف المنصة الأصلي.', externalWorker: 'معرّف العامل الخارجي', riderIqama: 'رقم إقامة السائق', effectiveFrom: 'ساري من', effectiveTo: 'ساري إلى', reason: 'السبب', remap: 'حفظ الربط',
-    factsTitle: 'الحقائق الموحّدة', noFacts: 'لا توجد حقائق متاحة للعرض.', rider: 'السائق', metric: 'المؤشر', value: 'القيمة', date: 'التاريخ', valid: 'الصلاحية', override: 'تعديل الصلاحية', true: 'صالح', false: 'غير صالح', saveOverride: 'حفظ التعديل',
-    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.', rawRows: 'عينة صفوف المصدر', sheet: 'الورقة', rowNumber: 'رقم الصف', rawData: 'البيانات الأصلية',
+    remapTitle: 'ربط معرّف عامل بسائق', remapDescription: 'أنشئ ربطاً مؤرخاً مع الحفاظ على معرّف المنصة الأصلي.', externalWorker: 'معرّف العامل الخارجي', riderIqama: 'رقم إقامة السائق', effectiveFrom: 'ساري من', effectiveTo: 'ساري إلى', reason: 'السبب', remap: 'حفظ الربط', assignIqama: 'تعيين رقم الإقامة', assignIqamaTitle: 'تعيين رقم إقامة العامل', assignIqamaDescription: 'سيُنشئ هذا الربط ويُحدّث الحقائق المطابقة ويعالج ملاحظة الهوية تلقائياً.',
+    factsTitle: 'الحقائق الموحّدة', noFacts: 'لا توجد حقائق متاحة للعرض.', rider: 'السائق', metric: 'المؤشر', filterMetric: 'تصفية حسب المؤشر', allMetrics: 'كل المؤشرات', unassignedRider: 'سائق غير معيّن', factCount: 'حقائق', value: 'القيمة', date: 'التاريخ', valid: 'الصلاحية', override: 'تعديل الصلاحية', true: 'صالح', false: 'غير صالح', saveOverride: 'حفظ التعديل',
+    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.',
   },
   en: {
     eyebrow: 'Import review', back: 'Import batches', refresh: 'Refresh', download: 'Download source', approve: 'Approve', reject: 'Reject', platform: 'Platform account',
     loadError: 'The import batch could not be loaded.', actionError: 'The action could not be completed.', source: 'Source', period: 'Period', totals: 'Control-total match', sourceTotal: 'Source total', normalizedTotal: 'Normalized total', sheets: 'Sheets', rows: 'Rows', facts: 'Facts', blocking: 'Blocking issues',
     issuesTitle: 'Issues and reconciliation', issuesDescription: 'Every blocking issue must be resolved before approval.', noIssues: 'This batch has no recorded issues.', severity: 'Severity', code: 'Code', message: 'Message', status: 'Status', sourceRow: 'Source row', resolve: 'Resolve', resolution: 'Resolution explanation', waive: 'Waive with documented reason', saveResolution: 'Save resolution',
-    remapTitle: 'Map an external worker to a rider', remapDescription: 'Create an effective-dated identity mapping while preserving the source platform ID.', externalWorker: 'External worker ID', riderIqama: 'Rider Iqama', effectiveFrom: 'Effective from', effectiveTo: 'Effective to', reason: 'Reason', remap: 'Save mapping',
-    factsTitle: 'Normalized facts', noFacts: 'No facts are available for display.', rider: 'Rider', metric: 'Metric', value: 'Value', date: 'Date', valid: 'Validity', override: 'Override validity', true: 'Valid', false: 'Invalid', saveOverride: 'Save override',
-    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.', rawRows: 'Source-row sample', sheet: 'Sheet', rowNumber: 'Row', rawData: 'Raw data',
+    remapTitle: 'Map an external worker to a rider', remapDescription: 'Create an effective-dated identity mapping while preserving the source platform ID.', externalWorker: 'External worker ID', riderIqama: 'Rider Iqama', effectiveFrom: 'Effective from', effectiveTo: 'Effective to', reason: 'Reason', remap: 'Save mapping', assignIqama: 'Assign Iqama', assignIqamaTitle: 'Assign a rider Iqama', assignIqamaDescription: 'This creates the mapping, updates matching facts, and resolves the identity issue automatically.',
+    factsTitle: 'Normalized facts', noFacts: 'No facts are available for display.', rider: 'Rider', metric: 'Metric', filterMetric: 'Filter by metric', allMetrics: 'All metrics', unassignedRider: 'Unassigned rider', factCount: 'facts', value: 'Value', date: 'Date', valid: 'Validity', override: 'Override validity', true: 'Valid', false: 'Invalid', saveOverride: 'Save override',
+    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.',
   },
 };
 
@@ -63,7 +63,6 @@ export default function ImportBatchDetailPage() {
   const [batch, setBatch] = useState(null);
   const [issues, setIssues] = useState([]);
   const [facts, setFacts] = useState([]);
-  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
@@ -71,24 +70,24 @@ export default function ImportBatchDetailPage() {
   const [confirmAction, setConfirmAction] = useState('');
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [resolution, setResolution] = useState({ text: '', waive: false });
+  const [identityIssue, setIdentityIssue] = useState(null);
   const [remap, setRemap] = useState({ externalWorkerId: '', riderIqamaNo: '', effectiveFrom: '', effectiveTo: '', reason: '' });
   const [selectedFact, setSelectedFact] = useState(null);
   const [validity, setValidity] = useState({ isValid: true, reason: '' });
+  const [factMetricFilter, setFactMetricFilter] = useState('');
 
   const load = useCallback(async ({ quiet = false } = {}) => {
     if (!quiet) setLoading(true);
     setError('');
     try {
-      const [batchPayload, issuePayload, factPayload, rowPayload] = await Promise.all([
+      const [batchPayload, issuePayload, factPayload] = await Promise.all([
         callApi(accountingApi.imports, ['getBatch', 'get'], batchId),
         callApi(accountingApi.imports, ['getIssues', 'listIssues'], batchId),
         accountingApi.imports.getFacts(batchId, { pageNumber: 1, pageSize: 200 }),
-        accountingApi.imports.getRows(batchId, { pageNumber: 1, pageSize: 50 }),
       ]);
       setBatch(batchPayload);
       setIssues(collectionItems(issuePayload));
       setFacts(collectionItems(factPayload));
-      setRows(collectionItems(rowPayload));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
     } finally {
@@ -134,6 +133,49 @@ export default function ImportBatchDetailPage() {
     if (ok) setRemap({ externalWorkerId: '', riderIqamaNo: '', effectiveFrom: '', effectiveTo: '', reason: '' });
   };
 
+  const externalWorkerIdForIssue = (issue) => {
+    const matchingFact = facts.find((fact) =>
+      String(fact.sourceRawRowId ?? fact.rawRowId ?? '') === String(issue?.sourceRawRowId ?? '')
+    );
+
+    return String(
+      issue?.externalWorkerId
+        ?? issue?.workerExternalId
+        ?? issue?.details?.externalWorkerId
+        ?? issue?.metadata?.externalWorkerId
+        ?? matchingFact?.externalWorkerId
+        ?? ''
+    ).trim();
+  };
+
+  const startIdentityRemap = (issue) => {
+    const externalWorkerId = externalWorkerIdForIssue(issue);
+    setSelectedIssue(null);
+    setIdentityIssue(issue);
+    setRemap({
+      externalWorkerId,
+      riderIqamaNo: '',
+      effectiveFrom: String(batch?.periodStart || '').slice(0, 10),
+      effectiveTo: String(batch?.periodEnd || '').slice(0, 10),
+      reason: '',
+    });
+  };
+
+  const remapIdentityIssue = async (event) => {
+    event.preventDefault();
+    const ok = await runAction('identity-remap', () => callApi(accountingApi.imports, ['remapWorker'], batchId, {
+      externalWorkerId: remap.externalWorkerId.trim(),
+      riderIqamaNo: Number(remap.riderIqamaNo),
+      effectiveFrom: remap.effectiveFrom,
+      effectiveTo: remap.effectiveTo || null,
+      reason: remap.reason.trim(),
+    }));
+    if (ok) {
+      setIdentityIssue(null);
+      setRemap({ externalWorkerId: '', riderIqamaNo: '', effectiveFrom: '', effectiveTo: '', reason: '' });
+    }
+  };
+
   const overrideValidity = async (event) => {
     event.preventDefault();
     const ok = await runAction('validity', () => callApi(accountingApi.imports, ['overrideFactValidity', 'overrideValidity'], selectedFact.id, validity));
@@ -165,24 +207,33 @@ export default function ImportBatchDetailPage() {
     { key: 'message', header: copy.message, render: (item) => <span className="whitespace-normal leading-6">{item.message}</span> },
     { key: 'sourceRawRowId', header: copy.sourceRow, render: (item) => item.sourceRawRowId || '—' },
     { key: 'status', header: copy.status, render: (item) => <StatusBadge status={item.status} /> },
-    { key: 'action', header: '', render: (item) => item.status === 'Open' ? <ActionButton size="sm" variant="secondary" onClick={() => { setSelectedIssue(item); setResolution({ text: item.resolution || '', waive: false }); }}>{copy.resolve}</ActionButton> : null },
+    {
+      key: 'action',
+      header: '',
+      render: (item) => item.status === 'Open' && String(item.code).toUpperCase() === 'IDENTITY_MISSING'
+        ? <ActionButton size="sm" icon={UserRoundCheck} onClick={() => startIdentityRemap(item)}>{copy.assignIqama}</ActionButton>
+        : item.status === 'Open'
+          ? <ActionButton size="sm" variant="secondary" onClick={() => { setIdentityIssue(null); setSelectedIssue(item); setResolution({ text: item.resolution || '', waive: false }); }}>{copy.resolve}</ActionButton>
+          : null,
+    },
   ];
 
   const factColumns = [
+    {
+      key: 'rider',
+      header: copy.rider,
+      render: (item) => {
+        const riderName = item.riderNameAr ?? item.riderNameAR;
+        const riderIqamaNo = item.riderIqamaNo ?? item.iqamaNo;
+        return <div className="min-w-32"><div className="font-semibold text-slate-900">{riderName || '—'}</div><span dir="ltr" className="text-xs text-slate-500">{riderIqamaNo || '—'}</span></div>;
+      },
+    },
     { key: 'externalWorkerId', header: copy.externalWorker, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.externalWorkerId || '—'}</span> },
-    { key: 'riderIqamaNo', header: copy.rider, render: (item) => <span dir="ltr">{item.riderIqamaNo || '—'}</span> },
     { key: 'metricCode', header: copy.metric, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.metricCode}</span> },
     { key: 'value', header: copy.value, render: (item) => item.numericValue ?? item.textValue ?? (item.booleanValue == null ? '—' : String(item.booleanValue)) },
     { key: 'factDate', header: copy.date, render: (item) => formatDate(item.factDate, locale) },
     { key: 'resolved', header: copy.status, render: (item) => <StatusBadge status={item.isResolved ? 'Resolved' : 'Open'} /> },
     { key: 'action', header: '', render: (item) => String(item.metricCode).toUpperCase() === 'VALIDITY' ? <ActionButton size="sm" variant="secondary" onClick={() => { setSelectedFact(item); setValidity({ isValid: item.override?.booleanValue ?? item.booleanValue ?? true, reason: '' }); }}>{copy.override}</ActionButton> : null },
-  ];
-
-  const rowColumns = [
-    { key: 'sheetName', header: copy.sheet, render: (item) => item.sheetName || item.sheet || '—' },
-    { key: 'rowNumber', header: copy.rowNumber, align: 'end', render: (item) => item.rowNumber ?? item.sourceRowNumber ?? '—' },
-    { key: 'externalWorkerId', header: copy.externalWorker, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.externalWorkerId || '—'}</span> },
-    { key: 'rawData', header: copy.rawData, render: (item) => <span dir="ltr" className="block max-w-xl truncate font-mono text-xs" title={typeof (item.rawValuesJson || item.cellsJson || item.rawJson) === 'string' ? (item.rawValuesJson || item.cellsJson || item.rawJson) : undefined}>{typeof (item.rawValuesJson || item.cellsJson || item.rawJson) === 'string' ? (item.rawValuesJson || item.cellsJson || item.rawJson) : JSON.stringify(item.values || item.cells || {})}</span> },
   ];
 
   const batchStatus = enumName(batch?.status, IMPORT_STATUSES);
@@ -191,6 +242,34 @@ export default function ImportBatchDetailPage() {
     if (!batch?.sourceControlTotal || batch?.normalizedControlTotal == null) return '—';
     return Number(batch.sourceControlTotal) === Number(batch.normalizedControlTotal) ? '✓' : '≠';
   }, [batch]);
+
+  const factMetricOptions = useMemo(
+    () => [...new Set(facts.map((item) => String(item.metricCode ?? '')).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [facts]
+  );
+
+  const groupedFacts = useMemo(() => {
+    const groups = new Map();
+    const filteredFacts = factMetricFilter
+      ? facts.filter((item) => String(item.metricCode ?? '') === factMetricFilter)
+      : facts;
+
+    filteredFacts.forEach((item) => {
+      const riderIqamaNo = item.riderIqamaNo ?? item.iqamaNo;
+      const riderNameAr = item.riderNameAr ?? item.riderNameAR;
+      const key = riderIqamaNo == null || riderIqamaNo === '' ? 'unassigned' : String(riderIqamaNo);
+      const group = groups.get(key) || { riderIqamaNo, riderNameAr, items: [] };
+      if (!group.riderNameAr && riderNameAr) group.riderNameAr = riderNameAr;
+      group.items.push(item);
+      groups.set(key, group);
+    });
+
+    return [...groups.values()].sort((left, right) => {
+      if (left.riderIqamaNo == null || left.riderIqamaNo === '') return 1;
+      if (right.riderIqamaNo == null || right.riderIqamaNo === '') return -1;
+      return String(left.riderIqamaNo).localeCompare(String(right.riderIqamaNo), undefined, { numeric: true });
+    });
+  }, [factMetricFilter, facts]);
 
   if (loading) return <LoadingState />;
   if (error || !batch) return <ErrorState description={error || copy.loadError} onRetry={load} />;
@@ -235,6 +314,23 @@ export default function ImportBatchDetailPage() {
 
       <Panel title={copy.issuesTitle} description={copy.issuesDescription}>
         {issues.length === 0 ? <EmptyState icon={CheckCircle2} title={copy.noIssues} compact /> : <DataTable columns={issueColumns} data={issues} rowKey="id" />}
+        {identityIssue && (
+          <form className="mt-5 grid gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4 md:grid-cols-2 xl:grid-cols-6" onSubmit={remapIdentityIssue}>
+            <div className="md:col-span-2 xl:col-span-6">
+              <h3 className="font-bold text-slate-950">{copy.assignIqamaTitle}</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{copy.assignIqamaDescription}</p>
+            </div>
+            <FormField label={copy.externalWorker} required><input className={controlClass} dir="ltr" required readOnly value={remap.externalWorkerId} /></FormField>
+            <FormField label={copy.riderIqama} required><input className={controlClass} dir="ltr" inputMode="numeric" pattern="[0-9]*" required autoFocus value={remap.riderIqamaNo} onChange={(event) => setRemap((current) => ({ ...current, riderIqamaNo: event.target.value }))} /></FormField>
+            <FormField label={copy.effectiveFrom} required><input className={controlClass} type="date" required value={remap.effectiveFrom} onChange={(event) => setRemap((current) => ({ ...current, effectiveFrom: event.target.value }))} /></FormField>
+            <FormField label={copy.effectiveTo}><input className={controlClass} type="date" min={remap.effectiveFrom} value={remap.effectiveTo} onChange={(event) => setRemap((current) => ({ ...current, effectiveTo: event.target.value }))} /></FormField>
+            <FormField label={copy.reason} required><input className={controlClass} required value={remap.reason} onChange={(event) => setRemap((current) => ({ ...current, reason: event.target.value }))} /></FormField>
+            <div className="flex items-end gap-2">
+              <ActionButton className="flex-1" variant="secondary" onClick={() => setIdentityIssue(null)}>{copy.cancel}</ActionButton>
+              <ActionButton className="flex-1" type="submit" icon={UserRoundCheck} loading={busy === 'identity-remap'}>{copy.assignIqama}</ActionButton>
+            </div>
+          </form>
+        )}
         {selectedIssue && (
           <form className="mt-5 grid gap-4 rounded-xl border border-amber-200 bg-amber-50/60 p-4 lg:grid-cols-[1fr_auto]" onSubmit={resolveIssue}>
             <FormField label={copy.resolution} required><textarea className={textAreaClass} required value={resolution.text} onChange={(event) => setResolution((current) => ({ ...current, text: event.target.value }))} /></FormField>
@@ -258,7 +354,32 @@ export default function ImportBatchDetailPage() {
       </Panel>
 
       <Panel title={copy.factsTitle}>
-        {facts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <DataTable columns={factColumns} data={facts} rowKey="id" />}
+        {facts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <>
+          <div className="mb-4 max-w-xs">
+            <FormField label={copy.filterMetric}>
+              <select className={controlClass} value={factMetricFilter} onChange={(event) => setFactMetricFilter(event.target.value)}>
+                <option value="">{copy.allMetrics}</option>
+                {factMetricOptions.map((metric) => <option key={metric} value={metric}>{metric}</option>)}
+              </select>
+            </FormField>
+          </div>
+          {groupedFacts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <div className="space-y-5">
+            {groupedFacts.map((group) => {
+              const isUnassigned = group.riderIqamaNo == null || group.riderIqamaNo === '';
+              return (
+                <section key={isUnassigned ? 'unassigned' : group.riderIqamaNo} className="overflow-hidden rounded-xl border border-slate-200">
+                  <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                    <h3 className="font-bold text-slate-950">
+                      {isUnassigned ? copy.unassignedRider : <><span>{group.riderNameAr || '—'}</span><span dir="ltr" className="ms-2 text-sm font-medium text-slate-600">{group.riderIqamaNo}</span></>}
+                    </h3>
+                    <span className="text-sm font-medium tabular-nums text-slate-600">{group.items.length} {copy.factCount}</span>
+                  </header>
+                  <DataTable columns={factColumns} data={group.items} rowKey="id" />
+                </section>
+              );
+            })}
+          </div>}
+        </>}
         {selectedFact && (
           <form className="mt-5 grid gap-4 rounded-xl border border-blue-200 bg-blue-50/60 p-4 md:grid-cols-[12rem_1fr_auto]" onSubmit={overrideValidity}>
             <FormField label={copy.valid} required><select className={controlClass} value={String(validity.isValid)} onChange={(event) => setValidity((current) => ({ ...current, isValid: event.target.value === 'true' }))}><option value="true">{copy.true}</option><option value="false">{copy.false}</option></select></FormField>
@@ -266,10 +387,6 @@ export default function ImportBatchDetailPage() {
             <div className="flex items-end"><ActionButton type="submit" loading={busy === 'validity'}>{copy.saveOverride}</ActionButton></div>
           </form>
         )}
-      </Panel>
-
-      <Panel title={copy.rawRows}>
-        <DataTable columns={rowColumns} data={rows} rowKey={(item, index) => item.id || `${item.sheetName || 'sheet'}-${item.rowNumber || index}`} />
       </Panel>
 
       <ConfirmDialog
