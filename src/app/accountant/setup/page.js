@@ -21,22 +21,22 @@ import { apiErrorMessage, collectionItems, controlClass } from '../imports/_shar
 const COPY = {
   ar: {
     eyebrow: 'إعدادات النظام المالي', title: 'الكيانات القانونية والمنصات', description: 'أضف الكيانات القانونية وحسابات المنصات ليتمكن فريق المحاسبة من استخدامها في الاستيراد والرواتب.',
-    refresh: 'تحديث', entities: 'الكيانات القانونية', entitiesDescription: 'تظهر الكيانات الجديدة فوراً في قائمة مساحة العمل.', code: 'الرمز', nameAr: 'الاسم بالعربية', nameEn: 'الاسم بالإنجليزية', registration: 'رقم السجل التجاري', addEntity: 'إضافة كيان قانوني', addingEntity: 'جارٍ إضافة الكيان…',
-    platforms: 'حسابات المنصات', platformsDescription: 'اربط حساب كل منصة بالكيان القانوني الذي تعمل ضمنه.', platformCode: 'رمز المنصة', platformNameAr: 'اسم المنصة بالعربية', platformNameEn: 'اسم المنصة بالإنجليزية', entity: 'الكيان القانوني', addPlatform: 'إضافة حساب منصة', addingPlatform: 'جارٍ إضافة الحساب…',
+    refresh: 'تحديث', entities: 'الكيانات القانونية', entitiesDescription: 'تظهر الكيانات الجديدة فوراً في قائمة مساحة العمل.', code: 'الرمز', name: 'الاسم القانوني', tenant: 'معرّف المستأجر', currency: 'العملة الأساسية', registration: 'الرقم الضريبي', addEntity: 'إضافة كيان قانوني', addingEntity: 'جارٍ إضافة الكيان…',
+    platforms: 'حسابات المنصات', platformsDescription: 'اربط حساب كل منصة بالكيان القانوني الذي تعمل ضمنه.', platformCode: 'رمز المنصة', platformName: 'اسم المنصة', externalReference: 'المرجع الخارجي', entity: 'الكيان القانوني', addPlatform: 'إضافة حساب منصة', addingPlatform: 'جارٍ إضافة الحساب…',
     selectEntity: 'اختر كياناً قانونياً', entityCreated: 'تمت إضافة الكيان القانوني.', platformCreated: 'تمت إضافة حساب المنصة.', entityError: 'تعذر إضافة الكيان القانوني.', platformError: 'تعذر إضافة حساب المنصة.', loadError: 'تعذر تحميل الإعدادات.', noEntities: 'لا توجد كيانات قانونية بعد.', noPlatforms: 'لا توجد حسابات منصات بعد.', active: 'نشط', status: 'الحالة',
   },
   en: {
     eyebrow: 'Finance configuration', title: 'Legal entities & platforms', description: 'Add legal entities and platform accounts for use in imports and payroll.',
-    refresh: 'Refresh', entities: 'Legal entities', entitiesDescription: 'New entities immediately appear in the workspace selector.', code: 'Code', nameAr: 'Arabic name', nameEn: 'English name', registration: 'Commercial registration number', addEntity: 'Add legal entity', addingEntity: 'Adding entity…',
-    platforms: 'Platform accounts', platformsDescription: 'Link each platform account to the legal entity that operates it.', platformCode: 'Platform code', platformNameAr: 'Arabic platform name', platformNameEn: 'English platform name', entity: 'Legal entity', addPlatform: 'Add platform account', addingPlatform: 'Adding account…',
+    refresh: 'Refresh', entities: 'Legal entities', entitiesDescription: 'New entities immediately appear in the workspace selector.', code: 'Code', name: 'Legal name', tenant: 'Tenant ID', currency: 'Base currency', registration: 'Tax registration number', addEntity: 'Add legal entity', addingEntity: 'Adding entity…',
+    platforms: 'Platform accounts', platformsDescription: 'Link each platform account to the legal entity that operates it.', platformCode: 'Platform code', platformName: 'Platform name', externalReference: 'External account reference', entity: 'Legal entity', addPlatform: 'Add platform account', addingPlatform: 'Adding account…',
     selectEntity: 'Select a legal entity', entityCreated: 'Legal entity added.', platformCreated: 'Platform account added.', entityError: 'The legal entity could not be added.', platformError: 'The platform account could not be added.', loadError: 'Configuration could not be loaded.', noEntities: 'No legal entities yet.', noPlatforms: 'No platform accounts yet.', active: 'Active', status: 'Status',
   },
 };
 
 function entityName(entity, isRtl) {
   return isRtl
-    ? entity.nameAr ?? entity.nameArabic ?? entity.arabicName ?? entity.name ?? entity.code
-    : entity.nameEn ?? entity.nameEnglish ?? entity.name ?? entity.code;
+    ? entity.legalName ?? entity.platformName ?? entity.name ?? entity.code
+    : entity.legalName ?? entity.platformName ?? entity.name ?? entity.code;
 }
 
 export default function AccountingSetupPage() {
@@ -47,8 +47,8 @@ export default function AccountingSetupPage() {
   const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [entityForm, setEntityForm] = useState({ code: '', nameAr: '', nameEn: '', registrationNumber: '' });
-  const [platformForm, setPlatformForm] = useState({ legalEntityId: '', code: '', nameAr: '', nameEn: '' });
+  const [entityForm, setEntityForm] = useState({ tenantId: '1', code: '', legalName: '', baseCurrencyCode: 'SAR', taxRegistrationNumber: '' });
+  const [platformForm, setPlatformForm] = useState({ legalEntityId: '', code: '', platformName: '', externalAccountReference: '' });
   const [busy, setBusy] = useState('');
   const [message, setMessage] = useState('');
 
@@ -56,13 +56,14 @@ export default function AccountingSetupPage() {
     setLoading(true);
     setError('');
     try {
-      const [entityResponse, platformResponse] = await Promise.all([
-        accountingApi.organization.listLegalEntities({ pageNumber: 1, pageSize: 100 }),
-        accountingApi.organization.listPlatformAccounts({ pageNumber: 1, pageSize: 100 }),
-      ]);
+      const entityResponse = await accountingApi.organization.listLegalEntities({ pageNumber: 1, pageSize: 100, active: true, sortBy: 'code', sortDirection: 'asc' });
       const nextEntities = collectionItems(entityResponse);
+      const platformResponses = await Promise.all(nextEntities.map(async (entity) => {
+        const response = await accountingApi.organization.listPlatformAccounts({ legalEntityId: entity.id, pageNumber: 1, pageSize: 100, active: true, sortBy: 'code', sortDirection: 'asc' });
+        return collectionItems(response).map((platform) => ({ ...platform, legalEntityId: platform.legalEntityId ?? entity.id }));
+      }));
       setEntities(nextEntities);
-      setPlatforms(collectionItems(platformResponse));
+      setPlatforms(platformResponses.flat());
       updateWorkspace({ legalEntities: nextEntities });
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
@@ -79,12 +80,12 @@ export default function AccountingSetupPage() {
     setBusy('entity'); setMessage(''); setError('');
     try {
       const created = await accountingApi.organization.createLegalEntity({
-        code: entityForm.code.trim(), name: entityForm.nameEn.trim() || entityForm.nameAr.trim(),
-        nameAr: entityForm.nameAr.trim(), nameEn: entityForm.nameEn.trim(), registrationNumber: entityForm.registrationNumber.trim() || undefined,
+        tenantId: Number(entityForm.tenantId), code: entityForm.code.trim(), legalName: entityForm.legalName.trim(),
+        baseCurrencyCode: entityForm.baseCurrencyCode.trim().toUpperCase(), taxRegistrationNumber: entityForm.taxRegistrationNumber.trim() || undefined,
       });
       const next = [...entities, created];
       setEntities(next); updateWorkspace({ legalEntities: next });
-      setEntityForm({ code: '', nameAr: '', nameEn: '', registrationNumber: '' }); setMessage(copy.entityCreated);
+      setEntityForm({ tenantId: entityForm.tenantId, code: '', legalName: '', baseCurrencyCode: 'SAR', taxRegistrationNumber: '' }); setMessage(copy.entityCreated);
     } catch (requestError) { setError(apiErrorMessage(requestError, copy.entityError)); }
     finally { setBusy(''); }
   };
@@ -96,10 +97,10 @@ export default function AccountingSetupPage() {
     try {
       const created = await accountingApi.organization.createPlatformAccount({
         legalEntityId: Number(platformForm.legalEntityId), code: platformForm.code.trim(),
-        name: platformForm.nameEn.trim() || platformForm.nameAr.trim(), nameAr: platformForm.nameAr.trim(), nameEn: platformForm.nameEn.trim(),
+        platformName: platformForm.platformName.trim(), externalAccountReference: platformForm.externalAccountReference.trim() || null,
       });
       setPlatforms((current) => [...current, created]);
-      setPlatformForm({ legalEntityId: '', code: '', nameAr: '', nameEn: '' }); setMessage(copy.platformCreated);
+      setPlatformForm({ legalEntityId: '', code: '', platformName: '', externalAccountReference: '' }); setMessage(copy.platformCreated);
     } catch (requestError) { setError(apiErrorMessage(requestError, copy.platformError)); }
     finally { setBusy(''); }
   };
@@ -107,7 +108,8 @@ export default function AccountingSetupPage() {
   const entityColumns = [
     { key: 'code', header: copy.code, render: (item) => <span dir="ltr">{item.code ?? item.legalEntityCode ?? '—'}</span> },
     { key: 'name', header: copy.entity, render: (item) => entityName(item, isRtl) },
-    { key: 'registrationNumber', header: copy.registration, render: (item) => <span dir="ltr">{item.registrationNumber ?? item.commercialRegistrationNumber ?? '—'}</span> },
+    { key: 'baseCurrencyCode', header: copy.currency, render: (item) => <span dir="ltr">{item.baseCurrencyCode ?? '—'}</span> },
+    { key: 'taxRegistrationNumber', header: copy.registration, render: (item) => <span dir="ltr">{item.taxRegistrationNumber ?? '—'}</span> },
     { key: 'status', header: copy.status, render: (item) => <StatusBadge status={item.status ?? (item.isActive === false ? 'Inactive' : 'Active')} /> },
   ];
   const platformColumns = [
@@ -123,10 +125,11 @@ export default function AccountingSetupPage() {
     {error && <ErrorState description={error} onRetry={load} compact />}
     <Panel title={copy.entities} description={copy.entitiesDescription}>
       <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-5" onSubmit={addEntity}>
+        <FormField label={copy.tenant} required><input dir="ltr" type="number" min="1" required value={entityForm.tenantId} onChange={(event) => setEntityForm((current) => ({ ...current, tenantId: event.target.value }))} /></FormField>
         <FormField label={copy.code} required><input dir="ltr" required value={entityForm.code} onChange={(event) => setEntityForm((current) => ({ ...current, code: event.target.value }))} /></FormField>
-        <FormField label={copy.nameAr} required><input required value={entityForm.nameAr} onChange={(event) => setEntityForm((current) => ({ ...current, nameAr: event.target.value }))} /></FormField>
-        <FormField label={copy.nameEn}><input dir="ltr" value={entityForm.nameEn} onChange={(event) => setEntityForm((current) => ({ ...current, nameEn: event.target.value }))} /></FormField>
-        <FormField label={copy.registration}><input dir="ltr" value={entityForm.registrationNumber} onChange={(event) => setEntityForm((current) => ({ ...current, registrationNumber: event.target.value }))} /></FormField>
+        <FormField label={copy.name} required><input required value={entityForm.legalName} onChange={(event) => setEntityForm((current) => ({ ...current, legalName: event.target.value }))} /></FormField>
+        <FormField label={copy.currency} required><input dir="ltr" maxLength="3" required value={entityForm.baseCurrencyCode} onChange={(event) => setEntityForm((current) => ({ ...current, baseCurrencyCode: event.target.value }))} /></FormField>
+        <FormField label={copy.registration}><input dir="ltr" value={entityForm.taxRegistrationNumber} onChange={(event) => setEntityForm((current) => ({ ...current, taxRegistrationNumber: event.target.value }))} /></FormField>
         <div className="flex items-end"><ActionButton className="w-full" type="submit" icon={Plus} loading={busy === 'entity'} loadingLabel={copy.addingEntity}>{copy.addEntity}</ActionButton></div>
       </form>
       <div className="mt-6">{loading ? <LoadingState compact /> : entities.length ? <DataTable columns={entityColumns} data={entities} rowKey="id" /> : <EmptyState icon={Building2} title={copy.noEntities} compact />}</div>
@@ -135,8 +138,8 @@ export default function AccountingSetupPage() {
       <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-5" onSubmit={addPlatform}>
         <FormField label={copy.entity} required><select className={controlClass} required value={platformForm.legalEntityId} onChange={(event) => setPlatformForm((current) => ({ ...current, legalEntityId: event.target.value }))}><option value="">{copy.selectEntity}</option>{entities.map((entity) => <option key={entity.id} value={entity.id}>{entity.code ? `${entity.code} · ` : ''}{entityName(entity, isRtl)}</option>)}</select></FormField>
         <FormField label={copy.platformCode} required><input dir="ltr" required value={platformForm.code} onChange={(event) => setPlatformForm((current) => ({ ...current, code: event.target.value }))} /></FormField>
-        <FormField label={copy.platformNameAr} required><input required value={platformForm.nameAr} onChange={(event) => setPlatformForm((current) => ({ ...current, nameAr: event.target.value }))} /></FormField>
-        <FormField label={copy.platformNameEn}><input dir="ltr" value={platformForm.nameEn} onChange={(event) => setPlatformForm((current) => ({ ...current, nameEn: event.target.value }))} /></FormField>
+        <FormField label={copy.platformName} required><input required value={platformForm.platformName} onChange={(event) => setPlatformForm((current) => ({ ...current, platformName: event.target.value }))} /></FormField>
+        <FormField label={copy.externalReference}><input dir="ltr" value={platformForm.externalAccountReference} onChange={(event) => setPlatformForm((current) => ({ ...current, externalAccountReference: event.target.value }))} /></FormField>
         <div className="flex items-end"><ActionButton className="w-full" type="submit" icon={Plus} loading={busy === 'platform'} loadingLabel={copy.addingPlatform} disabled={!entities.length}>{copy.addPlatform}</ActionButton></div>
       </form>
       <div className="mt-6">{loading ? <LoadingState compact /> : platforms.length ? <DataTable columns={platformColumns} data={platforms} rowKey="id" /> : <EmptyState icon={Layers3} title={copy.noPlatforms} compact />}</div>

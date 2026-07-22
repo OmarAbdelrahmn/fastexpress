@@ -291,7 +291,7 @@ export default function ImportBatchesPage() {
               <FormField label={copy.platform} required>
                 <select className={controlClass} required value={form.platformAccountId} onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))}>
                   <option value="">{copy.platform}</option>
-                  {platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{isRtl ? platform.nameAr ?? platform.name : platform.nameEn ?? platform.name}</option>)}
+                  {platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{platform.platformName ?? platform.name}</option>)}
                 </select>
               </FormField>
               <FormField label={copy.template}>

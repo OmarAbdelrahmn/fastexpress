@@ -15,6 +15,7 @@ const jsonRequest = (endpoint, method, payload, headers = {}) => {
 
 const get = (endpoint, params) => ApiService.get(endpoint, compactParams(params));
 const post = (endpoint, payload, headers) => jsonRequest(endpoint, 'POST', payload, headers);
+const put = (endpoint, payload, headers) => jsonRequest(endpoint, 'PUT', payload, headers);
 const remove = (endpoint) => jsonRequest(endpoint, 'DELETE');
 
 const compactParams = (params = {}) =>
@@ -173,10 +174,16 @@ export const accountingApi = {
   organization: {
     // Backend handoff: live workspace bootstrap route backed by existing entities.
     getCurrent: () => get('/api/organization-settings/current'),
-    listLegalEntities: (params = {}) => get('/api/accounting/legal-entities', params),
-    createLegalEntity: (payload) => post('/api/accounting/legal-entities', payload),
-    listPlatformAccounts: (params = {}) => get('/api/accounting/platform-accounts', params),
-    createPlatformAccount: (payload) => post('/api/accounting/platform-accounts', payload),
+    listLegalEntities: (params = {}) => get('/api/organization-settings/legal-entities', params),
+    getLegalEntity: (id) => get(`/api/organization-settings/legal-entities/${routeValue(id)}`),
+    createLegalEntity: (payload) => post('/api/organization-settings/legal-entities', payload),
+    updateLegalEntity: (id, payload) => put(`/api/organization-settings/legal-entities/${routeValue(id)}`, payload),
+    deleteLegalEntity: (id) => remove(`/api/organization-settings/legal-entities/${routeValue(id)}`),
+    listPlatformAccounts: (params = {}) => get('/api/organization-settings/platform-accounts', params),
+    getPlatformAccount: (id) => get(`/api/organization-settings/platform-accounts/${routeValue(id)}`),
+    createPlatformAccount: (payload) => post('/api/organization-settings/platform-accounts', payload),
+    updatePlatformAccount: (id, payload) => put(`/api/organization-settings/platform-accounts/${routeValue(id)}`, payload),
+    deletePlatformAccount: (id) => remove(`/api/organization-settings/platform-accounts/${routeValue(id)}`),
   },
 
   files: {
