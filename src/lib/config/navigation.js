@@ -5,6 +5,12 @@ export const userNavigationConfig = {
     icon: "🏠",
     path: "/member/dashboard",
   },
+  cashDelivery: {
+    title: "navigation.cashDelivery",
+    icon: "💵",
+    path: "/member/cash-delivery",
+    roles: ["Member"],
+  },
   riders: {
     title: "navigation.riders",
     icon: "🏍️",

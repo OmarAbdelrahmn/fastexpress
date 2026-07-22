@@ -96,6 +96,8 @@ export default function AccountantLoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+              aria-pressed={showPassword}
               className="absolute left-3 top-[38px] text-[#e08911] hover:text-[#ebb62b] transition-colors"
               disabled={loading}
             >

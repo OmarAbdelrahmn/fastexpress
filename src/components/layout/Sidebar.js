@@ -27,9 +27,11 @@ import {
   BookOpen,
   ReceiptText,
   RotateCcw,
+  Banknote,
 } from 'lucide-react';
 import { accountantNavigationConfig, adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { TokenManager } from '@/lib/auth/tokenManager';
 
 // Map navigation keys to Lucide icons
 const ICON_MAP = {
@@ -54,6 +56,7 @@ const ICON_MAP = {
   suppliers: Building2,
   bills: ReceiptText,
   returns: RotateCcw,
+  cashDelivery: Banknote,
 };
 
 function NavIcon({ sectionKey, size = 18 }) {
@@ -66,6 +69,9 @@ export default function Sidebar() {
   const { t } = useLanguage();
   const [openSections, setOpenSections] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const currentUser = TokenManager.getUserFromToken() || {};
+  const rawRoles = currentUser.roles ?? currentUser.role ?? currentUser['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? [];
+  const currentRoles = Array.isArray(rawRoles) ? rawRoles : [rawRoles];
 
   const isMemberPath = pathname.startsWith('/member');
   const isAccountantPath = pathname.startsWith('/accountant');
@@ -82,7 +88,7 @@ export default function Sidebar() {
     }));
   };
 
-  const isActive = (path) => pathname === path;
+  const isActive = (path) => pathname === path || pathname.startsWith(`${path}/`);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const SidebarContent = () => (
@@ -132,7 +138,7 @@ export default function Sidebar() {
 
         {/* Sections */}
         {Object.entries(currentConfig)
-          .filter(([key]) => key !== 'dashboard')
+          .filter(([key, section]) => key !== 'dashboard' && (!section.roles || section.roles.some((role) => currentRoles.includes(role))))
           .map(([key, section]) => {
             const anyChildActive = section.routes?.some(r => isActive(r.path));
             const isOpen = openSections[key];
