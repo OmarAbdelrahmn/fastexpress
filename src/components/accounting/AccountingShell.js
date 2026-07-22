@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   UserRound,
   UsersRound,
+  Wrench,
   WalletCards,
   X,
 } from 'lucide-react';
@@ -87,6 +88,7 @@ export const ACCOUNTING_NAVIGATION = [
     labelKey: 'nav.administration',
     items: [
       { key: 'financialAccess', labelKey: 'nav.financialAccess', href: '/accountant/access', icon: ShieldCheck, permission: 'Configure', roles: ['Master'] },
+      { key: 'setup', labelKey: 'nav.setup', href: '/accountant/setup', icon: Wrench, permission: 'Configure' },
     ],
   },
 ];
@@ -179,6 +181,7 @@ function WorkspaceControls() {
     fiscalPeriods,
     selectedFiscalPeriodId,
     setSelectedFiscalPeriodId,
+    can,
   } = useAccountingWorkspace();
   const t = (key) => accountingT(locale, key);
 
@@ -223,6 +226,17 @@ function WorkspaceControls() {
           <ChevronDown className="accounting-context-control__chevron" aria-hidden="true" size={14} />
         </span>
       </label>
+
+      {can('Configure') && (
+        <Link
+          href="/accountant/setup"
+          className="accounting-setup-link"
+          aria-label={t('nav.manageSetup')}
+        >
+          <Settings2 aria-hidden="true" size={16} />
+          <span>{t('nav.manageSetup')}</span>
+        </Link>
+      )}
     </div>
   );
 }
@@ -375,7 +389,7 @@ export default function AccountingShell({ children }) {
             <button
               ref={drawerTriggerRef}
               type="button"
-              className="accounting-icon-button lg:hidden"
+              className="accounting-icon-button accounting-mobile-only"
               onClick={() => setDrawerOpen(true)}
               aria-label={t('shell.openNavigation')}
               aria-expanded={drawerOpen}
@@ -383,7 +397,7 @@ export default function AccountingShell({ children }) {
             >
               <Menu aria-hidden="true" size={20} />
             </button>
-            <div className="hidden min-w-0 items-center gap-2.5 sm:flex lg:hidden">
+            <div className="accounting-mobile-brand min-w-0 items-center gap-2.5">
               <span className="accounting-brand__mark accounting-brand__mark--small" aria-hidden="true">FE</span>
               <span className="truncate text-sm font-black text-slate-900" dir="ltr">{t('shell.brand')}</span>
             </div>

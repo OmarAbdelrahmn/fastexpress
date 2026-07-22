@@ -12,7 +12,7 @@ import {
   Panel,
   StatusBadge,
 } from '@/components/accounting/AccountingUi';
-import { useAccountingI18n } from '@/lib/accounting/i18n';
+import { accountingOptionLabel, useAccountingI18n } from '@/lib/accounting/i18n';
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { accountingApi } from '@/lib/api/accountingApi';
 import { FileSpreadsheet, Layers3, Plus, RefreshCw, UploadCloud } from 'lucide-react';
@@ -126,6 +126,7 @@ export default function ImportBatchesPage() {
   const month = useMemo(() => currentMonthRange(), []);
   const [batches, setBatches] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ search: '', status: '' });
@@ -145,13 +146,14 @@ export default function ImportBatchesPage() {
     if (!legalEntityId) {
       setBatches([]);
       setTemplates([]);
+      setPlatforms([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const [batchPayload, templatePayload] = await Promise.all([
+      const [batchPayload, templatePayload, platformPayload] = await Promise.all([
         callApi(accountingApi.imports, ['list', 'getAll'], {
           legalEntityId,
           search: filters.search || undefined,
@@ -164,9 +166,11 @@ export default function ImportBatchesPage() {
           pageNumber: 1,
           pageSize: 100,
         }).catch(() => []),
+        accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100 }).catch(() => []),
       ]);
       setBatches(collectionItems(batchPayload));
       setTemplates(collectionItems(templatePayload));
+      setPlatforms(collectionItems(platformPayload));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
     } finally {
@@ -285,13 +289,10 @@ export default function ImportBatchesPage() {
           <Panel title={copy.uploadTitle} description={copy.uploadDescription}>
             <form className="grid gap-4 lg:grid-cols-4" onSubmit={submitUpload}>
               <FormField label={copy.platform} required>
-                <input
-                  className={controlClass}
-                  inputMode="numeric"
-                  required
-                  value={form.platformAccountId}
-                  onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))}
-                />
+                <select className={controlClass} required value={form.platformAccountId} onChange={(event) => setForm((current) => ({ ...current, platformAccountId: event.target.value }))}>
+                  <option value="">{copy.platform}</option>
+                  {platforms.map((platform) => <option key={platform.id} value={platform.id}>{platform.code ? `${platform.code} · ` : ''}{isRtl ? platform.nameAr ?? platform.name : platform.nameEn ?? platform.name}</option>)}
+                </select>
               </FormField>
               <FormField label={copy.template}>
                 <select className={controlClass} value={form.templateId} onChange={(event) => setForm((current) => ({ ...current, templateId: event.target.value }))}>
@@ -328,7 +329,7 @@ export default function ImportBatchesPage() {
               <input className={controlClass} type="search" placeholder={copy.search} value={filters.search} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))} />
               <select className={controlClass} value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}>
                 <option value="">{copy.allStatuses}</option>
-                {STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+                {STATUSES.map((status) => <option key={status} value={status}>{accountingOptionLabel(isRtl ? 'ar' : 'en', status)}</option>)}
               </select>
             </div>
             {loading ? <LoadingState /> : error ? <ErrorState description={error} onRetry={load} /> : batches.length === 0 ? (

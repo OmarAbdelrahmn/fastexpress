@@ -173,6 +173,10 @@ export const accountingApi = {
   organization: {
     // Backend handoff: live workspace bootstrap route backed by existing entities.
     getCurrent: () => get('/api/organization-settings/current'),
+    listLegalEntities: (params = {}) => get('/api/accounting/legal-entities', params),
+    createLegalEntity: (payload) => post('/api/accounting/legal-entities', payload),
+    listPlatformAccounts: (params = {}) => get('/api/accounting/platform-accounts', params),
+    createPlatformAccount: (payload) => post('/api/accounting/platform-accounts', payload),
   },
 
   files: {

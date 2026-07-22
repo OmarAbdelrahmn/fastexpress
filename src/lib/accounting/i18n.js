@@ -59,6 +59,8 @@ const translations = {
       compliance: 'الضريبة والأصول والميزانية',
       administration: 'الإدارة',
       financialAccess: 'صلاحيات الوصول المالي',
+      setup: 'الكيانات والمنصات',
+      manageSetup: 'إدارة الكيانات والمنصات',
     },
     common: {
       actions: 'الإجراءات',
@@ -168,6 +170,8 @@ const translations = {
       compliance: 'Tax, assets & budgets',
       administration: 'Administration',
       financialAccess: 'Financial access',
+      setup: 'Entities & platforms',
+      manageSetup: 'Manage entities & platforms',
     },
     common: {
       actions: 'Actions',
@@ -249,6 +253,25 @@ export function accountingT(locale, key, params = {}) {
     ?? key;
 
   return interpolate(value, params);
+}
+
+const optionTranslations = {
+  Active: 'نشط', Approved: 'معتمد', Calculated: 'تم الاحتساب', Confirmed: 'مؤكد',
+  Deduction: 'استقطاع', Draft: 'مسودة', Earning: 'استحقاق', Exported: 'تم التصدير',
+  Failed: 'فشل', Informational: 'معلوماتي', Inactive: 'غير نشط', NeedsResolution: 'يحتاج معالجة',
+  Paid: 'مدفوع', Parsing: 'جاري التحليل', Pending: 'قيد الانتظار', Prepared: 'مجهز',
+  Received: 'تم الاستلام', Reconciled: 'تمت المطابقة', Rejected: 'مرفوض', Retired: 'موقوف',
+  Submitted: 'مرسل للمراجعة', Allowance: 'بدل', Bonus: 'مكافأة',
+  FixedAmount: 'مبلغ ثابت', PerUnit: 'لكل وحدة', Threshold: 'حد أدنى',
+  TieredBasePlusExcess: 'شرائح مع زيادة', Percentage: 'نسبة مئوية', Range: 'نطاق',
+  Cap: 'حد أقصى', Floor: 'حد أدنى', EligibilityCondition: 'شرط الاستحقاق',
+  ExclusiveHighest: 'أعلى قاعدة حصرية', Cumulative: 'تراكمي',
+  BankTransfer: 'تحويل بنكي', Cash: 'نقدي', Wallet: 'محفظة',
+};
+
+export function accountingOptionLabel(locale, value) {
+  const text = String(value ?? '');
+  return normalizeAccountingLocale(locale) === 'ar' ? optionTranslations[text] ?? text : text;
 }
 
 export function useAccountingI18n() {

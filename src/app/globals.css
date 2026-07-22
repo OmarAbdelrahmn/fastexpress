@@ -361,11 +361,40 @@
   gap: 0.5rem;
 }
 
+/* These controls must follow the same breakpoint as the persistent sidebar.
+   Keeping this in the accounting stylesheet avoids a Tailwind responsive utility
+   leaking the menu trigger into the desktop shell. */
+.accounting-mobile-only,
+.accounting-mobile-brand {
+  display: none;
+}
+
 .accounting-workspace-controls {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: 0.55rem;
+}
+
+.accounting-setup-link {
+  display: inline-flex;
+  min-height: 2.65rem;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #cddbeb;
+  border-radius: 0.7rem;
+  background: #f8fbff;
+  color: var(--accounting-blue-strong);
+  padding-inline: 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.accounting-setup-link:hover {
+  border-color: #9cb8dc;
+  background: #edf5ff;
 }
 
 .accounting-context-control {
@@ -932,6 +961,14 @@
   .accounting-topbar {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
+
+  .accounting-mobile-only {
+    display: inline-flex;
+  }
+
+  .accounting-mobile-brand {
+    display: flex;
+  }
 }
 
 @media (max-width: 767px) {
@@ -959,6 +996,10 @@
 
   .accounting-context-control {
     flex: 1 1 0;
+  }
+
+  .accounting-setup-link {
+    flex: 0 0 auto;
   }
 
   .accounting-context-control select {
