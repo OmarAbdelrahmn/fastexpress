@@ -55,6 +55,10 @@ function formatBytes(value) {
   return `${(bytes / (1024 ** 2)).toFixed(1)} MB`;
 }
 
+function errorMessage(error, fallback) {
+  return error?.message || error?.errorDescription || error?.detail || error?.fullError?.title || error?.fullError?.detail || fallback;
+}
+
 export default function AccountingFilesPage() {
   const { isRtl } = useAccountingI18n();
   const { legalEntityId } = useAccountingWorkspace();
@@ -63,8 +67,10 @@ export default function AccountingFilesPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [retainUntil, setRetainUntil] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [busyFileId, setBusyFileId] = useState('');
   const [error, setError] = useState('');
+  const [uploadError, setUploadError] = useState('');
 
   const load = useCallback(async () => {
     if (!legalEntityId) return;
@@ -74,7 +80,7 @@ export default function AccountingFilesPage() {
       setFiles(rowsOf(await accountingApi.files.list({ legalEntityId, pageNumber: 1, pageSize: 100 })));
     } catch (requestError) {
       setFiles([]);
-      setError(requestError?.message || text.loadError);
+      setError(errorMessage(requestError, text.loadError));
     } finally {
       setLoading(false);
     }
@@ -88,8 +94,8 @@ export default function AccountingFilesPage() {
     event.preventDefault();
     if (!selectedFile || !legalEntityId) return;
     const form = event.currentTarget;
-    setLoading(true);
-    setError('');
+    setUploading(true);
+    setUploadError('');
     try {
       await accountingApi.files.upload({
         legalEntityId,
@@ -101,8 +107,9 @@ export default function AccountingFilesPage() {
       form.reset();
       await load();
     } catch (requestError) {
-      setError(requestError?.message || text.uploadError);
-      setLoading(false);
+      setUploadError(errorMessage(requestError, text.uploadError));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -114,7 +121,7 @@ export default function AccountingFilesPage() {
     try {
       saveFile(await accountingApi.files.download(fileId), item.originalFileName ?? item.fileName ?? `accounting-file-${fileId}`);
     } catch (requestError) {
-      setError(requestError?.message || text.loadError);
+      setError(errorMessage(requestError, text.loadError));
     } finally {
       setBusyFileId('');
     }
@@ -134,7 +141,7 @@ export default function AccountingFilesPage() {
       <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.description} actions={<ActionButton variant="secondary" icon={RefreshCw} onClick={load} loading={loading}>{text.refresh}</ActionButton>} />
       {!legalEntityId ? <EmptyState icon={FileArchive} title={text.noEntity} /> : (
         <>
-          {error && <ErrorState compact message={error} onRetry={load} />}
+          {error && <ErrorState compact description={error} onRetry={load} />}
           <div className="grid gap-5 xl:grid-cols-[1.4fr_0.8fr]">
             <Panel title={text.vault}>
               <DataTable columns={columns} rows={files} loading={loading} emptyTitle={text.empty} getRowKey={(item, index) => item.id ?? item.fileId ?? index} />
@@ -143,13 +150,14 @@ export default function AccountingFilesPage() {
               <form className="space-y-4" onSubmit={upload}>
                 <label className="grid gap-1.5 text-sm font-bold text-slate-700">
                   <span>{text.file}</span>
-                  <input type="file" required onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:me-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1 file:font-bold file:text-blue-800" />
+                  <input type="file" required disabled={uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm file:me-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1 file:font-bold file:text-blue-800 disabled:cursor-not-allowed disabled:bg-slate-100" />
                 </label>
                 <label className="grid gap-1.5 text-sm font-bold text-slate-700">
                   <span>{text.retainUntil}</span>
-                  <input type="datetime-local" value={retainUntil} onChange={(event) => setRetainUntil(event.target.value)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm" />
+                  <input type="datetime-local" disabled={uploading} value={retainUntil} onChange={(event) => setRetainUntil(event.target.value)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm disabled:cursor-not-allowed disabled:bg-slate-100" />
                 </label>
-                <ActionButton type="submit" icon={Upload} loading={loading} disabled={!selectedFile}>{text.send}</ActionButton>
+                {uploadError && <ErrorState compact description={uploadError} />}
+                <ActionButton type="submit" icon={Upload} loading={uploading} disabled={!selectedFile || uploading}>{text.send}</ActionButton>
               </form>
             </Panel>
           </div>

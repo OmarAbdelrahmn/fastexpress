@@ -219,18 +219,8 @@ export default function ImportBatchDetailPage() {
   ];
 
   const factColumns = [
-    {
-      key: 'rider',
-      header: copy.rider,
-      render: (item) => {
-        const riderName = item.riderNameAr ?? item.riderNameAR;
-        const riderIqamaNo = item.riderIqamaNo ?? item.iqamaNo;
-        return <div className="min-w-32"><div className="font-semibold text-slate-900">{riderName || '—'}</div><span dir="ltr" className="text-xs text-slate-500">{riderIqamaNo || '—'}</span></div>;
-      },
-    },
-    { key: 'externalWorkerId', header: copy.externalWorker, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.externalWorkerId || '—'}</span> },
     { key: 'metricCode', header: copy.metric, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.metricCode}</span> },
-    { key: 'value', header: copy.value, render: (item) => item.numericValue ?? item.textValue ?? (item.booleanValue == null ? '—' : String(item.booleanValue)) },
+    { key: 'value', header: copy.value, align: 'end', render: (item) => <span className="font-semibold tabular-nums">{item.numericValue ?? item.textValue ?? (item.booleanValue == null ? '—' : String(item.booleanValue))}</span> },
     { key: 'factDate', header: copy.date, render: (item) => formatDate(item.factDate, locale) },
     { key: 'resolved', header: copy.status, render: (item) => <StatusBadge status={item.isResolved ? 'Resolved' : 'Open'} /> },
     { key: 'action', header: '', render: (item) => String(item.metricCode).toUpperCase() === 'VALIDITY' ? <ActionButton size="sm" variant="secondary" onClick={() => { setSelectedFact(item); setValidity({ isValid: item.override?.booleanValue ?? item.booleanValue ?? true, reason: '' }); }}>{copy.override}</ActionButton> : null },
@@ -366,12 +356,22 @@ export default function ImportBatchDetailPage() {
           {groupedFacts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <div className="space-y-5">
             {groupedFacts.map((group) => {
               const isUnassigned = group.riderIqamaNo == null || group.riderIqamaNo === '';
+              const externalWorkerIds = [...new Set(group.items.map((item) => item.externalWorkerId).filter(Boolean).map(String))];
               return (
                 <section key={isUnassigned ? 'unassigned' : group.riderIqamaNo} className="overflow-hidden rounded-xl border border-slate-200">
-                  <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
-                    <h3 className="font-bold text-slate-950">
-                      {isUnassigned ? copy.unassignedRider : <><span>{group.riderNameAr || '—'}</span><span dir="ltr" className="ms-2 text-sm font-medium text-slate-600">{group.riderIqamaNo}</span></>}
-                    </h3>
+                  <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+                      <h3 className="font-bold text-slate-950">
+                        {isUnassigned ? copy.unassignedRider : group.riderNameAr || '—'}
+                      </h3>
+                      {!isUnassigned && <span dir="ltr" className="text-sm font-medium text-slate-600">{group.riderIqamaNo}</span>}
+                      {externalWorkerIds.length > 0 && (
+                        <span className="inline-flex items-center gap-2 text-sm text-slate-600">
+                          <span>{copy.externalWorker}</span>
+                          <span dir="ltr" className="font-mono font-semibold text-slate-800">{externalWorkerIds.join('، ')}</span>
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm font-medium tabular-nums text-slate-600">{group.items.length} {copy.factCount}</span>
                   </header>
                   <DataTable columns={factColumns} data={group.items} rowKey="id" />
