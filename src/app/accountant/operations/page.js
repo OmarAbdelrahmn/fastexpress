@@ -10,8 +10,8 @@ import { Boxes, Building2, Landmark, PackageCheck, ReceiptText, ScrollText, Shie
 import { useEffect, useMemo, useState } from 'react';
 
 const COPY = {
-  ar: { eyebrow: 'العمليات المالية', title: 'مركز العمليات المحاسبية', description: 'سجّل المستندات التشغيلية من خلال عقود المحاسبة المحددة، ثم رحّلها عبر ملفات الترحيل المعتمدة.', noEntity: 'اختر كياناً قانونياً قبل تسجيل العمليات.', receivables: 'العملاء والتحصيل', payables: 'الموردون والمدفوعات', expenses: 'الأدلة والمصروفات', inventory: 'المخزون', treasury: 'الخزينة والبنوك', tax: 'الضرائب', assets: 'الأصول', budgets: 'الميزانيات' },
-  en: { eyebrow: 'Financial operations', title: 'Accounting operations center', description: 'Record bounded operational documents, then post them through configured posting profiles.', noEntity: 'Select a legal entity before recording operations.', receivables: 'Receivables', payables: 'Payables', expenses: 'Evidence & expenses', inventory: 'Inventory', treasury: 'Treasury', tax: 'Tax', assets: 'Assets', budgets: 'Budgets' },
+  ar: { eyebrow: 'الحسابات اليومية', title: 'العمليات المحاسبية', description: 'سجّل المبيعات والمصروفات والبنوك والمخزون بخطوات واضحة.', noEntity: 'اختر كياناً قانونياً قبل تسجيل العمليات.', receivables: 'العملاء والتحصيل', payables: 'الموردون والمدفوعات', expenses: 'الأدلة والمصروفات', inventory: 'المخزون', treasury: 'الخزينة والبنوك', tax: 'الضرائب', assets: 'الأصول', budgets: 'الميزانيات' },
+  en: { eyebrow: 'Daily accounting', title: 'Accounting operations', description: 'Record sales, expenses, bank activity, and inventory with clear steps.', noEntity: 'Select a legal entity before recording operations.', receivables: 'Receivables', payables: 'Payables', expenses: 'Evidence & expenses', inventory: 'Inventory', treasury: 'Treasury', tax: 'Tax', assets: 'Assets', budgets: 'Budgets' },
 };
 
 const field = (name, ar, en, type = 'text', extra = {}) => ({ name, label: { ar, en }, type, ...extra });
@@ -19,20 +19,75 @@ const options = (items) => items.map(([value, ar, en = ar]) => ({ value, label: 
 const key = () => globalThis.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const withoutKey = (payload) => { const { idempotencyKey, ...body } = payload; return [body, idempotencyKey]; };
 
-const commonEntity = (legalEntityId) => field('legalEntityId', 'الكيان القانوني', 'Legal entity', 'number', { required: true, defaultValue: legalEntityId || '' });
-const profile = () => field('postingProfileCode', 'ملف الترحيل', 'Posting profile code', 'text', { required: true, dir: 'ltr' });
+const commonEntity = (legalEntityId) => field('legalEntityId', 'الكيان القانوني', 'Legal entity', 'number', { required: true, defaultValue: legalEntityId || '', technical: true });
+const profile = () => field('postingProfileCode', 'ملف الترحيل', 'Posting profile code', 'text', { required: true, dir: 'ltr', technical: true });
 const idempotencyField = () => field('idempotencyKey', 'مفتاح عدم التكرار', 'Idempotency key', 'text', { required: true, defaultValue: key(), dir: 'ltr', full: true });
+
+function collection(value) {
+  return Array.isArray(value) ? value : value?.items ?? value?.data ?? value?.results ?? [];
+}
+
+function lookupOptions(rows, idKeys, labelKeys) {
+  return collection(rows).map((row) => {
+    const value = idKeys.map((name) => row?.[name]).find((item) => item !== undefined && item !== null && item !== '');
+    const label = labelKeys.map((name) => row?.[name]).find(Boolean) ?? value;
+    return value === undefined ? null : { value: String(value), label: { ar: String(label), en: String(label) } };
+  }).filter(Boolean);
+}
 
 export default function AccountingOperationsPage({ initialModuleId = 'receivables' }) {
   const { isRtl } = useAccountingI18n();
-  const { legalEntityId } = useAccountingWorkspace();
+  const { legalEntityId, postingProfileCodeFor } = useAccountingWorkspace();
   const text = isRtl ? COPY.ar : COPY.en;
   const [moduleId, setModuleId] = useState(initialModuleId);
   const [actionIds, setActionIds] = useState({});
+  const [lookups, setLookups] = useState({});
 
   useEffect(() => {
     setModuleId(initialModuleId);
   }, [initialModuleId]);
+
+  useEffect(() => {
+    if (!legalEntityId) { setLookups({}); return undefined; }
+    let cancelled = false;
+    const load = async () => {
+      const result = await Promise.all([
+        accountingApi.operations.receivables.listCustomers({ legalEntityId }).catch(() => []),
+        accountingApi.operations.receivables.listInvoices({ legalEntityId }).catch(() => []),
+        accountingApi.operations.receivables.listReceipts({ legalEntityId }).catch(() => []),
+        accountingApi.operations.payables.listSuppliers({ legalEntityId }).catch(() => []),
+        accountingApi.operations.payables.listInvoices({ legalEntityId }).catch(() => []),
+        accountingApi.operations.payables.listPayments({ legalEntityId }).catch(() => []),
+        accountingApi.operations.expenses.listEvidence({ legalEntityId }).catch(() => []),
+        accountingApi.operations.inventory.listItems({ legalEntityId }).catch(() => []),
+        accountingApi.operations.treasury.listBankAccounts({ legalEntityId }).catch(() => []),
+        accountingApi.operations.treasury.listStatementLines({ legalEntityId }).catch(() => []),
+        accountingApi.operations.tax.listCodes({ legalEntityId }).catch(() => []),
+      ]);
+      if (!cancelled) setLookups({
+        customers: lookupOptions(result[0], ['customerAccountId', 'id'], ['name', 'customerName', 'code']),
+        customerInvoices: lookupOptions(result[1], ['customerInvoiceId', 'invoiceId', 'id'], ['invoiceNumber', 'number', 'externalReference']),
+        receipts: lookupOptions(result[2], ['customerReceiptId', 'receiptId', 'id'], ['receiptNumber', 'number', 'externalReference']),
+        suppliers: lookupOptions(result[3], ['supplierAccountId', 'id'], ['name', 'supplierName', 'code']),
+        supplierInvoices: lookupOptions(result[4], ['supplierInvoiceId', 'invoiceId', 'id'], ['invoiceNumber', 'number', 'externalReference']),
+        supplierPayments: lookupOptions(result[5], ['supplierPaymentId', 'paymentId', 'id'], ['paymentNumber', 'number', 'externalReference']),
+        evidence: lookupOptions(result[6], ['sourceEvidenceId', 'evidenceId', 'id'], ['externalReference', 'evidenceNumber', 'name']),
+        inventory: lookupOptions(result[7], ['inventoryItemId', 'itemId', 'id'], ['name', 'itemName', 'sku']),
+        banks: lookupOptions(result[8], ['bankAccountId', 'id'], ['name', 'accountName', 'code']),
+        statements: lookupOptions(result[9], ['bankStatementLineId', 'statementLineId', 'id'], ['externalReference', 'reference', 'description']),
+        taxes: lookupOptions(result[10], ['taxCodeId', 'id'], ['name', 'code']),
+      });
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [legalEntityId]);
+
+  const selectLookup = (name, ar, en, list, extra = {}) => field(name, ar, en, 'select', {
+    required: true,
+    placeholder: { ar: `اختر ${ar}`, en: `Select ${en}` },
+    options: list || [],
+    ...extra,
+  });
 
   const modules = useMemo(() => [
     { id: 'receivables', label: { ar: COPY.ar.receivables, en: COPY.en.receivables }, icon: UsersRound },
@@ -85,18 +140,18 @@ export default function AccountingOperationsPage({ initialModuleId = 'receivable
   const configs = {
     receivables: {
       customer: { title: { ar: 'إضافة حساب عميل', en: 'Create customer account' }, fields: [commonEntity(legalEntityId), field('code', 'رمز العميل', 'Customer code', 'text', { required: true, dir: 'ltr' }), field('name', 'اسم العميل', 'Customer name', 'text', { required: true }), field('taxRegistrationNumber', 'الرقم الضريبي', 'Tax registration number', 'text', { dir: 'ltr' })], submit: (payload) => accountingApi.operations.receivables.createCustomer(payload) },
-      invoice: { title: { ar: 'إنشاء فاتورة عميل', en: 'Create customer invoice' }, fields: [commonEntity(legalEntityId), field('customerAccountId', 'معرف العميل', 'Customer account ID', 'text', { required: true, dir: 'ltr' }), field('sourceEvidenceId', 'معرف الدليل (اختياري)', 'Evidence ID (optional)', 'text', { dir: 'ltr' }), field('invoiceNumber', 'رقم الفاتورة', 'Invoice number', 'text', { required: true, dir: 'ltr' }), field('invoiceDate', 'تاريخ الفاتورة', 'Invoice date', 'date', { required: true }), field('dueDate', 'تاريخ الاستحقاق', 'Due date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), profile(), field('lines', 'بنود الفاتورة بصيغة JSON', 'Invoice lines as JSON', 'json', { required: true, full: true, defaultValue: '[\n  {"description":"", "quantity":1, "unitPrice":0, "taxCodeId":null}\n]' })], submit: (payload) => accountingApi.operations.receivables.createInvoice(payload) },
-      issue: { title: { ar: 'إصدار فاتورة عميل', en: 'Issue customer invoice' }, fields: [field('invoiceId', 'معرف الفاتورة', 'Invoice ID', 'text', { required: true, dir: 'ltr' }), idempotencyField()], submit: ({ invoiceId, idempotencyKey }) => accountingApi.operations.receivables.issueInvoice(invoiceId, idempotencyKey) },
-      receipt: { title: { ar: 'تسجيل سند قبض', en: 'Record customer receipt' }, fields: [commonEntity(legalEntityId), field('customerAccountId', 'معرف العميل', 'Customer account ID', 'text', { required: true, dir: 'ltr' }), field('receiptNumber', 'رقم السند', 'Receipt number', 'text', { required: true, dir: 'ltr' }), field('externalReference', 'المرجع الخارجي', 'External reference', 'text', { required: true, dir: 'ltr' }), field('receiptDate', 'تاريخ القبض', 'Receipt date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' }), profile(), idempotencyField()], submit: (payload) => accountingApi.operations.receivables.recordReceipt(...withoutKey(payload)) },
-      allocate: { title: { ar: 'تخصيص سند قبض', en: 'Allocate customer receipt' }, fields: [field('receiptId', 'معرف سند القبض', 'Receipt ID', 'text', { required: true, dir: 'ltr' }), field('customerInvoiceId', 'معرف الفاتورة', 'Invoice ID', 'text', { required: true, dir: 'ltr' }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' })], submit: ({ receiptId, ...payload }) => accountingApi.operations.receivables.allocateReceipt(receiptId, payload) },
+      invoice: { title: { ar: 'إنشاء فاتورة عميل', en: 'Create customer invoice' }, fields: [commonEntity(legalEntityId), selectLookup('customerAccountId', 'العميل', 'Customer', lookups.customers), field('sourceEvidenceId', 'الدليل المالي (اختياري)', 'Source evidence (optional)', 'select', { placeholder: { ar: 'اختر دليلاً', en: 'Select evidence' }, options: lookups.evidence || [] }), field('invoiceNumber', 'رقم الفاتورة', 'Invoice number', 'text', { required: true, dir: 'ltr' }), field('invoiceDate', 'تاريخ الفاتورة', 'Invoice date', 'date', { required: true }), field('dueDate', 'تاريخ الاستحقاق', 'Due date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), profile(), field('lines', 'بنود الفاتورة', 'Invoice lines', 'json', { required: true, full: true, defaultValue: '[\n  {"description":"", "quantity":1, "unitPrice":0, "taxCodeId":null}\n]' })], submit: (payload) => accountingApi.operations.receivables.createInvoice(payload) },
+      issue: { title: { ar: 'إصدار فاتورة عميل', en: 'Issue customer invoice' }, fields: [selectLookup('invoiceId', 'الفاتورة', 'Invoice', lookups.customerInvoices), idempotencyField()], submit: ({ invoiceId, idempotencyKey }) => accountingApi.operations.receivables.issueInvoice(invoiceId, idempotencyKey) },
+      receipt: { title: { ar: 'تسجيل سند قبض', en: 'Record customer receipt' }, fields: [commonEntity(legalEntityId), selectLookup('customerAccountId', 'العميل', 'Customer', lookups.customers), field('receiptNumber', 'رقم السند', 'Receipt number', 'text', { required: true, dir: 'ltr' }), field('externalReference', 'المرجع الخارجي', 'External reference', 'text', { required: true, dir: 'ltr' }), field('receiptDate', 'تاريخ القبض', 'Receipt date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' }), profile(), idempotencyField()], submit: (payload) => accountingApi.operations.receivables.recordReceipt(...withoutKey(payload)) },
+      allocate: { title: { ar: 'تخصيص سند قبض', en: 'Allocate customer receipt' }, fields: [selectLookup('receiptId', 'سند القبض', 'Receipt', lookups.receipts), selectLookup('customerInvoiceId', 'الفاتورة', 'Invoice', lookups.customerInvoices), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' })], submit: ({ receiptId, ...payload }) => accountingApi.operations.receivables.allocateReceipt(receiptId, payload) },
       settlement: { title: { ar: 'تسجيل تسوية منصة', en: 'Record platform settlement' }, fields: [commonEntity(legalEntityId), field('sourceEvidenceId', 'معرف الدليل', 'Evidence ID', 'text', { required: true, dir: 'ltr' }), field('settlementReference', 'مرجع التسوية', 'Settlement reference', 'text', { required: true, dir: 'ltr' }), field('settlementDate', 'تاريخ التسوية', 'Settlement date', 'date', { required: true }), field('grossRevenue', 'إجمالي الإيراد', 'Gross revenue', 'number', { required: true, min: 0, step: '0.01' }), field('commissionAmount', 'العمولة', 'Commission amount', 'number', { required: true, min: 0, step: '0.01' }), field('netSettlementAmount', 'صافي التسوية', 'Net settlement', 'number', { required: true, min: 0, step: '0.01' }), profile(), idempotencyField()], submit: (payload) => accountingApi.operations.receivables.recordPlatformSettlement(...withoutKey(payload)) },
     },
     payables: {
       supplier: { title: { ar: 'إضافة حساب مورد', en: 'Create supplier account' }, fields: [commonEntity(legalEntityId), field('code', 'رمز المورد', 'Supplier code', 'text', { required: true, dir: 'ltr' }), field('name', 'اسم المورد', 'Supplier name', 'text', { required: true }), field('taxRegistrationNumber', 'الرقم الضريبي', 'Tax registration number', 'text', { dir: 'ltr' })], submit: (payload) => accountingApi.operations.payables.createSupplier(payload) },
-      invoice: { title: { ar: 'إنشاء فاتورة مورد', en: 'Create supplier invoice' }, fields: [commonEntity(legalEntityId), field('supplierAccountId', 'معرف المورد', 'Supplier account ID', 'text', { required: true, dir: 'ltr' }), field('sourceEvidenceId', 'معرف الدليل (اختياري)', 'Evidence ID (optional)', 'text', { dir: 'ltr' }), field('invoiceNumber', 'رقم الفاتورة', 'Invoice number', 'text', { required: true, dir: 'ltr' }), field('invoiceDate', 'تاريخ الفاتورة', 'Invoice date', 'date', { required: true }), field('dueDate', 'تاريخ الاستحقاق', 'Due date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), profile(), field('lines', 'بنود الفاتورة بصيغة JSON', 'Invoice lines as JSON', 'json', { required: true, full: true, defaultValue: '[\n  {"description":"", "quantity":1, "unitPrice":0, "taxCodeId":null}\n]' })], submit: (payload) => accountingApi.operations.payables.createInvoice(payload) },
-      record: { title: { ar: 'إثبات فاتورة مورد', en: 'Record supplier invoice' }, fields: [field('invoiceId', 'معرف الفاتورة', 'Invoice ID', 'text', { required: true, dir: 'ltr' }), idempotencyField()], submit: ({ invoiceId, idempotencyKey }) => accountingApi.operations.payables.recordInvoice(invoiceId, idempotencyKey) },
-      payment: { title: { ar: 'تسجيل دفعة مورد', en: 'Record supplier payment' }, fields: [commonEntity(legalEntityId), field('supplierAccountId', 'معرف المورد', 'Supplier account ID', 'text', { required: true, dir: 'ltr' }), field('paymentNumber', 'رقم الدفعة', 'Payment number', 'text', { required: true, dir: 'ltr' }), field('externalReference', 'المرجع الخارجي', 'External reference', 'text', { required: true, dir: 'ltr' }), field('paymentDate', 'تاريخ الدفع', 'Payment date', 'date', { required: true }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' }), profile(), idempotencyField()], submit: (payload) => accountingApi.operations.payables.recordPayment(...withoutKey(payload)) },
-      allocate: { title: { ar: 'تخصيص دفعة مورد', en: 'Allocate supplier payment' }, fields: [field('paymentId', 'معرف الدفعة', 'Payment ID', 'text', { required: true, dir: 'ltr' }), field('supplierInvoiceId', 'معرف الفاتورة', 'Invoice ID', 'text', { required: true, dir: 'ltr' }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' })], submit: ({ paymentId, ...payload }) => accountingApi.operations.payables.allocatePayment(paymentId, payload) },
+      invoice: { title: { ar: 'إنشاء فاتورة مورد', en: 'Create supplier invoice' }, fields: [commonEntity(legalEntityId), selectLookup('supplierAccountId', 'المورد', 'Supplier', lookups.suppliers), field('sourceEvidenceId', 'الدليل المالي (اختياري)', 'Source evidence (optional)', 'select', { placeholder: { ar: 'اختر دليلاً', en: 'Select evidence' }, options: lookups.evidence || [] }), field('invoiceNumber', 'رقم الفاتورة', 'Invoice number', 'text', { required: true, dir: 'ltr' }), field('invoiceDate', 'تاريخ الفاتورة', 'Invoice date', 'date', { required: true }), field('dueDate', 'تاريخ الاستحقاق', 'Due date', 'date', { required: true }), field('currencyCode', 'العملة', 'Currency', 'text', { required: true, defaultValue: 'SAR', dir: 'ltr' }), field('exchangeRate', 'سعر الصرف', 'Exchange rate', 'number', { required: true, defaultValue: 1, step: '0.000001' }), profile(), field('lines', 'بنود الفاتورة', 'Invoice lines', 'json', { required: true, full: true, defaultValue: '[\n  {"description":"", "quantity":1, "unitPrice":0, "taxCodeId":null}\n]' })], submit: (payload) => accountingApi.operations.payables.createInvoice(payload) },
+      record: { title: { ar: 'إثبات فاتورة مورد', en: 'Record supplier invoice' }, fields: [selectLookup('invoiceId', 'فاتورة المورد', 'Supplier invoice', lookups.supplierInvoices), idempotencyField()], submit: ({ invoiceId, idempotencyKey }) => accountingApi.operations.payables.recordInvoice(invoiceId, idempotencyKey) },
+      payment: { title: { ar: 'تسجيل دفعة مورد', en: 'Record supplier payment' }, fields: [commonEntity(legalEntityId), selectLookup('supplierAccountId', 'المورد', 'Supplier', lookups.suppliers), field('paymentNumber', 'رقم الدفعة', 'Payment number', 'text', { required: true, dir: 'ltr' }), field('externalReference', 'المرجع الخارجي', 'External reference', 'text', { required: true, dir: 'ltr' }), field('paymentDate', 'تاريخ الدفع', 'Payment date', 'date', { required: true }), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' }), profile(), idempotencyField()], submit: (payload) => accountingApi.operations.payables.recordPayment(...withoutKey(payload)) },
+      allocate: { title: { ar: 'تخصيص دفعة مورد', en: 'Allocate supplier payment' }, fields: [selectLookup('paymentId', 'دفعة المورد', 'Supplier payment', lookups.supplierPayments), selectLookup('supplierInvoiceId', 'فاتورة المورد', 'Supplier invoice', lookups.supplierInvoices), field('amount', 'المبلغ', 'Amount', 'number', { required: true, min: 0.01, step: '0.01' })], submit: ({ paymentId, ...payload }) => accountingApi.operations.payables.allocatePayment(paymentId, payload) },
     },
     expenses: {
       evidence: { title: { ar: 'ربط دليل مالي', en: 'Create source evidence' }, fields: [commonEntity(legalEntityId), field('platformAccountId', 'حساب المنصة (اختياري)', 'Platform account ID (optional)', 'number'), field('evidenceType', 'نوع الدليل', 'Evidence type', 'text', { required: true }), field('externalReference', 'المرجع الخارجي', 'External reference', 'text', { required: true, dir: 'ltr' }), field('storedFileId', 'معرف الملف الخاص', 'Stored file ID', 'text', { required: true, dir: 'ltr' }), field('metadataJson', 'بيانات إضافية JSON', 'Metadata JSON', 'json', { required: true, full: true, defaultValue: '{}' })], submit: (payload) => accountingApi.operations.expenses.createEvidence({ ...payload, metadataJson: JSON.stringify(payload.metadataJson) }) },
@@ -141,7 +196,7 @@ export default function AccountingOperationsPage({ initialModuleId = 'receivable
               {Object.entries(moduleConfigs).map(([id, config]) => <option value={id} key={id}>{isRtl ? config.title.ar : config.title.en}</option>)}
             </select>
           </div>
-          <FinanceActionForm key={`${moduleId}-${actionId}`} title={action.title} fields={action.fields} onSubmit={action.submit} />
+          <FinanceActionForm key={`${moduleId}-${actionId}`} title={action.title} fields={action.fields} initialValue={{ legalEntityId, postingProfileCode: postingProfileCodeFor('payment') || undefined }} onSubmit={action.submit} />
           <AccountingResourceBrowser resources={resourceGroups[moduleId] ?? []} />
         </>
       )}

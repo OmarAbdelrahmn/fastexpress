@@ -189,6 +189,8 @@ export function AccountingWorkspaceProvider({ children, user, initialWorkspace =
   const [organizationLoading, setOrganizationLoading] = useState(false);
   const [organizationError, setOrganizationError] = useState(null);
   const [workspaceSource, setWorkspaceSource] = useState('initial');
+  const [postingProfiles, setPostingProfiles] = useState([]);
+  const [postingProfilesLoading, setPostingProfilesLoading] = useState(false);
 
   const legalEntities = useMemo(() => {
     const source = workspace.legalEntities ?? workspace.entities ?? inferLegalEntities(user);
@@ -342,6 +344,34 @@ export function AccountingWorkspaceProvider({ children, user, initialWorkspace =
     [fiscalPeriods, selectedFiscalPeriodId]
   );
 
+  useEffect(() => {
+    if (!selectedLegalEntityId) {
+      setPostingProfiles([]);
+      return undefined;
+    }
+    let cancelled = false;
+    setPostingProfilesLoading(true);
+    accountingApi.ledger.listPostingProfiles(selectedLegalEntityId)
+      .then((response) => {
+        if (cancelled) return;
+        const rows = response?.items ?? response?.data ?? response ?? [];
+        setPostingProfiles(Array.isArray(rows) ? rows : []);
+      })
+      .catch(() => {
+        if (!cancelled) setPostingProfiles([]);
+      })
+      .finally(() => {
+        if (!cancelled) setPostingProfilesLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedLegalEntityId]);
+
+  const postingProfileCodeFor = useCallback((purpose) => {
+    const matcher = purpose === 'payment' ? /payment|settlement|sداد/i : /payroll|accrual|رواتب/i;
+    const profile = postingProfiles.find((item) => matcher.test(String(item.code ?? item.name ?? '')));
+    return profile?.code ?? profile?.postingProfileCode ?? null;
+  }, [postingProfiles]);
+
   const permissionMask = useMemo(() => {
     if (hasFullAccessRole) return ACCOUNTING_PERMISSION_FLAGS.All;
 
@@ -398,6 +428,9 @@ export function AccountingWorkspaceProvider({ children, user, initialWorkspace =
     workspaceHydrated,
     workspaceReady: workspaceHydrated && !organizationLoading,
     workspaceSource,
+    postingProfiles,
+    postingProfilesLoading,
+    postingProfileCodeFor,
     organizationLoading,
     organizationError,
     loading,
@@ -426,6 +459,9 @@ export function AccountingWorkspaceProvider({ children, user, initialWorkspace =
     workspaceSource,
     organizationError,
     organizationLoading,
+    postingProfileCodeFor,
+    postingProfiles,
+    postingProfilesLoading,
   ]);
 
   return (

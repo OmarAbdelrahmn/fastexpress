@@ -4,6 +4,7 @@ import { ActionButton, DataTable, EmptyState, ErrorState, LoadingState, MetricCa
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { useAccountingI18n } from '@/lib/accounting/i18n';
 import { accountingApi } from '@/lib/api/accountingApi';
+import { accountantStatus } from '@/lib/accounting/workflow';
 import { RefreshCw, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -36,13 +37,13 @@ export default function PaymentBatchesPage() {
   useEffect(() => { const timer = setTimeout(load, filters.search ? 250 : 0); return () => clearTimeout(timer); }, [load, filters.search]);
   const statusOf = (item) => enumName(item.status, BATCH_STATUSES);
   const columns = [
-    { key: 'batchNumber', header: copy.batch, render: (item) => <div><Link className="font-bold text-blue-700 hover:underline" href={`/accountant/payments/${item.id}`} dir="ltr">{item.batchNumber || item.id}</Link><div className="mt-1 max-w-44 truncate font-mono text-xs text-slate-500" dir="ltr">{item.id}</div></div> },
-    { key: 'riderPayrollRunId', header: copy.payroll, render: (item) => <Link href={`/accountant/payroll/${item.riderPayrollRunId}`} className="font-mono text-xs text-blue-700 hover:underline" dir="ltr">{item.riderPayrollRunId}</Link> },
+    { key: 'batchNumber', header: copy.batch, render: (item) => <Link className="font-bold text-blue-700 hover:underline" href={`/accountant/payments/${item.id}`} dir="ltr">{item.batchNumber || (isRtl ? 'دفعة سداد' : 'Payment batch')}</Link> },
+    { key: 'riderPayrollRunId', header: copy.payroll, render: (item) => <Link href={`/accountant/payroll/${item.riderPayrollRunId}`} className="text-xs font-semibold text-blue-700 hover:underline">{copy.payroll}</Link> },
     { key: 'method', header: copy.method, render: (item) => enumName(item.method, PAYMENT_METHODS) },
     { key: 'lines', header: copy.lines, align: 'end', render: (item) => collectionItems(item.lines).length },
     { key: 'amount', header: copy.amount, align: 'end', render: (item) => formatMoney(collectionItems(item.lines).reduce((sum, line) => sum + Number(line.amount || 0), 0), locale) },
     { key: 'confirmed', header: copy.confirmedAmount, align: 'end', render: (item) => formatMoney(collectionItems(item.lines).filter((line) => line.isConfirmed).reduce((sum, line) => sum + Number(line.amount || 0), 0), locale) },
-    { key: 'status', header: copy.status, render: (item) => <StatusBadge status={statusOf(item)} /> },
+    { key: 'status', header: copy.status, render: (item) => { const status = accountantStatus('payment', item.status, isRtl); return <StatusBadge status={status.raw} label={status.label} />; } },
     { key: 'action', header: '', render: (item) => <Link className="inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-blue-700 hover:bg-blue-50" href={`/accountant/payments/${item.id}`}>{copy.open}</Link> },
   ];
   const counts = useMemo(() => ({ prepared: batches.filter((item) => statusOf(item) === 'Prepared').length, confirmed: batches.filter((item) => statusOf(item) === 'Confirmed').length }), [batches]);

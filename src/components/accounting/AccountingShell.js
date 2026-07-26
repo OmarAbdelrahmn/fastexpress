@@ -14,7 +14,6 @@ import {
   ClipboardCheck,
   FileInput,
   FileSpreadsheet,
-  Files,
   Landmark,
   Languages,
   LayoutDashboard,
@@ -38,57 +37,37 @@ import { cn, getInitials } from './utils';
 
 export const ACCOUNTING_NAVIGATION = [
   {
-    key: 'overview',
-    labelKey: 'nav.overview',
+    key: 'dailyWork',
+    label: { ar: 'العمل اليومي', en: 'Daily work' },
     items: [
-      { key: 'dashboard', labelKey: 'nav.dashboard', href: '/accountant/dashboard', icon: LayoutDashboard, permission: 'View' },
-    ],
-  },
-  {
-    key: 'revenueCycle',
-    labelKey: 'nav.revenueCycle',
-    items: [
-      { key: 'files', labelKey: 'nav.files', href: '/accountant/files', icon: Files, permission: 'View' },
-      { key: 'imports', labelKey: 'nav.imports', href: '/accountant/imports', icon: FileInput, permission: 'View' },
-      { key: 'compensation', labelKey: 'nav.compensation', href: '/accountant/compensation', icon: Scale, permission: 'View' },
-    ],
-  },
-  {
-    key: 'riders',
-    labelKey: 'nav.riders',
-    items: [
-      { key: 'payroll', labelKey: 'nav.payroll', href: '/accountant/payroll', icon: UsersRound, permission: 'View' },
-      { key: 'payments', labelKey: 'nav.payments', href: '/accountant/payments', icon: WalletCards, permission: 'View' },
-      { key: 'riderProfiles', labelKey: 'nav.riderProfiles', href: '/accountant/riders', icon: UserRound, permission: 'View' },
+      { key: 'dashboard', label: { ar: 'نظرة عامة', en: 'Overview' }, href: '/accountant/dashboard', icon: LayoutDashboard, permission: 'View' },
+      { key: 'imports', label: { ar: 'كشوف المنصات', en: 'Platform statements' }, href: '/accountant/imports', icon: FileInput, permission: 'View' },
+      { key: 'payroll', label: { ar: 'الرواتب', en: 'Payroll' }, href: '/accountant/payroll', icon: UsersRound, permission: 'View' },
+      { key: 'payments', label: { ar: 'دفعات السداد', en: 'Payments' }, href: '/accountant/payments', icon: WalletCards, permission: 'View' },
     ],
   },
   {
     key: 'accounting',
-    labelKey: 'nav.accounting',
+    label: { ar: 'الحسابات', en: 'Accounting' },
     items: [
-      { key: 'ledgerSetup', labelKey: 'nav.ledgerSetup', href: '/accountant/ledger', icon: Settings2, permission: 'View' },
-      { key: 'journals', labelKey: 'nav.journals', href: '/accountant/journals', icon: BookOpenCheck, permission: 'View' },
-      { key: 'reports', labelKey: 'nav.reports', href: '/accountant/reports', icon: BarChart3, permission: 'View' },
+      { key: 'receivables', label: { ar: 'المبيعات والمقبوضات', en: 'Sales & receipts' }, href: '/accountant/operations/receivables', icon: CircleDollarSign, permission: 'View' },
+      { key: 'payables', label: { ar: 'المشتريات والمصروفات', en: 'Purchases & expenses' }, href: '/accountant/operations/payables', icon: ReceiptText, permission: 'View' },
+      { key: 'expenses', label: { ar: 'مطالبات المصروفات', en: 'Expense claims' }, href: '/accountant/operations/expenses', icon: ClipboardCheck, permission: 'View' },
+      { key: 'treasury', label: { ar: 'البنوك والنقدية', en: 'Banking & cash' }, href: '/accountant/operations/treasury', icon: Landmark, permission: 'View' },
+      { key: 'inventory', label: { ar: 'المخزون', en: 'Inventory' }, href: '/accountant/operations/inventory', icon: Boxes, permission: 'View' },
+      { key: 'journals', label: { ar: 'قيود اليومية', en: 'Journal entries' }, href: '/accountant/journals', icon: BookOpenCheck, permission: 'View' },
+      { key: 'reports', label: { ar: 'التقارير', en: 'Reports' }, href: '/accountant/reports', icon: BarChart3, permission: 'View' },
     ],
   },
   {
-    key: 'operations',
-    labelKey: 'nav.operations',
+    key: 'masterTools',
+    label: { ar: 'أدوات المدير', en: 'Master tools' },
     items: [
-      { key: 'receivables', labelKey: 'nav.receivables', href: '/accountant/operations/receivables', icon: CircleDollarSign, permission: 'View' },
-      { key: 'payables', labelKey: 'nav.payables', href: '/accountant/operations/payables', icon: ReceiptText, permission: 'View' },
-      { key: 'expenses', labelKey: 'nav.expenses', href: '/accountant/operations/expenses', icon: ClipboardCheck, permission: 'View' },
-      { key: 'inventory', labelKey: 'nav.inventory', href: '/accountant/operations/inventory', icon: Boxes, permission: 'View' },
-      { key: 'treasury', labelKey: 'nav.treasury', href: '/accountant/operations/treasury', icon: Landmark, permission: 'View' },
-      { key: 'compliance', labelKey: 'nav.compliance', href: '/accountant/operations/compliance', icon: BriefcaseBusiness, permission: 'View' },
-    ],
-  },
-  {
-    key: 'administration',
-    labelKey: 'nav.administration',
-    items: [
-      { key: 'financialAccess', labelKey: 'nav.financialAccess', href: '/accountant/access', icon: ShieldCheck, permission: 'Configure', roles: ['Master'] },
-      { key: 'setup', labelKey: 'nav.setup', href: '/accountant/setup', icon: Wrench, permission: 'Configure' },
+      { key: 'compensation', label: { ar: 'قواعد التعويض', en: 'Compensation rules' }, href: '/accountant/compensation', icon: Scale, permission: 'Configure', roles: ['Master'] },
+      { key: 'ledgerSetup', label: { ar: 'إعدادات الدفتر والفترات', en: 'Ledger & periods setup' }, href: '/accountant/ledger', icon: Settings2, permission: 'Configure', roles: ['Master'] },
+      { key: 'tax', label: { ar: 'الضرائب والأصول والميزانيات', en: 'Tax, assets & budgets' }, href: '/accountant/operations/compliance', icon: BriefcaseBusiness, permission: 'Configure', roles: ['Master'] },
+      { key: 'financialAccess', label: { ar: 'الوصول والصلاحيات', en: 'Access & permissions' }, href: '/accountant/access', icon: ShieldCheck, permission: 'Configure', roles: ['Master'] },
+      { key: 'setup', label: { ar: 'إعدادات الشركة والمنصات', en: 'Company & platform setup' }, href: '/accountant/setup', icon: Wrench, permission: 'Configure', roles: ['Master'] },
     ],
   },
 ];
@@ -133,7 +112,7 @@ function SidebarNavigation({ onNavigate }) {
       <nav aria-label={t('shell.primaryNavigation')} className="accounting-nav">
         {groups.map((group) => (
           <div key={group.key} className="accounting-nav__group">
-            <p className="accounting-nav__group-label">{t(group.labelKey)}</p>
+            <p className="accounting-nav__group-label">{locale === 'ar' ? group.label.ar : group.label.en}</p>
             <div className="space-y-1">
               {group.items.map((item) => {
                 const active = isPathActive(pathname, item.href);
@@ -147,7 +126,7 @@ function SidebarNavigation({ onNavigate }) {
                     className={cn('accounting-nav__link', active && 'accounting-nav__link--active')}
                   >
                     <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
-                    <span className="min-w-0 flex-1 truncate">{t(item.labelKey)}</span>
+                    <span className="min-w-0 flex-1 truncate">{locale === 'ar' ? item.label.ar : item.label.en}</span>
                     {active && <span className="accounting-nav__active-marker" aria-hidden="true" />}
                   </Link>
                 );

@@ -42,11 +42,78 @@ function resolveText(value, isRtl) {
   return isRtl ? value?.ar : value?.en;
 }
 
+function clientRequestKey() {
+  return globalThis.crypto?.randomUUID?.() || `accounting-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function isTechnicalField(field) {
+  return field.technical || ['idempotencyKey', 'correlationId'].includes(field.name);
+}
+
+function parseStructuredValue(value) {
+  if (typeof value !== 'string') return value;
+  try { return JSON.parse(value); } catch { return []; }
+}
+
+function displayKey(key) {
+  return String(key)
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/Id$/i, '')
+    .replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function jsonValue(value, key = '') {
+  if (Array.isArray(value)) return value.map((item) => jsonValue(item));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, jsonValue(item, name)]));
+  if (value === '') return /id$|amount|quantity|price|rate|months/i.test(key) ? null : value;
+  if (/id$|amount|quantity|price|rate|months/i.test(key) && value !== null && value !== undefined && value !== '') return Number(value);
+  return value;
+}
+
+function StructuredJsonField({ field, value, onChange, busy, isRtl, text }) {
+  const parsed = value ?? [];
+  const isList = Array.isArray(parsed);
+  const prototype = isList ? (parsed[0] ?? parseStructuredValue(field.defaultValue)?.[0] ?? {}) : parsed;
+  const columns = field.columns ?? Object.keys(prototype || {}).map((name) => ({ name, label: displayKey(name) }));
+  const updateRow = (index, name, next) => onChange(parsed.map((row, rowIndex) => rowIndex === index ? { ...row, [name]: next } : row));
+
+  if (!isList) {
+    const entries = Object.entries(parsed || {});
+    return (
+      <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+        {entries.map(([name, item]) => (
+          <FormField key={name} label={resolveText(field.jsonLabels?.[name], isRtl) || displayKey(name)}>
+            <input className={controlClass} value={item ?? ''} disabled={busy} onChange={(event) => onChange({ ...parsed, [name]: event.target.value })} />
+          </FormField>
+        ))}
+        {!entries.length && <p className="text-sm text-slate-600">{isRtl ? 'لا توجد تفاصيل مطلوبة.' : 'No additional details are required.'}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {parsed.map((row, index) => (
+        <fieldset key={index} className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
+          <legend className="sr-only">{`${resolveText(field.label, isRtl)} ${index + 1}`}</legend>
+          {columns.map((column) => (
+            <FormField key={column.name} label={resolveText(column.label, isRtl) || displayKey(column.name)} required={column.required}>
+              <input className={controlClass} type={column.type || (/amount|quantity|price|rate|id$/i.test(column.name) ? 'number' : 'text')} min={column.min} step={column.step || (/amount|quantity|price|rate/i.test(column.name) ? '0.01' : undefined)} value={row[column.name] ?? ''} disabled={busy} onChange={(event) => updateRow(index, column.name, event.target.value)} />
+            </FormField>
+          ))}
+          <button type="button" className="self-end rounded-lg px-2 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" disabled={busy || parsed.length === 1} onClick={() => onChange(parsed.filter((_, rowIndex) => rowIndex !== index))}>{text.removeLine}</button>
+        </fieldset>
+      ))}
+      <button type="button" className="rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50" disabled={busy} onClick={() => onChange([...parsed, Object.fromEntries(columns.map((column) => [column.name, column.defaultValue ?? '']))])}>{text.addLine}</button>
+    </div>
+  );
+}
+
 function initialValues(fields, suppliedValues) {
   return Object.fromEntries(
     fields.map((field) => [
       field.name,
-      suppliedValues?.[field.name] ?? field.defaultValue ?? (field.type === 'checkbox' ? false : ''),
+      suppliedValues?.[field.name] ?? ((field.name === 'idempotencyKey' || field.name === 'correlationId') ? (field.defaultValue || clientRequestKey()) : field.type === 'json' ? parseStructuredValue(field.defaultValue ?? '[]') : field.defaultValue ?? (field.type === 'checkbox' ? false : '')),
     ]),
   );
 }
@@ -57,7 +124,7 @@ function normalizeValues(fields, values) {
     const raw = values[field.name];
     if ((raw === '' || raw === null || raw === undefined) && !field.keepEmpty) continue;
     if (field.type === 'number') payload[field.name] = Number(raw);
-    else if (field.type === 'json') payload[field.name] = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    else if (field.type === 'json') payload[field.name] = jsonValue(raw);
     else payload[field.name] = raw;
   }
   return payload;
@@ -105,6 +172,7 @@ export default function FinanceActionForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(undefined);
+  const visibleFields = fields.filter((field) => !isTechnicalField(field));
 
   const submit = async (event) => {
     event.preventDefault();
@@ -136,7 +204,7 @@ export default function FinanceActionForm({
   return (
     <Panel title={resolveText(title, isRtl)} description={resolveText(description, isRtl)}>
       <form className="grid gap-4 md:grid-cols-2" onSubmit={submit}>
-        {fields.map((field) => {
+        {visibleFields.map((field) => {
           const label = resolveText(field.label, isRtl);
           const help = resolveText(field.help, isRtl);
           const span = field.full ? 'md:col-span-2' : '';
@@ -173,8 +241,10 @@ export default function FinanceActionForm({
                     ))}
                     <button type="button" className="rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50" disabled={busy} onClick={() => setValues((current) => ({ ...current, [field.name]: [...(current[field.name] || []), Object.fromEntries((field.columns || []).map((column) => [column.name, column.defaultValue ?? '']))] }))}>{text.addLine}</button>
                   </div>
-                ) : field.type === 'textarea' || field.type === 'json' ? (
-                  <textarea className={`${controlClass} min-h-28 resize-y ${field.type === 'json' ? 'font-mono' : ''}`} dir={field.type === 'json' ? 'ltr' : undefined} {...common} />
+                ) : field.type === 'json' ? (
+                  <StructuredJsonField field={field} value={values[field.name]} busy={busy} isRtl={isRtl} text={text} onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))} />
+                ) : field.type === 'textarea' ? (
+                  <textarea className={`${controlClass} min-h-28 resize-y`} {...common} />
                 ) : field.type === 'checkbox' ? (
                   <label className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium">
                     <input className="size-4 accent-blue-700" type="checkbox" {...common} checked={Boolean(values[field.name])} value={undefined} />

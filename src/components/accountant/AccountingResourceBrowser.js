@@ -10,6 +10,7 @@ import {
   StatusBadge,
 } from '@/components/accounting/AccountingUi';
 import { useAccountingI18n } from '@/lib/accounting/i18n';
+import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 
 const TEXT = {
   ar: {
@@ -59,10 +60,10 @@ function isRenderable(value) {
   return value === null || ['string', 'number', 'boolean'].includes(typeof value);
 }
 
-function chooseKeys(rows) {
+function chooseKeys(rows, includeTechnical) {
   const sample = rows.find((row) => row && typeof row === 'object');
   if (!sample) return [];
-  const keys = Object.keys(sample).filter((key) => isRenderable(sample[key]));
+  const keys = Object.keys(sample).filter((key) => isRenderable(sample[key]) && (includeTechnical || !/(^id$|Id$|hash|correlation)/.test(key)));
   const idKey = keys.find((key) => key === 'id' || key.endsWith('Id'));
   const prioritized = [idKey, ...PRIORITY_KEYS.filter((key) => keys.includes(key)), ...keys]
     .filter(Boolean);
@@ -78,6 +79,7 @@ function cellFor(key, row) {
 
 export default function AccountingResourceBrowser({ resources = [] }) {
   const { isRtl } = useAccountingI18n();
+  const { isMaster } = useAccountingWorkspace();
   const text = isRtl ? TEXT.ar : TEXT.en;
   const [resourceId, setResourceId] = useState(resources[0]?.id ?? '');
   const [rows, setRows] = useState([]);
@@ -112,12 +114,12 @@ export default function AccountingResourceBrowser({ resources = [] }) {
     load();
   }, [load]);
 
-  const columns = useMemo(() => chooseKeys(rows).map((key) => ({
+  const columns = useMemo(() => chooseKeys(rows, isMaster).map((key) => ({
     key,
     header: valueLabel(key),
     numeric: typeof rows[0]?.[key] === 'number',
     render: (row) => cellFor(key, row),
-  })), [rows]);
+  })), [isMaster, rows]);
 
   const openDetail = async (row) => {
     if (!resource?.get) return;
@@ -168,7 +170,7 @@ export default function AccountingResourceBrowser({ resources = [] }) {
         getRowKey={(row, index) => resource?.idOf?.(row) ?? row.id ?? index}
         onRowClick={resource?.get ? openDetail : undefined}
       />
-      {detail && (
+      {detail && isMaster && (
         <details className="mt-4 rounded-xl border border-slate-200 bg-slate-950 p-4 text-slate-100" open>
           <summary className="cursor-pointer text-sm font-black">{text.detail}</summary>
           <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-6" dir="ltr">

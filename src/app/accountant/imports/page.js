@@ -16,6 +16,7 @@ import {
 import { accountingOptionLabel, useAccountingI18n } from '@/lib/accounting/i18n';
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { accountingApi } from '@/lib/api/accountingApi';
+import { accountantStatus } from '@/lib/accounting/workflow';
 import { FileSpreadsheet, Plus, RefreshCw, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -196,28 +197,6 @@ export default function ImportBatchesPage() {
         accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100 }).catch(() => []),
       ]);
       const loadedBatches = collectionItems(batchPayload).map(normalizeImportBatch);
-      if (process.env.NODE_ENV !== 'production') {
-        const statusCounts = loadedBatches.reduce((counts, item) => {
-          const key = String(item.status ?? 'MISSING');
-          counts[key] = (counts[key] || 0) + 1;
-          return counts;
-        }, {});
-        console.groupCollapsed('[accounting/imports] batch register response');
-        console.log('Request filters:', { legalEntityId, search: filters.search || undefined, status: filters.status || undefined });
-        console.log('Raw API response:', batchPayload);
-        console.table(loadedBatches.map((item) => ({
-          id: item.id,
-          externalReference: item.externalReference,
-          rawStatus: item.statusValue,
-          status: item.status,
-          statusType: typeof item.status,
-          factCount: item.factCount,
-          openBlockingIssueCount: item.openBlockingIssueCount,
-        })));
-        console.log('Status counts:', statusCounts);
-        console.log('Approved count used by card:', loadedBatches.filter((item) => item.status === 'Approved').length);
-        console.groupEnd();
-      }
       setBatches(loadedBatches);
       setPlatforms(collectionItems(platformPayload));
     } catch (requestError) {
@@ -277,7 +256,6 @@ export default function ImportBatchesPage() {
           <Link className="font-semibold text-blue-700 hover:underline" href={`/accountant/imports/${item.id}`}>
             {item.externalReference || item.id}
           </Link>
-          <div className="mt-1 max-w-48 truncate font-mono text-xs text-slate-500" dir="ltr">{item.id}</div>
         </div>
       ),
     },
@@ -301,7 +279,10 @@ export default function ImportBatchesPage() {
       render: (item) => formatMoney(item.normalizedControlTotal ?? item.sourceControlTotal, locale),
     },
     { key: 'openBlockingIssueCount', header: copy.issues, align: 'end', render: (item) => item.openBlockingIssueCount ?? 0 },
-    { key: 'status', header: copy.status, render: (item) => <StatusBadge status={item.status} /> },
+    { key: 'status', header: copy.status, render: (item) => {
+      const status = accountantStatus('import', item.statusValue ?? item.status, isRtl);
+      return <StatusBadge status={status.raw} label={status.label} />;
+    } },
     {
       key: 'action',
       header: '',

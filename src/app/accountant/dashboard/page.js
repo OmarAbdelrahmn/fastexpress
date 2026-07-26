@@ -9,10 +9,12 @@ import {
   PageHeader,
   Panel,
   StatusBadge,
+  WorkflowProgress,
 } from '@/components/accounting/AccountingUi';
 import { useAccountingI18n } from '@/lib/accounting/i18n';
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { accountingApi } from '@/lib/api/accountingApi';
+import { workflowNextAction } from '@/lib/accounting/workflow';
 import { Activity, ArrowDownLeft, ArrowUpRight, Landmark, Scale, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -21,7 +23,7 @@ const copy = {
   ar: {
     eyebrow: 'نظرة عامة',
     title: 'لوحة المحاسبة',
-    description: 'صورة تشغيلية سريعة من دفتر الأستاذ والاعتمادات والحركة النقدية.',
+    description: 'تابع العمل المطلوب هذا الشهر، واعرف الخطوة التالية لإكمال الرواتب والسداد.',
     missing: 'اختر الكيان القانوني من شريط مساحة العمل لعرض بياناته المالية.',
     revenue: 'الإيرادات',
     expenses: 'المصروفات',
@@ -49,7 +51,7 @@ const copy = {
   en: {
     eyebrow: 'Overview',
     title: 'Accounting dashboard',
-    description: 'A concise operating view from the ledger, approvals, and cash movement.',
+    description: 'See this month’s required work and the next step to complete payroll and payments.',
     missing: 'Select a legal entity from the workspace bar to view its financial data.',
     revenue: 'Revenue',
     expenses: 'Expenses',
@@ -87,13 +89,17 @@ function monthRange() {
   return { fromDate: localDate(start), toDate: localDate(end) };
 }
 
+function rowsOf(value) {
+  return Array.isArray(value) ? value : value?.items ?? value?.data ?? value?.results ?? [];
+}
+
 export default function AccountantDashboardPage() {
   const { isRtl } = useAccountingI18n();
   const { legalEntityId } = useAccountingWorkspace();
   const text = isRtl ? copy.ar : copy.en;
   const locale = isRtl ? 'ar-SA' : 'en-US';
   const dates = useMemo(monthRange, []);
-  const [state, setState] = useState({ loading: true, error: '', pnl: null, balance: null, cash: null, approvals: [], audit: [] });
+  const [state, setState] = useState({ loading: true, error: '', pnl: null, balance: null, cash: null, approvals: [], audit: [], imports: [], payroll: [], payments: [] });
 
   const load = useCallback(async () => {
     if (!legalEntityId) {
@@ -107,6 +113,9 @@ export default function AccountantDashboardPage() {
       accountingApi.reports.getCashMovement(legalEntityId, dates),
       accountingApi.ledger.getApprovalInbox(legalEntityId),
       accountingApi.reports.getAuditEvents(legalEntityId, 8),
+      accountingApi.imports.list({ legalEntityId, pageNumber: 1, pageSize: 25 }),
+      accountingApi.payroll.listRuns({ legalEntityId, pageNumber: 1, pageSize: 25 }),
+      accountingApi.payments.list({ legalEntityId, pageNumber: 1, pageSize: 25 }),
     ]);
     const value = (index, fallback) => results[index].status === 'fulfilled' ? results[index].value : fallback;
     setState({
@@ -117,6 +126,9 @@ export default function AccountantDashboardPage() {
       cash: value(2, null),
       approvals: value(3, []) || [],
       audit: value(4, []) || [],
+      imports: rowsOf(value(5, [])),
+      payroll: rowsOf(value(6, [])),
+      payments: rowsOf(value(7, [])),
     });
   }, [dates, legalEntityId, text.loadError]);
 
@@ -139,6 +151,7 @@ export default function AccountantDashboardPage() {
     { key: 'actorId', header: text.actor },
     { key: 'occurredAt', header: text.occurredAt, render: (item) => date(item.occurredAt) },
   ];
+  const nextAction = workflowNextAction({ imports: state.imports, payroll: state.payroll, payments: state.payments, isRtl });
 
   return (
     <div className="space-y-5" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -154,6 +167,7 @@ export default function AccountantDashboardPage() {
             <MetricCard label={text.assets} value={money(state.balance?.totalAssets)} icon={Landmark} />
             <MetricCard label={text.approvals} value={state.approvals.length} icon={Activity} tone={state.approvals.length ? 'warning' : 'neutral'} />
           </section>
+          <WorkflowProgress currentStage={nextAction.stage} action={nextAction} isRtl={isRtl} />
           <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
             <Panel title={text.approvalTitle} description={text.approvalDescription}>
               {state.approvals.length ? <DataTable columns={approvalColumns} rows={state.approvals} getRowKey={(item) => item.documentId} /> : <EmptyState title={text.noApprovals} />}

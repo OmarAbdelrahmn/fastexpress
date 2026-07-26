@@ -16,6 +16,7 @@ import {
 import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 import { useAccountingI18n } from '@/lib/accounting/i18n';
 import { accountingApi } from '@/lib/api/accountingApi';
+import { accountantStatus } from '@/lib/accounting/workflow';
 import { CircleDollarSign, RefreshCw, UserRoundSearch, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -86,13 +87,13 @@ export default function PayrollRunsPage() {
 
   const statusOf = (item) => enumName(item.status, PAYROLL_STATUSES);
   const columns = [
-    { key: 'runNumber', header: copy.runNumber, render: (item) => <div><Link href={`/accountant/payroll/${item.id}`} className="font-bold text-blue-700 hover:underline" dir="ltr">{item.runNumber || item.id}</Link><div className="mt-1 max-w-48 truncate font-mono text-xs text-slate-500" dir="ltr">{item.id}</div></div> },
+    { key: 'runNumber', header: copy.runNumber, render: (item) => <Link href={`/accountant/payroll/${item.id}`} className="font-bold text-blue-700 hover:underline" dir="ltr">{item.runNumber || (isRtl ? 'مسير رواتب' : 'Payroll run')}</Link> },
     { key: 'periodStart', header: copy.period, render: (item) => `${formatDate(item.periodStart, locale)} — ${formatDate(item.periodEnd, locale)}` },
     { key: 'grossEarnings', header: copy.gross, align: 'end', render: (item) => formatMoney(item.grossEarnings, locale, item.currencyCode || 'SAR') },
     { key: 'appliedDeductions', header: copy.deductions, align: 'end', render: (item) => formatMoney(item.appliedDeductions, locale, item.currencyCode || 'SAR') },
     { key: 'netPay', header: copy.net, align: 'end', render: (item) => <span className="font-bold">{formatMoney(item.netPay, locale, item.currencyCode || 'SAR')}</span> },
     { key: 'lines', header: copy.lines, align: 'end', render: (item) => collectionItems(item.lines).length },
-    { key: 'status', header: copy.status, render: (item) => <StatusBadge status={statusOf(item)} /> },
+    { key: 'status', header: copy.status, render: (item) => { const status = accountantStatus('payroll', item.status, isRtl); return <StatusBadge status={status.raw} label={status.label} />; } },
     { key: 'action', header: '', render: (item) => <Link className="inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-blue-700 hover:bg-blue-50" href={`/accountant/payroll/${item.id}`}>{copy.open}</Link> },
   ];
   const calculated = runs.filter((item) => statusOf(item) === 'Calculated').length;

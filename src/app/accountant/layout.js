@@ -25,6 +25,14 @@ function hasAccountantAccess(user) {
   return roles.includes('Accountant') || roles.includes('Master');
 }
 
+const MASTER_ONLY_PATHS = [
+  '/accountant/setup',
+  '/accountant/ledger',
+  '/accountant/access',
+  '/accountant/compensation',
+  '/accountant/operations/compliance',
+];
+
 function AccountantLayoutContent({ children }) {
   const { loading } = useAuth();
   const pathname = usePathname();
@@ -96,6 +104,21 @@ function AccountantLayoutContent({ children }) {
           >
             <ArrowRight className="rtl:rotate-180" aria-hidden="true" size={17} />
             {accountingT(locale, 'shell.backToLogin')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isMasterOnlyPage = MASTER_ONLY_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  if (!isLoginPage && isMasterOnlyPage && !rolesOf(user).includes('Master')) {
+    return (
+      <div className="accounting-shell flex min-h-screen items-center justify-center p-6" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-xl shadow-slate-900/5">
+          <h1 className="text-xl font-black text-slate-950">{locale === 'ar' ? 'هذه الصفحة مخصصة للمدير المالي' : 'This page is for Master users'}</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{locale === 'ar' ? 'يمكنك متابعة العمل اليومي من لوحة المحاسبة.' : 'Continue your daily work from the accounting overview.'}</p>
+          <button onClick={() => router.push(ACCOUNTANT_DASHBOARD_PATH)} className="accounting-button accounting-button--primary accounting-button--md mx-auto mt-5">
+            {locale === 'ar' ? 'العودة للنظرة العامة' : 'Back to overview'}
           </button>
         </div>
       </div>

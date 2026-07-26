@@ -2,6 +2,7 @@
 
 import { AlertTriangle } from 'lucide-react';
 import { cn } from './utils';
+import { useAccountingWorkspace } from '@/lib/accounting/AccountingWorkspaceContext';
 
 const DEFAULT_LABELS = {
   status: 'Status',
@@ -46,6 +47,7 @@ function problemData(error, fallback) {
 }
 
 export default function ApiProblemDetails({ error, fallback, labels, className }) {
+  const { isMaster } = useAccountingWorkspace();
   const copy = { ...DEFAULT_LABELS, ...labels };
   const problem = problemData(error, fallback);
   const fields = [
@@ -58,6 +60,9 @@ export default function ApiProblemDetails({ error, fallback, labels, className }
     [copy.exceptionMessage, problem.exceptionMessage],
     [copy.innerExceptionMessage, problem.innerExceptionMessage],
   ].filter(([, value]) => value !== undefined && value !== null && value !== '');
+  const friendlyDetail = /idempotency|correlation|posting profile/i.test(problem.detail)
+    ? 'The financial setup is incomplete. Ask a Master user to review the accounting setup.'
+    : problem.detail;
 
   return (
     <section className={cn('rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-slate-700', className)} role="alert">
@@ -65,8 +70,8 @@ export default function ApiProblemDetails({ error, fallback, labels, className }
         <AlertTriangle className="mt-0.5 shrink-0 text-red-700" aria-hidden="true" size={21} />
         <div className="min-w-0 flex-1">
           <h3 className="font-bold text-red-950">{problem.title}</h3>
-          <p className="mt-1 leading-6 text-red-900">{problem.detail}</p>
-          {fields.length > 0 && (
+          <p className="mt-1 leading-6 text-red-900">{friendlyDetail}</p>
+          {isMaster && fields.length > 0 && (
             <dl className="mt-3 grid gap-x-5 gap-y-2 sm:grid-cols-3">
               {fields.map(([label, value]) => (
                 <div key={label}>
@@ -84,12 +89,12 @@ export default function ApiProblemDetails({ error, fallback, labels, className }
               </ul>
             </div>
           )}
-          <details className="mt-3">
+          {isMaster && <details className="mt-3">
             <summary className="cursor-pointer font-semibold text-red-900 underline-offset-2 hover:underline">{copy.technical}</summary>
             <pre className="mt-2 max-h-72 overflow-auto rounded-lg border border-red-100 bg-white p-3 text-xs leading-5 text-slate-800" dir="ltr">
               {JSON.stringify(problem.raw, null, 2)}
             </pre>
-          </details>
+          </details>}
         </div>
       </div>
     </section>
