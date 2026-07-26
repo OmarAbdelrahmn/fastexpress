@@ -26,6 +26,7 @@ const statusConfig = {
   paid: { tone: 'success', icon: CheckCircle2 },
   partiallypaid: { tone: 'warning', icon: Clock3 },
   rejected: { tone: 'danger', icon: XCircle },
+  superseded: { tone: 'neutral', icon: RotateCcw },
   failed: { tone: 'danger', icon: XCircle },
   reversed: { tone: 'danger', icon: RotateCcw },
   waived: { tone: 'neutral', icon: CircleDot },

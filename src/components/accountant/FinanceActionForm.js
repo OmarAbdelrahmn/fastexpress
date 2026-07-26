@@ -21,6 +21,8 @@ const copy = {
     success: 'اكتملت العملية بنجاح',
     details: 'عرض الاستجابة الكاملة',
     jsonError: 'يجب أن يحتوي الحقل على JSON صالح.',
+    addLine: 'إضافة سطر',
+    removeLine: 'حذف السطر',
     requestError: 'تعذر تنفيذ العملية.',
   },
   en: {
@@ -29,6 +31,8 @@ const copy = {
     success: 'Action completed successfully',
     details: 'View full response',
     jsonError: 'This field must contain valid JSON.',
+    addLine: 'Add line',
+    removeLine: 'Remove line',
     requestError: 'The action could not be completed.',
   },
 };
@@ -159,6 +163,16 @@ export default function FinanceActionForm({
                       </option>
                     ))}
                   </select>
+                ) : field.type === 'lineItems' ? (
+                  <div className="space-y-3">
+                    {(values[field.name] || []).map((line, index) => (
+                      <div key={index} className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+                        {(field.columns || []).map((column) => <FormField key={column.name} label={resolveText(column.label, isRtl)} required={column.required}><input className={controlClass} type={column.type || 'text'} min={column.min} step={column.step} dir={column.dir} value={line[column.name] ?? ''} onChange={(event) => setValues((current) => ({ ...current, [field.name]: current[field.name].map((item, itemIndex) => itemIndex === index ? { ...item, [column.name]: event.target.value } : item) }))} /></FormField>)}
+                        <button type="button" className="self-end rounded-lg px-2 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" disabled={busy || (values[field.name] || []).length === 1} onClick={() => setValues((current) => ({ ...current, [field.name]: current[field.name].filter((_, itemIndex) => itemIndex !== index) }))}>{text.removeLine}</button>
+                      </div>
+                    ))}
+                    <button type="button" className="rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50" disabled={busy} onClick={() => setValues((current) => ({ ...current, [field.name]: [...(current[field.name] || []), Object.fromEntries((field.columns || []).map((column) => [column.name, column.defaultValue ?? '']))] }))}>{text.addLine}</button>
+                  </div>
                 ) : field.type === 'textarea' || field.type === 'json' ? (
                   <textarea className={`${controlClass} min-h-28 resize-y ${field.type === 'json' ? 'font-mono' : ''}`} dir={field.type === 'json' ? 'ltr' : undefined} {...common} />
                 ) : field.type === 'checkbox' ? (

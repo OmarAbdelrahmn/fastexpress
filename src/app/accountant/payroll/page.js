@@ -2,6 +2,7 @@
 
 import {
   ActionButton,
+  ApiProblemDetails,
   DataTable,
   EmptyState,
   ErrorState,
@@ -68,7 +69,7 @@ export default function PayrollRunsPage() {
     try {
       const payload = await accountingApi.payroll.listRuns({ legalEntityId: Number(legalEntityId), search: filters.search || undefined, status: filters.status || undefined, pageNumber: filters.pageNumber, pageSize: 25 });
       setRuns(collectionItems(payload)); setMeta(collectionMeta(payload));
-    } catch (requestError) { setRuns([]); setError(apiErrorMessage(requestError, copy.loadError)); }
+    } catch (requestError) { setRuns([]); setError(requestError); }
     finally { setLoading(false); }
   }, [copy.loadError, filters.pageNumber, filters.search, filters.status, legalEntityId]);
 
@@ -80,7 +81,7 @@ export default function PayrollRunsPage() {
     try {
       const created = await accountingApi.payroll.createRun({ legalEntityId: Number(legalEntityId), periodStart: form.periodStart, periodEnd: form.periodEnd, currencyCode: form.currencyCode.trim().toUpperCase() });
       router.push(`/accountant/payroll/${created.id}`);
-    } catch (requestError) { setFormError(apiErrorMessage(requestError, copy.createError)); setCreating(false); }
+    } catch (requestError) { setFormError(requestError); setCreating(false); }
   };
 
   const statusOf = (item) => enumName(item.status, PAYROLL_STATUSES);
@@ -107,12 +108,12 @@ export default function PayrollRunsPage() {
           <FormField label={copy.to} required><input type="date" min={form.periodStart} required value={form.periodEnd} onChange={(event) => setForm((current) => ({ ...current, periodEnd: event.target.value }))} /></FormField>
           <FormField label={copy.currency} required><input dir="ltr" minLength={3} maxLength={3} required value={form.currencyCode} onChange={(event) => setForm((current) => ({ ...current, currencyCode: event.target.value }))} /></FormField>
           <div className="flex items-end"><ActionButton type="submit" loading={creating} loadingLabel={copy.creating}>{copy.create}</ActionButton></div>
-          {formError && <div className="md:col-span-4"><ErrorState description={formError} compact /></div>}
+          {formError && <div className="md:col-span-4"><ApiProblemDetails error={formError} fallback={copy.createError} /></div>}
         </form>
       </Panel>
       <Panel title={copy.register} description={copy.registerDescription}>
         <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:max-w-2xl"><input className={controlClass} type="search" placeholder={copy.search} value={filters.search} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value, pageNumber: 1 }))} /><select className={controlClass} value={filters.status} onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value, pageNumber: 1 }))}><option value="">{copy.allStatuses}</option>{PAYROLL_STATUSES.slice(1).map((status, index) => <option key={status} value={index + 1}>{status}</option>)}</select></div>
-        {loading ? <LoadingState /> : error ? <ErrorState description={error} onRetry={load} /> : runs.length === 0 ? <EmptyState icon={CircleDollarSign} title={copy.empty} /> : <DataTable columns={columns} data={runs} rowKey="id" getRowHref={(item) => `/accountant/payroll/${item.id}`} />}
+        {loading ? <LoadingState /> : error ? <ApiProblemDetails error={error} fallback={copy.loadError} /> : runs.length === 0 ? <EmptyState icon={CircleDollarSign} title={copy.empty} /> : <DataTable columns={columns} data={runs} rowKey="id" getRowHref={(item) => `/accountant/payroll/${item.id}`} />}
         {!loading && !error && meta.totalPages > 1 && <div className="mt-4 flex items-center justify-end gap-2"><ActionButton variant="secondary" size="sm" disabled={!meta.hasPreviousPage} onClick={() => setFilters((current) => ({ ...current, pageNumber: current.pageNumber - 1 }))}>{copy.previous}</ActionButton><span className="text-sm tabular-nums text-slate-500">{meta.pageNumber} / {meta.totalPages}</span><ActionButton variant="secondary" size="sm" disabled={!meta.hasNextPage} onClick={() => setFilters((current) => ({ ...current, pageNumber: current.pageNumber + 1 }))}>{copy.next}</ActionButton></div>}
       </Panel>
     </>}

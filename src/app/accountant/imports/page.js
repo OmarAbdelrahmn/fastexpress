@@ -2,6 +2,7 @@
 
 import {
   ActionButton,
+  ApiProblemDetails,
   DataTable,
   EmptyState,
   ErrorState,
@@ -55,7 +56,7 @@ const COPY = {
     emptyTitle: 'لا توجد دفعات استيراد',
     emptyDescription: 'ابدأ برفع أول كشف منصة لهذه الفترة.',
     loadError: 'تعذر تحميل دفعات الاستيراد.',
-    uploadError: 'تعذر رفع الملف.',
+    uploadError: 'تعذر رفع الملف.', errorStatus: 'الحالة', errorInstance: 'نقطة النهاية', errorCorrelationId: 'معرّف التتبع', errorExceptionType: 'نوع الاستثناء', errorExceptionMessage: 'رسالة الاستثناء', errorInnerExceptionMessage: 'الاستثناء الداخلي', errorTechnical: 'التفاصيل الفنية كاملة',
     reference: 'المرجع',
     period: 'الفترة',
     platformColumn: 'المنصة',
@@ -94,7 +95,7 @@ const COPY = {
     emptyTitle: 'No import batches',
     emptyDescription: 'Upload the first platform statement for this period.',
     loadError: 'Import batches could not be loaded.',
-    uploadError: 'The file could not be uploaded.',
+    uploadError: 'The file could not be uploaded.', errorStatus: 'Status', errorInstance: 'Endpoint', errorCorrelationId: 'Correlation ID', errorExceptionType: 'Exception type', errorExceptionMessage: 'Exception message', errorInnerExceptionMessage: 'Inner exception', errorTechnical: 'Full technical details',
     reference: 'Reference',
     period: 'Period',
     platformColumn: 'Platform',
@@ -111,7 +112,30 @@ const COPY = {
   },
 };
 
-const STATUSES = ['Received', 'Parsing', 'NeedsResolution', 'Reconciled', 'Approved', 'Rejected', 'Failed'];
+const IMPORT_STATUS_BY_NUMBER = {
+  1: 'Received',
+  2: 'Parsing',
+  3: 'NeedsResolution',
+  4: 'Reconciled',
+  5: 'Approved',
+  6: 'Rejected',
+  7: 'Superseded',
+  8: 'Failed',
+};
+
+const STATUSES = Object.values(IMPORT_STATUS_BY_NUMBER);
+
+function importStatusName(value) {
+  return IMPORT_STATUS_BY_NUMBER[String(value)] || value;
+}
+
+function normalizeImportBatch(item) {
+  return {
+    ...item,
+    statusValue: item.status,
+    status: importStatusName(item.status),
+  };
+}
 const IMPORT_TYPES = [
   { key: 'amazon', method: 'uploadAmazon', ar: 'أمازون ANOW', en: 'Amazon ANOW' },
   { key: 'hunger', method: 'uploadHunger', ar: 'هنقرستيشن FTR', en: 'HungerStation FTR' },
@@ -133,6 +157,14 @@ export default function ImportBatchesPage() {
   const [filters, setFilters] = useState({ search: '', status: '' });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const platformNameById = useMemo(() => new Map(
+    platforms
+      .map((platform) => [
+        String(platform.id ?? platform.platformAccountId ?? ''),
+        platform.platformName ?? platform.name ?? platform.code,
+      ])
+      .filter(([id, name]) => id && name),
+  ), [platforms]);
   const [form, setForm] = useState({
     platformAccountId: '',
     importType: 'hunger',
@@ -163,7 +195,30 @@ export default function ImportBatchesPage() {
         }),
         accountingApi.organization.listPlatformAccounts({ legalEntityId, pageNumber: 1, pageSize: 100 }).catch(() => []),
       ]);
-      setBatches(collectionItems(batchPayload));
+      const loadedBatches = collectionItems(batchPayload).map(normalizeImportBatch);
+      if (process.env.NODE_ENV !== 'production') {
+        const statusCounts = loadedBatches.reduce((counts, item) => {
+          const key = String(item.status ?? 'MISSING');
+          counts[key] = (counts[key] || 0) + 1;
+          return counts;
+        }, {});
+        console.groupCollapsed('[accounting/imports] batch register response');
+        console.log('Request filters:', { legalEntityId, search: filters.search || undefined, status: filters.status || undefined });
+        console.log('Raw API response:', batchPayload);
+        console.table(loadedBatches.map((item) => ({
+          id: item.id,
+          externalReference: item.externalReference,
+          rawStatus: item.statusValue,
+          status: item.status,
+          statusType: typeof item.status,
+          factCount: item.factCount,
+          openBlockingIssueCount: item.openBlockingIssueCount,
+        })));
+        console.log('Status counts:', statusCounts);
+        console.log('Approved count used by card:', loadedBatches.filter((item) => item.status === 'Approved').length);
+        console.groupEnd();
+      }
+      setBatches(loadedBatches);
       setPlatforms(collectionItems(platformPayload));
     } catch (requestError) {
       setError(apiErrorMessage(requestError, copy.loadError));
@@ -199,7 +254,7 @@ export default function ImportBatchesPage() {
       });
       router.push(`/accountant/imports/${created.id}`);
     } catch (requestError) {
-      setUploadError(apiErrorMessage(requestError, copy.uploadError));
+      setUploadError(requestError);
       setUploading(false);
     }
   };
@@ -226,7 +281,14 @@ export default function ImportBatchesPage() {
         </div>
       ),
     },
-    { key: 'platformAccountId', header: copy.platformColumn, render: (item) => item.platformName || item.platformAccountId || '—' },
+    {
+      key: 'platformAccountId',
+      header: copy.platformColumn,
+      render: (item) => {
+        const platformAccountId = item.platformAccountId ?? item.platformId;
+        return item.platformName || platformNameById.get(String(platformAccountId)) || platformAccountId || '—';
+      },
+    },
     {
       key: 'periodStart',
       header: copy.period,
@@ -310,7 +372,7 @@ export default function ImportBatchesPage() {
                   {uploading ? copy.uploading : copy.upload}
                 </ActionButton>
               </div>
-              {uploadError && <div className="lg:col-span-4"><ErrorState description={uploadError} compact /></div>}
+              {uploadError && <div className="lg:col-span-4"><ApiProblemDetails error={uploadError} fallback={copy.uploadError} labels={{ status: copy.errorStatus, instance: copy.errorInstance, correlationId: copy.errorCorrelationId, exceptionType: copy.errorExceptionType, exceptionMessage: copy.errorExceptionMessage, innerExceptionMessage: copy.errorInnerExceptionMessage, technical: copy.errorTechnical }} /></div>}
             </form>
           </Panel>
 

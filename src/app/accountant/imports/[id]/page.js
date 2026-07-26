@@ -2,6 +2,7 @@
 
 import {
   ActionButton,
+  ApiProblemDetails,
   ConfirmDialog,
   DataTable,
   EmptyState,
@@ -34,22 +35,60 @@ import {
 
 const IMPORT_STATUSES = ['', 'Received', 'Parsing', 'NeedsResolution', 'Reconciled', 'Approved', 'Rejected', 'Superseded', 'Failed'];
 
+const METRIC_LABELS_AR = {
+  NET_SETTLEMENT: 'صافي التسوية',
+  COMPANY_TOTAL: 'إجمالي الشركة',
+  VAT: 'ضريبة القيمة المضافة',
+  BASE_AMOUNT: 'المبلغ الأساسي',
+  ACCEPTED_ORDERS: 'الطلبات المقبولة',
+  RIDER_PAYOUT: 'مستحقات السائق',
+  PENALTIES: 'الجزاءات',
+  INCENTIVES: 'الحوافز',
+};
+
+const ISSUE_CODE_LABELS_AR = {
+  IDENTITY_MISSING: 'هوية المندوب مفقودة',
+};
+
+const ISSUE_SEVERITY_LABELS = {
+  ar: { 1: 'تحذير', 2: 'مانع' },
+  en: { 1: 'Warning', 2: 'Blocking' },
+};
+
+function metricLabel(value, isRtl) {
+  const code = String(value ?? '').toUpperCase();
+  return isRtl ? METRIC_LABELS_AR[code] || value || '—' : value || '—';
+}
+
+function issueCodeLabel(value, isRtl) {
+  const code = String(value ?? '').toUpperCase();
+  return isRtl ? ISSUE_CODE_LABELS_AR[code] || value || '—' : value || '—';
+}
+
+function issueSeverity(value, isRtl) {
+  const severity = String(value ?? '');
+  return {
+    label: ISSUE_SEVERITY_LABELS[isRtl ? 'ar' : 'en'][severity] || value || '—',
+    tone: severity === '2' ? 'danger' : severity === '1' ? 'warning' : undefined,
+  };
+}
+
 const COPY = {
   ar: {
     eyebrow: 'مراجعة الاستيراد', back: 'دفعات الاستيراد', refresh: 'تحديث', download: 'تنزيل المصدر', approve: 'اعتماد', reject: 'رفض', platform: 'حساب المنصة',
     loadError: 'تعذر تحميل تفاصيل دفعة الاستيراد.', actionError: 'تعذر إكمال العملية.', source: 'المصدر', period: 'الفترة', totals: 'مطابقة الإجماليات', sourceTotal: 'إجمالي المصدر', normalizedTotal: 'الإجمالي الموحّد', sheets: 'الأوراق', rows: 'الصفوف', facts: 'الحقائق', blocking: 'ملاحظات مانعة',
     issuesTitle: 'الملاحظات والمطابقة', issuesDescription: 'يجب معالجة كل ملاحظة مانعة قبل اعتماد الدفعة.', noIssues: 'لا توجد ملاحظات على هذه الدفعة.', severity: 'الأهمية', code: 'الرمز', message: 'الرسالة', status: 'الحالة', sourceRow: 'صف المصدر', resolve: 'معالجة', resolution: 'شرح المعالجة', waive: 'تجاوز الملاحظة بسبب موثق', saveResolution: 'حفظ المعالجة',
-    remapTitle: 'ربط معرّف عامل بسائق', remapDescription: 'أنشئ ربطاً مؤرخاً مع الحفاظ على معرّف المنصة الأصلي.', externalWorker: 'معرّف العامل الخارجي', riderIqama: 'رقم إقامة السائق', effectiveFrom: 'ساري من', effectiveTo: 'ساري إلى', reason: 'السبب', remap: 'حفظ الربط', assignIqama: 'تعيين رقم الإقامة', assignIqamaTitle: 'تعيين رقم إقامة العامل', assignIqamaDescription: 'سيُنشئ هذا الربط ويُحدّث الحقائق المطابقة ويعالج ملاحظة الهوية تلقائياً.',
-    factsTitle: 'الحقائق الموحّدة', noFacts: 'لا توجد حقائق متاحة للعرض.', rider: 'السائق', metric: 'المؤشر', filterMetric: 'تصفية حسب المؤشر', allMetrics: 'كل المؤشرات', unassignedRider: 'سائق غير معيّن', factCount: 'حقائق', value: 'القيمة', date: 'التاريخ', valid: 'الصلاحية', override: 'تعديل الصلاحية', true: 'صالح', false: 'غير صالح', saveOverride: 'حفظ التعديل', linkRider: 'ربط السائق', riderIqamaPlaceholder: 'أدخل رقم الإقامة',
-    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.',
+    externalWorker: 'معرّف العامل الخارجي', riderIqama: 'رقم إقامة السائق', effectiveFrom: 'ساري من', effectiveTo: 'ساري إلى', reason: 'السبب', assignIqama: 'تعيين رقم الإقامة', assignIqamaTitle: 'تعيين رقم إقامة العامل', assignIqamaDescription: 'سيُنشئ هذا الربط ويُحدّث الحقائق المطابقة ويعالج ملاحظة الهوية تلقائياً.',
+    factsTitle: 'الحقائق الموحّدة', noFacts: 'لا توجد حقائق متاحة للعرض.', rider: 'السائق', metric: 'المؤشر', filterMetric: 'تصفية حسب المؤشر', allMetrics: 'كل المؤشرات', company: 'الشركة', unassignedRider: 'سائق غير معيّن', factCount: 'حقائق', value: 'القيمة', date: 'التاريخ', valid: 'الصلاحية', override: 'تعديل الصلاحية', true: 'صالح', false: 'غير صالح', saveOverride: 'حفظ التعديل', linkRider: 'ربط السائق', riderIqamaPlaceholder: 'أدخل رقم الإقامة',
+    approveTitle: 'اعتماد دفعة الاستيراد؟', approveDescription: 'الاعتماد يثبت الحقائق للاستخدام في احتساب الرواتب، لكنه لا ينشئ راتباً أو قيداً.', approveConfirm: 'اعتماد الدفعة', rejectTitle: 'رفض دفعة الاستيراد؟', rejectDescription: 'لن تُستخدم حقائق هذه الدفعة في الرواتب. سيبقى المصدر محفوظاً للمراجعة.', rejectConfirm: 'رفض الدفعة', cancel: 'إلغاء', processing: 'المعالجة مستمرة؛ ستتحدث الصفحة تلقائياً.', errorStatus: 'الحالة', errorInstance: 'نقطة النهاية', errorCorrelationId: 'معرّف التتبع', errorExceptionType: 'نوع الاستثناء', errorExceptionMessage: 'رسالة الاستثناء', errorInnerExceptionMessage: 'الاستثناء الداخلي', errorTechnical: 'التفاصيل الفنية كاملة',
   },
   en: {
     eyebrow: 'Import review', back: 'Import batches', refresh: 'Refresh', download: 'Download source', approve: 'Approve', reject: 'Reject', platform: 'Platform account',
     loadError: 'The import batch could not be loaded.', actionError: 'The action could not be completed.', source: 'Source', period: 'Period', totals: 'Control-total match', sourceTotal: 'Source total', normalizedTotal: 'Normalized total', sheets: 'Sheets', rows: 'Rows', facts: 'Facts', blocking: 'Blocking issues',
     issuesTitle: 'Issues and reconciliation', issuesDescription: 'Every blocking issue must be resolved before approval.', noIssues: 'This batch has no recorded issues.', severity: 'Severity', code: 'Code', message: 'Message', status: 'Status', sourceRow: 'Source row', resolve: 'Resolve', resolution: 'Resolution explanation', waive: 'Waive with documented reason', saveResolution: 'Save resolution',
-    remapTitle: 'Map an external worker to a rider', remapDescription: 'Create an effective-dated identity mapping while preserving the source platform ID.', externalWorker: 'External worker ID', riderIqama: 'Rider Iqama', effectiveFrom: 'Effective from', effectiveTo: 'Effective to', reason: 'Reason', remap: 'Save mapping', assignIqama: 'Assign Iqama', assignIqamaTitle: 'Assign a rider Iqama', assignIqamaDescription: 'This creates the mapping, updates matching facts, and resolves the identity issue automatically.',
-    factsTitle: 'Normalized facts', noFacts: 'No facts are available for display.', rider: 'Rider', metric: 'Metric', filterMetric: 'Filter by metric', allMetrics: 'All metrics', unassignedRider: 'Unassigned rider', factCount: 'facts', value: 'Value', date: 'Date', valid: 'Validity', override: 'Override validity', true: 'Valid', false: 'Invalid', saveOverride: 'Save override', linkRider: 'Link rider', riderIqamaPlaceholder: 'Enter Iqama number',
-    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.',
+    externalWorker: 'External worker ID', riderIqama: 'Rider Iqama', effectiveFrom: 'Effective from', effectiveTo: 'Effective to', reason: 'Reason', assignIqama: 'Assign Iqama', assignIqamaTitle: 'Assign a rider Iqama', assignIqamaDescription: 'This creates the mapping, updates matching facts, and resolves the identity issue automatically.',
+    factsTitle: 'Normalized facts', noFacts: 'No facts are available for display.', rider: 'Rider', metric: 'Metric', filterMetric: 'Filter by metric', allMetrics: 'All metrics', company: 'Company', unassignedRider: 'Unassigned rider', factCount: 'facts', value: 'Value', date: 'Date', valid: 'Validity', override: 'Override validity', true: 'Valid', false: 'Invalid', saveOverride: 'Save override', linkRider: 'Link rider', riderIqamaPlaceholder: 'Enter Iqama number',
+    approveTitle: 'Approve this import batch?', approveDescription: 'Approval makes these facts eligible for payroll calculation. It does not create payroll or a journal entry.', approveConfirm: 'Approve batch', rejectTitle: 'Reject this import batch?', rejectDescription: 'The batch facts will not be used for payroll. The source remains preserved for review.', rejectConfirm: 'Reject batch', cancel: 'Cancel', processing: 'Processing is still running; this page refreshes automatically.', errorStatus: 'Status', errorInstance: 'Endpoint', errorCorrelationId: 'Correlation ID', errorExceptionType: 'Exception type', errorExceptionMessage: 'Exception message', errorInnerExceptionMessage: 'Inner exception', errorTechnical: 'Full technical details',
   },
 };
 
@@ -112,7 +151,7 @@ export default function ImportBatchDetailPage() {
       await load({ quiet: true });
       return true;
     } catch (requestError) {
-      setActionError(apiErrorMessage(requestError, copy.actionError));
+      setActionError(requestError);
       return false;
     } finally {
       setBusy('');
@@ -123,15 +162,6 @@ export default function ImportBatchDetailPage() {
     event.preventDefault();
     const ok = await runAction('issue', () => callApi(accountingApi.imports, ['resolveIssue'], selectedIssue.id, { resolution: resolution.text.trim(), waive: resolution.waive }));
     if (ok) { setSelectedIssue(null); setResolution({ text: '', waive: false }); }
-  };
-
-  const remapWorker = async (event) => {
-    event.preventDefault();
-    const ok = await runAction('remap', () => callApi(accountingApi.imports, ['remapWorker'], batchId, {
-      externalWorkerId: remap.externalWorkerId.trim(), riderIqamaNo: Number(remap.riderIqamaNo), effectiveFrom: remap.effectiveFrom,
-      effectiveTo: remap.effectiveTo || null, reason: remap.reason.trim(),
-    }));
-    if (ok) setRemap({ externalWorkerId: '', riderIqamaNo: '', effectiveFrom: '', effectiveTo: '', reason: '' });
   };
 
   const externalWorkerIdForIssue = (issue) => {
@@ -168,8 +198,8 @@ export default function ImportBatchDetailPage() {
       externalWorkerId: remap.externalWorkerId.trim(),
       riderIqamaNo: Number(remap.riderIqamaNo),
       effectiveFrom: remap.effectiveFrom,
-      effectiveTo: remap.effectiveTo || null,
-      reason: remap.reason.trim(),
+      effectiveTo: null,
+      reason: 'Matched with the rider master record',
     }));
     if (ok) {
       setIdentityIssue(null);
@@ -187,8 +217,8 @@ export default function ImportBatchDetailPage() {
       externalWorkerId,
       riderIqamaNo: Number(riderIqamaNo),
       effectiveFrom: String(batch?.periodStart || '').slice(0, 10),
-      effectiveTo: String(batch?.periodEnd || '').slice(0, 10) || null,
-      reason: isRtl ? 'ربط من الحقائق الموحّدة' : 'Linked from normalized facts',
+      effectiveTo: null,
+      reason: 'Matched with the rider master record',
     }));
 
     if (ok) {
@@ -222,8 +252,8 @@ export default function ImportBatchDetailPage() {
   });
 
   const issueColumns = [
-    { key: 'severity', header: copy.severity, render: (item) => <StatusBadge status={item.severity} /> },
-    { key: 'code', header: copy.code, render: (item) => <span className="font-mono text-xs" dir="ltr">{item.code}</span> },
+    { key: 'severity', header: copy.severity, render: (item) => { const severity = issueSeverity(item.severity, isRtl); return <StatusBadge status={item.severity === 2 || item.severity === '2' ? 'Failed' : 'Pending'} tone={severity.tone} label={severity.label} />; } },
+    { key: 'code', header: copy.code, render: (item) => <span className="text-xs font-semibold" title={item.code} dir={isRtl ? 'rtl' : 'ltr'}>{issueCodeLabel(item.code, isRtl)}</span> },
     { key: 'message', header: copy.message, render: (item) => <span className="whitespace-normal leading-6">{item.message}</span> },
     { key: 'sourceRawRowId', header: copy.sourceRow, render: (item) => item.sourceRawRowId || '—' },
     { key: 'status', header: copy.status, render: (item) => <StatusBadge status={item.status} /> },
@@ -239,7 +269,7 @@ export default function ImportBatchDetailPage() {
   ];
 
   const factColumns = [
-    { key: 'metricCode', header: copy.metric, render: (item) => <span dir="ltr" className="font-mono text-xs">{item.metricCode}</span> },
+    { key: 'metricCode', header: copy.metric, render: (item) => <span dir={isRtl ? 'rtl' : 'ltr'} className="text-xs font-semibold">{metricLabel(item.metricCode, isRtl)}</span> },
     { key: 'value', header: copy.value, align: 'end', render: (item) => <span className="font-semibold tabular-nums">{item.numericValue ?? item.textValue ?? (item.booleanValue == null ? '—' : String(item.booleanValue))}</span> },
     { key: 'factDate', header: copy.date, render: (item) => formatDate(item.factDate, locale) },
     { key: 'resolved', header: copy.status, render: (item) => <StatusBadge status={item.isResolved ? 'Resolved' : 'Open'} /> },
@@ -268,15 +298,26 @@ export default function ImportBatchDetailPage() {
       const riderIqamaNo = item.riderIqamaNo ?? item.iqamaNo;
       const riderNameAr = item.riderNameAr ?? item.riderNameAR;
       const externalWorkerId = String(item.externalWorkerId ?? item.workerExternalId ?? '').trim();
-      const isUnassigned = riderIqamaNo == null || riderIqamaNo === '';
-      const key = isUnassigned ? `unassigned-${externalWorkerId || item.sourceRawRowId || item.id}` : `rider-${riderIqamaNo}`;
-      const group = groups.get(key) || { key, riderIqamaNo, riderNameAr, externalWorkerId, items: [] };
+      const isCompany = item.isCompany === true
+        || String(item.workerCategory ?? '').toLowerCase() === 'company'
+        || externalWorkerId.toUpperCase() === 'COMPANY';
+      const isUnassigned = !isCompany && (riderIqamaNo == null || riderIqamaNo === '');
+      const companyLabel = isRtl ? item.workerCategoryAr : item.workerCategory;
+      const key = isCompany
+        ? `company-${externalWorkerId || item.workerCategory || 'company'}`
+        : isUnassigned
+          ? `unassigned-${externalWorkerId || item.sourceRawRowId || item.id}`
+          : `rider-${riderIqamaNo}`;
+      const group = groups.get(key) || { key, riderIqamaNo, riderNameAr, externalWorkerId, isCompany, companyLabel, items: [] };
       if (!group.riderNameAr && riderNameAr) group.riderNameAr = riderNameAr;
+      if (!group.companyLabel && companyLabel) group.companyLabel = companyLabel;
       group.items.push(item);
       groups.set(key, group);
     });
 
     return [...groups.values()].sort((left, right) => {
+      if (left.isCompany && !right.isCompany) return -1;
+      if (right.isCompany && !left.isCompany) return 1;
       if (left.riderIqamaNo == null || left.riderIqamaNo === '') return 1;
       if (right.riderIqamaNo == null || right.riderIqamaNo === '') return -1;
       return String(left.riderIqamaNo).localeCompare(String(right.riderIqamaNo), undefined, { numeric: true });
@@ -305,7 +346,7 @@ export default function ImportBatchDetailPage() {
       />
 
       {isPendingStatus(batch.status) && <div role="status" className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">{copy.processing}</div>}
-      {actionError && <ErrorState description={actionError} compact />}
+      {actionError && <ApiProblemDetails error={actionError} fallback={copy.actionError} labels={{ status: copy.errorStatus, instance: copy.errorInstance, correlationId: copy.errorCorrelationId, exceptionType: copy.errorExceptionType, exceptionMessage: copy.errorExceptionMessage, innerExceptionMessage: copy.errorInnerExceptionMessage, technical: copy.errorTechnical }} />}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <MetricCard label={copy.sourceTotal} value={formatMoney(batch.sourceControlTotal, locale)} />
@@ -354,30 +395,20 @@ export default function ImportBatchDetailPage() {
         )}
       </Panel>
 
-      <Panel title={copy.remapTitle} description={copy.remapDescription}>
-        <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-6" onSubmit={remapWorker}>
-          <FormField label={copy.externalWorker} required><input className={controlClass} dir="ltr" required value={remap.externalWorkerId} onChange={(event) => setRemap((current) => ({ ...current, externalWorkerId: event.target.value }))} /></FormField>
-          <FormField label={copy.riderIqama} required><input className={controlClass} dir="ltr" inputMode="numeric" required value={remap.riderIqamaNo} onChange={(event) => setRemap((current) => ({ ...current, riderIqamaNo: event.target.value }))} /></FormField>
-          <FormField label={copy.effectiveFrom} required><input className={controlClass} type="date" required value={remap.effectiveFrom} onChange={(event) => setRemap((current) => ({ ...current, effectiveFrom: event.target.value }))} /></FormField>
-          <FormField label={copy.effectiveTo}><input className={controlClass} type="date" min={remap.effectiveFrom} value={remap.effectiveTo} onChange={(event) => setRemap((current) => ({ ...current, effectiveTo: event.target.value }))} /></FormField>
-          <FormField label={copy.reason} required><input className={controlClass} required value={remap.reason} onChange={(event) => setRemap((current) => ({ ...current, reason: event.target.value }))} /></FormField>
-          <div className="flex items-end"><ActionButton className="w-full" type="submit" icon={UserRoundCheck} loading={busy === 'remap'}>{copy.remap}</ActionButton></div>
-        </form>
-      </Panel>
-
       <Panel title={copy.factsTitle}>
         {facts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <>
           <div className="mb-4 max-w-xs">
             <FormField label={copy.filterMetric}>
               <select className={controlClass} value={factMetricFilter} onChange={(event) => setFactMetricFilter(event.target.value)}>
                 <option value="">{copy.allMetrics}</option>
-                {factMetricOptions.map((metric) => <option key={metric} value={metric}>{metric}</option>)}
+                {factMetricOptions.map((metric) => <option key={metric} value={metric}>{metricLabel(metric, isRtl)}</option>)}
               </select>
             </FormField>
           </div>
           {groupedFacts.length === 0 ? <EmptyState icon={AlertTriangle} title={copy.noFacts} compact /> : <div className="space-y-5">
             {groupedFacts.map((group) => {
-              const isUnassigned = group.riderIqamaNo == null || group.riderIqamaNo === '';
+              const isCompany = group.isCompany;
+              const isUnassigned = !isCompany && (group.riderIqamaNo == null || group.riderIqamaNo === '');
               const externalWorkerIds = [...new Set(group.items.map((item) => item.externalWorkerId ?? item.workerExternalId).filter(Boolean).map(String))];
               const externalWorkerId = group.externalWorkerId || externalWorkerIds[0] || '';
               return (
@@ -385,10 +416,10 @@ export default function ImportBatchDetailPage() {
                   <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
                       <h3 className="font-bold text-slate-950">
-                        {isUnassigned ? copy.unassignedRider : group.riderNameAr || '—'}
+                        {isCompany ? group.companyLabel || copy.company : isUnassigned ? copy.unassignedRider : group.riderNameAr || '—'}
                       </h3>
-                      {!isUnassigned && <span dir="ltr" className="text-sm font-medium text-slate-600">{group.riderIqamaNo}</span>}
-                      {externalWorkerIds.length > 0 && (
+                      {!isCompany && !isUnassigned && <span dir="ltr" className="text-sm font-medium text-slate-600">{group.riderIqamaNo}</span>}
+                      {!isCompany && externalWorkerIds.length > 0 && (
                         <span className="inline-flex items-center gap-2 text-sm text-slate-600">
                           <span>{copy.externalWorker}</span>
                           <span dir="ltr" className="font-mono font-semibold text-slate-800">{externalWorkerIds.join('، ')}</span>

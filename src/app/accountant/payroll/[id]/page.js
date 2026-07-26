@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  ActionButton, ConfirmDialog, DataTable, EmptyState, ErrorState, FormField,
+  ActionButton, ApiProblemDetails, ConfirmDialog, DataTable, EmptyState, ErrorState, FormField,
   LoadingState, MetricCard, PageHeader, Panel, StatusBadge,
 } from '@/components/accounting/AccountingUi';
 import { useAccountingI18n } from '@/lib/accounting/i18n';
@@ -55,14 +55,14 @@ export default function PayrollRunDetailPage() {
   const [busy, setBusy] = useState('');
   const [confirmAction, setConfirmAction] = useState('');
   const [adjustment, setAdjustment] = useState({ riderIqamaNo: '', amount: '', reason: '', notes: '', evidenceFileId: '' });
-  const [approveForm, setApproveForm] = useState({ postingProfileCode: 'PAYROLL-ACCRUAL', correlationId: newCorrelationId('payroll'), idempotencyKey: newCorrelationId('approve') });
+  const [approveForm, setApproveForm] = useState({ postingProfileCode: 'RIDER_PAYROLL', correlationId: newCorrelationId('payroll'), idempotencyKey: newCorrelationId('approve') });
   const [reverseForm, setReverseForm] = useState({ reversalDate: todayIso(), reason: '', correlationId: newCorrelationId('payroll-reversal'), idempotencyKey: newCorrelationId('reverse') });
   const [batchForm, setBatchForm] = useState({ method: '1', scope: 'all', riderIqamaNumbers: '', allocations: [{ riderIqamaNo: '', amount: '', method: '1' }] });
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try { setRun(await accountingApi.payroll.getRun(runId)); }
-    catch (requestError) { setError(apiErrorMessage(requestError, copy.loadError)); }
+    catch (requestError) { setError(requestError); }
     finally { setLoading(false); }
   }, [copy.loadError, runId]);
   useEffect(() => { load(); }, [load]);
@@ -71,7 +71,7 @@ export default function PayrollRunDetailPage() {
     if (busy) return null;
     setBusy(name); setActionError('');
     try { const result = await task(); if (reload) await load(); return result; }
-    catch (requestError) { setActionError(apiErrorMessage(requestError, copy.actionError)); return null; }
+    catch (requestError) { setActionError(requestError); return null; }
     finally { setBusy(''); }
   };
 
@@ -125,11 +125,11 @@ export default function PayrollRunDetailPage() {
   ];
 
   if (loading) return <LoadingState />;
-  if (error || !run) return <ErrorState description={error || copy.loadError} onRetry={load} />;
+  if (error || !run) return <div className="space-y-4"><ApiProblemDetails error={error} fallback={copy.loadError} /><ActionButton variant="secondary" onClick={load}>{copy.refresh}</ActionButton></div>;
 
   return <div className="space-y-5" dir={isRtl ? 'rtl' : 'ltr'}>
     <PageHeader eyebrow={copy.eyebrow} title={run.runNumber || run.id} description={`${formatDate(run.periodStart, locale)} — ${formatDate(run.periodEnd, locale)}`} meta={<StatusBadge status={status} />} actions={<div className="flex flex-wrap gap-2"><Link href="/accountant/payroll" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"><BackIcon size={17} />{copy.back}</Link><ActionButton variant="secondary" icon={RefreshCw} onClick={load}>{copy.refresh}</ActionButton>{status === 'Draft' && <ActionButton icon={Calculator} loading={busy === 'calculate'} loadingLabel={copy.calculating} onClick={calculate}>{copy.calculate}</ActionButton>}</div>} />
-    {actionError && <ErrorState description={actionError} compact />}
+    {actionError && <ApiProblemDetails error={actionError} fallback={copy.actionError} />}
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><MetricCard label={copy.riders} value={collectionItems(run.lines).length} /><MetricCard label={copy.gross} value={formatMoney(run.grossEarnings, locale, currency)} /><MetricCard label={copy.deductions} value={formatMoney(run.appliedDeductions, locale, currency)} tone="warning" /><MetricCard label={copy.carried} value={formatMoney(run.carriedDeductions, locale, currency)} /><MetricCard label={copy.net} value={formatMoney(run.netPay, locale, currency)} tone="success" /></section>
     {run.accrualFinancialDocumentId && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm"><span className="font-bold text-emerald-950">{copy.accrual}: </span><span dir="ltr" className="font-mono text-emerald-800">{run.accrualFinancialDocumentId}</span></div>}
 

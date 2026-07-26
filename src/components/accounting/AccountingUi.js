@@ -1,4 +1,5 @@
 export { default as ActionButton } from './ActionButton';
+export { default as ApiProblemDetails } from './ApiProblemDetails';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as DataTable } from './DataTable';
 export { EmptyState, ErrorState, LoadingState } from './AsyncStates';

@@ -2,6 +2,7 @@
 
 import {
   ActionButton,
+  ApiProblemDetails,
   ConfirmDialog,
   DataTable,
   EmptyState,
@@ -32,16 +33,24 @@ import {
 const POLICY_STATUSES = ['', 'Draft', 'Active', 'Retired'];
 const RULE_TEMPLATES = ['', 'FixedAmount', 'PerUnit', 'Threshold', 'TieredBasePlusExcess', 'Percentage', 'Range', 'Cap', 'Floor', 'EligibilityCondition'];
 const COMPONENT_TYPES = ['', 'Earning', 'Allowance', 'Bonus', 'Deduction', 'Informational'];
+const SIMULATION_METRICS = [
+  { value: 'ACCEPTED_ORDERS', arLabel: 'الطلبات المقبولة', enLabel: 'Accepted orders' },
+  { value: 'WORK_DAYS', arLabel: 'أيام العمل', enLabel: 'Work days' },
+  { value: 'BASE_AMOUNT', arLabel: 'المبلغ الأساسي', enLabel: 'Base amount' },
+  { value: 'INCENTIVES', arLabel: 'الحوافز', enLabel: 'Incentives' },
+  { value: 'PENALTIES', arLabel: 'الجزاءات', enLabel: 'Penalties' },
+  { value: 'VALIDITY', arLabel: 'حالة الاستحقاق', enLabel: 'Eligibility status' },
+];
 
 const COPY = {
   ar: {
-    eyebrow: 'تفاصيل السياسة', back: 'سياسات التعويض', refresh: 'تحديث', loadError: 'تعذر تحميل السياسة.', actionError: 'تعذر إكمال الإجراء.', version: 'الإصدار', platform: 'حساب المنصة', category: 'فئة العامل', effective: 'السريان', rulesCount: 'عدد القواعد',
+    eyebrow: 'تفاصيل السياسة', back: 'سياسات التعويض', refresh: 'تحديث', loadError: 'تعذر تحميل السياسة.', actionError: 'تعذر إكمال الإجراء.', errorStatus: 'الحالة', errorInstance: 'نقطة النهاية', errorCorrelationId: 'معرّف التتبع', errorExceptionType: 'نوع الاستثناء', errorExceptionMessage: 'رسالة الاستثناء', errorInnerExceptionMessage: 'الاستثناء الداخلي', errorValidation: 'أخطاء التحقق', errorTechnical: 'التفاصيل الفنية كاملة', version: 'الإصدار', platform: 'حساب المنصة', category: 'فئة العامل', effective: 'السريان', rulesCount: 'عدد القواعد',
     rules: 'القواعد المحفوظة', rulesDescription: 'هذه القواعد غير قابلة للتغيير بعد تفعيل النسخة.', code: 'الرمز', name: 'الاسم', template: 'نمط الحساب', component: 'المكوّن', metric: 'المؤشر', priority: 'الأولوية', emptyRules: 'لا توجد قواعد في هذه النسخة.',
     simulate: 'محاكاة السياسة', simulateDescription: 'أدخل قيم المؤشات لمعاينة النتيجة دون حفظ راتب.', metricCode: 'رمز المؤشر', value: 'القيمة', addMetric: 'إضافة مؤشر', removeMetric: 'حذف المؤشر', runSimulation: 'تشغيل المحاكاة', earnings: 'الإجمالي المستحق', deductions: 'الاستقطاعات', net: 'الصافي', quantity: 'الكمية', rate: 'المعدل', amount: 'المبلغ', selected: 'مطبقة', explanation: 'التوضيح', conflicts: 'تعارضات المحاكاة', noResult: 'شغّل المحاكاة لرؤية النتيجة.', yes: 'نعم', no: 'لا',
     lifecycle: 'إدارة النسخة', activate: 'تفعيل النسخة', activateTitle: 'تفعيل هذه السياسة؟', activateDescription: 'ستصبح هذه النسخة معتمدة للفترة المحددة وسيتحقق الخادم من عدم التداخل.', retire: 'إيقاف النسخة', retireTitle: 'إيقاف هذه السياسة؟', retireDescription: 'سيمنع إيقافها استخدامها في احتسابات مستقبلية، مع بقاء الأثر التاريخي.', confirm: 'تأكيد', cancel: 'إلغاء', newVersion: 'إنشاء نسخة جديدة', newVersionDescription: 'انسخ هذه القواعد إلى مسودة بفترة سريان جديدة.', from: 'ساري من', to: 'ساري إلى', createVersion: 'إنشاء النسخة',
   },
   en: {
-    eyebrow: 'Policy detail', back: 'Compensation policies', refresh: 'Refresh', loadError: 'The policy could not be loaded.', actionError: 'The action could not be completed.', version: 'Version', platform: 'Platform account', category: 'Worker category', effective: 'Effective dates', rulesCount: 'Rules',
+    eyebrow: 'Policy detail', back: 'Compensation policies', refresh: 'Refresh', loadError: 'The policy could not be loaded.', actionError: 'The action could not be completed.', errorStatus: 'Status', errorInstance: 'Endpoint', errorCorrelationId: 'Correlation ID', errorExceptionType: 'Exception type', errorExceptionMessage: 'Exception message', errorInnerExceptionMessage: 'Inner exception', errorValidation: 'Validation errors', errorTechnical: 'Full technical details', version: 'Version', platform: 'Platform account', category: 'Worker category', effective: 'Effective dates', rulesCount: 'Rules',
     rules: 'Stored rules', rulesDescription: 'Rules are immutable after this version is activated.', code: 'Code', name: 'Name', template: 'Calculation template', component: 'Component', metric: 'Metric', priority: 'Priority', emptyRules: 'This version has no rules.',
     simulate: 'Simulate policy', simulateDescription: 'Enter metric values to preview the result without creating payroll.', metricCode: 'Metric code', value: 'Value', addMetric: 'Add metric', removeMetric: 'Remove metric', runSimulation: 'Run simulation', earnings: 'Total earnings', deductions: 'Deductions', net: 'Net amount', quantity: 'Quantity', rate: 'Rate', amount: 'Amount', selected: 'Applied', explanation: 'Explanation', conflicts: 'Simulation conflicts', noResult: 'Run a simulation to see results.', yes: 'Yes', no: 'No',
     lifecycle: 'Version management', activate: 'Activate version', activateTitle: 'Activate this policy?', activateDescription: 'This version becomes authoritative for its effective period. The server will reject overlapping active policies.', retire: 'Retire version', retireTitle: 'Retire this policy?', retireDescription: 'Retiring prevents future calculations from selecting it while preserving historical payroll lineage.', confirm: 'Confirm', cancel: 'Cancel', newVersion: 'Create a new version', newVersionDescription: 'Copy these immutable rules into a draft with a new effective range.', from: 'Effective from', to: 'Effective to', createVersion: 'Create version',
@@ -63,14 +72,14 @@ export default function CompensationPolicyDetailPage() {
   const [actionError, setActionError] = useState('');
   const [busy, setBusy] = useState('');
   const [confirmAction, setConfirmAction] = useState('');
-  const [metrics, setMetrics] = useState([{ code: 'accepted_orders', value: '500' }, { code: 'workdays', value: '26' }]);
+  const [metrics, setMetrics] = useState([{ code: 'ACCEPTED_ORDERS', value: '500' }, { code: 'WORK_DAYS', value: '26' }]);
   const [simulation, setSimulation] = useState(null);
   const [versionForm, setVersionForm] = useState({ effectiveFrom: month.start, effectiveTo: '' });
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
     try { setPolicy(await accountingApi.compensation.getPolicy(policyId)); }
-    catch (requestError) { setError(apiErrorMessage(requestError, copy.loadError)); }
+    catch (requestError) { setError(requestError); }
     finally { setLoading(false); }
   }, [copy.loadError, policyId]);
 
@@ -84,7 +93,7 @@ export default function CompensationPolicyDetailPage() {
       if (reload) await load();
       return result;
     } catch (requestError) {
-      setActionError(apiErrorMessage(requestError, copy.actionError));
+      setActionError(requestError);
       return null;
     } finally { setBusy(''); }
   };
@@ -130,12 +139,12 @@ export default function CompensationPolicyDetailPage() {
   ];
 
   if (loading) return <LoadingState />;
-  if (error || !policy) return <ErrorState description={error || copy.loadError} onRetry={load} />;
+  if (error || !policy) return <div className="space-y-4"><ApiProblemDetails error={error} fallback={copy.loadError} labels={{ status: copy.errorStatus, instance: copy.errorInstance, correlationId: copy.errorCorrelationId, exceptionType: copy.errorExceptionType, exceptionMessage: copy.errorExceptionMessage, innerExceptionMessage: copy.errorInnerExceptionMessage, validation: copy.errorValidation, technical: copy.errorTechnical }} /><ActionButton variant="secondary" onClick={load}>{copy.refresh}</ActionButton></div>;
 
   return (
     <div className="space-y-5" dir={isRtl ? 'rtl' : 'ltr'}>
       <PageHeader eyebrow={copy.eyebrow} title={policy.name} description={<span dir="ltr">{policy.code}</span>} meta={<StatusBadge status={status} />} actions={<div className="flex flex-wrap gap-2"><Link href="/accountant/compensation" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"><BackIcon size={17} />{copy.back}</Link><ActionButton variant="secondary" icon={RefreshCw} onClick={load}>{copy.refresh}</ActionButton></div>} />
-      {actionError && <ErrorState description={actionError} compact />}
+      {actionError && <ApiProblemDetails error={actionError} fallback={copy.actionError} labels={{ status: copy.errorStatus, instance: copy.errorInstance, correlationId: copy.errorCorrelationId, exceptionType: copy.errorExceptionType, exceptionMessage: copy.errorExceptionMessage, innerExceptionMessage: copy.errorInnerExceptionMessage, validation: copy.errorValidation, technical: copy.errorTechnical }} />}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard label={copy.version} value={policy.version} />
         <MetricCard label={copy.platform} value={policy.platformName || policy.platformAccountId} />
@@ -150,7 +159,7 @@ export default function CompensationPolicyDetailPage() {
       <Panel title={copy.simulate} description={copy.simulateDescription}>
         <form className="space-y-4" onSubmit={simulate}>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {metrics.map((item, index) => <div key={index} className="grid grid-cols-[1fr_9rem_auto] items-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3"><FormField label={copy.metricCode} required><input required dir="ltr" value={item.code} onChange={(event) => setMetrics((current) => current.map((metric, metricIndex) => metricIndex === index ? { ...metric, code: event.target.value } : metric))} /></FormField><FormField label={copy.value} required><input required type="number" step="any" value={item.value} onChange={(event) => setMetrics((current) => current.map((metric, metricIndex) => metricIndex === index ? { ...metric, value: event.target.value } : metric))} /></FormField><ActionButton variant="ghost" size="icon" icon={Trash2} aria-label={copy.removeMetric} disabled={metrics.length === 1} onClick={() => setMetrics((current) => current.filter((_, metricIndex) => metricIndex !== index))} /></div>)}
+            {metrics.map((item, index) => <div key={index} className="grid grid-cols-[1fr_9rem_auto] items-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3"><FormField label={copy.metricCode} required><select required dir="ltr" value={item.code} onChange={(event) => setMetrics((current) => current.map((metric, metricIndex) => metricIndex === index ? { ...metric, code: event.target.value } : metric))}>{SIMULATION_METRICS.map((metric) => <option key={metric.value} value={metric.value}>{metric.value} — {isRtl ? metric.arLabel : metric.enLabel}</option>)}</select></FormField><FormField label={copy.value} required><input required type="number" step="any" value={item.value} onChange={(event) => setMetrics((current) => current.map((metric, metricIndex) => metricIndex === index ? { ...metric, value: event.target.value } : metric))} /></FormField><ActionButton variant="ghost" size="icon" icon={Trash2} aria-label={copy.removeMetric} disabled={metrics.length === 1} onClick={() => setMetrics((current) => current.filter((_, metricIndex) => metricIndex !== index))} /></div>)}
           </div>
           <div className="flex flex-wrap justify-end gap-2"><ActionButton variant="secondary" icon={CopyPlus} onClick={() => setMetrics((current) => [...current, { code: '', value: '' }])}>{copy.addMetric}</ActionButton><ActionButton type="submit" icon={Play} loading={busy === 'simulate'}>{copy.runSimulation}</ActionButton></div>
         </form>
