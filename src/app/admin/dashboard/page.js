@@ -67,7 +67,7 @@ class ApiService {
         ) {
           window.location.href = "/admin/login";
         }
-        throw new Error(t('common.sessionExpired'));
+        throw new Error('انتهت صلاحية الجلسة');
       }
 
       if (!response.ok) {

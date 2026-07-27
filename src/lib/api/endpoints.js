@@ -345,6 +345,27 @@ export const API_ENDPOINTS = {
     },
     EDIT_RIDER_COMPANY: "/api/Member/edit-rider-company",
     REMINDERS: (checkDate = '') => `/api/member/maintenance/reminders${checkDate ? `?checkDate=${checkDate}` : ''}`,
+    VACATION: {
+      REQUESTS: "/api/member/vacation-requests",
+      REQUEST_DATE_CHANGE: (id) => `/api/member/vacation-requests/${id}/date-change`,
+      REQUEST_CANCELLATION: (id) => `/api/member/vacation-requests/${id}/cancellation`,
+      RIDERS: "/api/member/vacation-riders",
+    },
+  },
+
+  // Vacation workflow (approval and master oversight)
+  VACATION: {
+    REQUESTS: "/api/vacation-requests",
+    REQUEST: (id) => `/api/vacation-requests/${id}`,
+    INBOX: "/api/vacation-requests/inbox",
+    DECISION: (id) => `/api/vacation-requests/${id}/decisions`,
+    CANCEL: (id) => `/api/vacation-requests/${id}/cancel`,
+    DATE_CHANGES: "/api/vacation-date-changes",
+    DATE_CHANGE_DECISION: (id) => `/api/vacation-date-changes/${id}/decision`,
+    CANCELLATIONS: "/api/vacation-cancellations",
+    CANCELLATION_DECISION: (id) => `/api/vacation-cancellations/${id}/decision`,
+    ACCESS: "/api/vacation-access",
+    USER_ACCESS: (userId) => `/api/vacation-access/users/${userId}`,
   },
 
   // RiderAccessory

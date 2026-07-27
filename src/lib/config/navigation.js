@@ -90,6 +90,7 @@ export const userNavigationConfig = {
       { path: "/member/actions/vehicle-report-problem", label: "navigation.requestVehicleDisable" },
       { path: "/member/actions/vehicle-fix-problem", label: "navigation.requestVehicleEnable" },
       { path: "/member/actions/switch-vehicle", label: "navigation.requestVehicleSwitch" },
+      { path: "/member/vacation", label: "navigation.vacationRequests" },
     ],
   },
   account: {
@@ -138,6 +139,7 @@ export const adminNavigationConfig = {
       { path: "/admin/riders/search", label: "employees.searchEmployee" },
       { path: "/admin/riders/manage", label: "employees.manageEmployees" },
       { path: "/admin/riders/escaped", label: "navigation.escaped" },
+      { path: "/admin/riders/vacation", label: "navigation.vacationManagement" },
     ],
   },
 
@@ -222,6 +224,7 @@ export const adminNavigationConfig = {
       { path: "/admin/register/admin", label: "navigation.addNewAdmin" },
       { path: "/admin/register/master", label: "navigation.addNewManager" },
       { path: "/admin/users-management", label: "navigation.userManagement" },
+      { path: "/admin/users-management/vacation-access", label: "navigation.vacationAccess" },
       { path: "/admin/system-health", label: "navigation.systemHealth" },
     ],
   },

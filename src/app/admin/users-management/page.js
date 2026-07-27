@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useApi } from '@/hooks/useApi';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import Card from '@/components/Ui/Card';
@@ -11,7 +12,7 @@ import Alert from '@/components/Ui/Alert';
 import Modal from '@/components/Ui/Model';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
-import { Search, Edit, UserX, UserCheck, Shield, User } from 'lucide-react';
+import { Search, Edit, UserX, UserCheck, Shield, User, KeyRound } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 export default function AdminUsersPage() {
@@ -196,6 +197,15 @@ export default function AdminUsersPage() {
         title={t('admin.userManagement')}
         subtitle={t('admin.userManagementSubtitle')}
         icon={Shield}
+        actions={
+          <Link
+            href="/admin/users-management/vacation-access"
+            className="flex items-center gap-2 rounded-lg bg-white/20 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/30"
+          >
+            <KeyRound size={17} />
+            صلاحيات الإجازات
+          </Link>
+        }
         stats={[
           { label: t('admin.totalUsers'), value: users.length },
           { label: t('admin.activeUsers'), value: users.filter(u => !u.isDisable).length },
