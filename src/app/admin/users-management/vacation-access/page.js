@@ -16,6 +16,7 @@ const VACATION_ROLES = [
   { value: 1, label: 'العمليات' },
   { value: 2, label: 'المحاسب' },
   { value: 3, label: 'الإدارة' },
+  { value: 4, label: 'الموارد البشرية (HR)' },
 ];
 
 const userIdOf = (item) => item?.userId ?? item?.id ?? item?.user?.id;

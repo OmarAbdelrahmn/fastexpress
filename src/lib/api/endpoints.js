@@ -366,6 +366,11 @@ export const API_ENDPOINTS = {
     CANCELLATION_DECISION: (id) => `/api/vacation-cancellations/${id}/decision`,
     ACCESS: "/api/vacation-access",
     USER_ACCESS: (userId) => `/api/vacation-access/users/${userId}`,
+    HR: {
+      INBOX: "/api/vacation-hr/inbox",
+      TICKET: (requestId) => `/api/vacation-hr/${requestId}/ticket`,
+      EXIT_REENTRY_VISA: (requestId) => `/api/vacation-hr/${requestId}/exit-reentry-visa`,
+    },
   },
 
   // RiderAccessory

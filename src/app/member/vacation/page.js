@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Edit3, Plus, RefreshCw, XCircle } from 'lucide-react';
+import { CalendarDays, Download, Edit3, Eye, Plus, RefreshCw, XCircle } from 'lucide-react';
 import Modal from '@/components/Ui/Model';
 import Card from '@/components/Ui/Card';
 import SearchableSelect from '@/components/Ui/SearchableSelect';
-import { VacationService, displayRider, displayStage, displayStatus, itemId, listFromResponse } from '@/lib/api/vacationService';
-import { ApiService } from '@/lib/api/apiService';
+import { VacationService, displayHrStatus, displayRider, displayStage, displayStatus, documentTypeLabel, itemId, listFromResponse } from '@/lib/api/vacationService';
+import { ApiService, API_BASE_URL } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { TokenManager } from '@/lib/auth/tokenManager';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const dateValue = (value) => value ? String(value).slice(0, 10) : '—';
@@ -103,6 +104,28 @@ export default function MemberVacationPage() {
     setModal({ type: 'cancellation', request });
   };
 
+  const accessDocument = async (vacationDocument, download = false) => {
+    const rawUrl = download ? vacationDocument.downloadUrl : vacationDocument.streamUrl;
+    if (!rawUrl) return;
+    try {
+      const url = rawUrl.startsWith('http') ? rawUrl : `${API_BASE_URL}${rawUrl}`;
+      const response = await fetch(url, { headers: { Authorization: `Bearer ${TokenManager.getToken()}` } });
+      if (!response.ok) throw new Error('تعذر الوصول إلى المستند.');
+      const blobUrl = URL.createObjectURL(await response.blob());
+      if (download) {
+        const anchor = window.document.createElement('a');
+        anchor.href = blobUrl;
+        anchor.download = vacationDocument.fileName || 'vacation-document';
+        anchor.click();
+      } else {
+        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      }
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (error) {
+      setNotice({ type: 'error', text: error.message || 'تعذر فتح المستند.' });
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -118,7 +141,7 @@ export default function MemberVacationPage() {
       <div className="grid gap-6 xl:grid-cols-[1.65fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">سجل الطلبات</h2><p className="mt-0.5 text-xs text-slate-500">يمكن تعديل التواريخ أو طلب الإلغاء قبل اكتمال الإجراء.</p></div><button onClick={load} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="تحديث الطلبات"><RefreshCw size={18} /></button></div>
-          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">الحالة</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayRider(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><div className="flex gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button></div></td></tr>)}</tbody></table></div>}
+          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">حالة الإجازة</th><th className="px-5 py-3 font-semibold">متابعة الموارد البشرية</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayRider(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><p className="text-xs font-semibold text-blue-700">{request.hr ? displayHrStatus(request.hr.status) : 'بانتظار اكتمال الموافقات'}</p>{request.hr?.documents?.length > 0 && <p className="mt-1 text-xs text-slate-500">{request.hr.documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ') || 'مستندات سابقة متاحة'}</p>}</td><td className="px-5 py-4"><div className="flex flex-wrap gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button>{request.hr?.documents?.map((document) => <DocumentActions key={document.id} document={document} onAccess={accessDocument} />)}</div></td></tr>)}</tbody></table></div>}
         </Card>
 
         <Card className="p-0">
@@ -155,3 +178,4 @@ export default function MemberVacationPage() {
 function Loading() { return <div className="flex justify-center py-10"><div className="h-7 w-7 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" /></div>; }
 function Empty({ text }) { return <div className="py-10 text-center text-sm text-slate-500">{text}</div>; }
 function DateInput({ label, value, min, onChange }) { return <label className="block text-sm font-semibold text-slate-700">{label}<input required type="date" min={min} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 p-3" /></label>; }
+function DocumentActions({ document, onAccess }) { return <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-1 py-1 text-xs text-slate-600" title={`${documentTypeLabel(document.type)} — الإصدار ${document.version || 1}${document.isSuperseded ? ' (مستبدل)' : ''}`}><button onClick={() => onAccess(document)} className="rounded p-1 hover:bg-slate-100" aria-label={`عرض ${documentTypeLabel(document.type)}`}><Eye size={14} /></button><button onClick={() => onAccess(document, true)} className="rounded p-1 hover:bg-slate-100" aria-label={`تنزيل ${documentTypeLabel(document.type)}`}><Download size={14} /></button></span>; }

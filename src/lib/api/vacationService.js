@@ -27,6 +27,9 @@ export const VacationService = {
     API_ENDPOINTS.VACATION.USER_ACCESS(userId),
     { roles: (Array.isArray(roles) ? roles : [roles]).filter((role) => role !== undefined && role !== null && role !== '').map(Number) },
   ),
+  hrInbox: () => ApiService.get(API_ENDPOINTS.VACATION.HR.INBOX),
+  uploadHrTicket: (requestId, formData) => ApiService.uploadFormData(API_ENDPOINTS.VACATION.HR.TICKET(requestId), formData),
+  uploadHrVisa: (requestId, formData) => ApiService.uploadFormData(API_ENDPOINTS.VACATION.HR.EXIT_REENTRY_VISA(requestId), formData),
 };
 
 export const listFromResponse = (response) =>
@@ -62,3 +65,21 @@ export const displayAmendmentStatus = (value) => {
   };
   return labels[normalized] || value || '—';
 };
+
+export const displayHrStatus = (value) => {
+  const labels = {
+    0: 'بانتظار اكتمال الموافقات',
+    1: 'تمت الموافقة - بانتظار حجز التذكرة',
+    2: 'تم حجز التذكرة - بانتظار تأشيرة خروج وعودة',
+    3: 'تم حجز التذكرة وإصدار التأشيرة',
+    4: 'مغلق',
+    pendingapproval: 'بانتظار اكتمال الموافقات',
+    awaitingticket: 'تمت الموافقة - بانتظار حجز التذكرة',
+    awaitingexitreentryvisa: 'تم حجز التذكرة - بانتظار تأشيرة خروج وعودة',
+    completed: 'تم حجز التذكرة وإصدار التأشيرة',
+    closed: 'مغلق',
+  };
+  return labels[String(value ?? '').toLowerCase()] || '—';
+};
+
+export const documentTypeLabel = (value) => Number(value) === 1 ? 'تذكرة السفر' : Number(value) === 2 ? 'تأشيرة خروج وعودة' : 'مستند';
