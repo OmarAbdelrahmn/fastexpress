@@ -121,16 +121,17 @@ export default function AdminVacationPage() {
       subtitle="الموافقات وسجل الإجازات ومعاملات الموارد البشرية بعد اكتمال الموافقات."
       icon={CalendarCheck2}
       actions={<Button variant="outline" onClick={() => load()}><RefreshCw size={17} /> تحديث البيانات</Button>}
-      stats={[
-        { label: 'كل الطلبات', value: stats.requests },
-        { label: 'بانتظار قرارك', value: stats.inbox },
-        { label: 'تعديلات التواريخ', value: stats.changes },
-        { label: 'طلبات الإلغاء', value: stats.cancellations },
-        { label: 'معاملات HR', value: stats.hr },
-      ]}
     />
     <div className="p-6 space-y-6">
       {notice && <div className={`flex justify-between gap-3 rounded-xl border p-4 text-sm ${notice.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'}`}><span>{notice.text}</span><button onClick={() => setNotice(null)} aria-label="إخفاء التنبيه"><XCircle size={18} /></button></div>}
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        <VacationStat label="كل الطلبات" value={stats.requests} tone="blue" />
+        <VacationStat label="بانتظار قرارك" value={stats.inbox} tone="amber" />
+        <VacationStat label="تعديلات التواريخ" value={stats.changes} tone="violet" />
+        <VacationStat label="طلبات الإلغاء" value={stats.cancellations} tone="rose" />
+        <VacationStat label="معاملات HR" value={stats.hr} tone="emerald" />
+      </div>
 
       <div className="flex flex-wrap gap-2 border-b border-slate-200" role="tablist" aria-label="أقسام إدارة الإجازات">
         <button role="tab" aria-selected={activeTab === 'requests'} onClick={() => setActiveTab('requests')} className={`rounded-t-lg px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'requests' ? 'border-b-2 border-blue-600 bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>صندوق الموافقات وسجل الطلبات</button>
@@ -155,6 +156,7 @@ export default function AdminVacationPage() {
 }
 
 function RequestCard({ item, actions }) { return <article className="rounded-xl border border-slate-200 p-4"><div className="flex items-start justify-between gap-2"><div><h3 className="font-bold text-slate-900">{displayRider(item)}</h3><p className="mt-1 text-xs text-slate-500">{dateValue(item.startDate)} — {dateValue(item.endDate)}</p></div><Status status={item.status} stage={item.stage} /></div><div className="mt-4 flex flex-wrap gap-2">{actions}</div></article>; }
+function VacationStat({ label, value, tone }) { const tones = { blue: 'border-blue-200 text-blue-700', amber: 'border-amber-200 text-amber-700', violet: 'border-violet-200 text-violet-700', rose: 'border-rose-200 text-rose-700', emerald: 'border-emerald-200 text-emerald-700' }; return <div className={`rounded-lg border-r-4 bg-white p-4 shadow-sm ${tones[tone]}`}><p className="text-xs font-medium text-slate-500">{label}</p><p className="mt-1 text-2xl font-bold text-slate-900">{value}</p></div>; }
 function HrRequestCard({ item, onTicket, onVisa }) { const hr = item.hr || {}; const ticketDone = Boolean(hr.ticketCompleted); const visaDone = Boolean(hr.exitReentryVisaCompleted); const documents = hr.documents || []; return <article className="rounded-xl border border-slate-200 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-slate-900">{displayRider(item)}</h3><p className="mt-1 text-xs text-slate-500">{dateValue(item.startDate)} — {dateValue(item.endDate)}</p>{item.fullyApprovedAt && <p className="mt-1 text-xs text-slate-500">اكتمال الموافقات: {String(item.fullyApprovedAt).slice(0, 16)}</p>}</div><span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{displayHrStatus(hr.status)}</span></div><div className="mt-4 grid grid-cols-2 gap-2 text-xs"><div className={`rounded-lg p-2 ${ticketDone ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>التذكرة: {ticketDone ? 'مكتملة' : 'بانتظار الإكمال'}</div><div className={`rounded-lg p-2 ${visaDone ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>التأشيرة: {visaDone ? 'مكتملة' : 'بانتظار الإكمال'}</div></div>{documents.length > 0 && <p className="mt-3 text-xs text-slate-500">آخر المستندات: {documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ')}</p>}<div className="mt-4 flex flex-wrap gap-2"><button onClick={onTicket} className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"><Ticket size={15} />{ticketDone ? 'استبدال التذكرة' : 'رفع التذكرة'}</button><button disabled={!ticketDone} onClick={onVisa} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"><FileCheck2 size={15} />{visaDone ? 'استبدال التأشيرة' : 'رفع التأشيرة'}</button></div></article>; }
 function ReviewQueue({ title, description, items, empty, canResolve, onResolve }) { return <section className="rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b border-slate-100 px-5 py-4"><h2 className="font-bold text-slate-900">{title}</h2>{description && <p className="mt-1 text-xs text-slate-500">{description}</p>}{!canResolve && <p className="mt-1 text-xs text-slate-500">القرار النهائي متاح للـ Master فقط.</p>}</div><div className="divide-y divide-slate-100">{items.length === 0 ? <Empty text={empty} /> : items.map((item, index) => <div key={itemId(item) || index} className="flex items-center justify-between gap-4 p-4"><div><p className="font-semibold text-slate-800">{displayRider(item)}</p><p className="mt-1 text-xs text-slate-500">{dateValue(item.startDate || item.requestedStartDate)} — {dateValue(item.endDate || item.requestedEndDate)}</p>{item.status !== undefined && item.status !== null && <p className="mt-1 text-xs font-medium text-slate-600">الحالة: {displayAmendmentStatus(item.status)}</p>}</div>{canResolve && <button onClick={() => onResolve(item)} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">مراجعة</button>}</div>)}</div></section>; }
 function Loading() { return <div className="flex justify-center py-10"><div className="h-7 w-7 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" /></div>; }
