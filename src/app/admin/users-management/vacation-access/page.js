@@ -11,12 +11,13 @@ import { TokenManager } from '@/lib/auth/tokenManager';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { VacationService, listFromResponse } from '@/lib/api/vacationService';
+import { useLanguage } from '@/lib/context/LanguageContext';
 
 const VACATION_ROLES = [
-  { value: 1, label: 'العمليات' },
-  { value: 2, label: 'المحاسب' },
-  { value: 3, label: 'الإدارة' },
-  { value: 4, label: 'الموارد البشرية (HR)' },
+  { value: 1, label: 'العمليات', labelEn: 'Operations' },
+  { value: 2, label: 'المحاسب', labelEn: 'Accountant' },
+  { value: 3, label: 'الإدارة', labelEn: 'Administration' },
+  { value: 4, label: 'الموارد البشرية (HR)', labelEn: 'Human Resources (HR)' },
 ];
 
 const userIdOf = (item) => item?.userId ?? item?.id ?? item?.user?.id;
@@ -34,6 +35,7 @@ const roleValuesOf = (item) => {
 const userNameOf = (item) => item?.userName || item?.username || item?.name || item?.user?.userName || 'بدون اسم';
 
 export default function VacationAccessPage() {
+  const { locale } = useLanguage();
   const [users, setUsers] = useState([]);
   const [accessEntries, setAccessEntries] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -142,7 +144,7 @@ export default function VacationAccessPage() {
           <div className="flex flex-wrap gap-3">
             {VACATION_ROLES.map((role) => <label key={role.value} className={`cursor-pointer rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${selectedRoles.includes(role.value) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
               <input type="checkbox" className="ml-2 h-4 w-4 accent-blue-600" checked={selectedRoles.includes(role.value)} onChange={() => toggleRole(role.value)} />
-              {role.label}
+              {locale === 'en' ? role.labelEn : role.label}
             </label>)}
           </div>
         </div>

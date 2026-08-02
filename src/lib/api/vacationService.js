@@ -37,37 +37,50 @@ export const listFromResponse = (response) =>
 
 export const itemId = (item) => item?.id ?? item?.requestId ?? item?.vacationRequestId;
 export const displayRider = (item) => item?.riderName || item?.rider?.nameAR || item?.rider?.name || item?.riderNameAR || item?.riderId || '—';
-export const displayStatus = (value) => {
-  const normalized = String(value ?? '').toLowerCase();
-  const labels = {
+const vacationLabels = {
+  ar: {
     pendingoperation: 'بانتظار مراجعة العمليات', pendingaccountant: 'بانتظار مراجعة المحاسب', pendingadministration: 'بانتظار مراجعة الإدارة',
     approved: 'معتمد', active: 'إجازة نشطة', completed: 'مكتمل', rejected: 'مرفوض', cancelled: 'ملغي', expired: 'منتهي الصلاحية',
-    1: 'بانتظار مراجعة العمليات', 2: 'بانتظار مراجعة المحاسب', 3: 'بانتظار مراجعة الإدارة',
-    4: 'معتمد', 5: 'إجازة نشطة', 6: 'مكتمل', 7: 'مرفوض', 8: 'ملغي', 9: 'منتهي الصلاحية',
-  };
-  return labels[normalized] || value || '—';
+    1: 'بانتظار مراجعة العمليات', 2: 'بانتظار مراجعة المحاسب', 3: 'بانتظار مراجعة الإدارة', 4: 'معتمد', 5: 'إجازة نشطة', 6: 'مكتمل', 7: 'مرفوض', 8: 'ملغي', 9: 'منتهي الصلاحية',
+  },
+  en: {
+    pendingoperation: 'Pending operations review', pendingaccountant: 'Pending accountant review', pendingadministration: 'Pending administration review',
+    approved: 'Approved', active: 'Active vacation', completed: 'Completed', rejected: 'Rejected', cancelled: 'Cancelled', expired: 'Expired',
+    1: 'Pending operations review', 2: 'Pending accountant review', 3: 'Pending administration review', 4: 'Approved', 5: 'Active vacation', 6: 'Completed', 7: 'Rejected', 8: 'Cancelled', 9: 'Expired',
+  },
 };
 
-export const displayStage = (value) => {
+export const displayStatus = (value, locale = 'ar') => {
   const normalized = String(value ?? '').toLowerCase();
-  const labels = {
+  return vacationLabels[locale === 'en' ? 'en' : 'ar'][normalized] || value || '—';
+};
+
+export const displayStage = (value, locale = 'ar') => {
+  const normalized = String(value ?? '').toLowerCase();
+  const labels = locale === 'en' ? {
+    operation: 'Operations review', accountant: 'Accountant review', administration: 'Administration review', completed: 'Completed',
+    1: 'Operations review', 2: 'Accountant review', 3: 'Administration review',
+  } : {
     operation: 'مراجعة العمليات', accountant: 'مراجعة المحاسب', administration: 'مراجعة الإدارة', completed: 'مكتمل',
     1: 'مراجعة العمليات', 2: 'مراجعة المحاسب', 3: 'مراجعة الإدارة',
   };
   return labels[normalized] || value || '—';
 };
 
-export const displayAmendmentStatus = (value) => {
+export const displayAmendmentStatus = (value, locale = 'ar') => {
   const normalized = String(value ?? '').toLowerCase();
-  const labels = {
+  const labels = locale === 'en' ? { pending: 'Under review', approved: 'Approved', rejected: 'Rejected', superseded: 'Superseded', 1: 'Under review', 2: 'Approved', 3: 'Rejected', 4: 'Superseded' } : {
     pending: 'قيد المراجعة', approved: 'معتمد', rejected: 'مرفوض', superseded: 'تم استبداله',
     1: 'قيد المراجعة', 2: 'معتمد', 3: 'مرفوض', 4: 'تم استبداله',
   };
   return labels[normalized] || value || '—';
 };
 
-export const displayHrStatus = (value) => {
-  const labels = {
+export const displayHrStatus = (value, locale = 'ar') => {
+  const labels = locale === 'en' ? {
+    0: 'Pending approval completion', 1: 'Approved — awaiting ticket booking', 2: 'Ticket booked — awaiting exit/re-entry visa', 3: 'Ticket booked and visa issued', 4: 'Closed',
+    pendingapproval: 'Pending approval completion', awaitingticket: 'Approved — awaiting ticket booking', awaitingexitreentryvisa: 'Ticket booked — awaiting exit/re-entry visa', completed: 'Ticket booked and visa issued', closed: 'Closed',
+  } : {
     0: 'بانتظار اكتمال الموافقات',
     1: 'تمت الموافقة - بانتظار حجز التذكرة',
     2: 'تم حجز التذكرة - بانتظار تأشيرة خروج وعودة',
@@ -82,4 +95,6 @@ export const displayHrStatus = (value) => {
   return labels[String(value ?? '').toLowerCase()] || '—';
 };
 
-export const documentTypeLabel = (value) => Number(value) === 1 ? 'تذكرة السفر' : Number(value) === 2 ? 'تأشيرة خروج وعودة' : 'مستند';
+export const documentTypeLabel = (value, locale = 'ar') => locale === 'en'
+  ? (Number(value) === 1 ? 'Travel ticket' : Number(value) === 2 ? 'Exit/re-entry visa' : 'Document')
+  : (Number(value) === 1 ? 'تذكرة السفر' : Number(value) === 2 ? 'تأشيرة خروج وعودة' : 'مستند');
