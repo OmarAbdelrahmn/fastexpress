@@ -33,7 +33,7 @@ export default function MemberVacationPage() {
   const [notice, setNotice] = useState(null);
   const [modal, setModal] = useState(null);
   const [range, setRange] = useState({ fromDate: today(), toDate: today() });
-  const [form, setForm] = useState({ riderId: '', startDate: today(), endDate: today(), reason: '' });
+  const [form, setForm] = useState({ riderId: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
 
   const load = async () => {
     setLoading(true);
@@ -77,7 +77,12 @@ export default function MemberVacationPage() {
     setSaving(true);
     try {
       if (modal?.type === 'new') {
-        await VacationService.createMemberRequest({ riderId: Number(form.riderId), startDate: form.startDate, endDate: form.endDate });
+        await VacationService.createMemberRequest({
+          riderId: Number(form.riderId),
+          startDate: form.startDate,
+          endDate: form.endDate,
+          memberNotes: form.memberNotes.trim() || undefined,
+        });
         setNotice({ type: 'success', text: 'تم إرسال طلب الإجازة للمراجعة.' });
       } else if (modal?.type === 'change') {
         await VacationService.requestDateChange(itemId(modal.request), { startDate: form.startDate, endDate: form.endDate, reason: form.reason });
@@ -94,15 +99,15 @@ export default function MemberVacationPage() {
   };
 
   const openNew = () => {
-    setForm({ riderId: '', startDate: today(), endDate: today(), reason: '' });
+    setForm({ riderId: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
     setModal({ type: 'new' });
   };
   const openChange = (request) => {
-    setForm({ riderId: request.riderId || '', startDate: dateValue(request.startDate), endDate: dateValue(request.endDate), reason: '' });
+    setForm({ riderId: request.riderId || '', startDate: dateValue(request.startDate), endDate: dateValue(request.endDate), reason: '', memberNotes: '' });
     setModal({ type: 'change', request });
   };
   const openCancellation = (request) => {
-    setForm({ riderId: request.riderId || '', startDate: '', endDate: '', reason: '' });
+    setForm({ riderId: request.riderId || '', startDate: '', endDate: '', reason: '', memberNotes: '' });
     setModal({ type: 'cancellation', request });
   };
 
@@ -143,7 +148,7 @@ export default function MemberVacationPage() {
       <div className="grid gap-6 xl:grid-cols-[1.65fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">سجل الطلبات</h2><p className="mt-0.5 text-xs text-slate-500">يمكن تعديل التواريخ أو طلب الإلغاء قبل اكتمال الإجراء.</p></div><button onClick={load} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="تحديث الطلبات"><RefreshCw size={18} /></button></div>
-          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">حالة الإجازة</th><th className="px-5 py-3 font-semibold">متابعة الموارد البشرية</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayRider(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><p className="text-xs font-semibold text-blue-700">{request.hr ? displayHrStatus(request.hr.status) : 'بانتظار اكتمال الموافقات'}</p>{request.hr?.documents?.length > 0 && <p className="mt-1 text-xs text-slate-500">{request.hr.documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ') || 'مستندات سابقة متاحة'}</p>}</td><td className="px-5 py-4"><div className="flex flex-wrap gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button>{request.hr?.documents?.map((document) => <DocumentActions key={document.id} document={document} onAccess={accessDocument} />)}</div></td></tr>)}</tbody></table></div>}
+          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">ملاحظتك</th><th className="px-5 py-3 font-semibold">حالة الإجازة</th><th className="px-5 py-3 font-semibold">متابعة الموارد البشرية</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayRider(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="max-w-xs px-5 py-4 text-slate-600"><p className="whitespace-pre-wrap break-words text-xs">{request.memberNotes || '—'}</p></td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><p className="text-xs font-semibold text-blue-700">{request.hr ? displayHrStatus(request.hr.status) : 'بانتظار اكتمال الموافقات'}</p>{request.hr?.documents?.length > 0 && <p className="mt-1 text-xs text-slate-500">{request.hr.documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ') || 'مستندات سابقة متاحة'}</p>}</td><td className="px-5 py-4"><div className="flex flex-wrap gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button>{request.hr?.documents?.map((document) => <DocumentActions key={document.id} document={document} onAccess={accessDocument} />)}</div></td></tr>)}</tbody></table></div>}
         </Card>
 
         <Card className="p-0">
@@ -169,6 +174,7 @@ export default function MemberVacationPage() {
             }))}
           />}
           {modal?.type !== 'cancellation' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><DateInput label="تاريخ البداية" value={form.startDate} onChange={(value) => setForm((old) => ({ ...old, startDate: value }))} /><DateInput label="تاريخ النهاية" min={form.startDate} value={form.endDate} onChange={(value) => setForm((old) => ({ ...old, endDate: value }))} /></div>}
+          {modal?.type === 'new' && <label className="block text-sm font-semibold text-slate-700">ملاحظة للموافِقين <span className="font-normal text-slate-500">(اختيارية)</span><textarea maxLength={1000} value={form.memberNotes} onChange={(e) => setForm((old) => ({ ...old, memberNotes: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="أضف أي تفاصيل يحتاجها المشرف أو الموافِقون" /><span className="mt-1 block text-left text-xs font-normal text-slate-500">{form.memberNotes.length}/1000</span></label>}
           {modal?.type !== 'new' && <label className="block text-sm font-semibold text-slate-700">السبب<textarea required value={form.reason} onChange={(e) => setForm((old) => ({ ...old, reason: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="اكتب السبب" /></label>}
           <div className="flex justify-end gap-3"><button type="button" onClick={() => setModal(null)} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">إلغاء</button><button type="submit" disabled={saving} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? 'جارٍ الإرسال...' : 'إرسال الطلب'}</button></div>
         </form>
