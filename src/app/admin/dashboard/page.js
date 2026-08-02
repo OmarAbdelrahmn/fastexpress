@@ -19,7 +19,8 @@ import {
   X,
   ChevronRight,
   EyeOff,
-  LayoutList
+  LayoutList,
+  Bell
 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/context/LanguageContext";
@@ -29,6 +30,7 @@ import { useLanguage } from "@/lib/context/LanguageContext";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { applyGenericHungerReportExclusions, filterExcludedHungerRiders } from "@/lib/utils/hungerRiderExclusions";
+import { VacationService, listFromResponse } from "@/lib/api/vacationService";
 
 const PDFDownloadLink = dynamic(
   () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
@@ -220,6 +222,28 @@ export default function EnhancedDashboard() {
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [escapedAlerts, setEscapedAlerts] = useState([]);
   const [showEscapedPopup, setShowEscapedPopup] = useState(false);
+  const [vacationNotificationCount, setVacationNotificationCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadVacationNotifications = async () => {
+      try {
+        const response = await VacationService.inbox();
+        if (active) setVacationNotificationCount(listFromResponse(response).length);
+      } catch {
+        // Users without a vacation-workflow role have no actionable vacation notifications.
+        if (active) setVacationNotificationCount(0);
+      }
+    };
+
+    loadVacationNotifications();
+    const interval = window.setInterval(loadVacationNotifications, 60000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     // Check for privacy mode setting
@@ -927,6 +951,12 @@ export default function EnhancedDashboard() {
             count={stats.pendempst}
             icon={Users}
             link="/admin/employees/admin/status-requests"
+          />
+          <NotificationFab
+            title="طلبات الإجازات"
+            count={vacationNotificationCount}
+            icon={Bell}
+            link="/admin/riders/vacation"
           />
         </div>
 

@@ -1,25 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Bell, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth/authContext';
 import { TokenManager } from '@/lib/auth/tokenManager';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { VacationService, displayRider, listFromResponse } from '@/lib/api/vacationService';
 
 export default function Header() {
   const { logout } = useAuth();
   const { t } = useLanguage();
-  const pathname = usePathname();
   const [remainingTime, setRemainingTime] = useState('');
   const [user, setUser] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [vacationNotifications, setVacationNotifications] = useState([]);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
   useEffect(() => {
     const userData = TokenManager.getUserFromToken();
@@ -89,32 +82,6 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
-
-  useEffect(() => {
-    if (!isAdminDashboard) {
-      setVacationNotifications([]);
-      setNotificationsOpen(false);
-      return undefined;
-    }
-
-    let active = true;
-    const loadNotifications = async () => {
-      try {
-        const response = await VacationService.inbox();
-        if (active) setVacationNotifications(listFromResponse(response));
-      } catch {
-        // A caller without vacation workflow access simply has no actionable notifications.
-        if (active) setVacationNotifications([]);
-      }
-    };
-
-    loadNotifications();
-    const interval = setInterval(loadNotifications, 60000);
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, [isAdminDashboard]);
 
   return (
     <header
@@ -276,47 +243,6 @@ to-[#1E3A8A] transition-transform duration-300 rounded-b-[60px] ${isVisible ? 't
           </h1>
         </div>
         <div className="flex items-center gap-4">
-
-          {isAdminDashboard && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setNotificationsOpen((open) => !open)}
-                className="relative rounded-lg p-2 text-white transition-colors hover:bg-white/10"
-                aria-label="إشعارات طلبات الإجازات"
-                aria-expanded={notificationsOpen}
-              >
-                <Bell size={21} />
-                {vacationNotifications.length > 0 && (
-                  <span className="absolute -left-1 -top-1 min-w-5 rounded-full bg-red-500 px-1 text-center text-[10px] font-bold leading-5 text-white">
-                    {vacationNotifications.length > 99 ? '99+' : vacationNotifications.length}
-                  </span>
-                )}
-              </button>
-
-              {notificationsOpen && (
-                <div className="absolute left-0 z-[70] mt-3 w-80 overflow-hidden rounded-xl border border-gray-100 bg-white text-right text-gray-800 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-                    <p className="font-bold">طلبات الإجازات</p>
-                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">{vacationNotifications.length}</span>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto">
-                    {vacationNotifications.length === 0 ? (
-                      <p className="p-5 text-center text-sm text-gray-500">لا توجد طلبات تتطلب قرارك.</p>
-                    ) : vacationNotifications.slice(0, 5).map((request, index) => (
-                      <div key={request.id || request.requestId || index} className="border-b border-gray-50 px-4 py-3 last:border-0">
-                        <p className="text-sm font-semibold">{displayRider(request)}</p>
-                        <p className="mt-1 text-xs text-gray-500">{request.startDate ? `${String(request.startDate).slice(0, 10)} — ${String(request.endDate).slice(0, 10)}` : 'طلب إجازة بانتظار المراجعة'}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <Link href="/admin/riders/vacation" onClick={() => setNotificationsOpen(false)} className="block border-t border-gray-100 px-4 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50">
-                    عرض صندوق الموافقات
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* User Info */}
           {user && (
