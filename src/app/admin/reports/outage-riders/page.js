@@ -52,8 +52,9 @@ const labels = {
     totalHours: 'إجمالي الساعات',
     detailsTitle: 'سجلات أداء مناديب الخارج',
     detailsSubtitle: 'البيانات المباشرة من GET /api/outage-shift-performances',
-    searchPlaceholder: 'بحث بمعرف المندوب...',
+    searchPlaceholder: 'بحث بمعرف أو اسم المندوب...',
     id: 'ID',
+    name: 'الاسم',
     outRiderInfoId: 'رقم بيانات المندوب',
     shiftDate: 'تاريخ الشفت',
     acceptedOrders: 'الطلبات المكتملة',
@@ -89,8 +90,9 @@ const labels = {
     totalHours: 'Total Hours',
     detailsTitle: 'Outside Rider Performance Rows',
     detailsSubtitle: 'Direct data from GET /api/outage-shift-performances',
-    searchPlaceholder: 'Search by rider ID...',
+    searchPlaceholder: 'Search by rider ID or name...',
     id: 'ID',
+    name: 'Name',
     outRiderInfoId: 'Out Rider Info ID',
     shiftDate: 'Shift Date',
     acceptedOrders: 'Completed Deliveries',
@@ -135,6 +137,7 @@ const groupPerformanceRecords = (list) => {
     const existing = groups.get(key) || {
       key,
       riderId: record.riderId || '-',
+      name: record.name || '-',
       outRiderInfoId: record.outRiderInfoId || '-',
       records: [],
       acceptedOrders: 0,
@@ -179,6 +182,7 @@ export default function OutageRidersReportPage() {
 
     return list.filter((record) =>
       String(record.riderId || '').toLowerCase().includes(query) ||
+      String(record.name || '').toLowerCase().includes(query) ||
       String(record.outRiderInfoId || '').toLowerCase().includes(query)
     );
   }, [records, searchQuery]);
@@ -289,6 +293,7 @@ export default function OutageRidersReportPage() {
       // Single row per rider
       const riderRow = {
         [text.riderId]: group.riderId,
+        [text.name]: group.name,
         [text.outRiderInfoId]: group.outRiderInfoId,
       };
 
@@ -329,6 +334,7 @@ export default function OutageRidersReportPage() {
 
     const grandSummaryRow = {
       [text.riderId]: summaryText,
+      [text.name]: '',
       [text.outRiderInfoId]: ridersCountText,
     };
 
@@ -353,6 +359,7 @@ export default function OutageRidersReportPage() {
     // Dynamic column widths
     const cols = [
       { wch: 22 }, // Rider ID / Grand Total
+      { wch: 28 }, // Rider Name
       { wch: 22 }, // Out Rider Info ID / Riders Count
     ];
     // Dates columns width
@@ -547,6 +554,7 @@ export default function OutageRidersReportPage() {
                               <div>
                                 <div className="flex flex-wrap items-center gap-2">
                                   <span className="font-bold text-gray-900">{text.riderId}: {group.riderId}</span>
+                                  <span className="text-sm text-gray-600">{text.name}: {group.name}</span>
                                   <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-mono">
                                     {text.outRiderInfoId}: {group.outRiderInfoId}
                                   </span>
