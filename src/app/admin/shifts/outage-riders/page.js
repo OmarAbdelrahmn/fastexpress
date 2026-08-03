@@ -21,6 +21,7 @@ const labels = {
     filtersTitle: 'Performance Filters',
     performanceListTitle: 'Performance Records',
     riderId: 'Rider ID',
+    name: 'Name',
     phoneNumber: 'Phone Number',
     outRiderInfo: 'Outside Rider',
     shiftDate: 'Shift Date',
@@ -80,6 +81,7 @@ const labels = {
     filtersTitle: 'فلاتر الأداء',
     performanceListTitle: 'سجلات الأداء',
     riderId: 'معرف المندوب',
+    name: 'الاسم',
     phoneNumber: 'رقم الجوال',
     outRiderInfo: 'مندوب الخارج',
     shiftDate: 'تاريخ الشفت',
@@ -132,6 +134,7 @@ const getToday = () => new Date().toISOString().split('T')[0];
 
 const emptyRiderForm = {
   riderId: '',
+  name: '',
   phoneNumber: '',
 };
 
@@ -243,7 +246,7 @@ export default function OutageRiderPerformancesPage() {
   const [activeTab, setActiveTab] = useState('performance');
   const [riders, setRiders] = useState([]);
   const [records, setRecords] = useState([]);
-  const [riderFilters, setRiderFilters] = useState({ riderId: '', phoneNumber: '' });
+  const [riderFilters, setRiderFilters] = useState({ riderId: '', name: '', phoneNumber: '' });
   const [performanceFilters, setPerformanceFilters] = useState({
     riderId: '',
     from: getToday(),
@@ -334,6 +337,7 @@ export default function OutageRiderPerformancesPage() {
 
     const payload = {
       riderId: riderForm.riderId.trim(),
+      name: riderForm.name.trim() || null,
       phoneNumber: riderForm.phoneNumber.trim(),
     };
 
@@ -360,6 +364,7 @@ export default function OutageRiderPerformancesPage() {
     setEditingRiderId(rider.id);
     setRiderForm({
       riderId: rider.riderId || '',
+      name: rider.name || '',
       phoneNumber: rider.phoneNumber || '',
     });
   };
@@ -491,7 +496,7 @@ export default function OutageRiderPerformancesPage() {
     }
   };
 
-  const selectedRiderLabel = (rider) => `${rider.riderId || '-'} - ${rider.phoneNumber || '-'}`;
+  const selectedRiderLabel = (rider) => `${rider.riderId || '-'} - ${rider.name || rider.phoneNumber || '-'}`;
 
   const togglePerformanceGroup = (key) => {
     setExpandedPerformanceRiders((prev) => ({
@@ -559,7 +564,7 @@ export default function OutageRiderPerformancesPage() {
               <h2 className="text-xl font-bold text-gray-900">{text.riderInfoCreateTitle}</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">{text.riderId}</label>
                 <input
@@ -567,6 +572,15 @@ export default function OutageRiderPerformancesPage() {
                   onChange={(e) => setRiderForm({ ...riderForm, riderId: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="R123"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{text.name}</label>
+                <input
+                  value={riderForm.name}
+                  onChange={(e) => setRiderForm({ ...riderForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Ahmed Ali"
                 />
               </div>
               <div>
@@ -683,12 +697,18 @@ export default function OutageRiderPerformancesPage() {
             <h2 className="text-xl font-bold text-gray-900">{text.riderInfoListTitle}</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
             <input
               value={riderFilters.riderId}
               onChange={(e) => setRiderFilters({ ...riderFilters, riderId: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder={text.riderId}
+            />
+            <input
+              value={riderFilters.name}
+              onChange={(e) => setRiderFilters({ ...riderFilters, name: e.target.value })}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder={text.name}
             />
             <input
               value={riderFilters.phoneNumber}
@@ -707,7 +727,7 @@ export default function OutageRiderPerformancesPage() {
               </button>
               <button
                 onClick={() => {
-                  const clearedFilters = { riderId: '', phoneNumber: '' };
+                  const clearedFilters = { riderId: '', name: '', phoneNumber: '' };
                   setRiderFilters(clearedFilters);
                   loadRiders(clearedFilters);
                 }}
@@ -732,6 +752,7 @@ export default function OutageRiderPerformancesPage() {
                   <tr>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ID</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.riderId}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.name}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.phoneNumber}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.createdAt}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{text.createdBy}</th>
@@ -743,6 +764,7 @@ export default function OutageRiderPerformancesPage() {
                     <tr key={rider.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-700">{rider.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-blue-700">{rider.riderId || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{rider.name || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{rider.phoneNumber || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDateTime(rider.createdAt)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{rider.createdBy || '-'}</td>
