@@ -37,6 +37,17 @@ export const listFromResponse = (response) =>
 
 export const itemId = (item) => item?.id ?? item?.requestId ?? item?.vacationRequestId;
 export const displayRider = (item) => item?.riderName || item?.rider?.nameAR || item?.rider?.name || item?.riderNameAR || item?.riderId || '—';
+export const riderDetails = (item) => {
+  const rider = item?.rider || item || {};
+  return {
+    iqamaNo: rider.iqamaNo ?? item?.iqamaNo,
+    passportNo: rider.passportNo ?? item?.passportNo,
+    passportEnd: rider.passportEnd ?? item?.passportEnd,
+    iqamaEndM: rider.iqamaEndM ?? item?.iqamaEndM,
+    iqamaEndH: rider.iqamaEndH ?? item?.iqamaEndH,
+    housingName: rider.housingName ?? item?.housingName,
+  };
+};
 const vacationLabels = {
   ar: {
     pendingoperation: 'بانتظار مراجعة العمليات', pendingaccountant: 'بانتظار مراجعة المحاسب', pendingadministration: 'بانتظار مراجعة الإدارة',

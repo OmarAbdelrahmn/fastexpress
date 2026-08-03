@@ -206,11 +206,10 @@ const groupPerformanceRecords = (list) => {
 const TabButton = ({ active, icon: Icon, label, onClick }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
-      active
+    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${active
         ? 'bg-blue-600 text-white shadow-sm'
         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-    }`}
+      }`}
   >
     <Icon size={18} />
     {label}
@@ -515,11 +514,10 @@ export default function OutageRiderPerformancesPage() {
 
       <div className="p-6 space-y-6">
         {message.text && (
-          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${
-            message.type === 'success'
+          <div className={`p-4 rounded-lg flex items-center gap-3 shadow-sm ${message.type === 'success'
               ? 'bg-green-50 text-green-800 border border-green-200'
               : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
+            }`}>
             {message.type === 'success' ? <CheckCircle size={20} /> : <XCircle size={20} />}
             <span className="flex-1">{message.text}</span>
             <button onClick={() => setMessage({ type: '', text: '' })} className="hover:opacity-70">x</button>
