@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import PageHeader from '@/components/layout/pageheader';
 import { useLanguage } from '@/lib/context/LanguageContext';
-import { CalendarDays, Users } from 'lucide-react';
+import { CalendarDays, Users, Coffee } from 'lucide-react';
 
 export default function KeetaPage() {
     const { t } = useLanguage();
@@ -31,6 +31,18 @@ export default function KeetaPage() {
             border: 'border-violet-200',
             iconBg: 'bg-violet-100',
             iconColor: 'text-violet-600',
+        },
+        {
+            key: 'breaks',
+            title: t('keta.breaksTitle'),
+            description: t('keta.breaksDesc'),
+            icon: Coffee,
+            href: '/admin/keeta/breaks',
+            gradient: 'from-amber-500 to-orange-600',
+            bg: 'bg-amber-50',
+            border: 'border-amber-200',
+            iconBg: 'bg-amber-100',
+            iconColor: 'text-amber-700',
         },
     ];
 

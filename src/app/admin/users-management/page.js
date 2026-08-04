@@ -14,6 +14,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Search, Edit, UserX, UserCheck, Shield, User, KeyRound } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import { TokenManager } from '@/lib/auth/tokenManager';
 
 export default function AdminUsersPage() {
   const { t } = useLanguage();
@@ -25,6 +26,11 @@ export default function AdminUsersPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [searchType, setSearchType] = useState('all');
   const [searchValue, setSearchValue] = useState('');
+  const [resettingUserName, setResettingUserName] = useState(null);
+  const currentUser = TokenManager.getUserFromToken() || {};
+  const rawRoles = currentUser.roles ?? currentUser.role ?? currentUser['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? [];
+  const isMaster = (Array.isArray(rawRoles) ? rawRoles : [rawRoles])
+    .some((role) => String(role).toLowerCase() === 'master');
 
   useEffect(() => {
     loadUsers();
@@ -85,6 +91,20 @@ export default function AdminUsersPage() {
   const handleViewDetails = (user) => {
     setSelectedUser(user);
     setIsModalOpen(true);
+  };
+
+  const handleAdminReset = async (userName) => {
+    if (!userName || !confirm(t('admin.confirmPasswordReset', { userName }))) return;
+
+    setResettingUserName(userName);
+    const result = await get(API_ENDPOINTS.AUTH.ADMIN_RESET(userName));
+    console.log('Admin password reset result:', { userName, result });
+    setResettingUserName(null);
+
+    if (result.error) return;
+
+    setSuccessMessage(t('admin.passwordResetSuccess', { userName }));
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const columns = [
@@ -176,9 +196,21 @@ export default function AdminUsersPage() {
             onClick={() => handleToggleStatus(row.userName, !row.isDisable)}
             className={`${!row.isDisable ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} p-1`}
             title={!row.isDisable ? t('admin.disableRole') : t('admin.enableRole')}
+            aria-label={!row.isDisable ? t('admin.disableRole') : t('admin.enableRole')}
           >
             {!row.isDisable ? <UserX size={18} /> : <UserCheck size={18} />}
           </button>
+          {isMaster && (
+            <button
+              onClick={() => handleAdminReset(row.userName)}
+              className="p-1 text-amber-600 hover:text-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+              title={t('admin.resetPassword')}
+              aria-label={t('admin.resetPassword')}
+              disabled={resettingUserName === row.userName}
+            >
+              <KeyRound size={18} className={resettingUserName === row.userName ? 'animate-pulse' : undefined} />
+            </button>
+          )}
         </div>
       )
     },

@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     REGISTER: "/api/auth/register",
     ADMIN_REGISTER: "/api/auth/register/admin",
     MASTER_REGISTER: "/api/auth/register/master",
+    ADMIN_RESET: (userName) => `/api/admin/adminreset?UserName=${encodeURIComponent(userName)}`,
   },
 
   // Account
@@ -243,6 +244,11 @@ export const API_ENDPOINTS = {
     },
     KETA_VALIDATION_SHIFTS: (from, to) => `/api/KetaValidation/shifts?from=${from}&to=${to}`,
     KETA_VALIDATION_IMPORT: (uploadedBy = 'system') => `/api/KetaValidation/shifts/import?uploadedBy=${uploadedBy}`,
+    KEETA_BREAKS: {
+      CONFIGURATIONS: '/api/keeta-breaks/configurations',
+      CONFIGURATION_BY_VERSION: (version) => `/api/keeta-breaks/configurations/${version}`,
+      CAPACITY_PLANS: '/api/keeta-breaks/capacity-plans',
+    },
     WORKING_ID_HISTORY: (iqamaNo) => `/api/History/report/${iqamaNo}`,
     SUGGEST_WORKING_ID: (iqamaNo, companyId) => `/api/History/suggest-working-id?riderIqamaNo=${iqamaNo}&companyId=${companyId}`,
   },
