@@ -280,13 +280,16 @@ export default function RiderDetailsPage() {
             <Shield className={rider.status === 'enable' ? 'text-green-600' : 'text-red-600'} size={24} />
           </div>
           <div>
-            <h2 className={`text-lg sm:text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
-              }`}>
-              {rider.status === 'enable'
-                ? (rider.isEmployee ? t('riders.activeEmployee') : t('riders.activeRider'))
-                : (rider.isEmployee ? t('riders.inactiveEmployee') : t('riders.inactiveStatus'))
-              }
-            </h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className={`text-lg sm:text-2xl font-bold ${rider.status === 'enable' ? 'text-green-800' : 'text-red-800'
+                }`}>
+                {rider.status === 'enable'
+                  ? (rider.isEmployee ? t('riders.activeEmployee') : t('riders.activeRider'))
+                  : (rider.isEmployee ? t('riders.inactiveEmployee') : t('riders.inactiveStatus'))
+                }
+              </h2>
+
+            </div>
             <p className={`text-sm ${rider.status === 'enable' ? 'text-green-600' : 'text-red-600'}`}>
               {rider.isEmployee ? t('riders.employeeCurrentStatus') : t('riders.currentStatus')}
             </p>
@@ -377,6 +380,13 @@ export default function RiderDetailsPage() {
             <div>
               <p className="text-xs text-gray-500">{t('riders.housing')}</p>
               <p className="font-medium text-gray-800 text-sm">{rider.housingAddress || t('profile.notSpecified')}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{t('riders.freelancerStatus')}</p>
+              {rider.isFreelancer
+                ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">{t('riders.freelancer')}</span>
+                : <span className="text-xs text-gray-500">-</span>
+              }
             </div>
           </div>
         </div>

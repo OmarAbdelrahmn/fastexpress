@@ -12,6 +12,7 @@ import PageHeader from '@/components/layout/pageheader';
 import { UserPlus, ArrowRight, Save } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import SearchableSelect from '@/components/Ui/SearchableSelect';
+import YesNoSwitch from '@/components/Ui/YesNoSwitch';
 
 
 export default function CreateRiderPage() {
@@ -45,6 +46,7 @@ export default function CreateRiderPage() {
     licenseNumber: '',
     companyName: '',
     isEmployee: false,
+    isFreelancer: false,
   });
 
   useEffect(() => {
@@ -109,7 +111,8 @@ export default function CreateRiderPage() {
         tshirtSize: formData.tshirtSize,
         licenseNumber: '0',
         companyName: formData.companyName,
-        isEmployee: formData.isEmployee
+        isEmployee: formData.isEmployee,
+        isFreelancer: Boolean(formData.isFreelancer)
       };
 
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
@@ -239,7 +242,7 @@ export default function CreateRiderPage() {
                 value={formData.country}
                 onChange={handleInputChange}
                 required
-                placeholder={ 'اختر الدولة'}
+                placeholder={'اختر الدولة'}
                 options={[
                   "المملكة العربية السعودية", "مصر", "الهند", "باكستان", "بنغلاديش", "الفلبين",
                   "السودان", "اليمن", "الأردن", "سوريا", "لبنان", "فلسطين", "العراق",
@@ -448,6 +451,20 @@ export default function CreateRiderPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('riders.freelancerStatus')}
+              </label>
+              <div className="flex items-center">
+                <YesNoSwitch
+                  value={formData.isFreelancer}
+                  onChange={(val) => setFormData({ ...formData, isFreelancer: val })}
+                  yesLabel={t('common.yes')}
+                  noLabel={t('common.no')}
+                />
+              </div>
             </div>
           </div>
         </Card>

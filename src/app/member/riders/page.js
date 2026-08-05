@@ -126,7 +126,8 @@ export default function MemberRiders() {
             'رقم اللوحة': rider.vehicleNumber || '',
             'الجوال': rider.phone,
             'الحالة': statusArabicMap[rider.status?.toLowerCase()] || rider.status || '',
-            'سبب تغيير الحالة': rider.statusChangeReason || ''
+            'سبب تغيير الحالة': rider.statusChangeReason || '',
+            'فريلانسر': rider.isFreelancer ? 'نعم' : 'لا'
         }));
 
         // Create worksheet
@@ -344,6 +345,9 @@ export default function MemberRiders() {
                                     الجوال
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    فريلانسر
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     الحالة
                                 </th>
                                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -400,6 +404,12 @@ export default function MemberRiders() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            {rider.isFreelancer
+                                                ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">فريلانسر</span>
+                                                : <span className="text-xs text-gray-400">-</span>
+                                            }
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {getStatusBadge(rider.status)}
                                             {rider.status?.toLowerCase() !== 'enable' && rider.statusChangeReason && (
                                                 <p className="text-xs text-gray-500 mt-1 max-w-[150px] truncate" title={rider.statusChangeReason}>
@@ -420,7 +430,7 @@ export default function MemberRiders() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="9" className="px-6 py-8 text-center text-gray-500">
                                         {searchTerm ? 'لا توجد نتائج تطابق البحث' : 'لا يوجد مناديب'}
                                     </td>
                                 </tr>

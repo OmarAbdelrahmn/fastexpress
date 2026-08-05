@@ -106,7 +106,8 @@ export default function RiderSearchPage() {
       [t('riders.phoneNumber')]: rider.phoneNumber || '',
       [t('riders.nationality')]: rider.country || '',
       [t('common.status')]: rider.status || '',
-      [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no')
+      [t('employees.title')]: rider.isEmployee ? t('common.yes') : t('common.no'),
+      [t('riders.freelancer')]: rider.isFreelancer ? t('common.yes') : t('common.no')
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -131,6 +132,15 @@ export default function RiderSearchPage() {
       accessor: 'workingId',
       render: (row) => (
         <span className="font-bold text-blue-600">{row.workingId || 'N/A'}</span>
+      )
+    },
+    {
+      header: t('riders.freelancer'),
+      accessor: 'isFreelancer',
+      render: (row) => (
+        row.isFreelancer
+          ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">{t('riders.freelancer')}</span>
+          : <span className="text-xs text-gray-400">-</span>
       )
     },
     {

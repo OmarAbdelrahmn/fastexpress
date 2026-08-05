@@ -11,6 +11,7 @@ import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
 import { Edit, ArrowRight, Save } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import YesNoSwitch from '@/components/Ui/YesNoSwitch';
 
 export default function EditRiderPage() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function EditRiderPage() {
     licenseNumber: '',
     companyName: '',
     isEmployee: false,
+    isFreelancer: false,
     housingId: ''
   });
 
@@ -143,6 +145,7 @@ export default function EditRiderPage() {
           licenseNumber: rider.licenseNumber || '',
           companyName: rider.companyName || '',
           isEmployee: rider.isEmployee || false,
+          isFreelancer: Boolean(rider.isFreelancer),
           housingId: rider.housingId || ''
         });
       }
@@ -237,6 +240,9 @@ export default function EditRiderPage() {
       }
       if (formData.housingId && formData.housingId !== originalData?.housingId) {
         requestData.housingId = formData.housingId;
+      }
+      if (formData.isFreelancer !== Boolean(originalData?.isFreelancer)) {
+        requestData.isFreelancer = Boolean(formData.isFreelancer);
       }
 
       await ApiService.put(API_ENDPOINTS.RIDER.UPDATE(iqamaNo), requestData);
@@ -572,6 +578,20 @@ export default function EditRiderPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('riders.freelancerStatus')}
+              </label>
+              <div className="flex items-center h-[34px]">
+                <YesNoSwitch
+                  value={formData.isFreelancer}
+                  onChange={(val) => setFormData({ ...formData, isFreelancer: val })}
+                  yesLabel={t('common.yes')}
+                  noLabel={t('common.no')}
+                />
+              </div>
             </div>
           </div>
         </Card>

@@ -111,6 +111,15 @@ export default function RiderMultiFilterPage() {
         { header: t('riders.workingId'), accessor: 'workingId' },
         { header: t('riders.company'), accessor: 'companyName' },
         {
+            header: t('riders.freelancer'),
+            accessor: 'isFreelancer',
+            render: (row) => (
+                row.isFreelancer
+                    ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">{t('riders.freelancer')}</span>
+                    : <span className="text-xs text-gray-400">-</span>
+            )
+        },
+        {
             header: t('riders.status'),
             accessor: 'status',
             render: (row) => <StatusBadge status={row.status} />

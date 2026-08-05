@@ -597,6 +597,7 @@ export default function ShiftsPage() {
                   <tr>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.workingId')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.riderName')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.freelancer')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('companies.title')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.acceptedOrders')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.rejectedOrders')}</th>
@@ -611,6 +612,11 @@ export default function ShiftsPage() {
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-blue-600">{safeRender(shift.workingId)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{safeRender(shift.riderName)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${shift.isFreelancer ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {shift.isFreelancer ? t('common.yes') : t('common.no')}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">{safeRender(shift.companyName)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
                         {safeRender(shift.acceptedDailyOrders, 0)}

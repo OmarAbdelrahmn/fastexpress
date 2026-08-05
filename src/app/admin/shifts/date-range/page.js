@@ -343,6 +343,7 @@ export default function ShiftRangeViewerPage() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.date')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.workingId')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.rider')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('riders.freelancer')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.company')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.acceptedOrders')}</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('shifts.rejectedOrders')}</th>
@@ -361,6 +362,11 @@ export default function ShiftRangeViewerPage() {
                         {shift.workingId}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">{shift.riderName}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${shift.isFreelancer ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {shift.isFreelancer ? t('common.yes') : t('common.no')}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{shift.companyName}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
                         {shift.acceptedDailyOrders}
