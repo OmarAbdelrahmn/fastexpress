@@ -36,7 +36,13 @@ export default function UserRolesPage() {
         // Fetch Roles
         const rolesRes = await get(API_ENDPOINTS.ROLES.LIST);
         if (rolesRes.data) {
-            setRoles(rolesRes.data);
+            let fetchedRoles = [];
+            if (Array.isArray(rolesRes.data)) {
+                fetchedRoles = rolesRes.data;
+            } else if (rolesRes.data && typeof rolesRes.data === 'object') {
+                fetchedRoles = rolesRes.data.roles || rolesRes.data.data || rolesRes.data.items || Object.values(rolesRes.data || {});
+            }
+            setRoles(Array.isArray(fetchedRoles) ? fetchedRoles : []);
         }
     };
 
@@ -122,13 +128,17 @@ export default function UserRolesPage() {
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             >
                                 <option value="">{t('admin.selectRole')}</option>
-                                {roles
-                                    .filter(r => !r.isDeleted) // Only show active roles for assignment
-                                    .map((role, idx) => (
-                                        <option key={role.id || idx} value={role.name}>
-                                            {role.name}
-                                        </option>
-                                    ))}
+                                {(Array.isArray(roles) ? roles : [])
+                                    .filter(r => !r || !r.isDeleted) // Only show active roles for assignment
+                                    .map((role, idx) => {
+                                        const roleName = typeof role === 'string' ? role : (role?.name || role);
+                                        const roleId = typeof role === 'object' && role ? role.id : idx;
+                                        return (
+                                            <option key={roleId || idx} value={roleName}>
+                                                {roleName}
+                                            </option>
+                                        );
+                                    })}
                             </select>
                         </div>
 
