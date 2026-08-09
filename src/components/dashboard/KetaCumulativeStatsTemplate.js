@@ -57,6 +57,7 @@ const KetaCumulativeStatsTemplate = ({ data }) => {
                         <th className="border border-gray-300 px-4 py-2">#</th>
                         <th className="border border-gray-300 px-4 py-2">المندوب</th>
                         <th className="border border-gray-300 px-4 py-2">المجموعة السكنية</th>
+                        <th className="border border-gray-300 px-4 py-2">نوع المندوب</th>
                         <th className="border border-gray-300 px-4 py-2">إجمالي الطلبات</th>
                         <th className="border border-gray-300 px-4 py-2">متوسط / يوم</th>
                         <th className="border border-gray-300 px-4 py-2">العجز/الفائض</th>
@@ -71,6 +72,7 @@ const KetaCumulativeStatsTemplate = ({ data }) => {
                                 <div className="text-xs text-gray-500">{rider.workingId} | {rider.iqamaNo}</div>
                             </td>
                             <td className="border border-gray-300 px-4 py-2">{rider.housingGroup}</td>
+                            <td className="border border-gray-300 px-4 py-2">{(rider.isFreelancer ?? rider.IsFreelancer) === true || (rider.isFreelancer ?? rider.IsFreelancer) === 1 || String(rider.isFreelancer ?? rider.IsFreelancer).toLowerCase() === 'true' ? 'فريلانسر' : 'شفتات'}</td>
                             <td className="border border-gray-300 px-4 py-2 font-bold">{rider.totalOrders}</td>
                             <td className="border border-gray-300 px-4 py-2">{rider.averageOrdersPerDay?.toFixed(2)}</td>
                             <td className={`border border-gray-300 px-4 py-2 font-bold ${rider.deficitOrSurplus >= 0 ? "text-green-600" : "text-red-500"}`}>

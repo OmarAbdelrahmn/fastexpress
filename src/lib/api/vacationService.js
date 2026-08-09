@@ -50,14 +50,14 @@ export const riderDetails = (item) => {
 };
 const vacationLabels = {
   ar: {
-    pendingoperation: 'بانتظار مراجعة العمليات', pendingaccountant: 'بانتظار مراجعة المحاسب', pendingadministration: 'بانتظار مراجعة الإدارة',
+    pendingoperation: 'بانتظار مراجعة العمليات', pendingaccountant: 'بانتظار مراجعة المحاسب', pendingadministration: 'بانتظار مراجعة الإدارة', pendingkeetamanager: 'بانتظار موافقة مدير كيتا',
     approved: 'معتمد', active: 'إجازة نشطة', completed: 'مكتمل', rejected: 'مرفوض', cancelled: 'ملغي', expired: 'منتهي الصلاحية',
-    1: 'بانتظار مراجعة العمليات', 2: 'بانتظار مراجعة المحاسب', 3: 'بانتظار مراجعة الإدارة', 4: 'معتمد', 5: 'إجازة نشطة', 6: 'مكتمل', 7: 'مرفوض', 8: 'ملغي', 9: 'منتهي الصلاحية',
+    1: 'بانتظار مراجعة العمليات', 2: 'بانتظار مراجعة المحاسب', 3: 'بانتظار مراجعة الإدارة', 4: 'معتمد', 5: 'إجازة نشطة', 6: 'مكتمل', 7: 'مرفوض', 8: 'ملغي', 9: 'منتهي الصلاحية', 10: 'بانتظار موافقة مدير كيتا',
   },
   en: {
-    pendingoperation: 'Pending operations review', pendingaccountant: 'Pending accountant review', pendingadministration: 'Pending administration review',
+    pendingoperation: 'Pending operations review', pendingaccountant: 'Pending accountant review', pendingadministration: 'Pending administration review', pendingkeetamanager: 'Pending Keeta Manager review',
     approved: 'Approved', active: 'Active vacation', completed: 'Completed', rejected: 'Rejected', cancelled: 'Cancelled', expired: 'Expired',
-    1: 'Pending operations review', 2: 'Pending accountant review', 3: 'Pending administration review', 4: 'Approved', 5: 'Active vacation', 6: 'Completed', 7: 'Rejected', 8: 'Cancelled', 9: 'Expired',
+    1: 'Pending operations review', 2: 'Pending accountant review', 3: 'Pending administration review', 4: 'Approved', 5: 'Active vacation', 6: 'Completed', 7: 'Rejected', 8: 'Cancelled', 9: 'Expired', 10: 'Pending Keeta Manager review',
   },
 };
 
@@ -69,11 +69,11 @@ export const displayStatus = (value, locale = 'ar') => {
 export const displayStage = (value, locale = 'ar') => {
   const normalized = String(value ?? '').toLowerCase();
   const labels = locale === 'en' ? {
-    operation: 'Operations review', accountant: 'Accountant review', administration: 'Administration review', completed: 'Completed',
-    1: 'Operations review', 2: 'Accountant review', 3: 'Administration review',
+    operation: 'Operations review', accountant: 'Accountant review', administration: 'Administration review', keetamanager: 'Keeta Manager review', completed: 'Completed',
+    1: 'Operations review', 2: 'Accountant review', 3: 'Administration review', 5: 'Keeta Manager review',
   } : {
-    operation: 'مراجعة العمليات', accountant: 'مراجعة المحاسب', administration: 'مراجعة الإدارة', completed: 'مكتمل',
-    1: 'مراجعة العمليات', 2: 'مراجعة المحاسب', 3: 'مراجعة الإدارة',
+    operation: 'مراجعة العمليات', accountant: 'مراجعة المحاسب', administration: 'مراجعة الإدارة', keetamanager: 'مراجعة مدير كيتا', completed: 'مكتمل',
+    1: 'مراجعة العمليات', 2: 'مراجعة المحاسب', 3: 'مراجعة الإدارة', 5: 'مراجعة مدير كيتا',
   };
   return labels[normalized] || value || '—';
 };

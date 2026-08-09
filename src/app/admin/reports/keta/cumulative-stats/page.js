@@ -15,6 +15,11 @@ import KetaCumulativeStatsTemplate from "@/components/dashboard/KetaCumulativeSt
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
+const isFreelancer = (rider) => {
+    const value = rider?.isFreelancer ?? rider?.IsFreelancer;
+    return value === true || value === 1 || String(value).toLowerCase() === 'true';
+};
+
 export default function KetaCumulativeStatsPage() {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -69,6 +74,7 @@ export default function KetaCumulativeStatsPage() {
             [t('common.averageOrdersPerDay')]: rider.averageOrdersPerDay?.toFixed(2),
             [t('common.deficitSurplus')]: rider.deficitOrSurplus,
             [t('common.housingGroup')]: rider.housingGroup,
+            ["نوع المندوب"]: isFreelancer(rider) ? 'فريلانسر' : 'شفتات',
             [t('keta.cumulative.isNewRider')]: rider.isNewRider ? t('common.yes') : t('common.no'),
             [t('keta.cumulative.startDate')]: rider.startDate,
         }));
@@ -88,6 +94,7 @@ export default function KetaCumulativeStatsPage() {
             [t('common.averageOrdersPerDay')]: "",
             [t('common.deficitSurplus')]: totalDeficitSurplus,
             [t('common.housingGroup')]: "",
+            ["نوع المندوب"]: "",
             [t('keta.cumulative.isNewRider')]: "",
             [t('keta.cumulative.startDate')]: "",
         });
@@ -226,6 +233,7 @@ export default function KetaCumulativeStatsPage() {
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.rank')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('employees.rider')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.housingGroup')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">نوع المندوب</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.expectedDays')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.targetOrders')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('keta.cumulative.totalOrders')}</th>
@@ -254,6 +262,11 @@ export default function KetaCumulativeStatsPage() {
                                                     <td className="px-6 py-4 text-start">
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                             {rider.housingGroup}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-start">
+                                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isFreelancer(rider) ? 'bg-violet-100 text-violet-800' : 'bg-slate-100 text-slate-700'}`}>
+                                                            {isFreelancer(rider) ? 'فريلانسر' : 'شفتات'}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 font-bold text-gray-700 text-start">

@@ -102,16 +102,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8fafc',
     },
     // Columns (Total width ~100%)
-    colRider: { width: '20%', textAlign: 'center' },
-    colId: { width: '10%', textAlign: 'center' },
-    colDays: { width: '8%', textAlign: 'center' },
-    colOrders: { width: '9%', textAlign: 'center' },
-    colTarget: { width: '9%', textAlign: 'center' },
-    colDiff: { width: '9%', textAlign: 'center' }, // New difference column
-    colRej: { width: '9%', textAlign: 'center' },
-    colRejRate: { width: '12%', textAlign: 'center' },
-    colRealRej: { width: '10%', textAlign: 'center' },
-    colRealRate: { width: '12%', textAlign: 'center' },
+    colRider: { width: '17%', textAlign: 'center' },
+    colId: { width: '8%', textAlign: 'center' },
+    colType: { width: '8%', textAlign: 'center' },
+    colDays: { width: '7%', textAlign: 'center' },
+    colOrders: { width: '8%', textAlign: 'center' },
+    colTarget: { width: '8%', textAlign: 'center' },
+    colDiff: { width: '8%', textAlign: 'center' },
+    colRej: { width: '8%', textAlign: 'center' },
+    colRejRate: { width: '10%', textAlign: 'center' },
+    colRealRej: { width: '9%', textAlign: 'center' },
+    colRealRate: { width: '9%', textAlign: 'center' },
 
     headerText: {
         color: '#ffffff',
@@ -232,6 +233,7 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate, title, lang
                         <View style={[styles.tableHeader, { flexDirection: isRtl ? 'row-reverse' : 'row' }]}>
                             <View style={styles.colRider}><Text style={styles.headerText}>{t('employees.rider')}</Text></View>
                             <View style={styles.colId}><Text style={styles.headerText}>المعرف</Text></View>
+                            <View style={styles.colType}><Text style={styles.headerText}>نوع المندوب</Text></View>
                             <View style={styles.colDays}><Text style={styles.headerText}>عدد الأيام</Text></View>
                             <View style={styles.colOrders}><Text style={styles.headerText}>إجمالي الطلبات</Text></View>
                             <View style={styles.colTarget}><Text style={styles.headerText}>التارجيت</Text></View>
@@ -254,6 +256,7 @@ const HousingRejectionReportPDF = ({ reportData, startDate, endDate, title, lang
                                         <Text style={styles.cellTextSmall}>{rider.riderNameEN || rider.riderNameAR}</Text>
                                     </View>
                                     <View style={styles.colId}><Text style={styles.cellText}>{rider.workingId}</Text></View>
+                                    <View style={styles.colType}><Text style={styles.cellText}>{(rider.isFreelancer ?? rider.IsFreelancer) === true || (rider.isFreelancer ?? rider.IsFreelancer) === 1 || String(rider.isFreelancer ?? rider.IsFreelancer).toLowerCase() === 'true' ? 'فريلانسر' : 'شفتات'}</Text></View>
                                     <View style={styles.colDays}><Text style={styles.cellText}>{rider.totalShifts}</Text></View>
                                     <View style={styles.colOrders}><Text style={styles.cellText}>{rider.totalOrders}</Text></View>
                                     <View style={styles.colTarget}><Text style={styles.cellText}>{rider.targetOrders}</Text></View>

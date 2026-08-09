@@ -18,6 +18,7 @@ const VACATION_ROLES = [
   { value: 2, label: 'المحاسب', labelEn: 'Accountant' },
   { value: 3, label: 'الإدارة', labelEn: 'Administration' },
   { value: 4, label: 'الموارد البشرية (HR)', labelEn: 'Human Resources (HR)' },
+  { value: 5, label: 'مدير كيتا', labelEn: 'Keeta Manager' },
 ];
 
 const userIdOf = (item) => item?.userId ?? item?.id ?? item?.user?.id;
@@ -109,7 +110,7 @@ export default function VacationAccessPage() {
   return <div className="space-y-6" dir="rtl">
     <PageHeader
       title="صلاحيات الإجازات"
-      subtitle="تعيين صلاحيات العمليات والمحاسب والإدارة للمستخدمين. هذه الصلاحيات مستقلة عن أدوار الهوية."
+      subtitle="تعيين صلاحيات العمليات ومدير كيتا والمحاسب والإدارة للمستخدمين. هذه الصلاحيات مستقلة عن أدوار الهوية."
       icon={KeyRound}
       actions={<Button variant="outline" onClick={load} loading={loading}><RefreshCw size={17} /> تحديث</Button>}
       stats={[

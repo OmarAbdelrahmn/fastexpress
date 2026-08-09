@@ -7,6 +7,11 @@ import { ApiService } from '@/lib/api/apiService';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import * as XLSX from 'xlsx';
 
+const isFreelancer = (rider) => {
+    const value = rider?.isFreelancer ?? rider?.IsFreelancer;
+    return value === true || value === 1 || String(value).toLowerCase() === 'true';
+};
+
 export default function KetaDeclinedOrdersReport() {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -57,6 +62,7 @@ export default function KetaDeclinedOrdersReport() {
             ["المعرف"]: rider.workingId,
             ["اسم المندوب (عربي)"]: rider.riderNameAR,
             ["اسم المندوب (انجليزي)"]: rider.riderNameEN,
+            ["نوع المندوب"]: isFreelancer(rider) ? 'فريلانسر' : 'شفتات',
             ["السكن"]: rider.housingName,
             ["إجمالي الشفتات"]: rider.totalShifts,
             ["إجمالي الطلبات المقبولة"]: rider.totalAcceptedOrders,
@@ -376,6 +382,7 @@ export default function KetaDeclinedOrdersReport() {
                                         <tr>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">المعرف</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الاسم</th>
+                                            <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">نوع المندوب</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">السكن</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">عدد الشفتات</th>
                                             <th className="px-6 py-4 text-start text-xs font-bold text-gray-500 uppercase tracking-wider">الطلبات المقبولة</th>
@@ -396,6 +403,9 @@ export default function KetaDeclinedOrdersReport() {
                                                         <div className="font-bold text-gray-900">{rider.riderNameAR || rider.riderNameEN}</div>
                                                         <div className="text-xs text-gray-500">{rider.riderNameEN}</div>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${isFreelancer(rider) ? 'bg-violet-100 text-violet-800' : 'bg-slate-100 text-slate-700'}`}>{isFreelancer(rider) ? 'فريلانسر' : 'شفتات'}</span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                     {rider.housingName}

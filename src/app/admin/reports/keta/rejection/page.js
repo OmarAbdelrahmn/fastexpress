@@ -10,6 +10,11 @@ import * as XLSX from 'xlsx';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import HousingRejectionReportPDF from '@/components/dashboard/HousingRejectionReportPDF';
 
+const isFreelancer = (rider) => {
+    const value = rider?.isFreelancer ?? rider?.IsFreelancer;
+    return value === true || value === 1 || String(value).toLowerCase() === 'true';
+};
+
 export default function KetaRejectionReport() {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -51,6 +56,7 @@ export default function KetaRejectionReport() {
                         ["المعرف"]: rider.workingId,
                         ["اسم المندوب (عربي)"]: rider.riderNameAR,
                         ["اسم المندوب (انجليزي)"]: rider.riderNameEN,
+                        ["نوع المندوب"]: isFreelancer(rider) ? 'فريلانسر' : 'شفتات',
                         ["عدد الأيام"]: rider.totalShifts,
                         ["إجمالي الطلبات"]: rider.totalOrders,
                         ["الهدف"]: rider.targetOrders,
@@ -376,6 +382,7 @@ export default function KetaRejectionReport() {
                                                         <tr>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">المعرف</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">السائق</th>
+                                                            <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">نوع المندوب</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">عدد الأيام</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">إجمالي الطلبات</th>
                                                             <th className="px-4 py-3 text-start text-xs font-medium text-gray-500 uppercase">الهدف</th>
@@ -396,6 +403,9 @@ export default function KetaRejectionReport() {
                                                                         <div className="font-medium text-gray-900">{rider.riderNameAR || rider.riderNameEN}</div>
                                                                         <div className="text-xs text-gray-500">{rider.riderNameEN || rider.riderNameAR}</div>
                                                                     </div>
+                                                                </td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-start">
+                                                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${isFreelancer(rider) ? 'bg-violet-100 text-violet-800' : 'bg-slate-100 text-slate-700'}`}>{isFreelancer(rider) ? 'فريلانسر' : 'شفتات'}</span>
                                                                 </td>
                                                                 <td className="px-4 py-3 whitespace-nowrap text-start">
                                                                     <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">

@@ -15,6 +15,11 @@ import KetaDailyRiderDetailsTemplate from "@/components/dashboard/KetaDailyRider
 import * as XLSX from "xlsx";
 import { useLanguage } from "@/lib/context/LanguageContext";
 
+const isFreelancer = (rider) => {
+    const value = rider?.isFreelancer ?? rider?.IsFreelancer;
+    return value === true || value === 1 || String(value).toLowerCase() === 'true';
+};
+
 export default function KetaDailyRiderDetailsPage() {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
@@ -66,6 +71,7 @@ export default function KetaDailyRiderDetailsPage() {
             [t('common.orders')]: rider.orderCount,
             [t('common.workingHours')]: rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00",
             [t('common.housingGroup')]: rider.housingGroup,
+            ["نوع المندوب"]: isFreelancer(rider) ? 'فريلانسر' : 'شفتات',
         }));
 
         const totalOrders = filteredRiders.reduce((sum, rider) => sum + (rider.orderCount || 0), 0);
@@ -82,6 +88,7 @@ export default function KetaDailyRiderDetailsPage() {
             [t('common.orders')]: totalOrders,
             [t('common.workingHours')]: "",
             [t('common.housingGroup')]: "",
+            ["نوع المندوب"]: "",
         });
 
         const workbook = XLSX.utils.book_new();
@@ -203,6 +210,7 @@ export default function KetaDailyRiderDetailsPage() {
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.housingGroup')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.orders')}</th>
                                                 <th className="px-6 py-4 font-bold text-gray-600 text-start">{t('common.workingHours')}</th>
+                                                <th className="px-6 py-4 font-bold text-gray-600 text-start">نوع المندوب</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
@@ -229,6 +237,11 @@ export default function KetaDailyRiderDetailsPage() {
                                                     </td>
                                                     <td className="px-6 py-4 font-mono text-gray-600 text-start">
                                                         {rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00"}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-start">
+                                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isFreelancer(rider) ? 'bg-violet-100 text-violet-800' : 'bg-slate-100 text-slate-700'}`}>
+                                                            {isFreelancer(rider) ? 'فريلانسر' : 'شفتات'}
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             ))}

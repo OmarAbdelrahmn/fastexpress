@@ -228,13 +228,21 @@ export default function EnhancedDashboard() {
     let active = true;
 
     const loadVacationNotifications = async () => {
-      try {
-        const response = await VacationService.inbox();
-        if (active) setVacationNotificationCount(listFromResponse(response).length);
-      } catch {
-        // Users without a vacation-workflow role have no actionable vacation notifications.
-        if (active) setVacationNotificationCount(0);
-      }
+      const [workflowResult, hrResult] = await Promise.allSettled([
+        VacationService.inbox(),
+        VacationService.hrInbox(),
+      ]);
+      if (!active) return;
+
+      // Each endpoint enforces its own vacation-access role. A rejected request means
+      // that queue is unavailable to this user, not that the other queue is empty.
+      const workflowCount = workflowResult.status === 'fulfilled'
+        ? listFromResponse(workflowResult.value).length
+        : 0;
+      const hrCount = hrResult.status === 'fulfilled'
+        ? listFromResponse(hrResult.value).length
+        : 0;
+      setVacationNotificationCount(workflowCount + hrCount);
     };
 
     loadVacationNotifications();

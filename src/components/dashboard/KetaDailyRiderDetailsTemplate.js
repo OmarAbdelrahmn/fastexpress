@@ -56,6 +56,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
                         <th className="border border-gray-300 px-4 py-2">{t('common.housingGroup')}</th>
                         <th className="border border-gray-300 px-4 py-2">{t('common.orders')}</th>
                         <th className="border border-gray-300 px-4 py-2">{t('common.workingHours')}</th>
+                        <th className="border border-gray-300 px-4 py-2">نوع المندوب</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -69,6 +70,7 @@ const KetaDailyRiderDetailsTemplate = ({ data }) => {
                             <td className="border border-gray-300 px-4 py-2">{rider.housingGroup}</td>
                             <td className="border border-gray-300 px-4 py-2 font-bold">{rider.orderCount}</td>
                             <td className="border border-gray-300 px-4 py-2">{rider.workingHours ? Number(rider.workingHours).toFixed(2) : "0.00"}</td>
+                            <td className="border border-gray-300 px-4 py-2">{(rider.isFreelancer ?? rider.IsFreelancer) === true || (rider.isFreelancer ?? rider.IsFreelancer) === 1 || String(rider.isFreelancer ?? rider.IsFreelancer).toLowerCase() === 'true' ? 'فريلانسر' : 'شفتات'}</td>
                         </tr>
                     ))}
                 </tbody>
