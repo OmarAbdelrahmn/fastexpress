@@ -468,6 +468,7 @@
     "settings": "الإعدادات",
     "activityLog": "سجل النشاطات",
     "systemHealth": "صحة النظام",
+    "systemAudit": "سجل تدقيق النظام",
     "addNewSupervisor": "اضافة مشرف جديد",
     "addNewAdmin": "اضافة ادمن جديد",
     "addNewManager": "اضافة مدير جديد",

@@ -195,6 +195,7 @@ const pathTranslationKeys = {
   // ─── Admin & Settings ──────────────────────────────────────────────────────
   admin: "navigation.admin",
   "admin/dashboard": "navigation.dashboard",
+  "admin/system-audit": "navigation.systemAudit",
   "admin/users": "navigation.userManagement",
   "admin/users-management": "navigation.userManagement",
   "admin/roles": "navigation.roles",
@@ -326,7 +327,7 @@ export default function Breadcrumb() {
 
         return (
           <div
-            key={crumb.path}
+            key={`${crumb.path}-${index}`}
             className="flex items-center gap-2 flex-row-reverse"
           >
             {index > 0 && <ChevronLeft size={16} className="text-white/70" />}

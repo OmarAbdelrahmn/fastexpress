@@ -226,6 +226,7 @@ export const adminNavigationConfig = {
       { path: "/admin/users-management", label: "navigation.userManagement" },
       { path: "/admin/users-management/vacation-access", label: "navigation.vacationAccess" },
       { path: "/admin/system-health", label: "navigation.systemHealth" },
+      { path: "/admin/system-audit", label: "navigation.systemAudit", roles: ["Master"] },
     ],
   },
 

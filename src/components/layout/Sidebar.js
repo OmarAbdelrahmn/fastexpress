@@ -28,6 +28,7 @@ import {
   ReceiptText,
   RotateCcw,
   Banknote,
+  ClipboardList,
 } from 'lucide-react';
 import { accountantNavigationConfig, adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -57,6 +58,7 @@ const ICON_MAP = {
   bills: ReceiptText,
   returns: RotateCcw,
   cashDelivery: Banknote,
+  systemAudit: ClipboardList,
 };
 
 function NavIcon({ sectionKey, size = 18 }) {
@@ -174,7 +176,7 @@ export default function Sidebar() {
                     {/* Sub-routes */}
                     <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                       <div className="mr-4 mt-1 mb-1 border-r-2 border-slate-100 pr-3 space-y-0.5">
-                        {section.routes.map((route) => (
+                        {section.routes.filter((route) => !route.roles || route.roles.some((role) => currentRoles.includes(role))).map((route) => (
                           <Link
                             key={route.path}
                             href={route.path}

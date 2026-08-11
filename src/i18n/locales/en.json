@@ -453,6 +453,7 @@
     "settings": "Settings",
     "activityLog": "Activity Log",
     "systemHealth": "System Health",
+    "systemAudit": "System Audit",
     "addNewSupervisor": "Add New Supervisor",
     "addNewAdmin": "Add New Admin",
     "addNewManager": "Add New Manager",
