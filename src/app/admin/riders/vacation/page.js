@@ -1,17 +1,24 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarCheck2, Download, Eye, FileCheck2, Ticket, XCircle } from 'lucide-react';
+import { CalendarCheck2, Download, Eye, FileCheck2, RotateCcw, Ticket, XCircle } from 'lucide-react';
 import Modal from '@/components/Ui/Model';
 import PageHeader from '@/components/layout/pageheader';
 import Card from '@/components/Ui/Card';
 import { TokenManager } from '@/lib/auth/tokenManager';
-import { VacationService, displayAmendmentStatus, displayHrStatus, displayRider, displayStage, displayStatus, documentTypeLabel, itemId, listFromResponse, riderDetails } from '@/lib/api/vacationService';
+import { VACATION_DECISIONS, VACATION_ROLES, VacationService, displayAmendmentStatus, displayHrStatus, displayRider, displayStage, displayStatus, documentTypeLabel, itemId, listFromResponse, riderDetails } from '@/lib/api/vacationService';
 import { API_BASE_URL } from '@/lib/api/apiService';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
 const blankFilters = { status: '', stage: '', riderId: '', fromDate: '', toDate: '', page: 1, pageSize: 50 };
 const dateValue = (value) => value ? String(value).slice(0, 10) : '—';
+const vacationRoleValues = new Set(Object.values(VACATION_ROLES));
+
+const returnRolesFromRequest = (request) => {
+  const roles = request?.availableReturnRoles;
+  if (!Array.isArray(roles)) return [];
+  return [...new Set(roles.map(Number).filter((role) => vacationRoleValues.has(role)))];
+};
 
 function Status({ status, currentRole, stage }) {
   const { locale } = useLanguage();
@@ -34,6 +41,9 @@ export default function AdminVacationPage() {
   const [notice, setNotice] = useState(null);
   const [modal, setModal] = useState(null);
   const [reason, setReason] = useState('');
+  const [targetRole, setTargetRole] = useState('');
+  const [decisionError, setDecisionError] = useState('');
+  const [decisionDetailsLoading, setDecisionDetailsLoading] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadCompleted, setUploadCompleted] = useState(true);
   const [documentRequest, setDocumentRequest] = useState(null);
@@ -64,19 +74,69 @@ export default function AdminVacationPage() {
   useEffect(() => { load(); }, []);
   const stats = useMemo(() => ({ requests: requests.length, inbox: inbox.length, changes: changes.length, cancellations: cancellations.length, hr: hrInbox.length }), [requests, inbox, changes, cancellations, hrInbox]);
 
-  const decide = async (endpoint, id, decision) => {
+  const closeModal = () => {
+    if (saving) return;
+    setModal(null);
+    setReason('');
+    setTargetRole('');
+    setDecisionError('');
+  };
+
+  const decide = async (endpoint, id, decision, selectedTargetRole = null) => {
+    setDecisionError('');
+
+    if (decision === VACATION_DECISIONS.RETURNED && (!selectedTargetRole || !reason.trim())) {
+      setDecisionError('اختر المرحلة التي سيُعاد إليها الطلب واكتب سبب الإعادة للمراجعة.');
+      return;
+    }
+
     setSaving(true);
     try {
-      await endpoint(id, { decision, reason });
-      setModal(null); setReason('');
-      setNotice({ type: 'success', text: decision === 1 ? 'تم اعتماد القرار بنجاح.' : 'تم رفض الطلب بنجاح.' });
+      const payload = { decision, reason: reason.trim() };
+      if (decision === VACATION_DECISIONS.RETURNED) payload.targetRole = Number(selectedTargetRole);
+
+      const response = await endpoint(id, payload);
+      const responseRequest = response?.data || response;
+      const assignedRole = responseRequest?.currentRole ?? selectedTargetRole;
+
+      setModal(null); setReason(''); setTargetRole('');
+      setNotice({
+        type: 'success',
+        text: decision === VACATION_DECISIONS.APPROVED
+          ? 'تم اعتماد القرار بنجاح.'
+          : decision === VACATION_DECISIONS.REJECTED
+            ? 'تم رفض الطلب بنجاح.'
+            : `تمت إعادة الطلب للمراجعة لدى ${displayStage(assignedRole)}.`,
+      });
       await load();
-    } catch (error) { setNotice({ type: 'error', text: error.message || 'تعذر حفظ القرار.' }); }
+    } catch (error) {
+      const invalidReturnTarget = error.errorCode === 'Vacation.InvalidReturnTarget'
+        || error.fullError?.code === 'Vacation.InvalidReturnTarget'
+        || error.fullError?.errorCode === 'Vacation.InvalidReturnTarget';
+
+      if (invalidReturnTarget) {
+        setTargetRole('');
+        setDecisionError('لم تعد المرحلة المحددة متاحة للإعادة للمراجعة. تم تحديث المراحل المتاحة؛ اختر مرحلة أخرى وحاول مجدداً.');
+        try {
+          const details = await VacationService.request(id);
+          if (details) {
+            setModal((current) => current?.type === 'decision' && itemId(current.item) === id
+              ? { ...current, item: details.data || details }
+              : current);
+          }
+        } catch {
+          // Keep the backend validation message visible if refreshing the request also fails.
+        }
+      } else setDecisionError(error.detail || error.message || 'تعذر حفظ القرار.');
+    }
     finally { setSaving(false); }
   };
 
   const openDecision = async (item) => {
     setReason('');
+    setTargetRole('');
+    setDecisionError('');
+    setDecisionDetailsLoading(true);
     setModal({ type: 'decision', item });
 
     try {
@@ -87,7 +147,7 @@ export default function AdminVacationPage() {
         : current);
     } catch {
       // The inbox item remains usable even if detailed approval notes cannot be refreshed.
-    }
+    } finally { setDecisionDetailsLoading(false); }
   };
 
   const cancelRequest = async () => {
@@ -212,22 +272,108 @@ export default function AdminVacationPage() {
 
       {activeTab === 'hr' && <Card className="p-0"><div className="border-b border-slate-100 px-5 py-4"><h2 className="font-bold text-slate-900">صندوق الموارد البشرية</h2><p className="mt-1 text-xs text-slate-500">بعد اعتماد العمليات والمحاسب والإدارة، تُرفع التذكرة ثم تأشيرة الخروج والعودة هنا.</p></div>{hrRestricted ? <Empty text="لا تملك صلاحية الموارد البشرية لعرض هذه المعاملات." /> : loading ? <Loading /> : hrInbox.length === 0 ? <Empty text="لا توجد معاملات بانتظار الموارد البشرية." /> : <div className="grid gap-4 p-4 lg:grid-cols-2">{hrInbox.map((request, index) => <HrRequestCard key={itemId(request) || index} item={request} onTicket={() => openHrUpload(request, 'ticket')} onVisa={() => openHrUpload(request, 'visa')} />)}</div>}</Card>}
     </div>
-    <Modal isOpen={Boolean(modal)} onClose={() => setModal(null)} title={modal?.type === 'documents' ? 'مستندات الإجازة' : modal?.type === 'ticket' ? 'رفع أو استبدال تذكرة السفر' : modal?.type === 'visa' ? 'رفع أو استبدال تأشيرة الخروج والعودة' : modal?.type === 'cancel' ? 'إلغاء الإجازة مباشرة' : modal?.type === 'decision' ? 'اتخاذ قرار على طلب الإجازة' : modal?.type === 'date-change' ? 'قرار تعديل التواريخ' : 'قرار طلب الإلغاء'}>
-      {modal?.type === 'documents' ? <DocumentViewer request={documentRequest} loading={documentsLoading} onAccess={accessDocument} /> : ['ticket', 'visa'].includes(modal?.type) ? <div className="space-y-4"><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{modal && displayRider(modal.item)}</p><MemberNotes item={modal?.item} /><label className="block text-sm font-semibold text-slate-700">المستند<input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} className="mt-1.5 block w-full rounded-lg border border-slate-300 p-2 text-sm" /></label><p className="text-xs text-slate-500">PDF أو JPG أو JPEG أو PNG أو WEBP، وبحد أقصى 20 MB. رفع ملف جديد ينشئ إصداراً جديداً ويحفظ السابق في السجل.</p><label className="flex items-center gap-2 text-sm font-semibold text-slate-700"><input type="checkbox" checked={uploadCompleted} onChange={(event) => setUploadCompleted(event.target.checked)} className="h-4 w-4 accent-blue-600" />{modal?.type === 'ticket' ? 'تم حجز التذكرة' : 'تم إصدار تأشيرة الخروج والعودة'}</label><div className="flex justify-end gap-3"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">إلغاء</button><button disabled={saving || !uploadFile} onClick={uploadHrDocument} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? 'جارٍ الرفع...' : 'رفع المستند'}</button></div></div> : <div className="space-y-4"><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{modal && displayRider(modal.item)}</p><MemberNotes item={modal?.item} /><label className="block text-sm font-semibold text-slate-700">سبب القرار<textarea value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="اكتب السبب (اختياري)" /></label><div className="flex justify-end gap-3"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">إلغاء</button>{modal?.type === 'cancel' ? <button disabled={saving} onClick={cancelRequest} className="rounded-lg bg-rose-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? 'جارٍ الحفظ...' : 'تأكيد الإلغاء'}</button> : <><button disabled={saving} onClick={() => decide(modal.type === 'decision' ? VacationService.decide : modal.type === 'date-change' ? VacationService.decideDateChange : VacationService.decideCancellation, itemId(modal.item), 2)} className="rounded-lg border border-rose-200 px-4 py-2 font-semibold text-rose-700 hover:bg-rose-50">رفض</button><button disabled={saving} onClick={() => decide(modal.type === 'decision' ? VacationService.decide : modal.type === 'date-change' ? VacationService.decideDateChange : VacationService.decideCancellation, itemId(modal.item), 1)} className="rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white disabled:opacity-60">اعتماد</button></>}</div></div>}
+    <Modal isOpen={Boolean(modal)} onClose={closeModal} title={modal?.type === 'documents' ? 'مستندات الإجازة' : modal?.type === 'ticket' ? 'رفع أو استبدال تذكرة السفر' : modal?.type === 'visa' ? 'رفع أو استبدال تأشيرة الخروج والعودة' : modal?.type === 'cancel' ? 'إلغاء الإجازة مباشرة' : modal?.type === 'decision' ? 'اتخاذ قرار على طلب الإجازة' : modal?.type === 'date-change' ? 'قرار تعديل التواريخ' : 'قرار طلب الإلغاء'}>
+      {modal?.type === 'documents'
+        ? <DocumentViewer request={documentRequest} loading={documentsLoading} onAccess={accessDocument} />
+        : ['ticket', 'visa'].includes(modal?.type)
+          ? <div className="space-y-4"><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{modal && displayRider(modal.item)}</p><MemberNotes item={modal?.item} /><label className="block text-sm font-semibold text-slate-700">المستند<input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} className="mt-1.5 block w-full rounded-lg border border-slate-300 p-2 text-sm" /></label><p className="text-xs text-slate-500">PDF أو JPG أو JPEG أو PNG أو WEBP، وبحد أقصى 20 MB. رفع ملف جديد ينشئ إصداراً جديداً ويحفظ السابق في السجل.</p><label className="flex items-center gap-2 text-sm font-semibold text-slate-700"><input type="checkbox" checked={uploadCompleted} onChange={(event) => setUploadCompleted(event.target.checked)} className="h-4 w-4 accent-blue-600" />{modal?.type === 'ticket' ? 'تم حجز التذكرة' : 'تم إصدار تأشيرة الخروج والعودة'}</label><div className="flex justify-end gap-3"><button onClick={closeModal} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">إلغاء</button><button disabled={saving || !uploadFile} onClick={uploadHrDocument} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? 'جارٍ الرفع...' : 'رفع المستند'}</button></div></div>
+          : <DecisionForm
+            modal={modal}
+            reason={reason}
+            onReasonChange={(value) => { setReason(value); setDecisionError(''); }}
+            targetRole={targetRole}
+            onTargetRoleChange={(value) => { setTargetRole(value); setDecisionError(''); }}
+            decisionError={decisionError}
+            detailsLoading={decisionDetailsLoading}
+            saving={saving}
+            onClose={closeModal}
+            onCancel={cancelRequest}
+            onDecide={decide}
+          />}
     </Modal>
   </section>;
+}
+
+function DecisionForm({ modal, reason, onReasonChange, targetRole, onTargetRoleChange, decisionError, detailsLoading, saving, onClose, onCancel, onDecide }) {
+  if (!modal) return null;
+
+  const isVacationDecision = modal.type === 'decision';
+  const availableReturnRoles = isVacationDecision ? returnRolesFromRequest(modal.item) : [];
+  const endpoint = isVacationDecision
+    ? VacationService.decide
+    : modal.type === 'date-change'
+      ? VacationService.decideDateChange
+      : VacationService.decideCancellation;
+  const requestId = itemId(modal.item);
+
+  return <div className="space-y-4" aria-busy={saving}>
+    <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{displayRider(modal.item)}</p>
+    <MemberNotes item={modal.item} />
+    <label className="block text-sm font-semibold text-slate-700">
+      سبب القرار
+      <textarea
+        value={reason}
+        onChange={(event) => onReasonChange(event.target.value)}
+        className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        placeholder={availableReturnRoles.length > 0 ? 'اختياري للاعتماد أو الرفض، ومطلوب عند الإعادة للمراجعة' : 'اكتب السبب (اختياري)'}
+      />
+    </label>
+
+    {isVacationDecision && detailsLoading && <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600" role="status"><span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />جارٍ التحقق من مراحل الإعادة للمراجعة المتاحة...</div>}
+
+    {isVacationDecision && !detailsLoading && availableReturnRoles.length > 0 && <fieldset className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+      <legend className="px-1 text-sm font-bold text-amber-900">إعادة للمراجعة</legend>
+      <p id="return-help" className="text-xs leading-5 text-amber-800">اختر مرحلة سابقة من المراحل التي أتاحها النظام. سيعود الطلب إليها للمراجعة من جديد، وتُستبدل قرارات المراحل اللاحقة عند استكمال المراجعة.</p>
+      <label className="block text-sm font-semibold text-slate-700">
+        المرحلة المستهدفة
+        <select
+          value={targetRole}
+          onChange={(event) => onTargetRoleChange(event.target.value)}
+          aria-describedby="return-help"
+          className="mt-1.5 w-full rounded-lg border border-amber-300 bg-white p-2.5 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        >
+          <option value="">اختر المرحلة</option>
+          {availableReturnRoles.map((role) => <option key={role} value={role}>{displayStage(role)}</option>)}
+        </select>
+      </label>
+      <button
+        type="button"
+        disabled={saving || !targetRole || !reason.trim()}
+        onClick={() => onDecide(VacationService.decide, requestId, VACATION_DECISIONS.RETURNED, targetRole)}
+        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+      >
+        <RotateCcw size={17} />
+        {saving ? 'جارٍ حفظ القرار...' : 'إعادة للمراجعة'}
+      </button>
+    </fieldset>}
+
+    {decisionError && <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm font-medium text-rose-800" role="alert">{decisionError}</p>}
+
+    <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+      <button type="button" disabled={saving} onClick={onClose} className="min-h-11 rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-50">إلغاء</button>
+      {modal.type === 'cancel'
+        ? <button type="button" disabled={saving} onClick={onCancel} className="min-h-11 rounded-lg bg-rose-600 px-4 py-2 font-semibold text-white hover:bg-rose-700 disabled:opacity-60">{saving ? 'جارٍ الحفظ...' : 'تأكيد الإلغاء'}</button>
+        : <>
+          <button type="button" disabled={saving} onClick={() => onDecide(endpoint, requestId, VACATION_DECISIONS.REJECTED)} className="min-h-11 rounded-lg border border-rose-200 px-4 py-2 font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50">رفض</button>
+          <button type="button" disabled={saving} onClick={() => onDecide(endpoint, requestId, VACATION_DECISIONS.APPROVED)} className="min-h-11 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">اعتماد</button>
+        </>}
+    </div>
+  </div>;
 }
 
 function MemberNotesOnly({ item, compact = false }) { if (!item?.memberNotes) return <span className="text-xs text-slate-400">—</span>; return <p className={compact ? 'whitespace-pre-wrap break-words text-xs text-slate-600' : 'whitespace-pre-wrap break-words text-sm text-slate-700'}>{item.memberNotes}</p>; }
 function MemberNotes({ item, compact = false }) { const hasMemberNotes = Boolean(item?.memberNotes); const hasApprovalReasons = approvalReasons(item).length > 0; if (!hasMemberNotes && !hasApprovalReasons) return compact ? <span className="text-xs text-slate-400">—</span> : null; return <div className={compact ? 'space-y-1 text-xs text-slate-600' : 'space-y-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700'}>{hasMemberNotes && <><p className={compact ? 'whitespace-pre-wrap break-words' : 'text-xs font-semibold text-slate-500'}>{compact ? item.memberNotes : 'ملاحظة المشرف'}</p>{!compact && <p className="whitespace-pre-wrap break-words">{item.memberNotes}</p>}</>}<ApprovalReasons item={item} compact={compact} /></div>; }
 function approvalReasons(item) {
   const results = [];
-  const add = (stage, reason) => {
+  const add = (stage, reason, metadata = {}) => {
     const text = typeof reason === 'string' ? reason.trim() : '';
     if (!text) return;
     const normalized = String(stage || '').toLowerCase();
     const key = normalized.includes('keeta') || normalized === '5' ? 'keetaManager' : normalized.includes('account') || normalized === '2' ? 'accountant' : normalized.includes('oper') || normalized === '1' ? 'operation' : normalized.includes('admin') || normalized === '3' ? 'administration' : null;
-    if (key && !results.some((entry) => entry.key === key && entry.reason === text)) results.push({ key, reason: text });
+    if (!key) return;
+    const existing = results.find((entry) => entry.key === key && entry.reason === text);
+    if (existing) Object.assign(existing, Object.fromEntries(Object.entries(metadata).filter(([, value]) => value !== undefined && value !== null)));
+    else results.push({ key, reason: text, ...metadata });
   };
 
   add('operation', item?.operationReason ?? item?.operationsReason ?? item?.operationDecisionReason ?? item?.operationApprovalReason ?? item?.operation?.reason ?? item?.operations?.reason);
@@ -235,10 +381,14 @@ function approvalReasons(item) {
   add('administration', item?.administrationReason ?? item?.administrationDecisionReason ?? item?.administrationApprovalReason ?? item?.administration?.reason);
 
   const history = [item?.approvalHistory, item?.decisionHistory, item?.approvals, item?.decisions, item?.workflow?.approvals, item?.workflow?.decisions].find(Array.isArray) || [];
-  history.forEach((entry) => add(entry?.stage ?? entry?.approvalStage ?? entry?.role ?? entry?.reviewerRole ?? entry?.level, entry?.reason ?? entry?.decisionReason ?? entry?.note ?? entry?.comment));
+  history.forEach((entry) => add(
+    entry?.stage ?? entry?.approvalStage ?? entry?.role ?? entry?.reviewerRole ?? entry?.level,
+    entry?.reason ?? entry?.decisionReason ?? entry?.note ?? entry?.comment,
+    { decision: entry?.decision, targetRole: entry?.targetRole, isSuperseded: entry?.isSuperseded },
+  ));
   return results;
 }
-function ApprovalReasons({ item, compact = false }) { const reasons = approvalReasons(item); const labels = { operation: 'سبب العمليات', keetaManager: 'سبب مدير كيتا', accountant: 'سبب المحاسب', administration: 'سبب الإدارة' }; if (reasons.length === 0) return null; return <div className={compact ? 'space-y-1 text-xs text-slate-600' : 'space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-slate-700'}>{!compact && <p className="text-xs font-semibold text-blue-800">ملاحظات الموافقات السابقة</p>}{reasons.map(({ key, reason }) => <p key={`${key}-${reason}`} className="whitespace-pre-wrap break-words"><span className="font-semibold text-slate-800">{labels[key]}:</span> {reason}</p>)}</div>; }
+function ApprovalReasons({ item, compact = false }) { const reasons = approvalReasons(item); const labels = { operation: 'سبب العمليات', keetaManager: 'سبب مدير كيتا', accountant: 'سبب المحاسب', administration: 'سبب الإدارة' }; if (reasons.length === 0) return null; return <div className={compact ? 'space-y-1 text-xs text-slate-600' : 'space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-slate-700'}>{!compact && <p className="text-xs font-semibold text-blue-800">ملاحظات الموافقات السابقة</p>}{reasons.map(({ key, reason, decision, targetRole: returnedToRole, isSuperseded }) => { const context = [Number(decision) === VACATION_DECISIONS.RETURNED && returnedToRole ? `إعادة للمراجعة لدى ${displayStage(returnedToRole)}` : null, isSuperseded ? 'قرار سابق مستبدل' : null].filter(Boolean).join('، '); return <p key={`${key}-${reason}`} className="whitespace-pre-wrap break-words"><span className="font-semibold text-slate-800">{labels[key]}{context ? ` (${context})` : ''}:</span> {reason}</p>; })}</div>; }
 function RiderDetails({ item }) { const { iqamaNo, passportNo, passportEnd, iqamaEndM, housingName } = riderDetails(item); return <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-500"><div><dt className="inline">رقم الإقامة: </dt><dd dir="ltr" className="inline font-bold text-slate-900">{iqamaNo ?? '—'}</dd></div><div><dt className="inline">السكن: </dt><dd className="inline font-bold text-slate-900">{housingName || '—'}</dd></div><div><dt className="inline">رقم الجواز: </dt><dd dir="ltr" className="inline font-bold text-slate-900">{passportNo || '—'}</dd></div><div><dt className="inline">انتهاء الجواز: </dt><dd dir="ltr" className="inline font-bold text-slate-900">{dateValue(passportEnd)}</dd></div><div><dt className="inline">انتهاء الإقامة: </dt><dd dir="ltr" className="inline font-bold text-slate-900">{dateValue(iqamaEndM)}</dd></div></dl>; }
 function RequestCard({ item, actions }) { return <article className="rounded-xl border border-slate-200 p-4"><div className="flex items-start justify-between gap-2"><div><h3 className="font-bold text-slate-900">{displayRider(item)}</h3><RiderDetails item={item} /><p className="mt-1 text-xs text-slate-500">{dateValue(item.startDate)} — {dateValue(item.endDate)}</p></div><Status status={item.status} currentRole={item.currentRole} /></div><div className="mt-3"><MemberNotes item={item} /></div><div className="mt-4 flex flex-wrap gap-2">{actions}</div></article>; }
 function VacationStat({ label, value, tone }) { const tones = { blue: 'border-blue-200 text-blue-700', amber: 'border-amber-200 text-amber-700', violet: 'border-violet-200 text-violet-700', rose: 'border-rose-200 text-rose-700', emerald: 'border-emerald-200 text-emerald-700' }; return <div className={`rounded-lg border-r-4 bg-white p-4 shadow-sm ${tones[tone]}`}><p className="text-xs font-medium text-slate-500">{label}</p><p className="mt-1 text-2xl font-bold text-slate-900">{value}</p></div>; }

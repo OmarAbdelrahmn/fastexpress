@@ -3,6 +3,19 @@
 import { ApiService } from './apiService';
 import { API_ENDPOINTS } from './endpoints';
 
+export const VACATION_DECISIONS = Object.freeze({
+  APPROVED: 1,
+  REJECTED: 2,
+  RETURNED: 3,
+});
+
+export const VACATION_ROLES = Object.freeze({
+  OPERATIONS: 1,
+  ACCOUNTANT: 2,
+  ADMINISTRATION: 3,
+  KEETA_MANAGER: 5,
+});
+
 export const VacationService = {
   memberRequests: () => ApiService.get(API_ENDPOINTS.MEMBER.VACATION.REQUESTS),
   memberVacationRiders: (fromDate, toDate) => ApiService.get(API_ENDPOINTS.MEMBER.VACATION.RIDERS, { fromDate, toDate }),
