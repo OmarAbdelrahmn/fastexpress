@@ -100,10 +100,10 @@ export class ApiService {
     }
   }
 
-  static get(endpoint, params = {}) {
+  static get(endpoint, params = {}, options = {}) {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-    return this.request(url, { method: 'GET' });
+    return this.request(url, { method: 'GET', ...options });
   }
 
   static post(endpoint, data, params = {}) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import * as XLSX from "xlsx";
@@ -38,11 +38,15 @@ export default function MonthlyRiderPerformancePage() {
   const [companyFilter, setCompanyFilter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const requestIdRef = useRef(0);
 
-  const selectedMonths = useMemo(() => {
-    if (fromMonth < 1 || toMonth > 12 || fromMonth > toMonth) return [];
-    return Array.from({ length: toMonth - fromMonth + 1 }, (_, index) => fromMonth + index);
-  }, [fromMonth, toMonth]);
+  // The visible table always follows the API response, not unsent filter edits.
+  const appliedMonths = useMemo(() => {
+    const appliedFrom = Number(report?.fromMonth);
+    const appliedTo = Number(report?.toMonth);
+    if (!Number.isInteger(appliedFrom) || !Number.isInteger(appliedTo) || appliedFrom < 1 || appliedTo > 12 || appliedFrom > appliedTo) return [];
+    return Array.from({ length: appliedTo - appliedFrom + 1 }, (_, index) => appliedFrom + index);
+  }, [report]);
 
   const filteredRiders = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -87,6 +91,7 @@ export default function MonthlyRiderPerformancePage() {
       return;
     }
 
+    const requestId = ++requestIdRef.current;
     setLoading(true);
     setError("");
     try {
@@ -94,13 +99,15 @@ export default function MonthlyRiderPerformancePage() {
         year: parsedYear,
         fromMonth: parsedFrom,
         toMonth: parsedTo,
-      });
+      }, { cache: "no-store" });
+      if (requestId !== requestIdRef.current) return;
       setReport(response);
       router.replace(`/admin/reports/monthly-rider-performance?year=${parsedYear}&fromMonth=${parsedFrom}&toMonth=${parsedTo}`, { scroll: false });
     } catch (requestError) {
+      if (requestId !== requestIdRef.current) return;
       setError(requestError.message || "تعذر تحميل تقرير الأداء الشهري.");
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   };
 
@@ -123,7 +130,7 @@ export default function MonthlyRiderPerformancePage() {
         "رقم الإقامة": rider.iqamaNo || "-",
         "الشركة": rider.companyName || "-",
       };
-      selectedMonths.forEach((monthNumber) => {
+      appliedMonths.forEach((monthNumber) => {
         const month = monthFor(rider, monthNumber);
         const label = `${MONTH_NAMES[monthNumber - 1]} ${report?.year || year}`;
         row[`${label} - الطلبات المقبولة`] = Number(month?.totalAcceptedOrders || 0);
@@ -210,7 +217,7 @@ export default function MonthlyRiderPerformancePage() {
                 </button>
                 {filteredRiders.length > 0 && (
                   <PDFDownloadLink
-                    document={<MonthlyRiderPerformancePDF report={report} riders={filteredRiders} months={selectedMonths} />}
+                    document={<MonthlyRiderPerformancePDF report={report} riders={filteredRiders} months={appliedMonths} />}
                     fileName={`riders_monthly_performance_${report.year}_${report.fromMonth}-${report.toMonth}.pdf`}
                     className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-red-700 px-4 font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
                   >
@@ -226,10 +233,10 @@ export default function MonthlyRiderPerformancePage() {
                   <tr>
                     <th rowSpan="2" className="sticky right-0 z-10 min-w-56 border-b border-l border-gray-200 bg-gray-50 px-4 py-3">المندوب</th>
                     <th rowSpan="2" className="min-w-28 border-b border-l border-gray-200 px-3 py-3">الشركة</th>
-                    {selectedMonths.map((monthNumber) => <th key={monthNumber} colSpan="3" className="border-b border-l border-gray-200 px-3 py-3 text-center">{MONTH_NAMES[monthNumber - 1]}</th>)}
+                    {appliedMonths.map((monthNumber) => <th key={monthNumber} colSpan="3" className="border-b border-l border-gray-200 px-3 py-3 text-center">{MONTH_NAMES[monthNumber - 1]}</th>)}
                   </tr>
                   <tr>
-                    {selectedMonths.flatMap((monthNumber) => [
+                    {appliedMonths.flatMap((monthNumber) => [
                       <th key={`${monthNumber}-accepted`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">مقبولة</th>,
                       <th key={`${monthNumber}-rejected`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">رفض حقيقي</th>,
                       <th key={`${monthNumber}-hours`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">ساعات العمل</th>,
@@ -244,7 +251,7 @@ export default function MonthlyRiderPerformancePage() {
                       <div className="mt-1 flex flex-wrap gap-1 text-xs text-gray-500"><span>#{rider.workingId || "-"}</span><span>•</span><span>{rider.iqamaNo || "-"}</span></div>
                     </td>
                     <td className="border-l border-gray-100 px-3 py-3 align-top text-gray-700">{rider.companyName || "-"}</td>
-                    {selectedMonths.flatMap((monthNumber) => {
+                    {appliedMonths.flatMap((monthNumber) => {
                       const month = monthFor(rider, monthNumber);
                       return [
                         <td key={`${monthNumber}-accepted`} className="border-l border-gray-100 px-3 py-3 text-center font-medium text-green-700">{number(month?.totalAcceptedOrders)}</td>,
@@ -253,7 +260,7 @@ export default function MonthlyRiderPerformancePage() {
                       ];
                     })}
                   </tr>)}
-                  {!filteredRiders.length && <tr><td colSpan={2 + selectedMonths.length * 3} className="px-4 py-14 text-center text-gray-500">لا توجد بيانات مطابقة للفلاتر المحددة.</td></tr>}
+                  {!filteredRiders.length && <tr><td colSpan={2 + appliedMonths.length * 3} className="px-4 py-14 text-center text-gray-500">لا توجد بيانات مطابقة للفلاتر المحددة.</td></tr>}
                 </tbody>
               </table>
             </div>
