@@ -128,7 +128,7 @@ export default function MonthlyRiderPerformancePage() {
         const label = `${MONTH_NAMES[monthNumber - 1]} ${report?.year || year}`;
         row[`${label} - الطلبات المقبولة`] = Number(month?.totalAcceptedOrders || 0);
         row[`${label} - الرفض الحقيقي`] = Number(month?.totalRealRejectedOrders || 0);
-        row[`${label} - هدف الساعات`] = Number(month?.workingHoursTarget || 0);
+        row[`${label} - ساعات العمل`] = Number(month?.totalWorkingHours || 0);
       });
       return row;
     });
@@ -232,7 +232,7 @@ export default function MonthlyRiderPerformancePage() {
                     {selectedMonths.flatMap((monthNumber) => [
                       <th key={`${monthNumber}-accepted`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">مقبولة</th>,
                       <th key={`${monthNumber}-rejected`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">رفض حقيقي</th>,
-                      <th key={`${monthNumber}-target`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">هدف الساعات</th>,
+                      <th key={`${monthNumber}-hours`} className="min-w-24 border-b border-l border-gray-200 px-3 py-2 text-center">ساعات العمل</th>,
                     ])}
                   </tr>
                 </thead>
@@ -249,7 +249,7 @@ export default function MonthlyRiderPerformancePage() {
                       return [
                         <td key={`${monthNumber}-accepted`} className="border-l border-gray-100 px-3 py-3 text-center font-medium text-green-700">{number(month?.totalAcceptedOrders)}</td>,
                         <td key={`${monthNumber}-rejected`} className="border-l border-gray-100 px-3 py-3 text-center font-medium text-red-700">{number(month?.totalRealRejectedOrders)}</td>,
-                        <td key={`${monthNumber}-target`} className="border-l border-gray-100 px-3 py-3 text-center text-gray-700">{number(month?.workingHoursTarget)}</td>,
+                        <td key={`${monthNumber}-hours`} className="border-l border-gray-100 px-3 py-3 text-center text-gray-700">{number(month?.totalWorkingHours)}</td>,
                       ];
                     })}
                   </tr>)}

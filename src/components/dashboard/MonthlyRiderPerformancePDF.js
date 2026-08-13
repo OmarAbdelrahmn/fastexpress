@@ -158,7 +158,7 @@ export default function MonthlyRiderPerformancePDF({ report, riders, months }) {
                   return <View key={monthNumber} style={styles.monthCell}>
                     <Text style={[styles.metric, styles.accepted]}>م: {formatNumber(month?.totalAcceptedOrders)}</Text>
                     <Text style={[styles.metric, styles.rejected]}>ر: {formatNumber(month?.totalRealRejectedOrders)}</Text>
-                    <Text style={[styles.metric, styles.target]}>س: {formatNumber(month?.workingHoursTarget)}</Text>
+                    <Text style={[styles.metric, styles.target]}>س: {formatNumber(month?.totalWorkingHours)}</Text>
                   </View>;
                 })}
                 {Array.from({ length: MONTHS_PER_PAGE - monthGroup.length }, (_, index) => <View key={`empty-cell-${index}`} style={styles.monthCell}><Text style={styles.metric}>-</Text></View>)}
@@ -166,7 +166,7 @@ export default function MonthlyRiderPerformancePDF({ report, riders, months }) {
             ))}
 
             <View style={styles.footer} fixed>
-              <Text style={styles.footerText}>م: مقبولة | ر: رفض حقيقي | س: هدف الساعات</Text>
+              <Text style={styles.footerText}>م: مقبولة | ر: رفض حقيقي | س: ساعات العمل</Text>
               <Text style={styles.footerText}>تم الإنشاء: {generatedAt} | صفحة {currentPage} من {totalPages}</Text>
             </View>
           </Page>
