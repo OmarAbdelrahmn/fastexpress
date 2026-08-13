@@ -143,6 +143,11 @@ export default function ReportsPage() {
           desc: t('reports.riderPerformanceDesc'),
         },
         {
+          name: 'الأداء الشهري للمناديب',
+          path: "/admin/reports/monthly-rider-performance",
+          desc: 'مقارنة الطلبات المقبولة والرفض الحقيقي وهدف ساعات العمل لكل شهر.',
+        },
+        {
           name: t('reports.belowMonthlyTarget.title'),
           path: "/admin/reports/below-monthly-target",
           desc: t('reports.belowMonthlyTarget.desc'),
@@ -321,6 +326,23 @@ export default function ReportsPage() {
                 </div>
                 <p className="text-xs md:text-sm text-gray-600">
                   {t('reports.riderPerformanceDesc')}
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/reports/monthly-rider-performance"
+                className="group block p-4 md:p-6 border-2 border-indigo-200 rounded-xl hover:border-indigo-500 hover:shadow-xl transition-all duration-200 bg-gradient-to-br from-white to-indigo-50"
+              >
+                <div className="flex items-center gap-3 mb-2 md:mb-3">
+                  <div className="p-2 md:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Calendar className="text-indigo-600 w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold text-gray-800 group-hover:text-indigo-600">
+                    الأداء الشهري للمناديب
+                  </h3>
+                </div>
+                <p className="text-xs md:text-sm text-gray-600">
+                  عرض الطلبات والرفض الحقيقي وهدف ساعات العمل لكل مندوب خلال نطاق شهري.
                 </p>
               </Link>
 
