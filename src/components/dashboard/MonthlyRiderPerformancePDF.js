@@ -19,7 +19,7 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 const MONTHS_PER_PAGE = 6;
-const RIDERS_PER_PAGE = 10;
+const RIDERS_PER_PAGE = 7;
 
 const styles = StyleSheet.create({
   page: {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   headerText: { color: "#ffffff", fontSize: 7, fontWeight: "bold", textAlign: "center" },
   row: {
     flexDirection: "row-reverse",
-    minHeight: 43,
+    minHeight: 70,
     borderBottomWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -150,6 +150,9 @@ export default function MonthlyRiderPerformancePDF({ report, riders, months }) {
                 <View style={styles.riderCell}>
                   <Text style={styles.riderName}>{rider.riderNameAR || rider.riderNameEN || "-"}</Text>
                   {!!rider.riderNameEN && <Text style={styles.riderEnglish}>{rider.riderNameEN}</Text>}
+                  <Text style={[styles.riderMeta, { color: "#1d4ed8", fontWeight: "bold" }]}>الترتيب #{rider.rank} | الأداء: {Number(rider.performanceScore || 0).toFixed(2)} / 100</Text>
+                  <Text style={styles.riderMeta}>النقاط: ط {Number(rider.scoreBreakdown?.acceptedScore || 0).toFixed(1)}/50 | ر {Number(rider.scoreBreakdown?.rejectionScore || 0).toFixed(1)}/25 | س {Number(rider.scoreBreakdown?.hoursScore || 0).toFixed(1)}/25</Text>
+                  <Text style={styles.riderMeta}>إجمالي الفترة: م {formatNumber(rider.periodTotals?.acceptedOrders)} | ر {formatNumber(rider.periodTotals?.realRejectedOrders)} | س {formatNumber(rider.periodTotals?.workingHours)}</Text>
                   <Text style={styles.riderMeta}>{rider.companyName || "-"} | #{rider.workingId || "-"}</Text>
                   <Text style={styles.riderMeta}>Iqama: {rider.iqamaNo || "-"}</Text>
                 </View>
@@ -166,7 +169,7 @@ export default function MonthlyRiderPerformancePDF({ report, riders, months }) {
             ))}
 
             <View style={styles.footer} fixed>
-              <Text style={styles.footerText}>م: مقبولة | ر: رفض حقيقي | س: ساعات العمل</Text>
+              <Text style={styles.footerText}>الأداء: مقبولة 50% | رفض حقيقي (الأقل أفضل) 25% | ساعات العمل 25%</Text>
               <Text style={styles.footerText}>تم الإنشاء: {generatedAt} | صفحة {currentPage} من {totalPages}</Text>
             </View>
           </Page>

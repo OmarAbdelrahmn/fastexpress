@@ -48,9 +48,42 @@ export default function MonthlyRiderPerformancePage() {
     return Array.from({ length: appliedTo - appliedFrom + 1 }, (_, index) => appliedFrom + index);
   }, [report]);
 
+  const rankedRiders = useMemo(() => {
+    const riders = report?.riders || [];
+    const withTotals = riders.map((rider) => {
+      const periodTotals = (rider.months || []).reduce((totals, month) => ({
+        acceptedOrders: totals.acceptedOrders + Number(month.totalAcceptedOrders || 0),
+        realRejectedOrders: totals.realRejectedOrders + Number(month.totalRealRejectedOrders || 0),
+        workingHours: totals.workingHours + Number(month.totalWorkingHours || 0),
+      }), { acceptedOrders: 0, realRejectedOrders: 0, workingHours: 0 });
+      return { ...rider, periodTotals };
+    });
+
+    const maxAcceptedOrders = Math.max(...withTotals.map((rider) => rider.periodTotals.acceptedOrders), 0);
+    const maxRejectedOrders = Math.max(...withTotals.map((rider) => rider.periodTotals.realRejectedOrders), 0);
+    const maxWorkingHours = Math.max(...withTotals.map((rider) => rider.periodTotals.workingHours), 0);
+
+    return withTotals.map((rider) => {
+      const acceptedScore = maxAcceptedOrders ? (rider.periodTotals.acceptedOrders / maxAcceptedOrders) * 50 : 0;
+      // Fewer real rejections receive a higher score; when everyone has zero, everyone receives the full 25 points.
+      const rejectionScore = maxRejectedOrders ? ((maxRejectedOrders - rider.periodTotals.realRejectedOrders) / maxRejectedOrders) * 25 : 25;
+      const hoursScore = maxWorkingHours ? (rider.periodTotals.workingHours / maxWorkingHours) * 25 : 0;
+      return {
+        ...rider,
+        performanceScore: acceptedScore + rejectionScore + hoursScore,
+        scoreBreakdown: { acceptedScore, rejectionScore, hoursScore },
+      };
+    }).sort((a, b) =>
+      b.performanceScore - a.performanceScore
+      || b.periodTotals.acceptedOrders - a.periodTotals.acceptedOrders
+      || a.periodTotals.realRejectedOrders - b.periodTotals.realRejectedOrders
+      || b.periodTotals.workingHours - a.periodTotals.workingHours,
+    ).map((rider, index) => ({ ...rider, rank: index + 1 }));
+  }, [report]);
+
   const filteredRiders = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return (report?.riders || []).filter((rider) => {
+    return rankedRiders.filter((rider) => {
       const matchesCompany = !companyFilter || String(rider.companyId) === companyFilter;
       const matchesSearch = !query || [
         rider.riderNameAR,
@@ -60,15 +93,15 @@ export default function MonthlyRiderPerformancePage() {
       ].some((value) => String(value || "").toLowerCase().includes(query));
       return matchesCompany && matchesSearch;
     });
-  }, [report, searchTerm, companyFilter]);
+  }, [rankedRiders, searchTerm, companyFilter]);
 
   const companies = useMemo(() => {
     const seen = new Map();
-    (report?.riders || []).forEach((rider) => {
+    rankedRiders.forEach((rider) => {
       if (rider.companyId != null) seen.set(String(rider.companyId), rider.companyName || `شركة ${rider.companyId}`);
     });
     return [...seen.entries()];
-  }, [report]);
+  }, [rankedRiders]);
 
   const totals = useMemo(() => filteredRiders.reduce((summary, rider) => {
     (rider.months || []).forEach((month) => {
@@ -124,11 +157,18 @@ export default function MonthlyRiderPerformancePage() {
     if (!filteredRiders.length) return;
     const rows = filteredRiders.map((rider) => {
       const row = {
+        "نقاط الأداء (100)": Number(rider.performanceScore.toFixed(2)),
+        "نقاط الطلبات (50)": Number(rider.scoreBreakdown.acceptedScore.toFixed(2)),
+        "نقاط الرفض (25)": Number(rider.scoreBreakdown.rejectionScore.toFixed(2)),
+        "نقاط الساعات (25)": Number(rider.scoreBreakdown.hoursScore.toFixed(2)),
         "الاسم العربي": rider.riderNameAR || "-",
         "الاسم الإنجليزي": rider.riderNameEN || "-",
         "رقم العمل": rider.workingId || "-",
         "رقم الإقامة": rider.iqamaNo || "-",
         "الشركة": rider.companyName || "-",
+        "إجمالي الطلبات المقبولة": rider.periodTotals.acceptedOrders,
+        "إجمالي الرفض الحقيقي": rider.periodTotals.realRejectedOrders,
+        "إجمالي ساعات العمل": Number(rider.periodTotals.workingHours.toFixed(2)),
       };
       appliedMonths.forEach((monthNumber) => {
         const month = monthFor(rider, monthNumber);
@@ -150,7 +190,7 @@ export default function MonthlyRiderPerformancePage() {
     <main className="min-h-screen bg-gray-50" dir="rtl">
       <PageHeader
         title="الأداء الشهري للمناديب"
-        subtitle="مقارنة الطلبات المقبولة والرفض الحقيقي مع هدف ساعات العمل الشهري"
+        subtitle="ترتيب أداء المناديب حسب الطلبات المقبولة والرفض الحقيقي وساعات العمل"
         icon={CalendarDays}
       />
 
@@ -196,8 +236,9 @@ export default function MonthlyRiderPerformancePage() {
           <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-col gap-3 border-b border-gray-200 p-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h2 className="font-bold text-gray-900">تفاصيل المناديب</h2>
+                <h2 className="font-bold text-gray-900">تفاصيل المناديب حسب الأداء</h2>
                 <p className="mt-1 text-sm text-gray-500">الفترة: {MONTH_NAMES[Number(report.fromMonth) - 1]} إلى {MONTH_NAMES[Number(report.toMonth) - 1]} {report.year}</p>
+                <p className="mt-1 text-xs text-gray-500">نقاط الأداء: الطلبات المقبولة 50%، الرفض الحقيقي 25% (الأقل أفضل)، ساعات العمل 25%.</p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <label className="relative block">
@@ -231,8 +272,10 @@ export default function MonthlyRiderPerformancePage() {
               <table className="min-w-full text-right text-sm">
                 <thead className="bg-gray-50 text-xs font-semibold text-gray-700">
                   <tr>
+                    <th rowSpan="2" className="min-w-20 border-b border-l border-gray-200 px-3 py-3 text-center">الترتيب</th>
                     <th rowSpan="2" className="sticky right-0 z-10 min-w-56 border-b border-l border-gray-200 bg-gray-50 px-4 py-3">المندوب</th>
                     <th rowSpan="2" className="min-w-28 border-b border-l border-gray-200 px-3 py-3">الشركة</th>
+                    <th rowSpan="2" className="min-w-24 border-b border-l border-gray-200 px-3 py-3 text-center">نقاط الأداء</th>
                     {appliedMonths.map((monthNumber) => <th key={monthNumber} colSpan="3" className="border-b border-l border-gray-200 px-3 py-3 text-center">{MONTH_NAMES[monthNumber - 1]}</th>)}
                   </tr>
                   <tr>
@@ -245,12 +288,14 @@ export default function MonthlyRiderPerformancePage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredRiders.map((rider, index) => <tr key={`${rider.riderId ?? "no-id"}-${rider.companyId ?? "no-company"}-${rider.workingId ?? "no-working-id"}-${rider.iqamaNo ?? "no-iqama"}-${index}`} className="hover:bg-blue-50/50">
+                    <td className="border-l border-gray-100 px-3 py-3 text-center align-top font-bold text-blue-700">#{rider.rank}</td>
                     <td className="sticky right-0 z-[1] border-l border-gray-100 bg-white px-4 py-3 align-top group-hover:bg-blue-50/50">
                       <p className="font-semibold text-gray-900">{rider.riderNameAR || rider.riderNameEN || "-"}</p>
                       {rider.riderNameEN && <p dir="ltr" className="mt-0.5 text-xs text-gray-500">{rider.riderNameEN}</p>}
                       <div className="mt-1 flex flex-wrap gap-1 text-xs text-gray-500"><span>#{rider.workingId || "-"}</span><span>•</span><span>{rider.iqamaNo || "-"}</span></div>
                     </td>
                     <td className="border-l border-gray-100 px-3 py-3 align-top text-gray-700">{rider.companyName || "-"}</td>
+                    <td className="border-l border-gray-100 px-3 py-3 text-center align-top"><span className="font-bold text-indigo-700">{rider.performanceScore.toFixed(2)}</span><span className="block text-[11px] text-gray-500">/ 100</span></td>
                     {appliedMonths.flatMap((monthNumber) => {
                       const month = monthFor(rider, monthNumber);
                       return [
@@ -260,7 +305,7 @@ export default function MonthlyRiderPerformancePage() {
                       ];
                     })}
                   </tr>)}
-                  {!filteredRiders.length && <tr><td colSpan={2 + appliedMonths.length * 3} className="px-4 py-14 text-center text-gray-500">لا توجد بيانات مطابقة للفلاتر المحددة.</td></tr>}
+                  {!filteredRiders.length && <tr><td colSpan={4 + appliedMonths.length * 3} className="px-4 py-14 text-center text-gray-500">لا توجد بيانات مطابقة للفلاتر المحددة.</td></tr>}
                 </tbody>
               </table>
             </div>
