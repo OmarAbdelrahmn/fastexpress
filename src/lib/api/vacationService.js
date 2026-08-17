@@ -18,8 +18,18 @@ export const VACATION_ROLES = Object.freeze({
 
 export const VacationService = {
   memberRequests: () => ApiService.get(API_ENDPOINTS.MEMBER.VACATION.REQUESTS),
+  memberEmployees: () => ApiService.get(API_ENDPOINTS.MEMBER.EMPLOYEES),
   memberVacationRiders: (fromDate, toDate) => ApiService.get(API_ENDPOINTS.MEMBER.VACATION.RIDERS, { fromDate, toDate }),
-  createMemberRequest: (payload) => ApiService.post(API_ENDPOINTS.MEMBER.VACATION.REQUESTS, payload),
+  createMemberRequest: ({ riderId, employeeIqamaNo, ...payload }) => {
+    const hasRider = riderId !== undefined && riderId !== null && riderId !== '';
+    const hasEmployee = employeeIqamaNo !== undefined && employeeIqamaNo !== null && employeeIqamaNo !== '';
+    if (hasRider === hasEmployee) throw new Error('اختر مندوباً أو موظفاً واحداً فقط لطلب الإجازة.');
+
+    return ApiService.post(API_ENDPOINTS.MEMBER.VACATION.REQUESTS, {
+      ...payload,
+      ...(hasRider ? { riderId: Number(riderId) } : { employeeIqamaNo: Number(employeeIqamaNo) }),
+    });
+  },
   requestDateChange: (id, payload) => ApiService.post(API_ENDPOINTS.MEMBER.VACATION.REQUEST_DATE_CHANGE(id), payload),
   requestCancellation: (id, payload) => ApiService.post(API_ENDPOINTS.MEMBER.VACATION.REQUEST_CANCELLATION(id), payload),
 
@@ -50,10 +60,20 @@ export const listFromResponse = (response) =>
 
 export const itemId = (item) => item?.id ?? item?.requestId ?? item?.vacationRequestId;
 export const displayRider = (item) => item?.riderName || item?.rider?.nameAR || item?.rider?.name || item?.riderNameAR || item?.riderId || '—';
+export const displayVacationSubject = (item) => {
+  const hasRider = item?.riderId !== undefined && item?.riderId !== null
+    || item?.riderName || item?.riderNameAR || item?.rider;
+  if (hasRider) return displayRider(item);
+
+  const employee = item?.employee || {};
+  const name = item?.employeeName || item?.employeeNameAR || employee.nameAR || employee.nameAr || employee.name || employee.fullName;
+  const iqamaNo = item?.employeeIqamaNo ?? employee.employeeIqamaNo ?? employee.iqamaNo;
+  return name ? `${name}${iqamaNo ? ` — ${iqamaNo}` : ''}` : iqamaNo || '—';
+};
 export const riderDetails = (item) => {
   const rider = item?.rider || item || {};
   return {
-    iqamaNo: rider.iqamaNo ?? item?.iqamaNo,
+    iqamaNo: rider.iqamaNo ?? item?.iqamaNo ?? item?.employeeIqamaNo,
     passportNo: rider.passportNo ?? item?.passportNo,
     passportEnd: rider.passportEnd ?? item?.passportEnd,
     iqamaEndM: rider.iqamaEndM ?? item?.iqamaEndM,

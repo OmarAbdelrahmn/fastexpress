@@ -5,7 +5,7 @@ import { CalendarDays, Download, Edit3, Eye, Plus, RefreshCw, XCircle } from 'lu
 import Modal from '@/components/Ui/Model';
 import Card from '@/components/Ui/Card';
 import SearchableSelect from '@/components/Ui/SearchableSelect';
-import { VacationService, displayHrStatus, displayRider, displayStage, displayStatus, documentTypeLabel, itemId, listFromResponse } from '@/lib/api/vacationService';
+import { VacationService, displayHrStatus, displayRider, displayStage, displayStatus, displayVacationSubject, documentTypeLabel, itemId, listFromResponse } from '@/lib/api/vacationService';
 import { ApiService, API_BASE_URL } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { TokenManager } from '@/lib/auth/tokenManager';
@@ -27,24 +27,27 @@ function Status({ status, currentRole, stage }) {
 export default function MemberVacationPage() {
   const [requests, setRequests] = useState([]);
   const [riders, setRiders] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [vacationRiders, setVacationRiders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(null);
   const [modal, setModal] = useState(null);
   const [range, setRange] = useState({ fromDate: today(), toDate: today() });
-  const [form, setForm] = useState({ riderId: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
+  const [form, setForm] = useState({ subjectType: 'rider', riderId: '', employeeIqamaNo: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
 
   const load = async () => {
     setLoading(true);
     try {
-      const [requestData, riderData, activeData] = await Promise.all([
+      const [requestData, riderData, employeeData, activeData] = await Promise.all([
         VacationService.memberRequests(),
         ApiService.get(API_ENDPOINTS.MEMBER.RIDERS),
+        VacationService.memberEmployees(),
         VacationService.memberVacationRiders(range.fromDate, range.toDate),
       ]);
       setRequests(listFromResponse(requestData));
       setRiders(listFromResponse(riderData));
+      setEmployees(listFromResponse(employeeData));
       setVacationRiders(listFromResponse(activeData));
     } catch (error) {
       setNotice({ type: 'error', text: error.message || 'تعذر تحميل بيانات الإجازات.' });
@@ -73,12 +76,13 @@ export default function MemberVacationPage() {
 
   const submit = async (event) => {
     event.preventDefault();
-    if (!form.riderId || !form.startDate || !form.endDate) return;
+    const subjectId = form.subjectType === 'rider' ? form.riderId : form.employeeIqamaNo;
+    if (!subjectId || !form.startDate || !form.endDate) return;
     setSaving(true);
     try {
       if (modal?.type === 'new') {
         await VacationService.createMemberRequest({
-          riderId: Number(form.riderId),
+          ...(form.subjectType === 'rider' ? { riderId: form.riderId } : { employeeIqamaNo: form.employeeIqamaNo }),
           startDate: form.startDate,
           endDate: form.endDate,
           memberNotes: form.memberNotes.trim() || undefined,
@@ -99,15 +103,15 @@ export default function MemberVacationPage() {
   };
 
   const openNew = () => {
-    setForm({ riderId: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
+    setForm({ subjectType: 'rider', riderId: '', employeeIqamaNo: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
     setModal({ type: 'new' });
   };
   const openChange = (request) => {
-    setForm({ riderId: request.riderId || '', startDate: dateValue(request.startDate), endDate: dateValue(request.endDate), reason: '', memberNotes: '' });
+    setForm({ subjectType: request.riderId ? 'rider' : 'employee', riderId: request.riderId || '', employeeIqamaNo: request.employeeIqamaNo || '', startDate: dateValue(request.startDate), endDate: dateValue(request.endDate), reason: '', memberNotes: '' });
     setModal({ type: 'change', request });
   };
   const openCancellation = (request) => {
-    setForm({ riderId: request.riderId || '', startDate: '', endDate: '', reason: '', memberNotes: '' });
+    setForm({ subjectType: request.riderId ? 'rider' : 'employee', riderId: request.riderId || '', employeeIqamaNo: request.employeeIqamaNo || '', startDate: '', endDate: '', reason: '', memberNotes: '' });
     setModal({ type: 'cancellation', request });
   };
 
@@ -138,7 +142,7 @@ export default function MemberVacationPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">طلبات الإجازات</h1>
-          <p className="text-gray-500">أرسل طلبات الإجازة وتابع الموافقات للمناديب في سكنك.</p>
+          <p className="text-gray-500">أرسل طلبات الإجازة وتابع الموافقات للمناديب والموظفين في سكنك.</p>
         </div>
         <button onClick={openNew} className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"><Plus size={18} /> طلب إجازة</button>
       </div>
@@ -148,7 +152,7 @@ export default function MemberVacationPage() {
       <div className="grid gap-6 xl:grid-cols-[1.65fr_1fr]">
         <Card className="overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 className="font-bold text-slate-900">سجل الطلبات</h2><p className="mt-0.5 text-xs text-slate-500">يمكن تعديل التواريخ أو طلب الإلغاء قبل اكتمال الإجراء.</p></div><button onClick={load} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="تحديث الطلبات"><RefreshCw size={18} /></button></div>
-          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">ملاحظتك</th><th className="px-5 py-3 font-semibold">حالة الإجازة</th><th className="px-5 py-3 font-semibold">متابعة الموارد البشرية</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayRider(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="max-w-xs px-5 py-4 text-slate-600"><p className="whitespace-pre-wrap break-words text-xs">{request.memberNotes || '—'}</p></td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><p className="text-xs font-semibold text-blue-700">{request.hr ? displayHrStatus(request.hr.status) : 'بانتظار اكتمال الموافقات'}</p>{request.hr?.documents?.length > 0 && <p className="mt-1 text-xs text-slate-500">{request.hr.documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ') || 'مستندات سابقة متاحة'}</p>}</td><td className="px-5 py-4"><div className="flex flex-wrap gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button>{request.hr?.documents?.map((document) => <DocumentActions key={document.id} document={document} onAccess={accessDocument} />)}</div></td></tr>)}</tbody></table></div>}
+          {loading ? <Loading /> : requests.length === 0 ? <Empty text="لا توجد طلبات إجازة حتى الآن." /> : <div className="overflow-x-auto"><table className="min-w-full text-right text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-5 py-3 font-semibold">الموظف أو المندوب</th><th className="px-5 py-3 font-semibold">الفترة</th><th className="px-5 py-3 font-semibold">ملاحظتك</th><th className="px-5 py-3 font-semibold">حالة الإجازة</th><th className="px-5 py-3 font-semibold">متابعة الموارد البشرية</th><th className="px-5 py-3 font-semibold">إجراء</th></tr></thead><tbody className="divide-y divide-slate-100">{requests.map((request, index) => <tr key={itemId(request) || index}><td className="px-5 py-4 font-medium text-slate-800">{displayVacationSubject(request)}</td><td className="px-5 py-4 whitespace-nowrap text-slate-600">{dateValue(request.startDate)} <span className="text-slate-400">—</span> {dateValue(request.endDate)}</td><td className="max-w-xs px-5 py-4 text-slate-600"><p className="whitespace-pre-wrap break-words text-xs">{request.memberNotes || '—'}</p></td><td className="px-5 py-4"><Status status={request.status} stage={request.stage} /></td><td className="px-5 py-4"><p className="text-xs font-semibold text-blue-700">{request.hr ? displayHrStatus(request.hr.status) : 'بانتظار اكتمال الموافقات'}</p>{request.hr?.documents?.length > 0 && <p className="mt-1 text-xs text-slate-500">{request.hr.documents.filter((document) => !document.isSuperseded).map((document) => documentTypeLabel(document.type)).join('، ') || 'مستندات سابقة متاحة'}</p>}</td><td className="px-5 py-4"><div className="flex flex-wrap gap-2"><button onClick={() => openChange(request)} className="rounded-lg p-2 text-blue-700 hover:bg-blue-50" title="تعديل التواريخ" aria-label="تعديل التواريخ"><Edit3 size={16} /></button><button onClick={() => openCancellation(request)} className="rounded-lg px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50">إلغاء</button>{request.hr?.documents?.map((document) => <DocumentActions key={document.id} document={document} onAccess={accessDocument} />)}</div></td></tr>)}</tbody></table></div>}
         </Card>
 
         <Card className="p-0">
@@ -161,18 +165,7 @@ export default function MemberVacationPage() {
 
       <Modal isOpen={Boolean(modal)} onClose={() => setModal(null)} title={modal?.type === 'new' ? 'طلب إجازة جديد' : modal?.type === 'change' ? 'طلب تعديل تواريخ' : 'طلب إلغاء الإجازة'}>
         <form className="space-y-4" onSubmit={submit}>
-          {modal?.type === 'new' && <SearchableSelect
-            label="المندوب"
-            name="riderId"
-            required
-            value={form.riderId}
-            onChange={(event) => setForm((old) => ({ ...old, riderId: event.target.value }))}
-            placeholder="ابحث باسم المندوب العربي أو الإنجليزي"
-            options={riders.map((rider) => ({
-              id: rider.riderId || rider.id,
-              name: [rider.nameAR || rider.nameAr || rider.name, rider.nameEN || rider.nameEn].filter(Boolean).join(' — ') || displayRider(rider),
-            }))}
-          />}
+          {modal?.type === 'new' && <><fieldset className="grid grid-cols-2 gap-2" aria-label="نوع مقدم طلب الإجازة"><legend className="mb-2 text-sm font-semibold text-slate-700">نوع مقدم طلب الإجازة</legend><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'rider' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="rider" checked={form.subjectType === 'rider'} onChange={() => setForm((old) => ({ ...old, subjectType: 'rider', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />مندوب</label><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'employee' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="employee" checked={form.subjectType === 'employee'} onChange={() => setForm((old) => ({ ...old, subjectType: 'employee', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />موظف</label></fieldset>{form.subjectType === 'rider' ? <SearchableSelect label="المندوب" name="riderId" required value={form.riderId} onChange={(event) => setForm((old) => ({ ...old, riderId: event.target.value }))} placeholder="ابحث باسم المندوب العربي أو الإنجليزي" options={riders.map((rider) => ({ id: rider.riderId || rider.id, name: [rider.nameAR || rider.nameAr || rider.name, rider.nameEN || rider.nameEn].filter(Boolean).join(' — ') || String(rider.riderId || rider.id) }))} /> : <SearchableSelect label="الموظف" name="employeeIqamaNo" required value={form.employeeIqamaNo} onChange={(event) => setForm((old) => ({ ...old, employeeIqamaNo: event.target.value }))} placeholder="ابحث باسم الموظف أو رقم الإقامة" options={employees.map((employee) => { const iqamaNo = employee.employeeIqamaNo || employee.iqamaNo || employee.iqama; const name = employee.nameAR || employee.nameAr || employee.name || employee.fullName || employee.nameEN || employee.nameEn; return { id: iqamaNo, name: [name, iqamaNo].filter(Boolean).join(' — ') || String(iqamaNo || '') }; }).filter((employee) => employee.id)} />}</>}
           {modal?.type !== 'cancellation' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><DateInput label="تاريخ البداية" value={form.startDate} onChange={(value) => setForm((old) => ({ ...old, startDate: value }))} /><DateInput label="تاريخ النهاية" min={form.startDate} value={form.endDate} onChange={(value) => setForm((old) => ({ ...old, endDate: value }))} /></div>}
           {modal?.type === 'new' && <label className="block text-sm font-semibold text-slate-700">ملاحظة للموافِقين <span className="font-normal text-slate-500">(اختيارية)</span><textarea maxLength={1000} value={form.memberNotes} onChange={(e) => setForm((old) => ({ ...old, memberNotes: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="أضف أي تفاصيل يحتاجها المشرف أو الموافِقون" /><span className="mt-1 block text-left text-xs font-normal text-slate-500">{form.memberNotes.length}/1000</span></label>}
           {modal?.type !== 'new' && <label className="block text-sm font-semibold text-slate-700">السبب<textarea required value={form.reason} onChange={(e) => setForm((old) => ({ ...old, reason: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="اكتب السبب" /></label>}
