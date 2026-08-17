@@ -8,7 +8,8 @@ export default function Modal({
   onClose,
   title,
   children,
-  size = 'md'
+  size = 'md',
+  dir = 'rtl',
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -32,7 +33,7 @@ export default function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" dir="rtl">
+    <div className="fixed inset-0 z-50 overflow-y-auto" dir={dir}>
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-white/40 backdrop-blur-md transition-opacity"

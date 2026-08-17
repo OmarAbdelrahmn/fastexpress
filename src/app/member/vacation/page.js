@@ -13,6 +13,29 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const dateValue = (value) => value ? String(value).slice(0, 10) : '—';
+const bilingualName = (person) => {
+  const arabic = person?.nameAR ?? person?.nameAr ?? person?.arabicName ?? person?.fullNameAR ?? person?.fullNameAr;
+  const english = person?.nameEN ?? person?.nameEn ?? person?.englishName ?? person?.fullNameEN ?? person?.fullNameEn;
+  const fallback = person?.name ?? person?.fullName;
+  return [...new Set([arabic, english, fallback].filter(Boolean))].join(' — ');
+};
+
+const popupCopy = {
+  ar: {
+    newRequest: 'طلب إجازة جديد', changeRequest: 'طلب تعديل تواريخ', cancellationRequest: 'طلب إلغاء الإجازة',
+    subjectType: 'نوع مقدم طلب الإجازة', rider: 'مندوب', employee: 'موظف',
+    riderLabel: 'المندوب', employeeLabel: 'الموظف', riderPlaceholder: 'ابحث باسم المندوب العربي أو الإنجليزي', employeePlaceholder: 'ابحث باسم الموظف أو رقم الإقامة',
+    startDate: 'تاريخ البداية', endDate: 'تاريخ النهاية', approverNotes: 'ملاحظة للموافِقين', optional: '(اختيارية)', notesPlaceholder: 'أضف أي تفاصيل يحتاجها المشرف أو الموافِقون',
+    reason: 'السبب', reasonPlaceholder: 'اكتب السبب', cancel: 'إلغاء', submit: 'إرسال الطلب', submitting: 'جارٍ الإرسال...',
+  },
+  en: {
+    newRequest: 'New vacation request', changeRequest: 'Date change request', cancellationRequest: 'Vacation cancellation request',
+    subjectType: 'Request subject', rider: 'Rider', employee: 'Employee',
+    riderLabel: 'Rider', employeeLabel: 'Employee', riderPlaceholder: 'Search by rider Arabic or English name', employeePlaceholder: 'Search by employee name or Iqama number',
+    startDate: 'Start date', endDate: 'End date', approverNotes: 'Note for reviewers', optional: '(optional)', notesPlaceholder: 'Add any details the reviewer needs',
+    reason: 'Reason', reasonPlaceholder: 'Enter the reason', cancel: 'Cancel', submit: 'Submit request', submitting: 'Submitting...',
+  },
+};
 
 function Status({ status, currentRole, stage }) {
   const { locale } = useLanguage();
@@ -25,6 +48,8 @@ function Status({ status, currentRole, stage }) {
 }
 
 export default function MemberVacationPage() {
+  const { locale } = useLanguage();
+  const copy = popupCopy[locale === 'en' ? 'en' : 'ar'];
   const [requests, setRequests] = useState([]);
   const [riders, setRiders] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -35,6 +60,14 @@ export default function MemberVacationPage() {
   const [modal, setModal] = useState(null);
   const [range, setRange] = useState({ fromDate: today(), toDate: today() });
   const [form, setForm] = useState({ subjectType: 'rider', riderId: '', employeeIqamaNo: '', startDate: today(), endDate: today(), reason: '', memberNotes: '' });
+  const riderOptions = useMemo(() => riders.map((rider) => ({
+    id: rider.riderId || rider.id,
+    name: bilingualName(rider) || String(rider.riderId || rider.id),
+  })), [riders]);
+  const employeeOptions = useMemo(() => employees.map((employee) => {
+    const iqamaNo = employee.employeeIqamaNo || employee.iqamaNo || employee.iqama;
+    return { id: iqamaNo, name: [bilingualName(employee), iqamaNo].filter(Boolean).join(' — ') || String(iqamaNo || '') };
+  }).filter((employee) => employee.id), [employees]);
 
   const load = async () => {
     setLoading(true);
@@ -163,13 +196,13 @@ export default function MemberVacationPage() {
         </Card>
       </div>
 
-      <Modal isOpen={Boolean(modal)} onClose={() => setModal(null)} title={modal?.type === 'new' ? 'طلب إجازة جديد' : modal?.type === 'change' ? 'طلب تعديل تواريخ' : 'طلب إلغاء الإجازة'}>
+      <Modal isOpen={Boolean(modal)} onClose={() => setModal(null)} dir={locale === 'en' ? 'ltr' : 'rtl'} title={modal?.type === 'new' ? copy.newRequest : modal?.type === 'change' ? copy.changeRequest : copy.cancellationRequest}>
         <form className="space-y-4" onSubmit={submit}>
-          {modal?.type === 'new' && <><fieldset className="grid grid-cols-2 gap-2" aria-label="نوع مقدم طلب الإجازة"><legend className="mb-2 text-sm font-semibold text-slate-700">نوع مقدم طلب الإجازة</legend><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'rider' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="rider" checked={form.subjectType === 'rider'} onChange={() => setForm((old) => ({ ...old, subjectType: 'rider', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />مندوب</label><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'employee' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="employee" checked={form.subjectType === 'employee'} onChange={() => setForm((old) => ({ ...old, subjectType: 'employee', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />موظف</label></fieldset>{form.subjectType === 'rider' ? <SearchableSelect label="المندوب" name="riderId" required value={form.riderId} onChange={(event) => setForm((old) => ({ ...old, riderId: event.target.value }))} placeholder="ابحث باسم المندوب العربي أو الإنجليزي" options={riders.map((rider) => ({ id: rider.riderId || rider.id, name: [rider.nameAR || rider.nameAr || rider.name, rider.nameEN || rider.nameEn].filter(Boolean).join(' — ') || String(rider.riderId || rider.id) }))} /> : <SearchableSelect label="الموظف" name="employeeIqamaNo" required value={form.employeeIqamaNo} onChange={(event) => setForm((old) => ({ ...old, employeeIqamaNo: event.target.value }))} placeholder="ابحث باسم الموظف أو رقم الإقامة" options={employees.map((employee) => { const iqamaNo = employee.employeeIqamaNo || employee.iqamaNo || employee.iqama; const name = employee.nameAR || employee.nameAr || employee.name || employee.fullName || employee.nameEN || employee.nameEn; return { id: iqamaNo, name: [name, iqamaNo].filter(Boolean).join(' — ') || String(iqamaNo || '') }; }).filter((employee) => employee.id)} />}</>}
-          {modal?.type !== 'cancellation' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><DateInput label="تاريخ البداية" value={form.startDate} onChange={(value) => setForm((old) => ({ ...old, startDate: value }))} /><DateInput label="تاريخ النهاية" min={form.startDate} value={form.endDate} onChange={(value) => setForm((old) => ({ ...old, endDate: value }))} /></div>}
-          {modal?.type === 'new' && <label className="block text-sm font-semibold text-slate-700">ملاحظة للموافِقين <span className="font-normal text-slate-500">(اختيارية)</span><textarea maxLength={1000} value={form.memberNotes} onChange={(e) => setForm((old) => ({ ...old, memberNotes: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="أضف أي تفاصيل يحتاجها المشرف أو الموافِقون" /><span className="mt-1 block text-left text-xs font-normal text-slate-500">{form.memberNotes.length}/1000</span></label>}
-          {modal?.type !== 'new' && <label className="block text-sm font-semibold text-slate-700">السبب<textarea required value={form.reason} onChange={(e) => setForm((old) => ({ ...old, reason: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder="اكتب السبب" /></label>}
-          <div className="flex justify-end gap-3"><button type="button" onClick={() => setModal(null)} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">إلغاء</button><button type="submit" disabled={saving} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? 'جارٍ الإرسال...' : 'إرسال الطلب'}</button></div>
+          {modal?.type === 'new' && <><fieldset className="grid grid-cols-2 gap-2" aria-label={copy.subjectType}><legend className="mb-2 text-sm font-semibold text-slate-700">{copy.subjectType}</legend><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'rider' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="rider" checked={form.subjectType === 'rider'} onChange={() => setForm((old) => ({ ...old, subjectType: 'rider', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />{copy.rider}</label><label className={`flex min-h-11 cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm font-semibold ${form.subjectType === 'employee' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'}`}><input type="radio" name="subjectType" value="employee" checked={form.subjectType === 'employee'} onChange={() => setForm((old) => ({ ...old, subjectType: 'employee', riderId: '', employeeIqamaNo: '' }))} className="sr-only" />{copy.employee}</label></fieldset>{form.subjectType === 'rider' ? <SearchableSelect label={copy.riderLabel} name="riderId" required value={form.riderId} onChange={(event) => setForm((old) => ({ ...old, riderId: event.target.value }))} placeholder={copy.riderPlaceholder} options={riderOptions} /> : <SearchableSelect label={copy.employeeLabel} name="employeeIqamaNo" required value={form.employeeIqamaNo} onChange={(event) => setForm((old) => ({ ...old, employeeIqamaNo: event.target.value }))} placeholder={copy.employeePlaceholder} options={employeeOptions} />}</>}
+          {modal?.type !== 'cancellation' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><DateInput label={copy.startDate} value={form.startDate} onChange={(value) => setForm((old) => ({ ...old, startDate: value }))} /><DateInput label={copy.endDate} min={form.startDate} value={form.endDate} onChange={(value) => setForm((old) => ({ ...old, endDate: value }))} /></div>}
+          {modal?.type === 'new' && <label className="block text-sm font-semibold text-slate-700">{copy.approverNotes} <span className="font-normal text-slate-500">{copy.optional}</span><textarea maxLength={1000} value={form.memberNotes} onChange={(e) => setForm((old) => ({ ...old, memberNotes: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder={copy.notesPlaceholder} /><span className="mt-1 block text-left text-xs font-normal text-slate-500">{form.memberNotes.length}/1000</span></label>}
+          {modal?.type !== 'new' && <label className="block text-sm font-semibold text-slate-700">{copy.reason}<textarea required value={form.reason} onChange={(e) => setForm((old) => ({ ...old, reason: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-300 p-3" placeholder={copy.reasonPlaceholder} /></label>}
+          <div className="flex justify-end gap-3"><button type="button" onClick={() => setModal(null)} className="rounded-lg px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100">{copy.cancel}</button><button type="submit" disabled={saving} className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-60">{saving ? copy.submitting : copy.submit}</button></div>
         </form>
       </Modal>
     </div>
