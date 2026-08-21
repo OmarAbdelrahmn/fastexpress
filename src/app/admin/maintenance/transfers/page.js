@@ -88,7 +88,7 @@ export default function TransfersPage() {
             setDeleteItem(null);
         } catch (error) {
             console.error('Error deleting:', error);
-            showAlert('error', 'حدث خطأ أثناء الحذف');
+            showAlert('error', error.detail || 'حدث خطأ أثناء الحذف');
         }
     };
 
