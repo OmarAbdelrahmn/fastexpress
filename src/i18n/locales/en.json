@@ -1080,6 +1080,8 @@
       "passportNumber": "Passport Number",
       "passportExpiry": "Passport Expiry Date",
       "sponsorship": "Sponsorship",
+      "sponsor": "Sponsor",
+      "sponsorNo": "Sponsor Number",
       "employerNumber": "Employer Number",
       "urgency": "Urgency",
       "iqamaEndM": "Iqama End Date (Miladi)",

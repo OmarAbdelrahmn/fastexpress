@@ -1131,6 +1131,8 @@
       "passportNumber": "رقم الجواز",
       "passportExpiry": "تاريخ انتهاء الجواز",
       "sponsorship": "كفالة",
+      "sponsor": "الكفيل",
+      "sponsorNo": "رقم الكفيل",
       "employerNumber": "رقم صاحب العمل",
       "profession": "المهنة",
       "country": "الدولة",

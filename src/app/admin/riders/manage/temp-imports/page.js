@@ -200,6 +200,11 @@ export default function TempImportsPage() {
                       <p className="text-sm text-gray-600">
                         {t('employees.iqamaNumber')}: {update.iqamaNo}
                       </p>
+                      {(update.sponsor || update.sponsorNo) && (
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          {t('employees.excelColumns.sponsor')}: {update.sponsor || ''} {update.sponsorNo ? `(${update.sponsorNo})` : ''}
+                        </p>
+                      )}
                       <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${update.isNewEmployee
                         ? 'bg-green-100 text-green-800'
                         : 'bg-blue-100 text-blue-800'

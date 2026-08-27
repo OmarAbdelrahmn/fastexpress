@@ -147,6 +147,8 @@ export default function ImportEmployeeExcelPage() {
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.passportNumber')}</th>
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.profession')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.sponsor')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.sponsorNo')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,6 +157,8 @@ export default function ImportEmployeeExcelPage() {
                         <td className="py-2">{emp.iqamaNo}</td>
                         <td className="py-2">{emp.passportNo || '-'}</td>
                         <td className="py-2">{emp.jobTitle || '-'}</td>
+                        <td className="py-2">{emp.sponsor || '-'}</td>
+                        <td className="py-2">{emp.sponsorNo || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -173,6 +177,8 @@ export default function ImportEmployeeExcelPage() {
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.iqamaNumber')}</th>
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.nameArabic')}</th>
                       <th className="pb-2 font-semibold">{t('employees.excelColumns.profession')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.sponsor')}</th>
+                      <th className="pb-2 font-semibold">{t('employees.excelColumns.sponsorNo')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -181,6 +187,8 @@ export default function ImportEmployeeExcelPage() {
                         <td className="py-2">{emp.iqamaNo}</td>
                         <td className="py-2">{emp.nameAR || emp.nameEN || emp.employeeNameAR || '-'}</td>
                         <td className="py-2">{emp.jobTitle || '-'}</td>
+                        <td className="py-2">{emp.sponsor || '-'}</td>
+                        <td className="py-2">{emp.sponsorNo || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -282,13 +290,15 @@ export default function ImportEmployeeExcelPage() {
           <p className="text-gray-600">{t('employees.excelMustContain')}</p>
 
           <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iqamaNumber')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.iqamaExpiryHijri')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.passportNumber')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.passportExpiry')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.employerNumber')}</div>
               <div className="bg-white p-2 rounded border">{t('employees.excelColumns.profession')}</div>
+              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.sponsor')}</div>
+              <div className="bg-white p-2 rounded border">{t('employees.excelColumns.sponsorNo')}</div>
             </div>
           </div>
 
