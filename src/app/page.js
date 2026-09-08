@@ -28,8 +28,6 @@ export default function ComprehensiveLandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  
-
   const navLinks = [
     { name: 'الرئيسية', href: '#home' },
     { name: 'من نحن', href: '#about' },
