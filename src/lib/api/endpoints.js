@@ -126,6 +126,16 @@ export const API_ENDPOINTS = {
     DELETE: (id) => `/api/outage-shift-performances/${id}`,
   },
 
+  RIDER_SCORE_PERFORMANCE: {
+    BASE: "/api/RiderScorePerformance",
+    LIST: "/api/RiderScorePerformance",
+    CREATE: "/api/RiderScorePerformance",
+    BY_ID: (id) => `/api/RiderScorePerformance/${id}`,
+    UPDATE: (id) => `/api/RiderScorePerformance/${id}`,
+    DELETE: (id) => `/api/RiderScorePerformance/${id}`,
+    IMPORT: "/api/RiderScorePerformance/import",
+  },
+
   OUT_RIDER_INFOS: {
     LIST: "/api/out-rider-infos",
     CREATE: "/api/out-rider-infos",
