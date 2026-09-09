@@ -79,7 +79,7 @@ export const API_ENDPOINTS = {
     CREATE: "/api/rider",
     BY_ID: (id) => `/api/rider/id/${id}`,
     BY_IQAMA: (iqamaNo) => `/api/rider/iqama/${iqamaNo}`,
-    UPDATE: (iqamaNo) => `/api/rider/${iqamaNo}`,
+    UPDATE: (iqamaNo) => `/api/Rider/${iqamaNo}`,
     DELETE: (iqamaNo) => `/api/rider/${iqamaNo}`,
     CHANGE_WORKING_ID: "/api/rider/change-working-id",
     ADD_EMPLOYEE: (iqamaNo) => `/api/rider/${iqamaNo}/add-employee`,
