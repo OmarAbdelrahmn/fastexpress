@@ -68,6 +68,11 @@ const translations = {
     endDate: 'End Date',
     segment: 'Segment',
     allSegments: 'All Segments',
+    lastDaySegmentTitle: 'Segment Breakdown (Latest Uploaded Day)',
+    lastDayDate: 'Date',
+    totalOnDate: 'Total on Date',
+    ridersCount: 'riders',
+    allSegmentsCard: 'All Segments',
     applyFilters: 'Filter',
     resetFilters: 'Reset',
     refresh: 'Refresh',
@@ -178,6 +183,11 @@ const translations = {
     endDate: 'إلى تاريخ',
     segment: 'الشريحة',
     allSegments: 'كل الشرائح',
+    lastDaySegmentTitle: 'توزيع الشرائح (لآخر يوم تم رفعه)',
+    lastDayDate: 'التاريخ',
+    totalOnDate: 'الإجمالي في هذا اليوم',
+    ridersCount: 'مندوب',
+    allSegmentsCard: 'كل الشرائح',
     applyFilters: 'تصفية',
     resetFilters: 'إعادة ضبط',
     refresh: 'تحديث',
@@ -412,9 +422,8 @@ export default function RiderDailyPerformancePage() {
       if (eDate) {
         params.endDate = eDate;
       }
-      const seg = overrideParams.segment !== undefined ? overrideParams.segment : filterSegment;
-      if (seg) {
-        params.segment = seg;
+      if (overrideParams.segment) {
+        params.segment = overrideParams.segment;
       }
       if (overrideParams.date) {
         params.date = overrideParams.date;
@@ -455,7 +464,7 @@ export default function RiderDailyPerformancePage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, filterStartDate, filterEndDate, filterSegment, t.loadError]);
+  }, [searchQuery, filterStartDate, filterEndDate, t.loadError]);
 
   useEffect(() => {
     loadRecords();
@@ -688,6 +697,69 @@ export default function RiderDailyPerformancePage() {
       avgVerificationRate: vCount > 0 ? vSum / vCount : null,
     };
   }, [backendTotals, allRecords, ridersMatrix.length]);
+
+  // Segment breakdown for the latest uploaded date in current data
+  const lastDaySegmentStats = useMemo(() => {
+    if (!allRecords || allRecords.length === 0) return null;
+
+    let maxDate = '';
+    for (let i = 0; i < allRecords.length; i++) {
+      const rec = allRecords[i];
+      if (rec.performanceDate) {
+        const d = String(rec.performanceDate).split('T')[0];
+        if (!maxDate || d > maxDate) {
+          maxDate = d;
+        }
+      }
+    }
+
+    if (!maxDate) return null;
+
+    const riderSegmentMap = new Map();
+    for (let i = 0; i < allRecords.length; i++) {
+      const rec = allRecords[i];
+      const d = rec.performanceDate ? String(rec.performanceDate).split('T')[0] : '';
+      if (d === maxDate) {
+        const riderKey = String(
+          rec.workingId || rec.sourceRiderId || rec.riderWorkingId || rec.riderId || rec.id
+        ).trim();
+        if (!riderSegmentMap.has(riderKey)) {
+          const seg = rec.segment ? String(rec.segment).toUpperCase().trim() : 'N/A';
+          riderSegmentMap.set(riderKey, seg);
+        }
+      }
+    }
+
+    const totalRidersOnDate = riderSegmentMap.size;
+    const counts = {};
+    riderSegmentMap.forEach((seg) => {
+      counts[seg] = (counts[seg] || 0) + 1;
+    });
+
+    const standardSegs = ['A', 'B', 'C', 'D'];
+    const otherSegs = Object.keys(counts)
+      .filter((s) => !standardSegs.includes(s) && s !== 'N/A')
+      .sort();
+    if (counts['N/A']) {
+      otherSegs.push('N/A');
+    }
+
+    const allSegKeys = [...standardSegs, ...otherSegs];
+
+    const segmentCards = allSegKeys
+      .map((seg) => ({
+        segment: seg,
+        count: counts[seg] || 0,
+        percentage: totalRidersOnDate > 0 ? Math.round(((counts[seg] || 0) / totalRidersOnDate) * 100) : 0,
+      }))
+      .filter((item) => standardSegs.includes(item.segment) || item.count > 0);
+
+    return {
+      date: maxDate,
+      totalRiders: totalRidersOnDate,
+      segments: segmentCards,
+    };
+  }, [allRecords]);
 
   // Filter reset
   const handleResetFilters = () => {
@@ -1339,6 +1411,183 @@ export default function RiderDailyPerformancePage() {
             </div>
           </div>
         </div>
+
+        {/* LATEST UPLOADED DAY SEGMENT BREAKDOWN CARDS */}
+        {lastDaySegmentStats && (
+          <div className="bg-white rounded-2xl shadow-xs p-3.5 border border-slate-200/90 transition">
+            {/* Header with live ping indicator */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-bold text-slate-800">
+                  {t.lastDaySegmentTitle}
+                </span>
+                <span className="text-[11px] font-mono font-medium text-slate-600 bg-slate-100/90 border border-slate-200 px-2 py-0.5 rounded-md inline-flex items-center gap-1">
+                  <span>{lastDaySegmentStats.date}</span>
+                  <span className="text-slate-400 font-sans">
+                    ({isRtl ? getArabicDayName(lastDaySegmentStats.date) : getEnglishDayName(lastDaySegmentStats.date)})
+                  </span>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {filterSegment && (
+                  <button
+                    onClick={() => setFilterSegment('')}
+                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-md transition flex items-center gap-1"
+                  >
+                    <span>{t.resetFilters}</span>
+                    <X size={11} />
+                  </button>
+                )}
+                <div className="text-[11px] text-slate-500 font-medium">
+                  {t.totalOnDate}:{' '}
+                  <span className="font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
+                    {lastDaySegmentStats.totalRiders} {t.ridersCount}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Distribution Mini-Bar */}
+            <div className="w-full h-1.5 rounded-full overflow-hidden flex bg-slate-100 mb-3 shadow-2xs">
+              {lastDaySegmentStats.segments.map((item) => {
+                const barColor =
+                  {
+                    A: 'bg-emerald-500',
+                    B: 'bg-blue-500',
+                    C: 'bg-amber-500',
+                    D: 'bg-purple-500',
+                    E: 'bg-rose-500',
+                    F: 'bg-indigo-500',
+                  }[item.segment] || 'bg-slate-400';
+
+                return (
+                  <div
+                    key={item.segment}
+                    style={{ width: `${Math.max(item.percentage, 1)}%` }}
+                    className={`${barColor} transition-all duration-300 ${
+                      filterSegment && filterSegment !== item.segment ? 'opacity-30' : 'opacity-100'
+                    }`}
+                    title={`${item.segment}: ${item.percentage}% (${item.count})`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Single Row Flex Grid */}
+            <div className="flex items-stretch gap-2 overflow-x-auto pb-1 scrollbar-thin">
+              {lastDaySegmentStats.segments.map((item) => {
+                const isSelected = filterSegment === item.segment;
+
+                const theme =
+                  {
+                    A: {
+                      dot: 'bg-emerald-500',
+                      badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                      activeRing: 'border-emerald-600 ring-2 ring-emerald-400/30 bg-emerald-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-emerald-950',
+                    },
+                    B: {
+                      dot: 'bg-blue-500',
+                      badge: 'bg-blue-50 text-blue-700 border-blue-200',
+                      activeRing: 'border-blue-600 ring-2 ring-blue-400/30 bg-blue-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-blue-950',
+                    },
+                    C: {
+                      dot: 'bg-amber-500',
+                      badge: 'bg-amber-50 text-amber-700 border-amber-200',
+                      activeRing: 'border-amber-600 ring-2 ring-amber-400/30 bg-amber-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-amber-950',
+                    },
+                    D: {
+                      dot: 'bg-purple-500',
+                      badge: 'bg-purple-50 text-purple-700 border-purple-200',
+                      activeRing: 'border-purple-600 ring-2 ring-purple-400/30 bg-purple-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-purple-950',
+                    },
+                    E: {
+                      dot: 'bg-rose-500',
+                      badge: 'bg-rose-50 text-rose-700 border-rose-200',
+                      activeRing: 'border-rose-600 ring-2 ring-rose-400/30 bg-rose-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-rose-950',
+                    },
+                    F: {
+                      dot: 'bg-indigo-500',
+                      badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                      activeRing: 'border-indigo-600 ring-2 ring-indigo-400/30 bg-indigo-950 text-white',
+                      countActive: 'text-white',
+                      countIdle: 'text-indigo-950',
+                    },
+                  }[item.segment] || {
+                    dot: 'bg-slate-500',
+                    badge: 'bg-slate-50 text-slate-700 border-slate-200',
+                    activeRing: 'border-slate-800 ring-2 ring-slate-400/30 bg-slate-900 text-white',
+                    countActive: 'text-white',
+                    countIdle: 'text-slate-900',
+                  };
+
+                return (
+                  <button
+                    type="button"
+                    key={item.segment}
+                    onClick={() => setFilterSegment(isSelected ? '' : item.segment)}
+                    className={`flex-1 min-w-[105px] px-3 py-2 rounded-xl border text-start flex items-center justify-between gap-2 select-none ${
+                      isSelected
+                        ? theme.activeRing
+                        : 'bg-white text-slate-700 border-slate-200/90 hover:bg-slate-50/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${theme.dot}`} />
+                      <span
+                        className={`text-[10px] font-black px-1.5 py-0.5 rounded border uppercase ${
+                          isSelected
+                            ? 'bg-white/15 text-white border-white/20'
+                            : theme.badge
+                        }`}
+                      >
+                        {item.segment}
+                      </span>
+                      <span
+                        className={`text-[10px] font-medium ${
+                          isSelected ? 'text-white/70' : 'text-slate-400'
+                        }`}
+                      >
+                        {item.percentage}%
+                      </span>
+                    </div>
+
+                    <div className="flex items-baseline gap-1">
+                      <span
+                        className={`text-sm font-extrabold ${
+                          isSelected ? theme.countActive : theme.countIdle
+                        }`}
+                      >
+                        {item.count}
+                      </span>
+                      <span
+                        className={`text-[9px] ${
+                          isSelected ? 'text-white/70' : 'text-slate-400'
+                        }`}
+                      >
+                        {t.ridersCount}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* THE BIG MATRIX / PIVOT TABLE */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden relative">
