@@ -30,7 +30,8 @@ import {
   User,
   ShieldCheck,
   PackageCheck,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -58,6 +59,9 @@ const translations = {
     riderInfo: 'Rider Information',
     workingId: 'Working ID',
     riderName: 'Rider Name',
+    accountOwner: 'Account Owner',
+    accountUsedBy: 'Account used by: ',
+    substituteNote: 'Substitute Note',
     sourceId: 'Source ID',
     systemId: 'System ID',
     currentSegment: 'Current Segment',
@@ -147,6 +151,9 @@ const translations = {
     riderInfo: 'بيانات المندوب',
     workingId: 'الرقم التعريفي (Working ID)',
     riderName: 'اسم المندوب',
+    accountOwner: 'صاحب الحساب',
+    accountUsedBy: 'يستخدم الحساب بواسطة: ',
+    substituteNote: 'ملاحظة البديل',
     sourceId: 'معرف المصدر',
     systemId: 'معرف النظام',
     currentSegment: 'الشريحة الحالية',
@@ -289,9 +296,7 @@ const getFirstDayOfCurrentMonth = () => {
 };
 
 const getDefaultEndDate = () => {
-  const firstDay = getFirstDayOfCurrentMonth();
-  const yesterday = getYesterdayDate();
-  return yesterday < firstDay ? firstDay : yesterday;
+  return getYesterdayDate();
 };
 
 const getPastDate = (daysAgo) => {
@@ -311,9 +316,9 @@ function RiderDetailsContent() {
   const rawWorkingId = params?.workingId || '';
   const workingId = decodeURIComponent(rawWorkingId);
 
-  // Date filters from URL query or defaults (start of current month to yesterday)
-  const initialStartDate = searchParams?.get('startDate') || getFirstDayOfCurrentMonth();
-  const initialEndDate = searchParams?.get('endDate') || getDefaultEndDate();
+  // Date filters: details start date is the first day of this month and end date is yesterday
+  const initialStartDate = getFirstDayOfCurrentMonth();
+  const initialEndDate = getYesterdayDate();
 
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
@@ -327,6 +332,8 @@ function RiderDetailsContent() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     riderWorkingId: workingId,
+    riderName: '',
+    substituteRiderName: null,
     performanceDate: getTodayDate(),
     totalVerificationRequests: '',
     successfulVerificationRequests: '',
@@ -406,12 +413,14 @@ function RiderDetailsContent() {
   // Derive Rider Profile
   const riderProfile = useMemo(() => {
     const first = records[0] || {};
+    const latestWithSubstitute = records.find((r) => r.substituteRiderName);
     return {
       workingId: workingId,
       riderName: first.riderName || workingId,
       riderId: first.riderId || null,
       sourceRiderId: first.sourceRiderId || first.workingId || workingId,
       currentSegment: first.segment || records.find((r) => r.segment)?.segment || '-',
+      substituteRiderName: latestWithSubstitute ? latestWithSubstitute.substituteRiderName : null,
     };
   }, [records, workingId]);
 
@@ -547,7 +556,7 @@ function RiderDetailsContent() {
       setEndDate(today);
     } else if (days === 'month') {
       setStartDate(getFirstDayOfCurrentMonth());
-      setEndDate(getDefaultEndDate());
+      setEndDate(getYesterdayDate());
     } else if (days === 'all') {
       setStartDate('');
       setEndDate('');
@@ -583,6 +592,8 @@ function RiderDetailsContent() {
     setEditingId(rec.id);
     setFormData({
       riderWorkingId: rec.workingId || rec.sourceRiderId || workingId,
+      riderName: rec.riderName || riderProfile.riderName || workingId,
+      substituteRiderName: rec.substituteRiderName || null,
       performanceDate: rec.performanceDate ? String(rec.performanceDate).split('T')[0] : getTodayDate(),
       totalVerificationRequests: rec.totalVerificationRequests ?? '',
       successfulVerificationRequests: rec.successfulVerificationRequests ?? '',
@@ -679,6 +690,9 @@ function RiderDetailsContent() {
       Rider: r.riderName || workingId,
       'Performance Date': r.performanceDate ? String(r.performanceDate).split('T')[0] : '-',
       Day: isRtl ? getArabicDayName(r.performanceDate) : getEnglishDayName(r.performanceDate),
+      'Substitute Note': r.substituteRiderName
+        ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
+        : '-',
       Segment: r.segment || '-',
       'Gross Orders': r.grossOrders ?? 0,
       'Completed Orders': r.completedOrders ?? 0,
@@ -779,6 +793,14 @@ function RiderDetailsContent() {
                       )}`}
                     >
                       {t.currentSegment}: {riderProfile.currentSegment}
+                    </span>
+                  )}
+                  {riderProfile.substituteRiderName && (
+                    <span
+                      className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 inline-flex items-center gap-1.5"
+                    >
+                      <Info size={13} className="text-amber-600" />
+                      <span>{isRtl ? `يستخدم الحساب بواسطة: ${riderProfile.substituteRiderName}` : `Account used by: ${riderProfile.substituteRiderName}`}</span>
                     </span>
                   )}
                 </div>
@@ -1154,7 +1176,18 @@ function RiderDetailsContent() {
                       <tr key={r.id} className="hover:bg-blue-50/40 transition">
                         {/* Date */}
                         <td className="px-2.5 py-2 whitespace-nowrap font-mono font-bold text-slate-900 text-xs">
-                          {dateStr}
+                          <div>{dateStr}</div>
+                          {r.substituteRiderName && (
+                            <div
+                              className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded mt-0.5 font-medium inline-flex items-center gap-1 max-w-[130px] truncate"
+                              title={isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`}
+                            >
+                              <Info size={10} className="text-amber-600 shrink-0" />
+                              <span className="truncate">
+                                {isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`}
+                              </span>
+                            </div>
+                          )}
                         </td>
 
                         {/* Day of Week */}
@@ -1277,6 +1310,23 @@ function RiderDetailsContent() {
             </div>
 
             <form onSubmit={handleSubmitForm} className="p-6 space-y-4 overflow-y-auto flex-1 bg-white">
+              {/* Substitute Note Banner when present */}
+              {formData.substituteRiderName && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5">
+                  <Info size={16} className="text-amber-600 shrink-0" />
+                  <div>
+                    <span className="font-bold">
+                      {isRtl ? `يستخدم الحساب بواسطة: ${formData.substituteRiderName}` : `Account used by: ${formData.substituteRiderName}`}
+                    </span>
+                    {formData.riderName && (
+                      <span className="text-amber-700 ml-2 rtl:mr-2 text-[11px]">
+                        ({t.accountOwner}: {formData.riderName})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Rider Working ID */}
                 <div>

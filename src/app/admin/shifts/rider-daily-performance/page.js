@@ -87,6 +87,9 @@ const translations = {
     // Table Headers
     workingId: 'Working ID',
     riderName: 'Rider Name',
+    accountOwner: 'Account Owner',
+    accountUsedBy: 'Account used by: ',
+    substituteNote: 'Substitute Note',
     periodSummary: 'Period Summary',
     periodTotalOrders: 'Total Orders',
     activeDays: 'Active Days',
@@ -194,6 +197,9 @@ const translations = {
     // Table Headers
     workingId: 'الرقم التعريفي للمندوب',
     riderName: 'اسم المندوب',
+    accountOwner: 'صاحب الحساب',
+    accountUsedBy: 'يستخدم الحساب بواسطة: ',
+    substituteNote: 'ملاحظة البديل',
     periodSummary: 'ملخص الفترة',
     periodTotalOrders: 'إجمالي الطلبات',
     activeDays: 'أيام العمل',
@@ -279,9 +285,7 @@ const getFirstDayOfCurrentMonth = () => {
 };
 
 const getDefaultEndDate = () => {
-  const firstDay = getFirstDayOfCurrentMonth();
-  const yesterday = getYesterdayDate();
-  return yesterday < firstDay ? firstDay : yesterday;
+  return getYesterdayDate();
 };
 
 const getPastDate = (daysAgo) => {
@@ -329,6 +333,8 @@ const getEnglishDayName = (dateStr) => {
 
 const initialFormState = {
   riderWorkingId: '',
+  riderName: '',
+  substituteRiderName: null,
   performanceDate: getTodayDate(),
   totalVerificationRequests: '',
   successfulVerificationRequests: '',
@@ -390,21 +396,31 @@ export default function RiderDailyPerformancePage() {
   };
 
   // Fetch list with query parameters
-  const loadRecords = useCallback(async () => {
+  const loadRecords = useCallback(async (overrideParams = {}) => {
     setLoading(true);
     try {
       const params = {};
-      if (searchQuery.trim()) {
-        params.workingId = searchQuery.trim();
+      const query = overrideParams.workingId !== undefined ? overrideParams.workingId : searchQuery.trim();
+      if (query) {
+        params.workingId = query;
       }
-      if (filterStartDate) {
-        params.startDate = filterStartDate;
+      const sDate = overrideParams.startDate !== undefined ? overrideParams.startDate : filterStartDate;
+      if (sDate) {
+        params.startDate = sDate;
       }
-      if (filterEndDate) {
-        params.endDate = filterEndDate;
+      const eDate = overrideParams.endDate !== undefined ? overrideParams.endDate : filterEndDate;
+      if (eDate) {
+        params.endDate = eDate;
       }
-      if (filterSegment) {
-        params.segment = filterSegment;
+      const seg = overrideParams.segment !== undefined ? overrideParams.segment : filterSegment;
+      if (seg) {
+        params.segment = seg;
+      }
+      if (overrideParams.date) {
+        params.date = overrideParams.date;
+      }
+      if (overrideParams.riderId) {
+        params.riderId = overrideParams.riderId;
       }
 
       const data = await ApiService.get(API_ENDPOINTS.RIDER_SCORE_PERFORMANCE.LIST, params);
@@ -520,6 +536,7 @@ export default function RiderDailyPerformancePage() {
           riderId: record.riderId || null,
           riderName: record.riderName || riderKey,
           latestSegment: record.segment || '',
+          latestSubstituteRiderName: record.substituteRiderName || null,
           recordsByDate: new Map(),
           // Period Sums
           totalGrossOrders: 0,
@@ -537,6 +554,12 @@ export default function RiderDailyPerformancePage() {
       }
 
       const rider = map.get(riderKey);
+      if (record.substituteRiderName) {
+        rider.latestSubstituteRiderName = record.substituteRiderName;
+      }
+      if (record.riderName && rider.riderName === riderKey) {
+        rider.riderName = record.riderName;
+      }
       const dateStr = record.performanceDate ? String(record.performanceDate).split('T')[0] : '';
       if (dateStr) {
         rider.recordsByDate.set(dateStr, record);
@@ -693,6 +716,8 @@ export default function RiderDailyPerformancePage() {
     setEditingId(record.id);
     setFormData({
       riderWorkingId: record.workingId || record.sourceRiderId || '',
+      riderName: record.riderName || '',
+      substituteRiderName: record.substituteRiderName || null,
       performanceDate: record.performanceDate ? String(record.performanceDate).split('T')[0] : getTodayDate(),
       totalVerificationRequests: record.totalVerificationRequests ?? '',
       successfulVerificationRequests: record.successfulVerificationRequests ?? '',
@@ -808,7 +833,10 @@ export default function RiderDailyPerformancePage() {
 
       setImportResult(result);
       showNotification('success', t.importSuccess);
-      loadRecords();
+      // After importing, refetch the list for performanceDate
+      setFilterStartDate(importPerformanceDate);
+      setFilterEndDate(importPerformanceDate);
+      await loadRecords({ startDate: importPerformanceDate, endDate: importPerformanceDate });
     } catch (err) {
       console.error('Excel Import Error:', err);
       showNotification('error', err?.message || 'Failed to import Excel file');
@@ -869,6 +897,9 @@ export default function RiderDailyPerformancePage() {
       ID: r.id,
       'Working ID': r.workingId || r.sourceRiderId,
       Rider: r.riderName || '-',
+      'Substitute Note': r.substituteRiderName
+        ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
+        : '-',
       'Performance Date': r.performanceDate ? String(r.performanceDate).split('T')[0] : '-',
       Segment: r.segment || '-',
       'Gross Orders': r.grossOrders ?? 0,
@@ -1410,7 +1441,7 @@ export default function RiderDailyPerformancePage() {
 
                         {/* Sticky Column 2: Rider Name */}
                         <td className={`sticky rtl:right-[95px] ltr:left-[95px] z-20 ${rowBg} group-hover:bg-blue-50/50 px-2 py-1.5 whitespace-nowrap border-b border-gray-200 shadow-xs min-w-[135px] max-w-[145px]`}>
-                          <div className="font-bold text-gray-900 text-[11px] truncate max-w-[130px]">
+                          <div className="font-bold text-gray-900 text-[11px] truncate max-w-[130px]" title={rider.riderName}>
                             {rider.riderName}
                           </div>
                           <div className="flex items-center gap-1 mt-0.5">
@@ -1429,6 +1460,15 @@ export default function RiderDailyPerformancePage() {
                               </span>
                             )}
                           </div>
+                          {rider.latestSubstituteRiderName && (
+                            <div
+                              className="text-[9px] text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 mt-0.5 inline-flex items-center gap-1 max-w-[130px] truncate font-medium"
+                              title={isRtl ? `يستخدم الحساب بواسطة: ${rider.latestSubstituteRiderName}` : `Account used by: ${rider.latestSubstituteRiderName}`}
+                            >
+                              <Info size={9} className="text-amber-500 shrink-0" />
+                              <span className="truncate">{rider.latestSubstituteRiderName}</span>
+                            </div>
+                          )}
                         </td>
 
                         {/* Period Summary Cell */}
@@ -1449,13 +1489,16 @@ export default function RiderDailyPerformancePage() {
                         {/* DYNAMIC DATE CELLS */}
                         {periodDays.map((dateStr) => {
                           const dayRecord = rider.recordsByDate.get(dateStr);
+                          const subNote = dayRecord?.substituteRiderName
+                            ? (isRtl ? ` [يستخدم الحساب بواسطة: ${dayRecord.substituteRiderName}]` : ` [Account used by: ${dayRecord.substituteRiderName}]`)
+                            : '';
                           return (
                             <td
                               key={dateStr}
                               className="px-1 py-1 text-center whitespace-nowrap border-b border-l border-gray-100 hover:bg-blue-100/50 transition cursor-pointer relative min-w-[58px]"
                               title={
                                 dayRecord
-                                  ? `${dateStr} | Segment: ${dayRecord.segment || '-'} | Orders: ${dayRecord.completedOrders ?? 0}/${dayRecord.grossOrders ?? 0} | Quality: ${formatPercent(dayRecord.finalDeliveryQualityScore)}`
+                                  ? `${dateStr} | Segment: ${dayRecord.segment || '-'} | Orders: ${dayRecord.completedOrders ?? 0}/${dayRecord.grossOrders ?? 0} | Quality: ${formatPercent(dayRecord.finalDeliveryQualityScore)}${subNote}`
                                   : `${dateStr}: No Record`
                               }
                               onClick={() => {
@@ -1466,7 +1509,15 @@ export default function RiderDailyPerformancePage() {
                                 }
                               }}
                             >
-                              {renderDayCell(dayRecord)}
+                              <div className="relative inline-flex items-center justify-center">
+                                {renderDayCell(dayRecord)}
+                                {dayRecord?.substituteRiderName && (
+                                  <span
+                                    className="absolute -top-1 -right-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 ring-1 ring-white"
+                                    title={isRtl ? `يستخدم الحساب بواسطة: ${dayRecord.substituteRiderName}` : `Account used by: ${dayRecord.substituteRiderName}`}
+                                  />
+                                )}
+                              </div>
                             </td>
                           );
                         })}
@@ -1523,6 +1574,23 @@ export default function RiderDailyPerformancePage() {
             </div>
 
             <form onSubmit={handleSubmitForm} className="p-6 space-y-4 overflow-y-auto flex-1 bg-white">
+              {/* Substitute Note Banner when present */}
+              {formData.substituteRiderName && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5">
+                  <Info size={16} className="text-amber-600 shrink-0" />
+                  <div>
+                    <span className="font-bold">
+                      {isRtl ? `يستخدم الحساب بواسطة: ${formData.substituteRiderName}` : `Account used by: ${formData.substituteRiderName}`}
+                    </span>
+                    {formData.riderName && (
+                      <span className="text-amber-700 ml-2 rtl:mr-2 text-[11px]">
+                        ({t.accountOwner}: {formData.riderName})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Rider Working ID */}
                 <div>
