@@ -328,6 +328,7 @@ export const API_ENDPOINTS = {
     VEHICLE_PROBLEMS: "/api/member/vehicles/problems",
     REPORTS_MONTHLY: "/api/Member/reports/monthly",
     REPORTS_EXPORT: "/api/Member/reports/export",
+    RIDERS_SCORES: "/api/Member/riders/scores",
     REPORTS_DAILY_DETAILED: "/api/member/reports/daily-detailed",
     REPORTS_DAILY_SUMMARY: "/api/member/reports/daily-summary",
     REPORTS_COMPARE_PERIODS: "/api/member/reports/compare-periods",

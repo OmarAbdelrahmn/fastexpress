@@ -141,6 +141,7 @@ const pathTranslationKeys = {
   "admin/shifts/date-range": "navigation.shiftsByPeriod",
   "admin/shifts/update": "navigation.updateShifts",
   "admin/shifts/rider-daily-performance": "navigation.riderDailyPerformance",
+  "member/reports/rider-daily-performance": "navigation.riderDailyPerformance",
   "admin/shifts/hunger-disabilities": "navigation.hungerDeficit",
   "admin/shifts/hunger-disabilities/import": "navigation.importShifts",
   "admin/shifts/hunger-disabilities/date-range": "navigation.shiftsByPeriod",

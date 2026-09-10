@@ -77,7 +77,11 @@ export const userNavigationConfig = {
       {
         path: "/member/reports/rider-history",
         label: "navigation.riderYearlyPerformanceReport",
-      }
+      },
+      {
+        path: "/member/reports/rider-daily-performance",
+        label: "navigation.riderDailyPerformance",
+      },
     ],
   },
   actions: {
