@@ -15,7 +15,8 @@ import {
   MapPin,
   Tag,
   Clock3,
-  CalendarCheck2
+  CalendarCheck2,
+  Download
 } from 'lucide-react';
 import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
@@ -29,6 +30,7 @@ export default function MaintenanceRemindersPage() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [exporting, setExporting] = useState(false);
   
   // Date State - initialized to KSA today (Asia/Riyadh timezone)
   const getKSAToday = () => {
@@ -42,6 +44,7 @@ export default function MaintenanceRemindersPage() {
   // Filtering & Search State
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [assignmentFilter, setAssignmentFilter] = useState('All'); // 'All' | 'Unassigned' | 'Assigned'
 
   useEffect(() => {
     loadReminders();
@@ -150,11 +153,18 @@ export default function MaintenanceRemindersPage() {
         v.assignedRiderName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.assignedRiderIqamaNo?.toString().includes(searchQuery);
 
-      // 2. Status filter
-      if (statusFilter === 'All') return matchesSearch;
+      if (!matchesSearch) return false;
+
+      // 2. Assignment filter
+      const isAssigned = !!v.assignedRiderName || !!v.assignedRiderIqamaNo;
+      if (assignmentFilter === 'Unassigned' && isAssigned) return false;
+      if (assignmentFilter === 'Assigned' && !isAssigned) return false;
+
+      // 3. Status filter
+      if (statusFilter === 'All') return true;
       
       const hasMatchingStatusItem = v.dueItems?.some(item => matchesStatus(item.status, statusFilter));
-      return matchesSearch && hasMatchingStatusItem;
+      return hasMatchingStatusItem;
     });
   };
 
@@ -176,6 +186,106 @@ export default function MaintenanceRemindersPage() {
       const hasMatchingStatusItem = r.dueItems?.some(item => matchesStatus(item.status, statusFilter));
       return matchesSearch && hasMatchingStatusItem;
     });
+  };
+
+  const unassignedVehiclesCount = (data?.vehicleReminders || []).filter(
+    v => !v.assignedRiderName && !v.assignedRiderIqamaNo
+  ).length;
+
+  const assignedVehiclesCount = (data?.vehicleReminders || []).filter(
+    v => !!v.assignedRiderName || !!v.assignedRiderIqamaNo
+  ).length;
+
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true);
+      const XLSX = await import('xlsx');
+      const rows = [];
+
+      const vehiclesToExport = getFilteredVehicles();
+      vehiclesToExport.forEach(vehicle => {
+        const dueItems = vehicle.dueItems?.filter(item => matchesStatus(item.status, statusFilter)) || [];
+        dueItems.forEach(item => {
+          const badge = getStatusBadgeProps(item.status);
+          const daysText = item.daysUntilDue < 0 
+            ? `متأخر بـ ${Math.abs(item.daysUntilDue)} يوم` 
+            : item.daysUntilDue === 0 
+              ? 'مستحق اليوم' 
+              : `متبقي ${item.daysUntilDue} يوم`;
+
+          rows.push({
+            'نوع الكيان': 'مركبة',
+            'رقم المركبة': vehicle.vehicleNumber || '-',
+            'رقم اللوحة': formatPlateNumber(vehicle.vehiclePlate) || vehicle.vehiclePlate || '-',
+            'السكن / الموقع': vehicle.location || 'غير محدد',
+            'حالة التعيين': vehicle.assignedRiderName ? 'مخصصة لسائق' : 'غير مخصصة لسائق حالياً',
+            'اسم السائق': vehicle.assignedRiderName || 'غير مخصص',
+            'رقم إقامة السائق': vehicle.assignedRiderIqamaNo || '-',
+            'اسم الصنف': item.itemName || '-',
+            'نوع الصيانة': getItemTypeLabel(item.itemType),
+            'الدورة (أيام)': item.intervalDays ?? '-',
+            'تنبيه قبل (أيام)': item.alertDaysBeforeDue ?? '-',
+            'آخر صيانة': formatDate(item.lastDoneAt),
+            'الاستحقاق القادم': formatDate(item.nextDueAt),
+            'الأيام المتبقية': item.daysUntilDue ?? '-',
+            'المهلة': daysText,
+            'حالة الاستحقاق': badge.text,
+            'مصدر السجل': item.recordSource === 'Usage' ? 'سجل صرف' : (item.recordSource || '-')
+          });
+        });
+      });
+
+      if (activeTab === 'riders') {
+        const ridersToExport = getFilteredRiders();
+        ridersToExport.forEach(rider => {
+          const dueItems = rider.dueItems?.filter(item => matchesStatus(item.status, statusFilter)) || [];
+          dueItems.forEach(item => {
+            const badge = getStatusBadgeProps(item.status);
+            const daysText = item.daysUntilDue < 0 
+              ? `متأخر بـ ${Math.abs(item.daysUntilDue)} يوم` 
+              : item.daysUntilDue === 0 
+                ? 'مستحق اليوم' 
+                : `متبقي ${item.daysUntilDue} يوم`;
+
+            rows.push({
+              'نوع الكيان': 'سائق',
+              'رقم المركبة': '-',
+              'رقم اللوحة': '-',
+              'السكن / الموقع': rider.housingName || 'غير محدد',
+              'حالة التعيين': 'سائق',
+              'اسم السائق': rider.riderNameAR || rider.riderNameEN || '-',
+              'رقم إقامة السائق': rider.riderIqamaNo || '-',
+              'اسم الصنف': item.itemName || '-',
+              'نوع الصيانة': getItemTypeLabel(item.itemType),
+              'الدورة (أيام)': item.intervalDays ?? '-',
+              'تنبيه قبل (أيام)': item.alertDaysBeforeDue ?? '-',
+              'آخر صيانة': formatDate(item.lastDoneAt),
+              'الاستحقاق القادم': formatDate(item.nextDueAt),
+              'الأيام المتبقية': item.daysUntilDue ?? '-',
+              'المهلة': daysText,
+              'حالة الاستحقاق': badge.text,
+              'مصدر السجل': item.recordSource === 'Usage' ? 'سجل صرف' : (item.recordSource || '-')
+            });
+          });
+        });
+      }
+
+      if (rows.length === 0) {
+        showAlert('warning', 'لا توجد بيانات مطابقة لتصديرها');
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'تنبيهات الصيانة');
+      XLSX.writeFile(workbook, `maintenance_reminders_${checkDate}.xlsx`);
+      showAlert('success', 'تم تصدير ملف Excel بنجاح');
+    } catch (e) {
+      console.error('Export error:', e);
+      showAlert('error', 'حدث خطأ أثناء تصدير ملف Excel');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const filteredVehicles = getFilteredVehicles();
@@ -201,16 +311,28 @@ export default function MaintenanceRemindersPage() {
             <h1 className="text-base md:text-lg font-bold tracking-tight leading-tight">تنبيهات الصيانة</h1>
           </div>
 
-          {/* Date Picker chip */}
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20 flex-shrink-0">
-            <Calendar size={15} className="text-fuchsia-200 flex-shrink-0" />
-            <label className="text-xs font-semibold text-white/80 whitespace-nowrap hidden sm:block">التاريخ :</label>
-            <input
-              type="date"
-              value={checkDate}
-              onChange={(e) => setCheckDate(e.target.value)}
-              className="bg-transparent text-white text-xs focus:outline-none w-32"
-            />
+          {/* Export Excel + Date Picker */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportExcel}
+              disabled={exporting || loading}
+              className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-3 py-2 rounded-xl text-xs font-bold border border-white/20 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+              title="تصدير إلى Excel"
+            >
+              <Download size={15} />
+              <span>{exporting ? 'جاري التصدير...' : 'تصدير Excel'}</span>
+            </button>
+
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/20 flex-shrink-0">
+              <Calendar size={15} className="text-fuchsia-200 flex-shrink-0" />
+              <label className="text-xs font-semibold text-white/80 whitespace-nowrap hidden sm:block">التاريخ :</label>
+              <input
+                type="date"
+                value={checkDate}
+                onChange={(e) => setCheckDate(e.target.value)}
+                className="bg-transparent text-white text-xs focus:outline-none w-32"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -301,6 +423,32 @@ export default function MaintenanceRemindersPage() {
             ))}
           </div>
         </div>
+
+        {/* Assignment filter pills for vehicles */}
+        {activeTab === 'vehicles' && (
+          <div className="flex flex-wrap gap-2 items-center pt-3 border-t border-gray-100">
+            <span className="text-xs font-semibold text-gray-500 ml-2 flex items-center gap-1">
+              <User size={14} /> حالة تعيين المركبة:
+            </span>
+            {[
+              { id: 'All', label: 'كل المركبات' },
+              { id: 'Assigned', label: `مخصصة لسائق فقط (${assignedVehiclesCount})` },
+              { id: 'Unassigned', label: `مركبة غير مخصصة لسائق حالياً (${unassignedVehiclesCount})` }
+            ].map(assign => (
+              <button
+                key={assign.id}
+                onClick={() => setAssignmentFilter(assign.id)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                  assignmentFilter === assign.id
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {assign.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Tabs Section */}
@@ -379,7 +527,14 @@ export default function MaintenanceRemindersPage() {
                             </div>
                             <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-lg font-bold text-gray-900">المركبة: {formatPlateNumber(vehicle.vehiclePlate)}</h3>
+                                <h3 className="text-lg font-bold text-gray-900">
+                                  المركبة: {formatPlateNumber(vehicle.vehiclePlate) || vehicle.vehiclePlate || vehicle.vehicleNumber}
+                                </h3>
+                                {vehicle.vehicleNumber && (
+                                  <span className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md font-mono font-bold">
+                                    #{vehicle.vehicleNumber}
+                                  </span>
+                                )}
                               </div>
                               
                               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 font-medium">

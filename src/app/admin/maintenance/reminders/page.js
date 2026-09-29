@@ -16,26 +16,114 @@ import SearchableSelect from '@/components/Ui/SearchableSelect';
 import { 
   Bell, Plus, Pencil, Trash2, ToggleLeft, ToggleRight, 
   Calendar, AlertTriangle, CheckCircle, Clock, RefreshCw, 
-  Truck, User, Settings, ChevronRight, MapPin, Search, History, Edit
+  Truck, User, Settings, ChevronRight, MapPin, Search, History, Edit,
+  Tag, Filter, X, Download
 } from 'lucide-react';
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 const STATUS_MAP = {
-  2: { label: 'قريب الاستحقاق', color: 'bg-yellow-50 border-r-4 border-yellow-500 text-yellow-700 font-medium' },
-  3: { label: 'مستحق اليوم', color: 'bg-orange-50 border-r-4 border-orange-500 text-orange-700 font-medium' },
-  4: { label: 'متأخر', color: 'bg-red-50 border-r-4 border-red-500 text-red-700 font-medium' },
-  5: { label: 'لم يُنجز', color: 'bg-gray-50 border-r-4 border-gray-400 text-gray-700 font-medium' },
+  2: { 
+    label: 'قريب الاستحقاق', 
+    badgeClass: 'bg-amber-50 text-amber-800 border border-amber-200 font-semibold',
+    color: 'bg-yellow-50 border-r-4 border-yellow-500 text-yellow-700 font-medium' 
+  },
+  3: { 
+    label: 'مستحق اليوم', 
+    badgeClass: 'bg-orange-50 text-orange-800 border border-orange-200 font-bold ring-2 ring-orange-100/50',
+    color: 'bg-orange-50 border-r-4 border-orange-500 text-orange-700 font-medium' 
+  },
+  4: { 
+    label: 'متأخر', 
+    badgeClass: 'bg-red-50 text-red-800 border border-red-200 font-bold ring-2 ring-red-100/50',
+    color: 'bg-red-50 border-r-4 border-red-500 text-red-700 font-medium' 
+  },
+  5: { 
+    label: 'لم يُنجز', 
+    badgeClass: 'bg-gray-100 text-gray-700 border border-gray-200 font-medium',
+    color: 'bg-gray-50 border-r-4 border-gray-400 text-gray-700 font-medium' 
+  },
 };
 
 function fmt(dt) {
   if (!dt) return '-';
-  return new Date(dt).toLocaleDateString('ar-SA');
+  try {
+    const d = new Date(dt);
+    if (isNaN(d.getTime())) return dt;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch {
+    return dt;
+  }
+}
+
+function fmtDate(dt) {
+  return fmt(dt);
+}
+
+function getStatusInfo(status) {
+  const s = String(status);
+  if (s === '2' || s === 'Upcoming') return STATUS_MAP[2];
+  if (s === '3' || s === 'DueToday') return STATUS_MAP[3];
+  if (s === '4' || s === 'Overdue') return STATUS_MAP[4];
+  if (s === '5' || s === 'NeverDone') return STATUS_MAP[5];
+  return STATUS_MAP[status] || { 
+    label: status || 'غير محدد', 
+    badgeClass: 'bg-gray-100 text-gray-600 border border-gray-200', 
+    color: 'bg-gray-50 text-gray-600' 
+  };
 }
 
 function StatusBadge({ status }) {
-  const s = STATUS_MAP[status];
+  const s = getStatusInfo(status);
   if (!s) return null;
-  return <span className={`px-2.5 py-1 rounded text-xs font-bold ${s.color}`}>{s.label}</span>;
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${s.badgeClass || s.color}`}>
+      {s.label}
+    </span>
+  );
+}
+
+function DaysUntilDueBadge({ days }) {
+  if (days === undefined || days === null) return null;
+  const num = Number(days);
+  if (isNaN(num)) return null;
+
+  if (num < 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
+        <Clock size={12} className="text-red-600" />
+        متأخر بـ {Math.abs(num)} يوم
+      </span>
+    );
+  }
+  if (num === 0) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md animate-pulse">
+        <AlertTriangle size={12} className="text-orange-600" />
+        مستحق اليوم
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+      <CheckCircle size={12} className="text-emerald-600" />
+      متبقي {num} يوم
+    </span>
+  );
+}
+
+function ItemTypeBadge({ itemType }) {
+  const isSpare = Number(itemType) === 1;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium ${
+      isSpare ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-purple-50 text-purple-700 border border-purple-200'
+    }`}>
+      <Tag size={10} />
+      {isSpare ? 'قطعة غيار' : 'معدة سائق'}
+    </span>
+  );
 }
 
 // ─── Intervals Tab ──────────────────────────────────────────────────────────
@@ -414,10 +502,18 @@ function IntervalsTab({ housings, showAlert }) {
 function RemindersTab({ housings, showAlert }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [checkDate, setCheckDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [checkDate, setCheckDate] = useState(() => {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
+  });
   const [activeStatus, setActiveStatus] = useState('all');
+  const [entityFilter, setEntityFilter] = useState('all'); // 'all' | 'vehicles' | 'riders'
+  const [assignmentFilter, setAssignmentFilter] = useState('all'); // 'all' | 'assigned' | 'unassigned'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   async function load() {
+    if (!checkDate) return;
     setLoading(true);
     try {
       const res = await ApiService.get(API_ENDPOINTS.MAINTENANCE_INTERVALS.REMINDERS(checkDate));
@@ -432,167 +528,795 @@ function RemindersTab({ housings, showAlert }) {
 
   useEffect(() => { 
     load(); 
-  }, []);
+  }, [checkDate]);
 
-  const allItems = [
-    ...(data?.vehicles || []),
-    ...(data?.riders || []),
-  ];
+  // Extract raw lists from API response
+  const vehicleList = data?.vehicleReminders || data?.vehicles || [];
+  const riderList = data?.riderReminders || data?.riders || [];
 
-  const filtered = activeStatus === 'all'
-    ? allItems
-    : allItems.filter(it => (it.items || it.reminders || []).some(r => String(r.status) === activeStatus));
-
-  const counts = { 2: 0, 3: 0, 4: 0, 5: 0 };
-  allItems.forEach(entity => {
-    (entity.items || entity.reminders || []).forEach(r => { 
-      if (counts[r.status] !== undefined) counts[r.status]++; 
+  // Tally counts across all entities and dueItems as fallback
+  const computedCounts = { 2: 0, 3: 0, 4: 0, 5: 0 };
+  [...vehicleList, ...riderList].forEach(entity => {
+    const items = entity.dueItems || entity.items || entity.reminders || [];
+    items.forEach(it => {
+      const s = Number(it.status);
+      if (computedCounts[s] !== undefined) computedCounts[s]++;
     });
   });
 
+  const totalOverdue = data?.totalOverdueItems ?? computedCounts[4];
+  const totalDueToday = data?.totalDueTodayItems ?? computedCounts[3];
+  const totalUpcoming = data?.totalUpcomingItems ?? computedCounts[2];
+  const totalNeverDone = data?.totalNeverDoneItems ?? computedCounts[5];
+  const totalVehicles = data?.totalAffectedVehicles ?? vehicleList.length;
+  const totalRiders = data?.totalAffectedRiders ?? riderList.length;
+
+  const unassignedVehiclesCount = vehicleList.filter(
+    v => !v.assignedRiderName && !v.assignedRiderIqamaNo
+  ).length;
+
+  const assignedVehiclesCount = vehicleList.filter(
+    v => !!v.assignedRiderName || !!v.assignedRiderIqamaNo
+  ).length;
+
+  const matchesStatus = (status, filter) => {
+    if (filter === 'all') return true;
+    const s = String(status);
+    const f = String(filter);
+    return s === f ||
+      (f === '4' && (s === '4' || s === 'Overdue')) ||
+      (f === '3' && (s === '3' || s === 'DueToday')) ||
+      (f === '2' && (s === '2' || s === 'Upcoming')) ||
+      (f === '5' && (s === '5' || s === 'NeverDone'));
+  };
+
+  // Filter vehicles
+  const filteredVehicles = vehicleList.filter(v => {
+    const loc = v.location || v.housingName || '';
+    if (selectedLocation && loc !== selectedLocation) return false;
+
+    // Assignment filter
+    const isAssigned = !!v.assignedRiderName || !!v.assignedRiderIqamaNo;
+    if (assignmentFilter === 'unassigned' && isAssigned) return false;
+    if (assignmentFilter === 'assigned' && !isAssigned) return false;
+
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const plate = (v.vehiclePlate || v.plateNumber || '').toLowerCase();
+      const num = (v.vehicleNumber || '').toLowerCase();
+      const riderName = (v.assignedRiderName || v.riderName || '').toLowerCase();
+      const riderIqama = String(v.assignedRiderIqamaNo || v.riderIqamaNo || '');
+      const locationMatch = loc.toLowerCase().includes(q);
+      const items = (v.dueItems || v.items || v.reminders || []);
+      const itemNames = items.map(it => (it.itemName || it.sparePartName || '').toLowerCase()).join(' ');
+
+      const matches = plate.includes(q) || num.includes(q) || riderName.includes(q) ||
+        riderIqama.includes(q) || locationMatch || itemNames.includes(q);
+      if (!matches) return false;
+    }
+
+    if (activeStatus !== 'all') {
+      const items = v.dueItems || v.items || v.reminders || [];
+      const hasStatus = items.some(it => matchesStatus(it.status, activeStatus));
+      if (!hasStatus) return false;
+    }
+
+    return true;
+  });
+
+  // Filter riders
+  const filteredRiders = riderList.filter(r => {
+    const loc = r.housingName || r.location || '';
+    if (selectedLocation && loc !== selectedLocation) return false;
+
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const name = (r.riderNameAR || r.riderName || r.riderNameEN || r.name || '').toLowerCase();
+      const iqama = String(r.riderIqamaNo || r.assignedRiderIqamaNo || r.iqamaNo || '');
+      const workingId = (r.workingId || '').toLowerCase();
+      const locationMatch = loc.toLowerCase().includes(q);
+      const items = (r.dueItems || r.items || r.reminders || []);
+      const itemNames = items.map(it => (it.itemName || it.accessoryName || '').toLowerCase()).join(' ');
+
+      const matches = name.includes(q) || iqama.includes(q) || workingId.includes(q) ||
+        locationMatch || itemNames.includes(q);
+      if (!matches) return false;
+    }
+
+    if (activeStatus !== 'all') {
+      const items = r.dueItems || r.items || r.reminders || [];
+      const hasStatus = items.some(it => matchesStatus(it.status, activeStatus));
+      if (!hasStatus) return false;
+    }
+
+    return true;
+  });
+
+  const showVehicles = entityFilter === 'all' || entityFilter === 'vehicles';
+  const showRiders = entityFilter === 'all' || entityFilter === 'riders';
+
+  const visibleCount = (showVehicles ? filteredVehicles.length : 0) + (showRiders ? filteredRiders.length : 0);
+  const rawTotalEntities = vehicleList.length + riderList.length;
+
   const statusFilters = [
-    { key: 'all', label: 'الكل', color: 'bg-gray-100 text-gray-700' },
-    { key: '4', label: `متأخر (${counts[4]})`, color: 'bg-red-100 text-red-700' },
-    { key: '3', label: `مستحق اليوم (${counts[3]})`, color: 'bg-orange-100 text-orange-800' },
-    { key: '2', label: `قريب (${counts[2]})`, color: 'bg-yellow-100 text-yellow-800' },
-    { key: '5', label: `لم يُنجز (${counts[5]})`, color: 'bg-gray-100 text-gray-600' },
+    { key: 'all', label: 'الكل' },
+    { key: '4', label: `متأخر (${totalOverdue})`, activeClass: 'bg-red-600 text-white border-red-600' },
+    { key: '3', label: `مستحق اليوم (${totalDueToday})`, activeClass: 'bg-orange-600 text-white border-orange-600' },
+    { key: '2', label: `قريب الاستحقاق (${totalUpcoming})`, activeClass: 'bg-amber-600 text-white border-amber-600' },
+    ...(totalNeverDone > 0 ? [{ key: '5', label: `لم يُنجز (${totalNeverDone})`, activeClass: 'bg-gray-700 text-white border-gray-700' }] : []),
   ];
+
+  const hasActiveFilters = activeStatus !== 'all' || entityFilter !== 'all' || assignmentFilter !== 'all' || searchQuery.trim() !== '' || selectedLocation !== '';
+
+  const resetFilters = () => {
+    setActiveStatus('all');
+    setEntityFilter('all');
+    setAssignmentFilter('all');
+    setSearchQuery('');
+    setSelectedLocation('');
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true);
+      const XLSX = await import('xlsx');
+      const rows = [];
+
+      if (showVehicles) {
+        filteredVehicles.forEach(vehicle => {
+          const rawItems = vehicle.dueItems || vehicle.items || vehicle.reminders || [];
+          const items = activeStatus === 'all'
+            ? rawItems
+            : rawItems.filter(it => matchesStatus(it.status, activeStatus));
+
+          items.forEach(item => {
+            const statusInfo = getStatusInfo(item.status);
+            const daysText = item.daysUntilDue < 0 
+              ? `متأخر بـ ${Math.abs(item.daysUntilDue)} يوم` 
+              : item.daysUntilDue === 0 
+                ? 'مستحق اليوم' 
+                : `متبقي ${item.daysUntilDue} يوم`;
+
+            rows.push({
+              'نوع الكيان': 'مركبة',
+              'رقم المركبة': vehicle.vehicleNumber || '-',
+              'رقم اللوحة': formatPlateNumber(vehicle.vehiclePlate) || vehicle.vehiclePlate || '-',
+              'الموقع / السكن': vehicle.location || 'غير محدد',
+              'حالة التعيين': vehicle.assignedRiderName ? 'مخصصة لسائق' : 'غير مخصصة لسائق حالياً',
+              'اسم السائق': vehicle.assignedRiderName || 'غير مخصص',
+              'رقم إقامة السائق': vehicle.assignedRiderIqamaNo || '-',
+              'اسم الصنف': item.itemName || '-',
+              'نوع الصيانة': item.itemType === 1 ? 'قطعة غيار' : 'معدة سائق',
+              'الدورة (أيام)': item.intervalDays ?? '-',
+              'تنبيه قبل (أيام)': item.alertDaysBeforeDue ?? '-',
+              'آخر صيانة': fmtDate(item.lastDoneAt),
+              'الاستحقاق القادم': fmtDate(item.nextDueAt),
+              'الأيام المتبقية': item.daysUntilDue ?? '-',
+              'المهلة': daysText,
+              'حالة الاستحقاق': statusInfo.label,
+              'مصدر السجل': item.recordSource === 'Usage' ? 'سجل صرف' : (item.recordSource || '-')
+            });
+          });
+        });
+      }
+
+      if (showRiders) {
+        filteredRiders.forEach(rider => {
+          const rawItems = rider.dueItems || rider.items || rider.reminders || [];
+          const items = activeStatus === 'all'
+            ? rawItems
+            : rawItems.filter(it => matchesStatus(it.status, activeStatus));
+
+          items.forEach(item => {
+            const statusInfo = getStatusInfo(item.status);
+            const daysText = item.daysUntilDue < 0 
+              ? `متأخر بـ ${Math.abs(item.daysUntilDue)} يوم` 
+              : item.daysUntilDue === 0 
+                ? 'مستحق اليوم' 
+                : `متبقي ${item.daysUntilDue} يوم`;
+
+            rows.push({
+              'نوع الكيان': 'سائق',
+              'رقم المركبة': '-',
+              'رقم اللوحة': '-',
+              'الموقع / السكن': rider.housingName || rider.location || 'غير محدد',
+              'حالة التعيين': 'سائق',
+              'اسم السائق': rider.riderNameAR || rider.riderName || rider.riderNameEN || '-',
+              'رقم إقامة السائق': rider.riderIqamaNo || rider.assignedRiderIqamaNo || rider.iqamaNo || '-',
+              'اسم الصنف': item.itemName || '-',
+              'نوع الصيانة': item.itemType === 1 ? 'قطعة غيار' : 'معدة سائق',
+              'الدورة (أيام)': item.intervalDays ?? '-',
+              'تنبيه قبل (أيام)': item.alertDaysBeforeDue ?? '-',
+              'آخر صيانة': fmtDate(item.lastDoneAt),
+              'الاستحقاق القادم': fmtDate(item.nextDueAt),
+              'الأيام المتبقية': item.daysUntilDue ?? '-',
+              'المهلة': daysText,
+              'حالة الاستحقاق': statusInfo.label,
+              'مصدر السجل': item.recordSource === 'Usage' ? 'سجل صرف' : (item.recordSource || '-')
+            });
+          });
+        });
+      }
+
+      if (rows.length === 0) {
+        showAlert('warning', 'لا توجد بيانات مطابقة لتصديرها');
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'تنبيهات الصيانة');
+      XLSX.writeFile(wb, `maintenance_reminders_${checkDate}.xlsx`);
+      showAlert('success', 'تم تصدير ملف Excel بنجاح');
+    } catch (e) {
+      console.error('Export error:', e);
+      showAlert('error', 'حدث خطأ أثناء تصدير ملف Excel');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Date Picker + Refresh */}
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mx-4 md:mx-6">
-        <div className="flex flex-col sm:flex-row items-end gap-4">
-          <div className="flex-1">
-            <Input 
+      {/* Date Picker + Refresh Header */}
+      <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mx-4 md:mx-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+              <Calendar size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-base">تاريخ فحص استحقاق الصيانة</h3>
+              <p className="text-xs text-slate-500">حساب المواعيد الدورية والاستحقاقات وتنبيهات القطع حتى هذا التاريخ</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <Button 
+              onClick={handleExportExcel} 
+              disabled={exporting || loading} 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 h-[42px] px-4 rounded-xl cursor-pointer shadow-xs transition-colors disabled:opacity-50"
+              title="تصدير تقرير التنبيهات إلى Excel"
+            >
+              <Download size={15} />
+              <span className="hidden sm:inline">{exporting ? 'جاري التصدير...' : 'تصدير Excel'}</span>
+            </Button>
+
+            <input 
               type="date" 
-              label="تاريخ الفحص" 
               value={checkDate} 
               onChange={e => setCheckDate(e.target.value)} 
+              className="px-3.5 py-2 border-2 border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-slate-700"
             />
-          </div>
-          <Button onClick={load} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 h-[42px] cursor-pointer">
-            {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <RefreshCw size={15} />}
-            تحديث البيانات
-          </Button>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 md:px-6">
-        <div className="bg-red-50 border-r-4 border-red-500 p-3 md:p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-red-600 mb-1">متأخر</p>
-              <p className="text-xl md:text-3xl font-bold text-red-700">{counts[4]}</p>
-            </div>
-            <AlertTriangle className="text-red-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-orange-50 border-r-4 border-orange-500 p-3 md:p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-orange-600 mb-1">مستحق اليوم</p>
-              <p className="text-xl md:text-3xl font-bold text-orange-700">{counts[3]}</p>
-            </div>
-            <Clock className="text-orange-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-yellow-50 border-r-4 border-yellow-500 p-3 md:p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-yellow-600 mb-1">قريب</p>
-              <p className="text-xl md:text-3xl font-bold text-yellow-700">{counts[2]}</p>
-            </div>
-            <Bell className="text-yellow-500" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-gray-50 border-r-4 border-gray-400 p-3 md:p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs md:text-sm text-gray-600 mb-1">لم يُنجز</p>
-              <p className="text-xl md:text-3xl font-bold text-gray-700">{counts[5]}</p>
-            </div>
-            <CheckCircle className="text-gray-400" size={32} />
+            <Button 
+              onClick={load} 
+              disabled={loading} 
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 h-[42px] px-4 rounded-xl cursor-pointer shadow-xs transition-colors"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <RefreshCw size={15} />
+              )}
+              <span className="hidden sm:inline">تحديث</span>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Filter pills */}
-      <div className="flex flex-wrap gap-2 px-4 md:px-6">
-        {statusFilters.map(f => (
-          <button 
-            key={f.key} 
-            onClick={() => setActiveStatus(f.key)}
-            className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border-2 cursor-pointer ${
-              activeStatus === f.key 
-                ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                : 'bg-white text-gray-600 border-gray-100 hover:bg-gray-50'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-4 md:px-6">
+        {/* Overdue */}
+        <div 
+          onClick={() => setActiveStatus(activeStatus === '4' ? 'all' : '4')}
+          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+            activeStatus === '4'
+              ? 'bg-red-100 border-red-500 shadow-md ring-2 ring-red-200'
+              : 'bg-red-50/70 border-red-200 hover:border-red-400 hover:shadow-sm'
+          }`}
+          title="تصفية حسب المتأخر"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-red-600 mb-1">عناصر متأخرة</p>
+              <p className="text-2xl md:text-3xl font-bold text-red-700">{totalOverdue}</p>
+            </div>
+            <div className="bg-red-100 p-2.5 rounded-xl text-red-600">
+              <AlertTriangle size={24} />
+            </div>
+          </div>
+          <span className="text-[11px] text-red-500 mt-2 block font-medium">
+            {activeStatus === '4' ? '• التصفية مفعلة' : 'اضغط للتصفية'}
+          </span>
+        </div>
+
+        {/* Due Today */}
+        <div 
+          onClick={() => setActiveStatus(activeStatus === '3' ? 'all' : '3')}
+          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+            activeStatus === '3'
+              ? 'bg-orange-100 border-orange-500 shadow-md ring-2 ring-orange-200'
+              : 'bg-orange-50/70 border-orange-200 hover:border-orange-400 hover:shadow-sm'
+          }`}
+          title="تصفية حسب مستحق اليوم"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-orange-600 mb-1">مستحق اليوم</p>
+              <p className="text-2xl md:text-3xl font-bold text-orange-700">{totalDueToday}</p>
+            </div>
+            <div className="bg-orange-100 p-2.5 rounded-xl text-orange-600">
+              <Clock size={24} className={totalDueToday > 0 ? "animate-pulse" : ""} />
+            </div>
+          </div>
+          <span className="text-[11px] text-orange-500 mt-2 block font-medium">
+            {activeStatus === '3' ? '• التصفية مفعلة' : 'اضغط للتصفية'}
+          </span>
+        </div>
+
+        {/* Upcoming */}
+        <div 
+          onClick={() => setActiveStatus(activeStatus === '2' ? 'all' : '2')}
+          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+            activeStatus === '2'
+              ? 'bg-amber-100 border-amber-500 shadow-md ring-2 ring-amber-200'
+              : 'bg-amber-50/70 border-amber-200 hover:border-amber-400 hover:shadow-sm'
+          }`}
+          title="تصفية حسب قريب الاستحقاق"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-amber-700 mb-1">قريب الاستحقاق</p>
+              <p className="text-2xl md:text-3xl font-bold text-amber-700">{totalUpcoming}</p>
+            </div>
+            <div className="bg-amber-100 p-2.5 rounded-xl text-amber-600">
+              <Bell size={24} />
+            </div>
+          </div>
+          <span className="text-[11px] text-amber-600 mt-2 block font-medium">
+            {activeStatus === '2' ? '• التصفية مفعلة' : 'اضغط للتصفية'}
+          </span>
+        </div>
+
+        {/* Affected Vehicles */}
+        <div 
+          onClick={() => setEntityFilter(entityFilter === 'vehicles' ? 'all' : 'vehicles')}
+          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+            entityFilter === 'vehicles'
+              ? 'bg-blue-100 border-blue-500 shadow-md ring-2 ring-blue-200'
+              : 'bg-blue-50/70 border-blue-200 hover:border-blue-400 hover:shadow-sm'
+          }`}
+          title="تصفية المركبات"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-blue-600 mb-1">مركبات متأثرة</p>
+              <p className="text-2xl md:text-3xl font-bold text-blue-700">{totalVehicles}</p>
+            </div>
+            <div className="bg-blue-100 p-2.5 rounded-xl text-blue-600">
+              <Truck size={24} />
+            </div>
+          </div>
+          <span className="text-[11px] text-blue-500 mt-2 block font-medium">
+            {entityFilter === 'vehicles' ? '• التصفية مفعلة' : 'اضغط للتصفية'}
+          </span>
+        </div>
+
+        {/* Affected Riders */}
+        <div 
+          onClick={() => setEntityFilter(entityFilter === 'riders' ? 'all' : 'riders')}
+          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+            entityFilter === 'riders'
+              ? 'bg-purple-100 border-purple-500 shadow-md ring-2 ring-purple-200'
+              : 'bg-purple-50/70 border-purple-200 hover:border-purple-400 hover:shadow-sm'
+          }`}
+          title="تصفية السائقين"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold text-purple-600 mb-1">سائقين متأثرين</p>
+              <p className="text-2xl md:text-3xl font-bold text-purple-700">{totalRiders}</p>
+            </div>
+            <div className="bg-purple-100 p-2.5 rounded-xl text-purple-600">
+              <User size={24} />
+            </div>
+          </div>
+          <span className="text-[11px] text-purple-500 mt-2 block font-medium">
+            {entityFilter === 'riders' ? '• التصفية مفعلة' : 'اضغط للتصفية'}
+          </span>
+        </div>
       </div>
 
-      {/* Results */}
-      <div className="px-4 md:px-6">
-        {loading ? (
-          <div className="bg-white rounded-lg p-12 text-center text-gray-400 shadow-sm">
-            <span className="w-8 h-8 border-4 border-blue-600/30 border-t-blue-600 rounded-full animate-spin inline-block mb-3" />
-            <p>جاري التحميل...</p>
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 mx-4 md:mx-6 space-y-4">
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Search Bar */}
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="البحث برقم المركبة، اللوحة، اسم السائق، الإقامة، الموقع، اسم الصنف..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pr-10 pl-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-slate-800 placeholder-slate-400"
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-lg p-12 text-center text-gray-400 shadow-sm">
-            <CheckCircle size={48} className="mx-auto mb-3 text-green-400" />
-            <p className="text-base font-bold text-gray-800">كل شيء سليم ولا توجد تنبيهات مستحقة!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map((entity, idx) => {
-              const isVehicle = !!entity.vehicleNumber || !!entity.plateNumber;
-              const entityItems = entity.items || entity.reminders || [];
-              const filteredEntityItems = activeStatus === 'all'
-                ? entityItems
-                : entityItems.filter(r => String(r.status) === activeStatus);
-              
-              if (filteredEntityItems.length === 0) return null;
 
+          {/* Location Dropdown */}
+          <div className="w-full md:w-56">
+            <div className="relative">
+              <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={17} />
+              <select
+                value={selectedLocation}
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                className="w-full pr-9 pl-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-slate-50 text-sm text-slate-700"
+              >
+                <option value="">كل المواقع السكنية</option>
+                {housings.map((housing) => (
+                  <option key={housing.id || housing.name} value={housing.name}>
+                    {housing.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Entity Type Toggle */}
+          <div className="flex bg-slate-100 p-1 rounded-xl self-start md:self-auto">
+            <button
+              onClick={() => setEntityFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                entityFilter === 'all'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              الكل
+            </button>
+            <button
+              onClick={() => setEntityFilter('vehicles')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                entityFilter === 'vehicles'
+                  ? 'bg-white text-blue-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Truck size={13} />
+              مركبات ({totalVehicles})
+            </button>
+            <button
+              onClick={() => setEntityFilter('riders')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                entityFilter === 'riders'
+                  ? 'bg-white text-purple-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <User size={13} />
+              سائقين ({totalRiders})
+            </button>
+          </div>
+        </div>
+
+        {/* Status Filter Pills + Reset */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 flex items-center gap-1 ml-1">
+              <Filter size={13} /> تصفية الحالة:
+            </span>
+            {statusFilters.map(f => {
+              const isSelected = activeStatus === f.key;
               return (
-                <Card key={idx} className="hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between border-b pb-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      {isVehicle ? <Truck className="text-blue-500" size={20} /> : <User className="text-purple-500" size={20} />}
-                      <span className="font-bold text-gray-800 text-base">
-                        {isVehicle ? (formatPlateNumber(entity.plateNumber) || entity.vehicleNumber) : (entity.riderName || entity.name)}
-                      </span>
-                    </div>
-                    {entity.location && (
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
-                        {entity.location}
-                      </span>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    {filteredEntityItems.map((r, i) => (
-                      <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 rounded-lg p-3 gap-2 border border-gray-100 hover:bg-gray-100 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <StatusBadge status={r.status} />
-                          <span className="text-gray-900 font-medium text-sm">{r.itemName || r.sparepartName || r.accessoryName}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-3 text-xs text-gray-500 border-t sm:border-t-0 pt-2 sm:pt-0">
-                          {r.dueDate && <span>الاستحقاق: <strong className="text-gray-700">{fmt(r.dueDate)}</strong></span>}
-                          {r.lastDoneDate && <span>آخر تنفيذ: <strong className="text-gray-700">{fmt(r.lastDoneDate)}</strong></span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                <button 
+                  key={f.key} 
+                  onClick={() => setActiveStatus(f.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                    isSelected 
+                      ? (f.activeClass || 'bg-blue-600 text-white border-blue-600 shadow-xs')
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {f.label}
+                </button>
               );
             })}
+          </div>
+
+          {hasActiveFilters && (
+            <button 
+              onClick={resetFilters}
+              className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline flex items-center gap-1"
+            >
+              <X size={14} /> إعادة تعيين الفلاتر
+            </button>
+          )}
+        </div>
+
+        {/* Assignment filter pills for vehicles */}
+        {(entityFilter === 'all' || entityFilter === 'vehicles') && (
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+            <span className="text-xs font-semibold text-slate-500 flex items-center gap-1 ml-1">
+              <User size={13} /> حالة تعيين المركبة:
+            </span>
+            {[
+              { id: 'all', label: 'كل المركبات' },
+              { id: 'assigned', label: `مخصصة لسائق فقط (${assignedVehiclesCount})` },
+              { id: 'unassigned', label: `مركبة غير مخصصة لسائق حالياً (${unassignedVehiclesCount})` },
+            ].map(assign => (
+              <button
+                key={assign.id}
+                onClick={() => setAssignmentFilter(assign.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                  assignmentFilter === assign.id
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {assign.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Results Section */}
+      <div className="px-4 md:px-6">
+        {loading ? (
+          <div className="bg-white rounded-2xl p-16 text-center text-slate-400 shadow-sm border border-slate-100">
+            <span className="w-9 h-9 border-4 border-blue-600/30 border-t-blue-600 rounded-full animate-spin inline-block mb-3" />
+            <p className="text-sm font-medium text-slate-600">جاري فحص تنبيهات واستحقاقات الصيانة المباشرة...</p>
+          </div>
+        ) : rawTotalEntities === 0 ? (
+          <div className="bg-white rounded-2xl p-16 text-center shadow-sm border border-slate-100 space-y-3">
+            <CheckCircle size={52} className="mx-auto text-emerald-500" />
+            <h3 className="text-lg font-bold text-slate-800">كل شيء سليم ولا توجد تنبيهات صيانة مستحقة!</h3>
+            <p className="text-slate-500 text-sm max-w-md mx-auto">
+              لا توجد قطع غيار أو معدات متأخرة أو مستحقة الصيانة بتاريخ {checkDate}. كافة المركبات والمعدات في حالة ممتازة.
+            </p>
+          </div>
+        ) : visibleCount === 0 ? (
+          <div className="bg-white rounded-2xl p-16 text-center shadow-sm border border-slate-100 space-y-3">
+            <Filter size={44} className="mx-auto text-slate-400" />
+            <h3 className="text-base font-bold text-slate-800">لا توجد عناصر تطابق معايير التصفية والبحث الحالية</h3>
+            <p className="text-slate-500 text-xs">
+              جرّب تغيير حالة الاستحقاق، أو تفريغ نص البحث، أو اختيار موقع آخر.
+            </p>
+            <Button onClick={resetFilters} variant="outline" className="mt-2 text-xs">
+              إلغاء التصفية
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Vehicle Reminders */}
+            {showVehicles && filteredVehicles.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <Truck className="text-blue-600" size={19} />
+                    تنبيهات صيانة المركبات ({filteredVehicles.length})
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  {filteredVehicles.map((vehicle, vIndex) => {
+                    const rawItems = vehicle.dueItems || vehicle.items || vehicle.reminders || [];
+                    const displayItems = activeStatus === 'all'
+                      ? rawItems
+                      : rawItems.filter(it => matchesStatus(it.status, activeStatus));
+
+                    if (displayItems.length === 0) return null;
+
+                    return (
+                      <Card key={`v-${vIndex}`} className="border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                        {/* Header */}
+                        <div className="p-4 md:p-5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-blue-100 text-blue-700 rounded-xl shadow-xs">
+                              <Truck size={22} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="text-base font-bold text-slate-900">
+                                  {formatPlateNumber(vehicle.vehiclePlate) || vehicle.vehiclePlate || vehicle.vehicleNumber}
+                                </h4>
+                                {vehicle.vehicleNumber && (
+                                  <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono font-bold border border-slate-200">
+                                    #{vehicle.vehicleNumber}
+                                  </span>
+                                )}
+                              </div>
+                              {vehicle.location && (
+                                <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                                  <MapPin size={13} className="text-slate-400" />
+                                  <span>{vehicle.location}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Driver Info */}
+                          <div className="bg-white px-3.5 py-2 rounded-xl border border-slate-200 text-xs shadow-2xs self-start md:self-auto">
+                            {vehicle.assignedRiderName ? (
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                                  <User size={13} className="text-blue-500" />
+                                  <span>السائق المسؤول: <strong className="text-slate-900">{vehicle.assignedRiderName}</strong></span>
+                                </div>
+                                {vehicle.assignedRiderIqamaNo && (
+                                  <p className="text-[11px] text-slate-400 pr-4">
+                                    رقم الإقامة: {vehicle.assignedRiderIqamaNo}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1.5 text-amber-700 font-medium py-0.5">
+                                <AlertTriangle size={13} className="text-amber-500" />
+                                <span>مركبة غير مخصصة لسائق حالياً</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Due Items Table */}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-right border-collapse text-xs md:text-sm">
+                            <thead>
+                              <tr className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-100 text-xs">
+                                <th className="py-2.5 px-4">الصنف</th>
+                                <th className="py-2.5 px-3">نوع البند</th>
+                                <th className="py-2.5 px-3">دورة الصيانة</th>
+                                <th className="py-2.5 px-3">آخر تنفيذ</th>
+                                <th className="py-2.5 px-3">الاستحقاق القادم</th>
+                                <th className="py-2.5 px-3">المهلة</th>
+                                <th className="py-2.5 px-4">الحالة</th>
+                                <th className="py-2.5 px-3">المصدر</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {displayItems.map((item, iIndex) => (
+                                <tr key={iIndex} className="hover:bg-slate-50/60 transition-colors">
+                                  <td className="py-3 px-4 font-bold text-slate-900">{item.itemName}</td>
+                                  <td className="py-3 px-3"><ItemTypeBadge itemType={item.itemType} /></td>
+                                  <td className="py-3 px-3 text-slate-600">
+                                    كل {item.intervalDays} يوم
+                                    {item.alertDaysBeforeDue > 0 && (
+                                      <span className="block text-[11px] text-slate-400">تنبيه قبل {item.alertDaysBeforeDue} يوم</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3 text-slate-600 font-mono text-xs">{fmtDate(item.lastDoneAt)}</td>
+                                  <td className="py-3 px-3 font-mono font-semibold text-slate-800 text-xs">{fmtDate(item.nextDueAt)}</td>
+                                  <td className="py-3 px-3"><DaysUntilDueBadge days={item.daysUntilDue} /></td>
+                                  <td className="py-3 px-4"><StatusBadge status={item.status} /></td>
+                                  <td className="py-3 px-3">
+                                    {item.recordSource && (
+                                      <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">
+                                        {item.recordSource === 'Usage' ? 'صرف' : item.recordSource}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Rider Reminders */}
+            {showRiders && filteredRiders.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <User className="text-purple-600" size={19} />
+                    تنبيهات معدات السائقين ({filteredRiders.length})
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  {filteredRiders.map((rider, rIndex) => {
+                    const rawItems = rider.dueItems || rider.items || rider.reminders || [];
+                    const displayItems = activeStatus === 'all'
+                      ? rawItems
+                      : rawItems.filter(it => matchesStatus(it.status, activeStatus));
+
+                    if (displayItems.length === 0) return null;
+
+                    return (
+                      <Card key={`r-${rIndex}`} className="border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                        {/* Header */}
+                        <div className="p-4 md:p-5 bg-gradient-to-r from-purple-50/40 to-white border-b border-purple-100/60 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-purple-100 text-purple-700 rounded-xl shadow-xs">
+                              <User size={22} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="text-base font-bold text-slate-900">
+                                  {rider.riderNameAR || rider.riderName || rider.riderNameEN}
+                                </h4>
+                                {rider.workingId && (
+                                  <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-xs font-mono font-bold border border-purple-200">
+                                    كود: {rider.workingId}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5 flex-wrap">
+                                {(rider.housingName || rider.location) && (
+                                  <span className="flex items-center gap-1">
+                                    <MapPin size={13} className="text-slate-400" />
+                                    {rider.housingName || rider.location}
+                                  </span>
+                                )}
+                                {(rider.riderIqamaNo || rider.assignedRiderIqamaNo || rider.iqamaNo) && (
+                                  <span>
+                                    إقامة: <strong className="text-slate-700 font-mono">{rider.riderIqamaNo || rider.assignedRiderIqamaNo || rider.iqamaNo}</strong>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Due Items Table */}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-right border-collapse text-xs md:text-sm">
+                            <thead>
+                              <tr className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-100 text-xs">
+                                <th className="py-2.5 px-4">المعدة / الصنف</th>
+                                <th className="py-2.5 px-3">نوع البند</th>
+                                <th className="py-2.5 px-3">دورة الصيانة</th>
+                                <th className="py-2.5 px-3">آخر تسليم</th>
+                                <th className="py-2.5 px-3">الاستحقاق القادم</th>
+                                <th className="py-2.5 px-3">المهلة</th>
+                                <th className="py-2.5 px-4">الحالة</th>
+                                <th className="py-2.5 px-3">المصدر</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {displayItems.map((item, iIndex) => (
+                                <tr key={iIndex} className="hover:bg-slate-50/60 transition-colors">
+                                  <td className="py-3 px-4 font-bold text-slate-900">{item.itemName}</td>
+                                  <td className="py-3 px-3"><ItemTypeBadge itemType={item.itemType} /></td>
+                                  <td className="py-3 px-3 text-slate-600">
+                                    كل {item.intervalDays} يوم
+                                    {item.alertDaysBeforeDue > 0 && (
+                                      <span className="block text-[11px] text-slate-400">تنبيه قبل {item.alertDaysBeforeDue} يوم</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3 text-slate-600 font-mono text-xs">{fmtDate(item.lastDoneAt)}</td>
+                                  <td className="py-3 px-3 font-mono font-semibold text-slate-800 text-xs">{fmtDate(item.nextDueAt)}</td>
+                                  <td className="py-3 px-3"><DaysUntilDueBadge days={item.daysUntilDue} /></td>
+                                  <td className="py-3 px-4"><StatusBadge status={item.status} /></td>
+                                  <td className="py-3 px-3">
+                                    {item.recordSource && (
+                                      <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">
+                                        {item.recordSource === 'Usage' ? 'صرف' : item.recordSource}
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
