@@ -57,7 +57,7 @@ export default function RiderAccessoriesUsagePage() {
 
     const getRiderId = (r) => {
         if (!r) return '';
-        return r.riderId ?? r.id ?? r.riderid ?? r.iqamaNo ?? '';
+        return r.riderId ?? r.id ?? r.riderid ?? '';
     };
 
     const handleRiderSelect = (riderId, index) => {
@@ -74,10 +74,8 @@ export default function RiderAccessoriesUsagePage() {
 
         const rider = riders.find(r => {
             const id = getRiderId(r);
-            return String(id) === String(riderId) ||
-                   (r.iqamaNo && String(r.iqamaNo) === String(riderId)) ||
-                   (r.riderId && String(r.riderId) === String(riderId)) ||
-                   (r.id && String(r.id) === String(riderId));
+            return (id && String(id) === String(riderId)) ||
+                   (r.iqamaNo && String(r.iqamaNo) === String(riderId));
         });
 
         if (rider) {
@@ -147,28 +145,22 @@ export default function RiderAccessoriesUsagePage() {
                 return;
             }
 
-            if (!entry.selectedRider && !entry.riderId) {
+            const rId = entry.selectedRider ? getRiderId(entry.selectedRider) : entry.riderId;
+            if (!rId) {
                 showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
-                return;
-            }
-
-            if (!entry.quantityUsed || entry.quantityUsed <= 0) {
-                showAlert('error', `الرجاء إدخال كمية صحيحة للإدخال رقم ${i + 1}`);
                 return;
             }
         }
 
         setLoading(true);
         try {
-            // Prepare the request body in the new format
+            // Prepare the request body expected by /api/RiderAccessory/accessories
             const requestBody = {
                 usages: usageEntries.map(entry => {
-                    const rider = entry.selectedRider;
-                    const rId = rider?.riderId ?? rider?.id ?? rider?.riderid ?? entry.riderId;
+                    const rId = entry.selectedRider ? getRiderId(entry.selectedRider) : entry.riderId;
                     return {
-                        accessoryId: parseInt(entry.accessoryId),
-                        riderId: parseInt(rId) || rId,
-                        quantityUsed: parseInt(entry.quantityUsed) || 1
+                        accessoryId: parseInt(entry.accessoryId, 10),
+                        riderId: parseInt(rId, 10)
                     };
                 })
             };
@@ -184,7 +176,13 @@ export default function RiderAccessoriesUsagePage() {
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
-            showAlert('error', error.response?.data?.message || 'حدث خطأ أثناء تسجيل الصرف');
+            const errorMsg =
+                error.fullError?.errors
+                    ? Object.entries(error.fullError.errors)
+                        .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+                        .join(' | ')
+                    : error.fullError?.title || error.message || error.response?.data?.message || 'حدث خطأ أثناء تسجيل الصرف';
+            showAlert('error', errorMsg);
         } finally {
             setLoading(false);
         }
