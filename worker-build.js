@@ -32,4 +32,7 @@ generateSW({
     ],
 }).then(({ count, size }) => {
     console.log(`Generated ${swDest}, which will precache ${count} files, totaling ${size} bytes.`);
-}).catch(console.error);
+}).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

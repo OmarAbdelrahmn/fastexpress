@@ -31,6 +31,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
+For a Node.js deployment, use Node.js 22, `npm ci` to install dependencies,
+`npm run build` to build, and `npm start` to serve the application. The build
+output directory is `.next`; it needs the Next.js server to serve dynamic routes.
+
+Production builds use Webpack so the `canvas` alias in `next.config.mjs` applies.
+Build workers are limited to two, with Webpack memory optimizations enabled for
+deployment hosts with limited memory. Development continues to use Turbopack.
+
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

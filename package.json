@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack && node worker-build.js",
+    "build": "next build --webpack && node worker-build.js",
     "export": "next export --turbopack",
-    "start": "next start --turbopack"
+    "start": "next start"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.2",
