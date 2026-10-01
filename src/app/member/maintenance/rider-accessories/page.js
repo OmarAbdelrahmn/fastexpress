@@ -57,19 +57,49 @@ export default function MemberRiderAccessoriesPage() {
     };
 
 
+    const getRiderId = (r) => {
+        if (!r) return '';
+        return r.riderId ?? r.id ?? r.riderid ?? r.iqamaNo ?? '';
+    };
+
     const handleRiderSelect = (riderId, index) => {
-        const rider = riders.find(r => r.riderId === parseInt(riderId));
+        const updatedEntries = [...usageEntries];
+        if (!riderId) {
+            updatedEntries[index] = {
+                ...updatedEntries[index],
+                selectedRider: null,
+                riderId: ''
+            };
+            setUsageEntries(updatedEntries);
+            return;
+        }
+
+        const rider = riders.find(r => {
+            const id = getRiderId(r);
+            return String(id) === String(riderId) ||
+                   (r.iqamaNo && String(r.iqamaNo) === String(riderId)) ||
+                   (r.employeeIqamaNo && String(r.employeeIqamaNo) === String(riderId)) ||
+                   (r.riderId && String(r.riderId) === String(riderId)) ||
+                   (r.id && String(r.id) === String(riderId));
+        });
+
         if (rider) {
-            const updatedEntries = [...usageEntries];
-            updatedEntries[index].selectedRider = rider;
-            updatedEntries[index].riderId = rider.riderId;
+            const id = getRiderId(rider);
+            updatedEntries[index] = {
+                ...updatedEntries[index],
+                selectedRider: rider,
+                riderId: String(id)
+            };
             setUsageEntries(updatedEntries);
         }
     };
 
     const handleAccessoryChange = (value, index) => {
         const updatedEntries = [...usageEntries];
-        updatedEntries[index].accessoryId = value;
+        updatedEntries[index] = {
+            ...updatedEntries[index],
+            accessoryId: value
+        };
         setUsageEntries(updatedEntries);
     };
 
@@ -98,7 +128,7 @@ export default function MemberRiderAccessoriesPage() {
                 return;
             }
 
-            if (!entry.selectedRider) {
+            if (!entry.selectedRider && !entry.riderId) {
                 showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
                 return;
             }
@@ -107,10 +137,14 @@ export default function MemberRiderAccessoriesPage() {
         setLoading(true);
         try {
             const requestBody = {
-                usages: usageEntries.map(entry => ({
-                    accessoryId: parseInt(entry.accessoryId),
-                    riderId: parseInt(entry.riderId)
-                }))
+                usages: usageEntries.map(entry => {
+                    const rider = entry.selectedRider;
+                    const rId = rider?.riderId ?? rider?.id ?? rider?.riderid ?? entry.riderId;
+                    return {
+                        accessoryId: parseInt(entry.accessoryId),
+                        riderId: parseInt(rId) || rId
+                    };
+                })
             };
 
             const dateParam = encodeURIComponent(`${usageDate}:00`);
@@ -236,12 +270,15 @@ export default function MemberRiderAccessoriesPage() {
                                     {/* Rider Selection */}
                                     <SearchableSelect
                                         label="السائق"
-                                        value={entry.riderId}
+                                        value={entry.riderId ? String(entry.riderId) : ''}
                                         onChange={(e) => handleRiderSelect(e.target.value, index)}
-                                        options={riders.map(rider => ({
-                                            id: rider.riderId,
-                                            name: `${rider.nameAR} - ${rider.iqamaNo || rider.employeeIqamaNo || ''}`
-                                        }))}
+                                        options={riders.map(rider => {
+                                            const id = getRiderId(rider);
+                                            return {
+                                                id: String(id),
+                                                name: `${rider.nameAR || rider.name || ''} - ${rider.iqamaNo || rider.employeeIqamaNo || rider.workingId || ''}`
+                                            };
+                                        })}
                                         placeholder="ابحث عن السائق (الاسم، الهوية...)"
                                         required
                                         labelClassName="text-xs md:text-sm"

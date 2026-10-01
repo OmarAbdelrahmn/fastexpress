@@ -26,7 +26,7 @@ export default function RiderAccessoriesUsagePage() {
 
     // Array to hold multiple usage entries
     const [usageEntries, setUsageEntries] = useState([
-        { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: '', unitPrice: '' }
+        { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: 1, unitPrice: '' }
     ]);
 
     useEffect(() => {
@@ -55,46 +55,76 @@ export default function RiderAccessoriesUsagePage() {
         }
     };
 
+    const getRiderId = (r) => {
+        if (!r) return '';
+        return r.riderId ?? r.id ?? r.riderid ?? r.iqamaNo ?? '';
+    };
 
     const handleRiderSelect = (riderId, index) => {
-        const rider = riders.find(r => r.riderId === parseInt(riderId));
+        const updatedEntries = [...usageEntries];
+        if (!riderId) {
+            updatedEntries[index] = {
+                ...updatedEntries[index],
+                selectedRider: null,
+                riderId: ''
+            };
+            setUsageEntries(updatedEntries);
+            return;
+        }
+
+        const rider = riders.find(r => {
+            const id = getRiderId(r);
+            return String(id) === String(riderId) ||
+                   (r.iqamaNo && String(r.iqamaNo) === String(riderId)) ||
+                   (r.riderId && String(r.riderId) === String(riderId)) ||
+                   (r.id && String(r.id) === String(riderId));
+        });
+
         if (rider) {
-            const updatedEntries = [...usageEntries];
-            updatedEntries[index].selectedRider = rider;
-            updatedEntries[index].riderId = rider.riderId;
+            const id = getRiderId(rider);
+            updatedEntries[index] = {
+                ...updatedEntries[index],
+                selectedRider: rider,
+                riderId: String(id)
+            };
             setUsageEntries(updatedEntries);
         }
     };
 
     const handleAccessoryChange = (value, index) => {
         const updatedEntries = [...usageEntries];
-        updatedEntries[index].accessoryId = value;
-        // Auto-fill unit price from the selected accessory
         const selectedAccessory = accessories.find(a => String(a.id) === String(value));
-        if (selectedAccessory && selectedAccessory.price != null) {
-            updatedEntries[index].unitPrice = selectedAccessory.price;
-        } else {
-            updatedEntries[index].unitPrice = '';
-        }
+        const unitPrice = (selectedAccessory && selectedAccessory.price != null) ? selectedAccessory.price : '';
+        updatedEntries[index] = {
+            ...updatedEntries[index],
+            accessoryId: value,
+            unitPrice
+        };
         setUsageEntries(updatedEntries);
     };
 
     const handleUnitPriceChange = (value, index) => {
         const updatedEntries = [...usageEntries];
-        updatedEntries[index].unitPrice = value;
+        updatedEntries[index] = {
+            ...updatedEntries[index],
+            unitPrice: value
+        };
         setUsageEntries(updatedEntries);
     };
 
     const handleQuantityChange = (value, index) => {
         const updatedEntries = [...usageEntries];
-        updatedEntries[index].quantityUsed = value;
+        updatedEntries[index] = {
+            ...updatedEntries[index],
+            quantityUsed: value
+        };
         setUsageEntries(updatedEntries);
     };
 
     const addUsageEntry = () => {
         setUsageEntries([
             ...usageEntries,
-            { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: '', unitPrice: '' }
+            { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: 1, unitPrice: '' }
         ]);
     };
 
@@ -117,7 +147,7 @@ export default function RiderAccessoriesUsagePage() {
                 return;
             }
 
-            if (!entry.selectedRider) {
+            if (!entry.selectedRider && !entry.riderId) {
                 showAlert('error', `الرجاء اختيار السائق للإدخال رقم ${i + 1}`);
                 return;
             }
@@ -132,10 +162,15 @@ export default function RiderAccessoriesUsagePage() {
         try {
             // Prepare the request body in the new format
             const requestBody = {
-                usages: usageEntries.map(entry => ({
-                    accessoryId: parseInt(entry.accessoryId),
-                    riderId: parseInt(entry.riderId)
-                }))
+                usages: usageEntries.map(entry => {
+                    const rider = entry.selectedRider;
+                    const rId = rider?.riderId ?? rider?.id ?? rider?.riderid ?? entry.riderId;
+                    return {
+                        accessoryId: parseInt(entry.accessoryId),
+                        riderId: parseInt(rId) || rId,
+                        quantityUsed: parseInt(entry.quantityUsed) || 1
+                    };
+                })
             };
 
             const dateParam = encodeURIComponent(`${usageDate}:00`);
@@ -145,7 +180,7 @@ export default function RiderAccessoriesUsagePage() {
 
             // Reset form
             setUsageEntries([
-                { accessoryId: '', riderId: '', selectedRider: null, unitPrice: '' }
+                { accessoryId: '', riderId: '', selectedRider: null, quantityUsed: 1, unitPrice: '' }
             ]);
         } catch (error) {
             console.error('Error recording usage:', error);
@@ -256,12 +291,15 @@ export default function RiderAccessoriesUsagePage() {
                                     {/* Rider Selection */}
                                     <SearchableSelect
                                         label="السائق"
-                                        value={entry.riderId}
+                                        value={entry.riderId ? String(entry.riderId) : ''}
                                         onChange={(e) => handleRiderSelect(e.target.value, index)}
-                                        options={riders.map(rider => ({
-                                            id: rider.riderId,
-                                            name: `${rider.nameAR} - ${rider.iqamaNo || ''}`
-                                        }))}
+                                        options={riders.map(rider => {
+                                            const id = getRiderId(rider);
+                                            return {
+                                                id: String(id),
+                                                name: `${rider.nameAR || rider.name || ''} - ${rider.iqamaNo || rider.workingId || ''}`
+                                            };
+                                        })}
                                         placeholder="ابحث عن السائق (الاسم، الهوية...)"
                                         required
                                     />

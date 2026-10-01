@@ -28,8 +28,8 @@ const SearchableSelect = ({
             const selectedOption = normalizedOptions.find(opt => String(opt.id) === String(value));
             if (selectedOption) {
                 setSearchTerm(selectedOption.name);
-            } else if (typeof value === 'string') {
-                setSearchTerm(value);
+            } else if (value !== undefined && value !== null && value !== '') {
+                setSearchTerm(String(value));
             }
         } else {
             setSearchTerm('');
