@@ -54,7 +54,6 @@ export default function RiderAccessoriesUsagePage() {
             showAlert('error', 'حدث خطأ أثناء تحميل السائقين');
         }
     };
-
     const getRiderId = (r) => {
         if (!r) return '';
         return r.riderId ?? r.id ?? r.riderid ?? '';
