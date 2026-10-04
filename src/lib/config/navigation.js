@@ -174,6 +174,7 @@ export const adminNavigationConfig = {
       { path: "/admin/keeta", label: "navigation.keeta" },
     ],
   },
+  
 
   substitution: {
     title: "navigation.substitution",
