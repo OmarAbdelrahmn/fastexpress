@@ -33,7 +33,8 @@ import {
   Layers,
   ArrowUpDown,
   Sparkles,
-  Info
+  Info,
+  Building2
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import PageHeader from '@/components/layout/pageheader';
@@ -55,7 +56,7 @@ const translations = {
 
     // Presets & Filters
     searchCriteria: 'Filter & Period Controls',
-    searchPlaceholder: 'Search by Working ID, Rider ID, or Name...',
+    searchPlaceholder: 'Search by Working ID, Rider ID, Name, or Housing...',
     displayMetric: 'Day Column Metric',
     periodPresets: 'Period Presets',
     today: 'Today',
@@ -92,6 +93,7 @@ const translations = {
     // Table Headers
     workingId: 'Working ID',
     riderName: 'Rider Name',
+    housingName: 'Housing',
     accountOwner: 'Account Owner',
     accountUsedBy: 'Account used by: ',
     substituteNote: 'Substitute Note',
@@ -170,7 +172,7 @@ const translations = {
 
     // Presets & Filters
     searchCriteria: 'خيارات التصفية والفترة الزمنية',
-    searchPlaceholder: 'بحث برقم المندوب أو الاسم أو الرقم التعريفي...',
+    searchPlaceholder: 'بحث برقم المندوب أو الاسم أو الرقم التعريفي أو السكن...',
     displayMetric: 'الخاصية المعروضة بالأيام',
     periodPresets: 'فترات جاهزة',
     today: 'اليوم',
@@ -207,6 +209,7 @@ const translations = {
     // Table Headers
     workingId: 'الرقم التعريفي للمندوب',
     riderName: 'اسم المندوب',
+    housingName: 'السكن',
     accountOwner: 'صاحب الحساب',
     accountUsedBy: 'يستخدم الحساب بواسطة: ',
     substituteNote: 'ملاحظة البديل',
@@ -341,9 +344,22 @@ const getEnglishDayName = (dateStr) => {
   return d.toLocaleDateString('en-US', { weekday: 'short' });
 };
 
+const getRecordHousing = (record) => {
+  if (!record) return '';
+  return (
+    record.housingName ||
+    record.HousingName ||
+    record.housing ||
+    record.Housing ||
+    record.housing_name ||
+    ''
+  );
+};
+
 const initialFormState = {
   riderWorkingId: '',
   riderName: '',
+  housingName: '',
   substituteRiderName: null,
   performanceDate: getTodayDate(),
   totalVerificationRequests: '',
@@ -538,12 +554,15 @@ export default function RiderDailyPerformancePage() {
         segSet.add(String(record.segment).toUpperCase().trim());
       }
 
+      const housing = getRecordHousing(record);
+
       if (!map.has(riderKey)) {
         map.set(riderKey, {
           key: riderKey,
           workingId: record.workingId || record.sourceRiderId || record.riderWorkingId || riderKey,
           riderId: record.riderId || null,
           riderName: record.riderName || riderKey,
+          housingName: housing || null,
           latestSegment: record.segment || '',
           latestSubstituteRiderName: record.substituteRiderName || null,
           recordsByDate: new Map(),
@@ -563,6 +582,9 @@ export default function RiderDailyPerformancePage() {
       }
 
       const rider = map.get(riderKey);
+      if (!rider.housingName && housing) {
+        rider.housingName = housing;
+      }
       if (record.substituteRiderName) {
         rider.latestSubstituteRiderName = record.substituteRiderName;
       }
@@ -636,7 +658,8 @@ export default function RiderDailyPerformancePage() {
         const workingId = String(rider.workingId).toLowerCase();
         const riderName = String(rider.riderName).toLowerCase();
         const riderId = String(rider.riderId || '').toLowerCase();
-        if (!workingId.includes(q) && !riderName.includes(q) && !riderId.includes(q)) {
+        const housingName = String(rider.housingName || '').toLowerCase();
+        if (!workingId.includes(q) && !riderName.includes(q) && !riderId.includes(q) && !housingName.includes(q)) {
           return false;
         }
       }
@@ -774,9 +797,11 @@ export default function RiderDailyPerformancePage() {
   const handleOpenCreate = (prefillWorkingId = '') => {
     setIsEditing(false);
     setEditingId(null);
+    const existingRider = prefillWorkingId ? ridersMatrix.find((r) => r.workingId === prefillWorkingId) : null;
     setFormData({
       ...initialFormState,
       riderWorkingId: prefillWorkingId || '',
+      housingName: existingRider?.housingName || '',
       performanceDate: filterEndDate || getTodayDate(),
     });
     setIsFormModalOpen(true);
@@ -786,9 +811,16 @@ export default function RiderDailyPerformancePage() {
   const handleOpenEdit = (record) => {
     setIsEditing(true);
     setEditingId(record.id);
+    const housing = getRecordHousing(record);
+    const riderKey = String(
+      record.workingId || record.sourceRiderId || record.riderWorkingId || record.riderId || ''
+    ).trim();
+    const existingRider = ridersMatrix.find((r) => r.key === riderKey || r.workingId === riderKey);
+
     setFormData({
       riderWorkingId: record.workingId || record.sourceRiderId || '',
       riderName: record.riderName || '',
+      housingName: housing || existingRider?.housingName || '',
       substituteRiderName: record.substituteRiderName || null,
       performanceDate: record.performanceDate ? String(record.performanceDate).split('T')[0] : getTodayDate(),
       totalVerificationRequests: record.totalVerificationRequests ?? '',
@@ -958,37 +990,180 @@ export default function RiderDailyPerformancePage() {
     XLSX.writeFile(wb, `Rider_Daily_Performance_Template_${getTodayDate()}.xlsx`);
   };
 
-  // Export current records to Excel
+  // Export current records to Excel (Matrix with days as columns + Detailed breakdown)
   const handleExportExcel = () => {
     if (allRecords.length === 0) {
       showNotification('error', t.noRecords);
       return;
     }
 
-    const exportData = allRecords.map((r) => ({
-      ID: r.id,
-      'Working ID': r.workingId || r.sourceRiderId,
-      Rider: r.riderName || '-',
-      'Substitute Note': r.substituteRiderName
-        ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
-        : '-',
-      'Performance Date': r.performanceDate ? String(r.performanceDate).split('T')[0] : '-',
-      Segment: r.segment || '-',
-      'Gross Orders': r.grossOrders ?? 0,
-      'Completed Orders': r.completedOrders ?? 0,
-      'Completed Orders In Time': r.completedOrdersInTime ?? 0,
-      'Failed Orders By Rider': r.failedOrdersByRider ?? 0,
-      'On Time Delivery Score': r.onTimeDeliveryScore ?? 0,
-      'Final Delivery Quality Score': r.finalDeliveryQualityScore ?? 0,
-      'Total Verification Requests': r.totalVerificationRequests ?? 0,
-      'Successful Verification Requests': r.successfulVerificationRequests ?? 0,
-      'Verification Success Rate': r.verificationSuccessRate ?? 0,
-    }));
+    const ridersToExport = filteredRiders.length > 0 ? filteredRiders : ridersMatrix;
+    const ridersMap = new Map();
+    ridersMatrix.forEach((r) => {
+      ridersMap.set(String(r.key).trim(), r);
+      ridersMap.set(String(r.workingId).trim(), r);
+    });
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    // 1. Matrix Sheet (Columns are Days, matching the website)
+    const matrixRows = ridersToExport.map((rider) => {
+      const row = {
+        [isRtl ? 'الرقم التعريفي' : 'Working ID']: rider.workingId,
+        [isRtl ? 'اسم المندوب' : 'Rider Name']: rider.riderName || '-',
+        [isRtl ? 'السكن' : 'Housing']: rider.housingName || '-',
+        [isRtl ? 'الشريحة الحالية' : 'Current Segment']: rider.latestSegment || '-',
+        [isRtl ? 'أيام العمل' : 'Active Days']: rider.activeDaysCount ?? 0,
+        [isRtl ? 'إجمالي المكتمل' : 'Total Completed']: rider.totalCompletedOrders ?? 0,
+        [isRtl ? 'إجمالي الطلبات' : 'Total Gross']: rider.totalGrossOrders ?? 0,
+        [isRtl ? 'متوسط جودة التوصيل' : 'Avg Quality Score']:
+          rider.avgQualityScore !== null && rider.avgQualityScore !== undefined
+            ? `${Math.round(rider.avgQualityScore * 100)}%`
+            : '-',
+        [isRtl ? 'متوسط دقة المواعيد' : 'Avg On-Time Score']:
+          rider.avgOnTimeScore !== null && rider.avgOnTimeScore !== undefined
+            ? `${Math.round(rider.avgOnTimeScore * 100)}%`
+            : '-',
+        [isRtl ? 'نسبة نجاح التحقق' : 'Verification Rate']:
+          rider.verificationRate !== null && rider.verificationRate !== undefined
+            ? `${Math.round(rider.verificationRate * 100)}%`
+            : '-',
+        [isRtl ? 'ملاحظة البديل' : 'Substitute Note']: rider.latestSubstituteRiderName
+          ? (isRtl ? `يستخدم الحساب بواسطة: ${rider.latestSubstituteRiderName}` : `Account used by: ${rider.latestSubstituteRiderName}`)
+          : '-',
+      };
+
+      // Add each Day column for the period
+      periodDays.forEach((dateStr) => {
+        const dayRecord = rider.recordsByDate.get(dateStr);
+        const dayLabel = isRtl ? getArabicDayName(dateStr) : getEnglishDayName(dateStr);
+        const colKey = `${dateStr} (${dayLabel})`;
+
+        if (!dayRecord) {
+          row[colKey] = '-';
+          return;
+        }
+
+        const gross = Number(dayRecord.grossOrders) || 0;
+        const completed = Number(dayRecord.completedOrders) || 0;
+        const inTime = Number(dayRecord.completedOrdersInTime) || 0;
+        const failed = Number(dayRecord.failedOrdersByRider) || 0;
+        const seg = dayRecord.segment ? String(dayRecord.segment).toUpperCase().trim() : '';
+
+        switch (activeMetric) {
+          case 'segment':
+            row[colKey] = seg || '-';
+            break;
+          case 'orders':
+            row[colKey] = `${completed} / ${gross}`;
+            break;
+          case 'completedOrders':
+            row[colKey] = completed;
+            break;
+          case 'grossOrders':
+            row[colKey] = gross;
+            break;
+          case 'inTimeOrders':
+            row[colKey] = inTime;
+            break;
+          case 'failedOrders':
+            row[colKey] = failed;
+            break;
+          case 'onTimeScore':
+            row[colKey] = dayRecord.onTimeDeliveryScore != null
+              ? `${Math.round(Number(dayRecord.onTimeDeliveryScore) * 100)}%`
+              : '-';
+            break;
+          case 'qualityScore':
+            row[colKey] = dayRecord.finalDeliveryQualityScore != null
+              ? `${Math.round(Number(dayRecord.finalDeliveryQualityScore) * 100)}%`
+              : '-';
+            break;
+          case 'verificationRate':
+            row[colKey] = dayRecord.verificationSuccessRate != null
+              ? `${Math.round(Number(dayRecord.verificationSuccessRate) * 100)}%`
+              : '-';
+            break;
+          case 'combined':
+          default:
+            if (seg && (gross > 0 || completed > 0)) {
+              row[colKey] = `${seg} (${completed}/${gross})`;
+            } else if (seg) {
+              row[colKey] = seg;
+            } else if (gross > 0 || completed > 0) {
+              row[colKey] = `${completed}/${gross}`;
+            } else {
+              row[colKey] = '-';
+            }
+            break;
+        }
+      });
+
+      return row;
+    });
+
+    // 2. Detailed Breakdown Sheet (Every day's record with Housing Name)
+    const exportedRiderKeys = new Set(ridersToExport.map((r) => String(r.key).trim()));
+    const detailedRecords = allRecords
+      .filter((r) => {
+        const k = String(
+          r.workingId || r.sourceRiderId || r.riderWorkingId || r.riderId || 'unknown'
+        ).trim();
+        return exportedRiderKeys.has(k);
+      })
+      .sort((a, b) => {
+        const wComp = String(a.workingId || '').localeCompare(String(b.workingId || ''));
+        if (wComp !== 0) return wComp;
+        return String(b.performanceDate || '').localeCompare(String(a.performanceDate || ''));
+      });
+
+    const detailedRows = detailedRecords.map((r) => {
+      const riderKey = String(
+        r.workingId || r.sourceRiderId || r.riderWorkingId || r.riderId || 'unknown'
+      ).trim();
+      const riderObj = ridersMap.get(riderKey);
+      const rawH = getRecordHousing(r);
+      const housing = rawH ? String(rawH).trim() : (riderObj?.housingName || '-');
+      const dateStr = r.performanceDate ? String(r.performanceDate).split('T')[0] : '-';
+      const dayLabel = dateStr !== '-' ? (isRtl ? getArabicDayName(dateStr) : getEnglishDayName(dateStr)) : '-';
+
+      return {
+        [isRtl ? 'الرقم التعريفي' : 'Working ID']: r.workingId || r.sourceRiderId || riderObj?.workingId,
+        [isRtl ? 'اسم المندوب' : 'Rider Name']: r.riderName || riderObj?.riderName || '-',
+        [isRtl ? 'السكن' : 'Housing']: housing,
+        [isRtl ? 'تاريخ الأداء' : 'Performance Date']: dateStr,
+        [isRtl ? 'اليوم' : 'Day']: dayLabel,
+        [isRtl ? 'الشريحة' : 'Segment']: r.segment || '-',
+        [isRtl ? 'الطلبات المكتملة' : 'Completed Orders']: r.completedOrders ?? 0,
+        [isRtl ? 'إجمالي الطلبات' : 'Gross Orders']: r.grossOrders ?? 0,
+        [isRtl ? 'المكتملة بالوقت' : 'In-Time Orders']: r.completedOrdersInTime ?? 0,
+        [isRtl ? 'الملغاة بسبب المندوب' : 'Failed By Rider']: r.failedOrdersByRider ?? 0,
+        [isRtl ? 'دقة المواعيد %' : 'On-Time Score']: r.onTimeDeliveryScore != null
+          ? `${Math.round(Number(r.onTimeDeliveryScore) * 100)}%`
+          : '-',
+        [isRtl ? 'جودة التوصيل %' : 'Quality Score']: r.finalDeliveryQualityScore != null
+          ? `${Math.round(Number(r.finalDeliveryQualityScore) * 100)}%`
+          : '-',
+        [isRtl ? 'نسبة نجاح التحقق %' : 'Verification Rate']: r.verificationSuccessRate != null
+          ? `${Math.round(Number(r.verificationSuccessRate) * 100)}%`
+          : '-',
+        [isRtl ? 'التحقق الناجح' : 'Successful Verifications']: r.successfulVerificationRequests ?? 0,
+        [isRtl ? 'إجمالي التحقق' : 'Total Verifications']: r.totalVerificationRequests ?? 0,
+        [isRtl ? 'ملاحظة البديل' : 'Substitute Note']: r.substituteRiderName
+          ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
+          : '-',
+      };
+    });
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Performance');
-    XLSX.writeFile(wb, `Rider_Daily_Performance_${getTodayDate()}.xlsx`);
+    const wsMatrix = XLSX.utils.json_to_sheet(matrixRows);
+    XLSX.utils.book_append_sheet(wb, wsMatrix, isRtl ? 'مصفوفة الأيام' : 'Daily_Matrix');
+
+    if (detailedRows.length > 0) {
+      const wsDetails = XLSX.utils.json_to_sheet(detailedRows);
+      XLSX.utils.book_append_sheet(wb, wsDetails, isRtl ? 'سجل التفاصيل' : 'Detailed_Records');
+    }
+
+    const datePrefix = filterStartDate && filterEndDate ? `${filterStartDate}_${filterEndDate}` : getTodayDate();
+    XLSX.writeFile(wb, `Rider_Daily_Performance_${datePrefix}.xlsx`);
   };
 
   // Render a specific metric inside a daily cell
@@ -1622,6 +1797,11 @@ export default function RiderDailyPerformancePage() {
                     {t.riderName}
                   </th>
 
+                  {/* Housing Column */}
+                  <th className="px-2.5 py-2 text-center text-xs font-extrabold text-gray-700 uppercase tracking-wider whitespace-nowrap border-b border-gray-200 min-w-[105px]">
+                    {t.housingName}
+                  </th>
+
                   {/* Period Summary Column */}
                   <th className="px-2 py-2 text-center text-xs font-extrabold text-blue-900 uppercase tracking-wider whitespace-nowrap bg-blue-50/70 border-b border-blue-200 min-w-[105px]">
                     {t.periodSummary}
@@ -1652,7 +1832,7 @@ export default function RiderDailyPerformancePage() {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {loading ? (
                   <tr>
-                    <td colSpan={periodDays.length + 4} className="py-16 text-center text-gray-500">
+                    <td colSpan={periodDays.length + 5} className="py-16 text-center text-gray-500">
                       <div className="inline-flex items-center gap-3">
                         <RefreshCw className="animate-spin text-blue-600" size={24} />
                         <span className="text-sm font-semibold">{t.processing}</span>
@@ -1661,7 +1841,7 @@ export default function RiderDailyPerformancePage() {
                   </tr>
                 ) : filteredRiders.length === 0 ? (
                   <tr>
-                    <td colSpan={periodDays.length + 4} className="py-16 text-center text-gray-500">
+                    <td colSpan={periodDays.length + 5} className="py-16 text-center text-gray-500">
                       <div className="max-w-sm mx-auto flex flex-col items-center gap-2">
                         <FileSpreadsheet size={40} className="text-gray-300" />
                         <p className="text-sm font-medium text-gray-700">{t.noRecords}</p>
@@ -1709,6 +1889,15 @@ export default function RiderDailyPerformancePage() {
                               </span>
                             )}
                           </div>
+                          {rider.housingName && (
+                            <div
+                              className="text-[9px] text-indigo-700 font-medium truncate max-w-[130px] flex items-center gap-1 mt-0.5"
+                              title={`${t.housingName}: ${rider.housingName}`}
+                            >
+                              <Building2 size={10} className="shrink-0 text-indigo-500" />
+                              <span className="truncate">{rider.housingName}</span>
+                            </div>
+                          )}
                           {rider.latestSubstituteRiderName && (
                             <div
                               className="text-[9px] text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 mt-0.5 inline-flex items-center gap-1 max-w-[130px] truncate font-medium"
@@ -1717,6 +1906,21 @@ export default function RiderDailyPerformancePage() {
                               <Info size={9} className="text-amber-500 shrink-0" />
                               <span className="truncate">{rider.latestSubstituteRiderName}</span>
                             </div>
+                          )}
+                        </td>
+
+                        {/* Housing Column */}
+                        <td className="px-2.5 py-1.5 text-center whitespace-nowrap border-b border-gray-200 min-w-[105px]">
+                          {rider.housingName ? (
+                            <span
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-800 bg-slate-100/90 border border-slate-200 px-2 py-0.5 rounded-md max-w-[130px] truncate"
+                              title={rider.housingName}
+                            >
+                              <Building2 size={11} className="shrink-0 text-indigo-600" />
+                              <span className="truncate">{rider.housingName}</span>
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 font-bold text-xs">-</span>
                           )}
                         </td>
 
@@ -1841,6 +2045,19 @@ export default function RiderDailyPerformancePage() {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Housing info if present */}
+                {formData.housingName && (
+                  <div className="sm:col-span-2">
+                    <div className="p-2.5 rounded-lg bg-indigo-50/80 border border-indigo-200 text-indigo-900 text-xs flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-1.5">
+                        <Building2 size={14} className="text-indigo-600" />
+                        <span>{t.housingName}:</span>
+                      </span>
+                      <span className="font-bold">{formData.housingName}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Rider Working ID */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">

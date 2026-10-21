@@ -155,7 +155,7 @@ const translations = {
     viewInMainTableBtn: 'عرض في الجدول الرئيسي',
     closeBtn: 'إغلاق',
     printPeriodPdfBtn: 'طباعة PDF للفترة',
-    exportPeriodExcelBtn: 'تصدير Excel للفترة (3 أوراق)',
+    exportPeriodExcelBtn: 'تصدير Excel للفترة (4 أوراق عمل)',
     // Alerts
     alertSelectDate: 'يرجى تحديد تاريخ العمل',
     alertSelectRiderForEntry: 'الرجاء اختيار المندوب للإدخال رقم {num}',
@@ -181,7 +181,7 @@ const translations = {
     alertPeriodLoadSuccess: 'تم تحميل {count} سجل بنجاح عبر {days} يوم عمل!',
     alertPeriodLoadError: 'حدث خطأ أثناء تحميل بيانات الفترة',
     alertPeriodNoExportData: 'لا توجد سجلات لتصديرها في الفترة المحددة',
-    alertPeriodExcelSuccess: 'تم تصدير ملف Excel بنجاح ({count} سجل - 3 أوراق عمل)!',
+    alertPeriodExcelSuccess: 'تم تصدير ملف Excel بنجاح ({count} سجل - 4 أوراق عمل)!',
     alertPeriodExcelError: 'حدث خطأ أثناء تصدير ملف Excel للفترة',
     alertPeriodNoPrintData: 'لا توجد سجلات لطباعتها في الفترة المحددة',
     alertPeriodPdfDownloadSuccess: 'تم تحميل تقرير الفترة (PDF) بنجاح',
@@ -315,7 +315,7 @@ const translations = {
     viewInMainTableBtn: 'View in Main Table',
     closeBtn: 'Close',
     printPeriodPdfBtn: 'Print Period PDF',
-    exportPeriodExcelBtn: 'Export Period Excel (3 Sheets)',
+    exportPeriodExcelBtn: 'Export Period Excel (4 Sheets)',
     // Alerts
     alertSelectDate: 'Please select a work date',
     alertSelectRiderForEntry: 'Please select a rider for entry #{num}',
@@ -341,7 +341,7 @@ const translations = {
     alertPeriodLoadSuccess: 'Successfully loaded {count} records across {days} working days!',
     alertPeriodLoadError: 'Error loading period data',
     alertPeriodNoExportData: 'No records to export for the selected period',
-    alertPeriodExcelSuccess: 'Excel exported successfully ({count} records - 3 worksheets)!',
+    alertPeriodExcelSuccess: 'Excel exported successfully ({count} records - 4 worksheets)!',
     alertPeriodExcelError: 'Error exporting period Excel file',
     alertPeriodNoPrintData: 'No records to print for the selected period',
     alertPeriodPdfDownloadSuccess: 'Period report (PDF) downloaded successfully',
@@ -1123,7 +1123,158 @@ export default function VancosDailyWorkPage() {
     try {
       const workbook = XLSX.utils.book_new();
 
-      // Sheet 1: Detailed Daily Records
+      // Sheet 1: Daily Orders Matrix (Day-by-Day Orders per Rider, with dates as columns and totals at the end)
+      const periodDates = (currentData.dates && currentData.dates.length > 0)
+        ? currentData.dates
+        : Array.from(new Set(currentData.allRecords.map((r) => r.date))).sort();
+
+      const riderMatrixMap = new Map();
+      currentData.allRecords.forEach((item) => {
+        const p = resolvePerson(item);
+        const key = item.riderId ? `rider_${item.riderId}` : `iqama_${item.employeeIqamaNo}`;
+        if (!riderMatrixMap.has(key)) {
+          riderMatrixMap.set(key, {
+            name: p.name,
+            workingId: p.workingId || '—',
+            company: p.companyName || '—',
+            riderId: item.riderId || '—',
+            iqamaNo: item.employeeIqamaNo || p.iqamaNo || '—',
+            ordersByDate: new Map(),
+            hoursByDate: new Map(),
+            totalOrders: 0,
+            totalHours: 0,
+            daysWorked: new Set(),
+          });
+        }
+        const r = riderMatrixMap.get(key);
+        const ordersVal = item.orders ?? 0;
+        const hoursVal = Number(item.workingHours ?? 0);
+        r.ordersByDate.set(item.date, (r.ordersByDate.get(item.date) || 0) + ordersVal);
+        r.hoursByDate.set(item.date, (r.hoursByDate.get(item.date) || 0) + hoursVal);
+        r.totalOrders += ordersVal;
+        r.totalHours += hoursVal;
+        if (ordersVal > 0 || hoursVal > 0) {
+          r.daysWorked.add(item.date);
+        }
+      });
+
+      const matrixRows = Array.from(riderMatrixMap.values())
+        .sort((a, b) => b.totalOrders - a.totalOrders)
+        .map((r, idx) => {
+          const row = {};
+          if (isRtl) {
+            row['#'] = idx + 1;
+            row['اسم المندوب / الموظف'] = r.name;
+            row['معرف العمل (Working ID)'] = r.workingId;
+            row['الشركة'] = r.company;
+            row['رقم المندوب'] = r.riderId;
+            row['رقم الإقامة'] = r.iqamaNo;
+
+            // Day Columns with Orders
+            periodDates.forEach((dateStr) => {
+              const dayName = getDayName(dateStr);
+              const colKey = `${dateStr} (${dayName})`;
+              row[colKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+            });
+
+            // Totals at the end of the row
+            row['إجمالي الطلبات'] = r.totalOrders;
+            row['أيام العمل'] = r.daysWorked.size;
+            row['إجمالي ساعات العمل'] = Number(r.totalHours.toFixed(2));
+            row['متوسط الطلبات اليومي'] = r.daysWorked.size > 0 ? Number((r.totalOrders / r.daysWorked.size).toFixed(1)) : 0;
+          } else {
+            row['#'] = idx + 1;
+            row['Rider / Employee Name'] = r.name;
+            row['Working ID'] = r.workingId;
+            row['Company'] = r.company;
+            row['Rider ID'] = r.riderId;
+            row['Iqama No'] = r.iqamaNo;
+
+            // Day Columns with Orders
+            periodDates.forEach((dateStr) => {
+              const dayName = getDayName(dateStr);
+              const colKey = `${dateStr} (${dayName})`;
+              row[colKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+            });
+
+            // Totals at the end of the row
+            row['Total Orders'] = r.totalOrders;
+            row['Active Working Days'] = r.daysWorked.size;
+            row['Total Working Hours'] = Number(r.totalHours.toFixed(2));
+            row['Avg Daily Orders'] = r.daysWorked.size > 0 ? Number((r.totalOrders / r.daysWorked.size).toFixed(1)) : 0;
+          }
+          return row;
+        });
+
+      // Bottom Grand Totals Row
+      if (matrixRows.length > 0) {
+        const grandTotalRow = {};
+        if (isRtl) {
+          grandTotalRow['#'] = '';
+          grandTotalRow['اسم المندوب / الموظف'] = 'الإجمالي العام (Total)';
+          grandTotalRow['معرف العمل (Working ID)'] = '';
+          grandTotalRow['الشركة'] = '';
+          grandTotalRow['رقم المندوب'] = '';
+          grandTotalRow['رقم الإقامة'] = '';
+
+          let allOrdersSum = 0;
+          periodDates.forEach((dateStr) => {
+            const dayName = getDayName(dateStr);
+            const colKey = `${dateStr} (${dayName})`;
+            let dayOrdersSum = 0;
+            riderMatrixMap.forEach((r) => {
+              dayOrdersSum += r.ordersByDate.get(dateStr) || 0;
+            });
+            grandTotalRow[colKey] = dayOrdersSum;
+            allOrdersSum += dayOrdersSum;
+          });
+
+          let allHoursSum = 0;
+          riderMatrixMap.forEach((r) => {
+            allHoursSum += r.totalHours;
+          });
+
+          grandTotalRow['إجمالي الطلبات'] = allOrdersSum;
+          grandTotalRow['أيام العمل'] = '';
+          grandTotalRow['إجمالي ساعات العمل'] = Number(allHoursSum.toFixed(2));
+          grandTotalRow['متوسط الطلبات اليومي'] = '';
+        } else {
+          grandTotalRow['#'] = '';
+          grandTotalRow['Rider / Employee Name'] = 'GRAND TOTAL';
+          grandTotalRow['Working ID'] = '';
+          grandTotalRow['Company'] = '';
+          grandTotalRow['Rider ID'] = '';
+          grandTotalRow['Iqama No'] = '';
+
+          let allOrdersSum = 0;
+          periodDates.forEach((dateStr) => {
+            const dayName = getDayName(dateStr);
+            const colKey = `${dateStr} (${dayName})`;
+            let dayOrdersSum = 0;
+            riderMatrixMap.forEach((r) => {
+              dayOrdersSum += r.ordersByDate.get(dateStr) || 0;
+            });
+            grandTotalRow[colKey] = dayOrdersSum;
+            allOrdersSum += dayOrdersSum;
+          });
+
+          let allHoursSum = 0;
+          riderMatrixMap.forEach((r) => {
+            allHoursSum += r.totalHours;
+          });
+
+          grandTotalRow['Total Orders'] = allOrdersSum;
+          grandTotalRow['Active Working Days'] = '';
+          grandTotalRow['Total Working Hours'] = Number(allHoursSum.toFixed(2));
+          grandTotalRow['Avg Daily Orders'] = '';
+        }
+        matrixRows.push(grandTotalRow);
+      }
+
+      const wsMatrix = XLSX.utils.json_to_sheet(matrixRows);
+      XLSX.utils.book_append_sheet(workbook, wsMatrix, isRtl ? 'مصفوفة الطلبات اليومية' : 'Daily Orders Matrix');
+
+      // Sheet 2: Detailed Daily Records
       const detailedRows = currentData.allRecords.map((item, idx) => {
         const p = resolvePerson(item);
         if (isRtl) {
@@ -1157,7 +1308,7 @@ export default function VancosDailyWorkPage() {
       const wsDetailed = XLSX.utils.json_to_sheet(detailedRows);
       XLSX.utils.book_append_sheet(workbook, wsDetailed, isRtl ? 'السجل التفصيلي اليومي' : 'Detailed Daily Records');
 
-      // Sheet 2: Riders Summary
+      // Sheet 3: Riders Summary
       const riderMap = new Map();
       currentData.allRecords.forEach((item) => {
         const p = resolvePerson(item);
@@ -1216,7 +1367,7 @@ export default function VancosDailyWorkPage() {
       const wsRiders = XLSX.utils.json_to_sheet(ridersSummaryRows);
       XLSX.utils.book_append_sheet(workbook, wsRiders, isRtl ? 'ملخص أداء المناديب' : 'Riders Performance Summary');
 
-      // Sheet 3: Days Summary
+      // Sheet 4: Days Summary
       const daysRows = currentData.daysSummary.map((d, idx) => {
         if (isRtl) {
           return {

@@ -31,7 +31,8 @@ import {
   ShieldCheck,
   PackageCheck,
   AlertTriangle,
-  Info
+  Info,
+  Building2
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -51,6 +52,18 @@ import { ApiService } from '@/lib/api/apiService';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { useLanguage } from '@/lib/context/LanguageContext';
 
+const getRecordHousing = (record) => {
+  if (!record) return '';
+  return (
+    record.housingName ||
+    record.HousingName ||
+    record.housing ||
+    record.Housing ||
+    record.housing_name ||
+    ''
+  );
+};
+
 const translations = {
   en: {
     backToTable: 'Back to Performance Matrix',
@@ -59,6 +72,7 @@ const translations = {
     riderInfo: 'Rider Information',
     workingId: 'Working ID',
     riderName: 'Rider Name',
+    housingName: 'Housing',
     accountOwner: 'Account Owner',
     accountUsedBy: 'Account used by: ',
     substituteNote: 'Substitute Note',
@@ -151,6 +165,7 @@ const translations = {
     riderInfo: 'بيانات المندوب',
     workingId: 'الرقم التعريفي (Working ID)',
     riderName: 'اسم المندوب',
+    housingName: 'السكن',
     accountOwner: 'صاحب الحساب',
     accountUsedBy: 'يستخدم الحساب بواسطة: ',
     substituteNote: 'ملاحظة البديل',
@@ -414,9 +429,11 @@ function RiderDetailsContent() {
   const riderProfile = useMemo(() => {
     const first = records[0] || {};
     const latestWithSubstitute = records.find((r) => r.substituteRiderName);
+    const withHousing = records.find((r) => getRecordHousing(r));
     return {
       workingId: workingId,
       riderName: first.riderName || workingId,
+      housingName: withHousing ? getRecordHousing(withHousing) : null,
       riderId: first.riderId || null,
       sourceRiderId: first.sourceRiderId || first.workingId || workingId,
       currentSegment: first.segment || records.find((r) => r.segment)?.segment || '-',
@@ -685,29 +702,33 @@ function RiderDetailsContent() {
   // Export to Excel for this rider
   const handleExportExcel = () => {
     if (records.length === 0) return;
-    const exportData = records.map((r) => ({
-      'Working ID': r.workingId || workingId,
-      Rider: r.riderName || workingId,
-      'Performance Date': r.performanceDate ? String(r.performanceDate).split('T')[0] : '-',
-      Day: isRtl ? getArabicDayName(r.performanceDate) : getEnglishDayName(r.performanceDate),
-      'Substitute Note': r.substituteRiderName
-        ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
-        : '-',
-      Segment: r.segment || '-',
-      'Gross Orders': r.grossOrders ?? 0,
-      'Completed Orders': r.completedOrders ?? 0,
-      'In-Time Orders': r.completedOrdersInTime ?? 0,
-      'Failed Orders By Rider': r.failedOrdersByRider ?? 0,
-      'On-Time Delivery Score': r.onTimeDeliveryScore ?? 0,
-      'Final Quality Score': r.finalDeliveryQualityScore ?? 0,
-      'Verification Success Rate': r.verificationSuccessRate ?? 0,
-      'Successful Verification': r.successfulVerificationRequests ?? 0,
-      'Total Verification': r.totalVerificationRequests ?? 0,
-    }));
+    const exportData = records.map((r) => {
+      const housing = getRecordHousing(r) || riderProfile.housingName || '-';
+      return {
+        [isRtl ? 'الرقم التعريفي' : 'Working ID']: r.workingId || workingId,
+        [isRtl ? 'اسم المندوب' : 'Rider']: r.riderName || workingId,
+        [isRtl ? 'السكن' : 'Housing']: housing,
+        [isRtl ? 'تاريخ الأداء' : 'Performance Date']: r.performanceDate ? String(r.performanceDate).split('T')[0] : '-',
+        [isRtl ? 'اليوم' : 'Day']: isRtl ? getArabicDayName(r.performanceDate) : getEnglishDayName(r.performanceDate),
+        [isRtl ? 'ملاحظة البديل' : 'Substitute Note']: r.substituteRiderName
+          ? (isRtl ? `يستخدم الحساب بواسطة: ${r.substituteRiderName}` : `Account used by: ${r.substituteRiderName}`)
+          : '-',
+        [isRtl ? 'الشريحة' : 'Segment']: r.segment || '-',
+        [isRtl ? 'إجمالي الطلبات' : 'Gross Orders']: r.grossOrders ?? 0,
+        [isRtl ? 'الطلبات المكتملة' : 'Completed Orders']: r.completedOrders ?? 0,
+        [isRtl ? 'المكتملة في الوقت' : 'In-Time Orders']: r.completedOrdersInTime ?? 0,
+        [isRtl ? 'الملغاة بسبب المندوب' : 'Failed Orders By Rider']: r.failedOrdersByRider ?? 0,
+        [isRtl ? 'دقة المواعيد %' : 'On-Time Delivery Score']: r.onTimeDeliveryScore ?? 0,
+        [isRtl ? 'جودة التوصيل %' : 'Final Quality Score']: r.finalDeliveryQualityScore ?? 0,
+        [isRtl ? 'نسبة نجاح التحقق %' : 'Verification Success Rate']: r.verificationSuccessRate ?? 0,
+        [isRtl ? 'طلبات التحقق الناجحة' : 'Successful Verification']: r.successfulVerificationRequests ?? 0,
+        [isRtl ? 'إجمالي طلبات التحقق' : 'Total Verification']: r.totalVerificationRequests ?? 0,
+      };
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Rider_Performance');
+    XLSX.utils.book_append_sheet(wb, ws, isRtl ? 'سجل الأداء' : 'Rider_Performance');
     XLSX.writeFile(wb, `Rider_${workingId}_Performance_${getTodayDate()}.xlsx`);
   };
 
@@ -793,6 +814,12 @@ function RiderDetailsContent() {
                       )}`}
                     >
                       {t.currentSegment}: {riderProfile.currentSegment}
+                    </span>
+                  )}
+                  {riderProfile.housingName && (
+                    <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 inline-flex items-center gap-1.5 font-sans">
+                      <Building2 size={13} className="text-indigo-600" />
+                      <span>{t.housingName}: {riderProfile.housingName}</span>
                     </span>
                   )}
                   {riderProfile.substituteRiderName && (
@@ -1123,6 +1150,7 @@ function RiderDetailsContent() {
                     {t.dayOfWeek}
                   </th>
                   <th className="px-2.5 py-2 text-center whitespace-nowrap">{t.segment}</th>
+                  <th className="px-2.5 py-2 text-center whitespace-nowrap">{t.housingName}</th>
                   <th className="px-2.5 py-2 text-right rtl:text-right ltr:text-left whitespace-nowrap">
                     {t.ordersCompletedGross}
                   </th>
@@ -1147,7 +1175,7 @@ function RiderDetailsContent() {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {loading ? (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-gray-500">
+                    <td colSpan={11} className="py-12 text-center text-gray-500">
                       <div className="inline-flex items-center gap-2 font-medium">
                         <RefreshCw className="animate-spin text-blue-600" size={20} />
                         <span>{t.processing}</span>
@@ -1156,7 +1184,7 @@ function RiderDetailsContent() {
                   </tr>
                 ) : records.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-gray-500">
+                    <td colSpan={11} className="py-12 text-center text-gray-500">
                       <p className="text-sm font-medium">{t.noRecordsFound}</p>
                       <button
                         onClick={handleOpenCreate}
@@ -1204,6 +1232,18 @@ function RiderDetailsContent() {
                               )}`}
                             >
                               {r.segment}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-xs">-</span>
+                          )}
+                        </td>
+
+                        {/* Housing */}
+                        <td className="px-2.5 py-2 whitespace-nowrap text-center text-xs">
+                          {getRecordHousing(r) || riderProfile.housingName ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-800 bg-slate-100/90 border border-slate-200 px-2 py-0.5 rounded-md">
+                              <Building2 size={11} className="text-indigo-600" />
+                              <span>{getRecordHousing(r) || riderProfile.housingName}</span>
                             </span>
                           ) : (
                             <span className="text-slate-400 text-xs">-</span>
