@@ -1170,11 +1170,13 @@ export default function VancosDailyWorkPage() {
             row['رقم المندوب'] = r.riderId;
             row['رقم الإقامة'] = r.iqamaNo;
 
-            // Day Columns with Orders
+            // Day Columns with Orders and Working Hours
             periodDates.forEach((dateStr) => {
               const dayName = getDayName(dateStr);
-              const colKey = `${dateStr} (${dayName})`;
-              row[colKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+              const colOrdersKey = `${dateStr} (${dayName}) - الطلبات`;
+              const colHoursKey = `${dateStr} (${dayName}) - الساعات`;
+              row[colOrdersKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+              row[colHoursKey] = r.hoursByDate.has(dateStr) ? Number(r.hoursByDate.get(dateStr).toFixed(2)) : 0;
             });
 
             // Totals at the end of the row
@@ -1190,11 +1192,13 @@ export default function VancosDailyWorkPage() {
             row['Rider ID'] = r.riderId;
             row['Iqama No'] = r.iqamaNo;
 
-            // Day Columns with Orders
+            // Day Columns with Orders and Working Hours
             periodDates.forEach((dateStr) => {
               const dayName = getDayName(dateStr);
-              const colKey = `${dateStr} (${dayName})`;
-              row[colKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+              const colOrdersKey = `${dateStr} (${dayName}) - Orders`;
+              const colHoursKey = `${dateStr} (${dayName}) - Hours`;
+              row[colOrdersKey] = r.ordersByDate.has(dateStr) ? r.ordersByDate.get(dateStr) : 0;
+              row[colHoursKey] = r.hoursByDate.has(dateStr) ? Number(r.hoursByDate.get(dateStr).toFixed(2)) : 0;
             });
 
             // Totals at the end of the row
@@ -1218,20 +1222,21 @@ export default function VancosDailyWorkPage() {
           grandTotalRow['رقم الإقامة'] = '';
 
           let allOrdersSum = 0;
+          let allHoursSum = 0;
           periodDates.forEach((dateStr) => {
             const dayName = getDayName(dateStr);
-            const colKey = `${dateStr} (${dayName})`;
+            const colOrdersKey = `${dateStr} (${dayName}) - الطلبات`;
+            const colHoursKey = `${dateStr} (${dayName}) - الساعات`;
             let dayOrdersSum = 0;
+            let dayHoursSum = 0;
             riderMatrixMap.forEach((r) => {
               dayOrdersSum += r.ordersByDate.get(dateStr) || 0;
+              dayHoursSum += r.hoursByDate.get(dateStr) || 0;
             });
-            grandTotalRow[colKey] = dayOrdersSum;
+            grandTotalRow[colOrdersKey] = dayOrdersSum;
+            grandTotalRow[colHoursKey] = Number(dayHoursSum.toFixed(2));
             allOrdersSum += dayOrdersSum;
-          });
-
-          let allHoursSum = 0;
-          riderMatrixMap.forEach((r) => {
-            allHoursSum += r.totalHours;
+            allHoursSum += dayHoursSum;
           });
 
           grandTotalRow['إجمالي الطلبات'] = allOrdersSum;
@@ -1247,20 +1252,21 @@ export default function VancosDailyWorkPage() {
           grandTotalRow['Iqama No'] = '';
 
           let allOrdersSum = 0;
+          let allHoursSum = 0;
           periodDates.forEach((dateStr) => {
             const dayName = getDayName(dateStr);
-            const colKey = `${dateStr} (${dayName})`;
+            const colOrdersKey = `${dateStr} (${dayName}) - Orders`;
+            const colHoursKey = `${dateStr} (${dayName}) - Hours`;
             let dayOrdersSum = 0;
+            let dayHoursSum = 0;
             riderMatrixMap.forEach((r) => {
               dayOrdersSum += r.ordersByDate.get(dateStr) || 0;
+              dayHoursSum += r.hoursByDate.get(dateStr) || 0;
             });
-            grandTotalRow[colKey] = dayOrdersSum;
+            grandTotalRow[colOrdersKey] = dayOrdersSum;
+            grandTotalRow[colHoursKey] = Number(dayHoursSum.toFixed(2));
             allOrdersSum += dayOrdersSum;
-          });
-
-          let allHoursSum = 0;
-          riderMatrixMap.forEach((r) => {
-            allHoursSum += r.totalHours;
+            allHoursSum += dayHoursSum;
           });
 
           grandTotalRow['Total Orders'] = allOrdersSum;
@@ -1272,7 +1278,7 @@ export default function VancosDailyWorkPage() {
       }
 
       const wsMatrix = XLSX.utils.json_to_sheet(matrixRows);
-      XLSX.utils.book_append_sheet(workbook, wsMatrix, isRtl ? 'مصفوفة الطلبات اليومية' : 'Daily Orders Matrix');
+      XLSX.utils.book_append_sheet(workbook, wsMatrix, isRtl ? 'مصفوفة العمل اليومي' : 'Daily Work Matrix');
 
       // Sheet 2: Detailed Daily Records
       const detailedRows = currentData.allRecords.map((item, idx) => {
