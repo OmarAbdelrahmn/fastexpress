@@ -1,4 +1,4 @@
-export default function Card({ children, className = '', title = null }) {
+export default function Card({ children, className = '', title = null, bodyClassName = 'p-6' }) {
   return (
     <div className={`bg-white rounded-lg shadow-md ${className}`}>
       {title && (
@@ -6,7 +6,7 @@ export default function Card({ children, className = '', title = null }) {
           <h3 className="text-lg font-bold text-white">{title}</h3>
         </div>
       )}
-      <div className="p-6">
+      <div className={bodyClassName}>
         {children}
       </div>
     </div>

@@ -36,6 +36,8 @@ export default function VehicleManagePage() {
     manufacturer: '',
     manufactureYear: '',
     licenseExpiryDate: '',
+    insuranceExpiryDate: '',
+    inspectionExpiryDate: '',
     location: '',
     vehicleImagePath: '',
     licenseImagePath: '',
@@ -88,7 +90,9 @@ export default function VehicleManagePage() {
             ownerName: formData.ownerName,
             manufacturer: formData.manufacturer,
             manufactureYear: parseInt(formData.manufactureYear),
-            licenseExpiryDate: formData.licenseExpiryDate,
+            licenseExpiryDate: formData.licenseExpiryDate || null,
+            insuranceExpiryDate: formData.insuranceExpiryDate || null,
+            inspectionExpiryDate: formData.inspectionExpiryDate || null,
             location: formData.location,
             vehicleImagePath: formData.vehicleImagePath,
             licenseImagePath: formData.licenseImagePath,
@@ -109,7 +113,9 @@ export default function VehicleManagePage() {
           ownerName: formData.ownerName,
           manufacturer: formData.manufacturer,
           manufactureYear: parseInt(formData.manufactureYear),
-          licenseExpiryDate: formData.licenseExpiryDate,
+          licenseExpiryDate: formData.licenseExpiryDate || null,
+          insuranceExpiryDate: formData.insuranceExpiryDate || null,
+          inspectionExpiryDate: formData.inspectionExpiryDate || null,
           location: formData.location,
           vehicleImagePath: formData.vehicleImagePath || null,
           licenseImagePath: formData.licenseImagePath || null,
@@ -144,6 +150,8 @@ export default function VehicleManagePage() {
       manufacturer: vehicle.manufacturer || '',
       manufactureYear: vehicle.manufactureYear?.toString() || '',
       licenseExpiryDate: vehicle.licenseExpiryDate ? vehicle.licenseExpiryDate.split('T')[0] : '',
+      insuranceExpiryDate: vehicle.insuranceExpiryDate ? vehicle.insuranceExpiryDate.split('T')[0] : '',
+      inspectionExpiryDate: vehicle.inspectionExpiryDate ? vehicle.inspectionExpiryDate.split('T')[0] : '',
       location: vehicle.location || '',
       vehicleImagePath: vehicle.vehicleImagePath || '',
       licenseImagePath: vehicle.licenseImagePath || '',
@@ -185,6 +193,8 @@ export default function VehicleManagePage() {
       manufacturer: '',
       manufactureYear: '',
       licenseExpiryDate: '',
+      insuranceExpiryDate: '',
+      inspectionExpiryDate: '',
       location: '',
       vehicleImagePath: '',
       licenseImagePath: '',
@@ -472,6 +482,22 @@ export default function VehicleManagePage() {
                   value={formData.licenseExpiryDate}
                   onChange={handleInputChange}
                 />
+
+                <Input
+                  label={t('vehicles.insuranceExpiryDate')}
+                  type="date"
+                  name="insuranceExpiryDate"
+                  value={formData.insuranceExpiryDate}
+                  onChange={handleInputChange}
+                />
+
+                <Input
+                  label={t('vehicles.inspectionExpiryDate')}
+                  type="date"
+                  name="inspectionExpiryDate"
+                  value={formData.inspectionExpiryDate}
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
 
@@ -592,11 +618,27 @@ export default function VehicleManagePage() {
                     <p className="text-gray-600 mb-1">{t('vehicles.ownerId')}</p>
                     <p className="font-medium">{selectedVehicle.ownerId || t('vehicles.notSpecified')}</p>
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <p className="text-gray-600 mb-1">{t('vehicles.licenseExpiryDate')}</p>
                     <p className="font-medium">
                       {selectedVehicle.licenseExpiryDate
                         ? formatLicenseExpiry(selectedVehicle.licenseExpiryDate)
+                        : t('vehicles.notSpecified')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 mb-1">{t('vehicles.insuranceExpiryDate')}</p>
+                    <p className="font-medium">
+                      {selectedVehicle.insuranceExpiryDate
+                        ? formatLicenseExpiry(selectedVehicle.insuranceExpiryDate)
+                        : t('vehicles.notSpecified')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 mb-1">{t('vehicles.inspectionExpiryDate')}</p>
+                    <p className="font-medium">
+                      {selectedVehicle.inspectionExpiryDate
+                        ? formatLicenseExpiry(selectedVehicle.inspectionExpiryDate)
                         : t('vehicles.notSpecified')}
                     </p>
                   </div>

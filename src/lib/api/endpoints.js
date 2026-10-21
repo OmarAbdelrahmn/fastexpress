@@ -117,6 +117,12 @@ export const API_ENDPOINTS = {
     RESOLVE_COMPARISONS: "/api/shift/comparisons/resolve",
   },
 
+  // Daily Work (Vancos)
+  DAILY_WORK: {
+    GET: (date) => `/api/daily-work?date=${encodeURIComponent(date)}`,
+    SAVE: "/api/daily-work",
+  },
+
   OUTAGE_SHIFT_PERFORMANCES: {
     LIST: "/api/outage-shift-performances",
     CREATE: "/api/outage-shift-performances",
@@ -193,6 +199,17 @@ export const API_ENDPOINTS = {
     RECOVER_STOLEN: "/api/vehicles/recover-stolen",
     GROUP_BY_STATUS: "/api/vehicles/group-by-status",
     RESOLVE_SWITCH: "/api/vehicles/resolve-switch",
+    DOCUMENTS_EXPIRING: "/api/vehicles/documents/expiring",
+    DOCUMENTS_MISSING: "/api/vehicles/documents/missing",
+    DOCUMENTS_REMINDERS: "/api/vehicles/documents/reminders",
+    UPDATE_DOCUMENTS: (vehicleNumber) => `/api/vehicles/documents/${vehicleNumber}`,
+    DOCUMENTS_IMPORT: (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.dryRun !== undefined) qs.append('dryRun', String(params.dryRun));
+      if (params.worksheetName) qs.append('worksheetName', params.worksheetName);
+      const q = qs.toString();
+      return `/api/vehicles/documents/import${q ? '?' + q : ''}`;
+    },
   },
 
   TEMP: {

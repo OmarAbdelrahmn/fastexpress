@@ -69,6 +69,9 @@ const pathTranslationKeys = {
   "admin/vehicles/history": "navigation.vehiclesHistory",
   "admin/vehicles/with-riders": "vehicles.vehiclesWithRidersTitle",
   "admin/vehicles/take": "vehicles.takeVehicle",
+  "admin/vehicles/reminders": "navigation.vehicleDocuments",
+  "admin/vehicles/reminders/import": "تحديث تواريخ الوثائق مجمّعاً",
+  "admin/vehicles/documents/import": "تحديث تواريخ الوثائق مجمّعاً",
   "admin/vehicles/return": "vehicles.returnVehicle",
   "admin/vehicles/manage": "navigation.manageVehicles",
   "admin/vehicles/change-location": "vehicles.changeLocation",
@@ -152,6 +155,7 @@ const pathTranslationKeys = {
   "admin/shifts/hunger-disabilities/year": "navigation.year",
   "admin/shifts/keta-freelancer": "navigation.ketaFreelancer",
   "admin/shifts/keta-freelancer/import": "navigation.importShifts",
+  "admin/shifts/vancos": "navigation.vancos",
 
   // ─── Substitution ──────────────────────────────────────────────────────────
   "admin/substitution": "navigation.substitution",

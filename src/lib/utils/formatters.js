@@ -150,3 +150,38 @@ export const matchesCompanySearch = (companyName, searchStr) => {
     
     return false;
 };
+
+/**
+ * Converts a Gregorian date string (YYYY-MM-DD) to Hijri date string (YYYY-MM-DD)
+ * using the official Umm al-Qura calendar.
+ * @param {string} gregorianDateStr
+ * @returns {string} Hijri date in YYYY-MM-DD
+ */
+export const gregorianToHijri = (gregorianDateStr) => {
+    if (!gregorianDateStr) return '';
+    try {
+        const [y, m, d] = gregorianDateStr.split('T')[0].split('-').map(Number);
+        if (!y || !m || !d) return '';
+        const dt = new Date(y, m - 1, d);
+        if (isNaN(dt.getTime())) return '';
+
+        const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).formatToParts(dt);
+
+        const hy = parts.find((p) => p.type === 'year')?.value?.replace(/\D/g, '')?.padStart(4, '0');
+        const hm = parts.find((p) => p.type === 'month')?.value?.replace(/\D/g, '')?.padStart(2, '0');
+        const hd = parts.find((p) => p.type === 'day')?.value?.replace(/\D/g, '')?.padStart(2, '0');
+
+        if (hy && hm && hd) {
+            return `${hy}-${hm}-${hd}`;
+        }
+        return '';
+    } catch (err) {
+        console.error('Error converting Gregorian to Hijri:', err);
+        return '';
+    }
+};
+

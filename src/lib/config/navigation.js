@@ -132,6 +132,7 @@ export const adminNavigationConfig = {
       { path: "/admin/vehicles/with-riders", label: "navigation.vehiclesWithRiders" },
       { path: "/admin/vehicles", label: "navigation.manageVehicles" },
       { path: "/admin/vehicles/take", label: "navigation.takeVehicle" },
+      { path: "/admin/vehicles/reminders", label: "navigation.vehicleDocuments", roles: ["Master", "Admin"] },
     ],
   },
 
@@ -172,6 +173,7 @@ export const adminNavigationConfig = {
       { path: "/admin/shifts/rider-daily-performance", label: "navigation.riderDailyPerformance" },
       { path: "/admin/hunger", label: "navigation.hunger" },
       { path: "/admin/keeta", label: "navigation.keeta" },
+      { path: "/admin/shifts/vancos", label: "navigation.vancos", roles: ["Master", "Admin"] },
     ],
   },
   

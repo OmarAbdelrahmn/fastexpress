@@ -226,6 +226,34 @@ export default function VehicleDetailsPage() {
                   </p>
                 </div>
               )}
+
+              {vehicle.insuranceExpiryDate && (
+                <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar size={16} className="text-emerald-600" />
+                    <p className="text-sm font-bold text-emerald-800">
+                      {t("vehicles.insuranceExpiryDate")}
+                    </p>
+                  </div>
+                  <p className="text-emerald-700 font-medium">
+                    {formatLicenseExpiry(vehicle.insuranceExpiryDate)}
+                  </p>
+                </div>
+              )}
+
+              {vehicle.inspectionExpiryDate && (
+                <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar size={16} className="text-purple-600" />
+                    <p className="text-sm font-bold text-purple-800">
+                      {t("vehicles.inspectionExpiryDate")}
+                    </p>
+                  </div>
+                  <p className="text-purple-700 font-medium">
+                    {formatLicenseExpiry(vehicle.inspectionExpiryDate)}
+                  </p>
+                </div>
+              )}
             </div>
           </Card>
 

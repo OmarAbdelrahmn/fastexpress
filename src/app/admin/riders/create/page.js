@@ -9,11 +9,11 @@ import Button from '@/components/Ui/Button';
 import Alert from '@/components/Ui/Alert';
 import Input from '@/components/Ui/Input';
 import PageHeader from '@/components/layout/pageheader';
-import { UserPlus, ArrowRight, Save } from 'lucide-react';
+import { UserPlus, ArrowRight, Save, UserCheck, Briefcase } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import SearchableSelect from '@/components/Ui/SearchableSelect';
 import YesNoSwitch from '@/components/Ui/YesNoSwitch';
-
+import { gregorianToHijri } from '@/lib/utils/formatters';
 
 export default function CreateRiderPage() {
   const { t } = useLanguage();
@@ -31,8 +31,8 @@ export default function CreateRiderPage() {
     passportNo: '',
     passportEnd: '',
     sponsorNo: '',
-    sponsor: '',
-    jobTitle: '',
+    sponsor: 'الخدمة السريعة',
+    jobTitle: 'سائق دراجة نارية',
     nameAR: '',
     nameEN: '',
     country: '',
@@ -43,8 +43,9 @@ export default function CreateRiderPage() {
     inksa: true,
     workingId: '',
     tshirtSize: '',
-    licenseNumber: '',
+    licenseNumber: '0',
     companyName: '',
+    housingName: '',
     isEmployee: false,
     isFreelancer: false,
   });
@@ -70,18 +71,28 @@ export default function CreateRiderPage() {
       setHousings(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error loading housings:', err);
-      // Optional: show error or just log it
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
+    const updatedValue = type === 'checkbox' ? checked : value;
 
+    if (name === 'iqamaEndM') {
+      const hijriDate = gregorianToHijri(updatedValue);
+      setFormData((prev) => ({
+        ...prev,
+        iqamaEndM: updatedValue,
+        iqamaEndH: hijriDate || prev.iqamaEndH,
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: updatedValue,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,30 +100,39 @@ export default function CreateRiderPage() {
     setErrorMessage('');
     setSuccessMessage('');
 
+    if (!formData.iqamaNo) {
+      setErrorMessage(t('employees.enterIqamaNumber') || 'يرجى إدخال رقم الإقامة');
+      setLoading(false);
+      return;
+    }
+
+    const hijriCalculated = formData.iqamaEndM ? gregorianToHijri(formData.iqamaEndM) : '';
+    const finalHijri = formData.iqamaEndH || hijriCalculated || '';
+
     try {
       const requestData = {
-        iqamaNo: parseInt(formData.iqamaNo),
+        iqamaNo: parseInt(formData.iqamaNo, 10),
         iqamaEndM: formData.iqamaEndM,
-        iqamaEndH: formData.iqamaEndH,
-        passportNo: formData.passportNo,
+        iqamaEndH: finalHijri,
+        passportNo: formData.passportNo || '',
         passportEnd: formData.passportEnd || null,
         sponsorNo: formData.sponsorNo,
-        sponsor: formData.sponsor,
-        jobTitle: formData.jobTitle,
+        sponsor: formData.sponsor || 'الخدمة السريعة',
+        jobTitle: formData.jobTitle || 'سائق دراجة نارية',
         nameAR: formData.nameAR,
         nameEN: formData.nameEN,
         country: formData.country,
         phone: formData.phone,
         dateOfBirth: formData.dateOfBirth,
         status: formData.status,
-        iban: formData.iban,
-        inksa: formData.inksa,
-        workingId: formData.workingId,
-        tshirtSize: formData.tshirtSize,
+        iban: formData.iban || '',
+        inksa: Boolean(formData.inksa),
+        workingId: formData.workingId || '',
+        tshirtSize: formData.tshirtSize || '',
         licenseNumber: '0',
-        companyName: formData.companyName,
-        isEmployee: formData.isEmployee,
-        isFreelancer: Boolean(formData.isFreelancer)
+        companyName: formData.companyName || '',
+        isEmployee: Boolean(formData.isEmployee),
+        isFreelancer: Boolean(formData.isFreelancer),
       };
 
       await ApiService.post(API_ENDPOINTS.RIDER.CREATE, requestData);
@@ -120,22 +140,18 @@ export default function CreateRiderPage() {
       // Add to housing if selected
       if (formData.housingName) {
         try {
-          // The API endpoint seems to be (iqamaNo, housingName)
-          // based on: ADD_EMPLOYEE: (iqamaNo, housingName) => `/api/housing/${iqamaNo}/add/${housingName}`
           await ApiService.put(
             API_ENDPOINTS.HOUSING.ADD_EMPLOYEE(requestData.iqamaNo, formData.housingName)
           );
         } catch (housingErr) {
           console.error('Error adding to housing:', housingErr);
-          // We don't fail the whole process if housing add fails, but maybe alert user?
-          // For now, proceeding as success but logging error.
         }
       }
 
       setSuccessMessage(t('riders.createSuccess'));
       setTimeout(() => {
         router.push('/admin/riders');
-      }, 2000);
+      }, 1500);
     } catch (err) {
       console.error('Error creating rider:', err);
       setErrorMessage(err?.message || t('riders.createError'));
@@ -145,8 +161,8 @@ export default function CreateRiderPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
+      <div className="w-full max-w-none pb-6"> 
+       <PageHeader
         title={t('riders.addRider')}
         subtitle={t('riders.enterRiderData')}
         icon={UserPlus}
@@ -154,7 +170,7 @@ export default function CreateRiderPage() {
           text: t('navigation.backToList'),
           icon: <ArrowRight size={18} />,
           onClick: () => router.push('/admin/riders'),
-          variant: 'secondary'
+          variant: 'secondary',
         }}
       />
 
@@ -176,26 +192,19 @@ export default function CreateRiderPage() {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Personal Information */}
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800">{t('employees.personalInfo')}</h3>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="isEmployee"
-                id="isEmployee"
-                checked={formData.isEmployee}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-              />
-              <label htmlFor="isEmployee" className="text-sm font-medium text-gray-700 cursor-pointer">
-                {t('common.isEmployee')}
-              </label>
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+        {/* Section 1: Personal & Identification Details */}
+        <Card bodyClassName="p-4 sm:p-5">
+          <div className="flex items-center gap-2 pb-2.5 mb-3.5 border-b border-gray-100">
+            <div className="w-1.5 h-4 bg-[#1b428e] rounded-full"></div>
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+              <UserCheck size={16} className="text-[#1b428e]" />
+              {t('employees.personalInfo')} & {t('employees.iqamaPassportDetails')}
+            </h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          {/* Personal Information (8 fields in 2 rows of 4) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3.5">
             <Input
               label={t('employees.iqamaNumber')}
               type="number"
@@ -203,6 +212,7 @@ export default function CreateRiderPage() {
               value={formData.iqamaNo}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('employees.enterIqamaNumber')}
             />
 
@@ -213,6 +223,7 @@ export default function CreateRiderPage() {
               value={formData.nameAR}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('employees.enterNameArabic')}
             />
 
@@ -223,16 +234,19 @@ export default function CreateRiderPage() {
               value={formData.nameEN}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('employees.enterNameEnglish')}
             />
 
             <Input
-              label={t('employees.passportNumber')}
+              label={t('common.phone')}
               type="text"
-              name="passportNo"
-              value={formData.passportNo}
+              name="phone"
+              value={formData.phone}
               onChange={handleInputChange}
-              placeholder={t('employees.enterPassportNumber')}
+              required
+              compact
+              placeholder="05xxxxxxxx"
             />
 
             <div>
@@ -242,7 +256,7 @@ export default function CreateRiderPage() {
                 value={formData.country}
                 onChange={handleInputChange}
                 required
-                placeholder={'اختر الدولة'}
+                placeholder="اختر الدولة"
                 options={[
                   "المملكة العربية السعودية", "مصر", "الهند", "باكستان", "بنغلاديش", "الفلبين",
                   "السودان", "اليمن", "الأردن", "سوريا", "لبنان", "فلسطين", "العراق",
@@ -255,33 +269,24 @@ export default function CreateRiderPage() {
             </div>
 
             <Input
-              label={t('common.phone')}
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-              placeholder="05xxxxxxxx"
-            />
-
-            <Input
               label={t('employees.dateOfBirth')}
               type="date"
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleInputChange}
               required
+              compact
             />
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('common.status')}
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1b428e] focus:border-transparent bg-white"
               >
                 <option value="enable">{t('status.enable')}</option>
                 <option value="disable">{t('status.disable')}</option>
@@ -291,49 +296,55 @@ export default function CreateRiderPage() {
                 <option value="sick">{t('status.sick')}</option>
               </select>
             </div>
-          </div>
-        </Card>
-
-        {/* Iqama & Passport Details */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.iqamaPassportDetails')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Input
-              label={t('employees.iqamaEndDateM')}
-              type="date"
-              name="iqamaEndM"
-              value={formData.iqamaEndM}
-              onChange={handleInputChange}
-              required
-            />
 
             <Input
-              label={t('employees.iqamaEndDateH')}
+              label={t('employees.passportNumber')}
               type="text"
-              name="iqamaEndH"
-              placeholder={t('employees.iqamaEndDateHExample')}
-              value={formData.iqamaEndH}
-              onChange={(e) =>
-                setFormData({ ...formData, iqamaEndH: e.target.value })
-              }
-              dir="rtl"
-              required
-            />
-
-            <Input
-              label={t('employees.passportEndDate')}
-              type="date"
-              name="passportEnd"
-              value={formData.passportEnd}
+              name="passportNo"
+              value={formData.passportNo}
               onChange={handleInputChange}
+              compact
+              placeholder={t('employees.enterPassportNumber')}
             />
+          </div>
+
+          {/* Expiry Dates (2 balanced columns side-by-side) */}
+          <div className="pt-3 border-t border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label={t('employees.iqamaEndDateM')}
+                type="date"
+                name="iqamaEndM"
+                value={formData.iqamaEndM}
+                onChange={handleInputChange}
+                required
+                compact
+              />
+
+              <Input
+                label={t('employees.passportEndDate')}
+                type="date"
+                name="passportEnd"
+                value={formData.passportEnd}
+                onChange={handleInputChange}
+                compact
+              />
+            </div>
           </div>
         </Card>
 
-        {/* Sponsor Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.sponsorInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Section 2: Sponsor, Job & Housing Details */}
+        <Card bodyClassName="p-4 sm:p-5">
+          <div className="flex items-center gap-2 pb-2.5 mb-3.5 border-b border-gray-100">
+            <div className="w-1.5 h-4 bg-orange-500 rounded-full"></div>
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+              <Briefcase size={16} className="text-orange-500" />
+              {t('employees.sponsorInfo')} & {t('riders.riderInfo')}
+            </h3>
+          </div>
+
+          {/* 8 fields in 2 rows of 4 columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Input
               label={t('employees.sponsorNumber')}
               type="number"
@@ -341,6 +352,7 @@ export default function CreateRiderPage() {
               value={formData.sponsorNo}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('employees.enterSponsorNumber')}
             />
 
@@ -348,9 +360,10 @@ export default function CreateRiderPage() {
               label={t('employees.sponsor')}
               type="text"
               name="sponsor"
-              value={formData.sponsor || 'الخدمة السريعة'}
+              value={formData.sponsor}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('employees.enterSponsorName')}
             />
 
@@ -358,72 +371,42 @@ export default function CreateRiderPage() {
               label={t('employees.jobTitle')}
               type="text"
               name="jobTitle"
-              value={formData.jobTitle || 'سائق دراجة نارية'}
+              value={formData.jobTitle}
               onChange={handleInputChange}
               required
+              compact
               placeholder={t('riders.jobTitleExample')}
             />
-          </div>
-        </Card>
 
-        {/* Banking Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('employees.bankingInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label={t('employees.iban')}
               type="text"
               name="iban"
               value={formData.iban}
               onChange={handleInputChange}
+              compact
               placeholder="SA..."
             />
-          </div>
-        </Card>
 
-        {/* Rider Specific Information */}
-        <Card>
-          <h3 className="text-lg font-bold text-gray-800 mb-4">{t('riders.riderInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label={t('riders.workingId')}
               type="text"
               name="workingId"
               value={formData.workingId}
               onChange={handleInputChange}
+              compact
               placeholder={t('riders.enterWorkingId')}
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.tshirtSize')} {!formData.isEmployee && <span className="text-red-500">*</span>}
-              </label>
-              <select
-                name="tshirtSize"
-                value={formData.tshirtSize}
-                onChange={handleInputChange}
-                required={!formData.isEmployee}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="">{t('riders.selectSize')}</option>
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-                <option value="XXL">XXL</option>
-                <option value="XXXL">XXXL</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 {t('riders.company')}
               </label>
               <select
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1b428e] focus:border-transparent bg-white"
               >
                 <option value="">{t('riders.selectCompany')}</option>
                 {companies.map((company) => (
@@ -435,14 +418,14 @@ export default function CreateRiderPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 السكن
               </label>
               <select
                 name="housingName"
                 value={formData.housingName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1b428e] focus:border-transparent bg-white"
               >
                 <option value="">السكن</option>
                 {housings.map((h) => (
@@ -454,38 +437,94 @@ export default function CreateRiderPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('riders.freelancerStatus')}
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t('riders.tshirtSize')} {!formData.isEmployee && <span className="text-red-500">*</span>}
               </label>
-              <div className="flex items-center">
-                <YesNoSwitch
-                  value={formData.isFreelancer}
-                  onChange={(val) => setFormData({ ...formData, isFreelancer: val })}
-                  yesLabel={t('common.yes')}
-                  noLabel={t('common.no')}
-                />
-              </div>
+              <select
+                name="tshirtSize"
+                value={formData.tshirtSize}
+                onChange={handleInputChange}
+                required={!formData.isEmployee}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1b428e] focus:border-transparent bg-white"
+              >
+                <option value="">{t('riders.selectSize')}</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+                <option value="XXXL">XXXL</option>
+              </select>
             </div>
           </div>
         </Card>
 
-        {/* Submit Buttons */}
-        <Card>
-          <div className="flex gap-3 justify-end">
+        {/* Section 3: Status & Options Bar */}
+        <div className="bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-semibold text-gray-700">موظف (ليس مندوب توصيل):</span>
+              <YesNoSwitch
+                value={formData.isEmployee}
+                onChange={(val) => setFormData((prev) => ({ ...prev, isEmployee: val }))}
+                yesLabel={t('common.yes')}
+                noLabel={t('common.no')}
+              />
+            </div>
+
+            <div className="h-4 w-px bg-gray-200 hidden sm:block"></div>
+
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-semibold text-gray-700">داخل المملكة (In KSA):</span>
+              <YesNoSwitch
+                value={formData.inksa}
+                onChange={(val) => setFormData((prev) => ({ ...prev, inksa: val }))}
+                yesLabel={t('common.yes')}
+                noLabel={t('common.no')}
+              />
+            </div>
+
+            <div className="h-4 w-px bg-gray-200 hidden sm:block"></div>
+
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-semibold text-gray-700">حالة الفريلانسر (Freelancer):</span>
+              <YesNoSwitch
+                value={formData.isFreelancer}
+                onChange={(val) => setFormData((prev) => ({ ...prev, isFreelancer: val }))}
+                yesLabel={t('common.yes')}
+                noLabel={t('common.no')}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions Footer */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm">
+          <span className="text-xs text-gray-500">
+            * الحقول المميزة بعلامة النجمة إلزامية
+          </span>
+          <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="secondary"
+              size="sm"
               onClick={() => router.push('/admin/riders')}
               disabled={loading}
             >
               {t('common.cancel')}
             </Button>
-            <Button type="submit" loading={loading} disabled={loading}>
-              <Save size={18} className="ml-2" />
+            <Button
+              type="submit"
+              variant="blue"
+              size="sm"
+              loading={loading}
+              disabled={loading}
+            >
+              <Save size={16} className="ml-1.5" />
               {t('riders.saveRider')}
             </Button>
           </div>
-        </Card>
+        </div>
       </form>
     </div>
   );
