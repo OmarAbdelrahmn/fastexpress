@@ -29,6 +29,7 @@ import {
   RotateCcw,
   Banknote,
   ClipboardList,
+  Bell,
 } from 'lucide-react';
 import { accountantNavigationConfig, adminNavigationConfig, userNavigationConfig } from '@/lib/config/navigation';
 import { useLanguage } from '@/lib/context/LanguageContext';
@@ -39,6 +40,7 @@ const ICON_MAP = {
   // Admin
   dashboard: LayoutDashboard,
   reports: BarChart3,
+  notifications: Bell,
   vehicles: Car,
   riders: Users,
   housing: Home,

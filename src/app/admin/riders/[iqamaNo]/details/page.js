@@ -23,9 +23,11 @@ import {
   Truck,
   Image as ImageIcon,
   ShieldAlert,
-  Clock
+  Clock,
+  Bell,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
+import RiderNotificationModal from '@/components/notifications/RiderNotificationModal';
 
 export default function RiderDetailsPage() {
   const router = useRouter();
@@ -42,6 +44,7 @@ export default function RiderDetailsPage() {
   
   const [escapedInfo, setEscapedInfo] = useState(null);
   const [loadingEscaped, setLoadingEscaped] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
 
   const API_BASE = 'https://fastexpress.tryasp.net';
 
@@ -608,7 +611,7 @@ export default function RiderDetailsPage() {
       
       {/* Action Buttons */}
       <Card>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
           <Button
             onClick={() => router.push(`/admin/riders/${iqamaNo}/edit`)}
             variant="secondary"
@@ -656,8 +659,22 @@ export default function RiderDetailsPage() {
             <ImageIcon size={14} className={locale === 'ar' ? 'ml-1' : 'mr-1'} />
             {t('riderImages.manageDocuments')}
           </Button>
+          <Button
+            onClick={() => setIsNotificationModalOpen(true)}
+            className="!bg-blue-600 hover:!bg-blue-700 text-white text-xs !py-1.5"
+          >
+            <Bell size={14} className={locale === 'ar' ? 'ml-1' : 'mr-1'} />
+            {t('notifications.sendNotification')}
+          </Button>
         </div>
       </Card>
+
+      {/* Send Notification Modal */}
+      <RiderNotificationModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        rider={rider}
+      />
     </div>
   );
 }

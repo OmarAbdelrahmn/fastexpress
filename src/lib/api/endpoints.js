@@ -24,6 +24,18 @@ export const API_ENDPOINTS = {
     BY_NAME: (username) => `/api/admin/users/name/${username}`,
     TOGGLE_STATUS: (username) => `/api/admin/users/${username}/toggle-status`,
     CHANGE_ROLE: "/api/admin/users/role",
+    NOTIFICATIONS: {
+      SEND: (riderId) => `/api/admin/riders/${riderId}/notifications`,
+      BROADCAST: "/api/admin/notifications/broadcasts",
+      STATUS: (requestId) => `/api/admin/notifications/${requestId}`,
+    },
+  },
+
+  // Notifications (Staff)
+  NOTIFICATIONS: {
+    SEND: (riderId) => `/api/admin/riders/${riderId}/notifications`,
+    BROADCAST: "/api/admin/notifications/broadcasts",
+    STATUS: (requestId) => `/api/admin/notifications/${requestId}`,
   },
 
   // Company

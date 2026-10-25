@@ -238,6 +238,14 @@ export const adminNavigationConfig = {
     ],
   },
 
+  
+  notifications: {
+    title: "navigation.notifications",
+    icon: "🔔",
+    path: "/admin/notifications",
+    roles: ["Master", "Admin"],
+  },
+
   account: {
     title: "navigation.account",
     icon: "👤",

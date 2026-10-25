@@ -58,6 +58,7 @@ const pathTranslationKeys = {
   "admin/reports/hunger/history": "reports.history",
   "admin/reports/hunger/monthly-validation": "hunger.monthlyValidation",
   "admin/reports/hunger/rejection": "hunger.rejectionReport",
+  "admin/notifications": "navigation.notifications",
 
   // ─── Vehicles ──────────────────────────────────────────────────────────────
   vehicles: "navigation.vehicles",
