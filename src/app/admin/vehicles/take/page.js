@@ -18,9 +18,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionUploader from "@/components/vehicles/VehicleInspectionUploader";
+import { VehicleInspectionService, validateInspection } from "@/lib/services/vehicleInspectionService";
 
 export default function TakeVehiclePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,6 +33,15 @@ export default function TakeVehiclePage() {
   const [riderIqama, setRiderIqama] = useState("");
   const [reason, setReason] = useState("");
   const [permission, setPermission] = useState("");
+  const [inspection, setInspection] = useState({
+    frontImage: null,
+    backImage: null,
+    rightImage: null,
+    leftImage: null,
+    odometerImage: null,
+    mileageKm: "",
+  });
+  const [inspectionErrors, setInspectionErrors] = useState({});
 
   useEffect(() => {
     loadAvailableVehicles();
@@ -108,16 +119,23 @@ export default function TakeVehiclePage() {
     setErrorMessage("");
     setSuccessMessage("");
 
+    const inspCheck = validateInspection(inspection, 'Inspection');
+    if (!inspCheck.valid) {
+      setInspectionErrors(inspCheck.errors);
+      setErrorMessage(t("vehicles.inspectionRequired") || "يرجى رفع صور الفحص الـ 5 وإدخال قراءة العداد");
+      return;
+    }
+    setInspectionErrors({});
+
     try {
-      const queryParams = new URLSearchParams({
+      await VehicleInspectionService.submitAdminTake({
         iqamaNo: riderIqama,
         vehicleNumber: selectedVehicle.plateNumberA,
         reason: reason,
         permission: permission,
-        permissionEndDate: ""
+        permissionEndDate: "",
+        inspection,
       });
-
-      await ApiService.post(`/api/vehicles/take?${queryParams.toString()}`);
 
       setSuccessMessage(t("vehicles.takingRequestSent"));
       setTimeout(() => {
@@ -126,6 +144,8 @@ export default function TakeVehiclePage() {
         setRiderIqama("");
         setReason("");
         setPermission("");
+        setInspection({ frontImage: null, backImage: null, rightImage: null, leftImage: null, odometerImage: null, mileageKm: "" });
+        setInspectionErrors({});
         loadAvailableVehicles();
       }, 2000);
     } catch (err) {
@@ -384,6 +404,16 @@ export default function TakeVehiclePage() {
                 />
               </div>
 
+              {/* Vehicle Inspection Uploads */}
+              <VehicleInspectionUploader
+                value={inspection}
+                onChange={setInspection}
+                errors={inspectionErrors}
+                disabled={loading}
+                prefix="Inspection"
+                isArabic={locale === 'ar'}
+              />
+
               <div className="flex gap-3 justify-end pt-4 border-t">
                 <Button
                   type="button"
@@ -395,6 +425,8 @@ export default function TakeVehiclePage() {
                     setReason("");
                     setPermission("");
                     setPermissionEndDate("");
+                    setInspection({ frontImage: null, backImage: null, rightImage: null, leftImage: null, odometerImage: null, mileageKm: "" });
+                    setInspectionErrors({});
                   }}
                   disabled={loading}
                 >

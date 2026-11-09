@@ -1125,7 +1125,21 @@
     "selectRiderToViewHistory": "اختر المندوب لعرض سجله",
     "selectRiderToViewHistoryDesc": "اضغط على المندوب لعرض تفاصيل سجله بالكامل",
     "riderHistory": "سجل المندوب",
-    "riderHistoryDesc": "سجل المندوب"
+    "riderHistoryDesc": "سجل المندوب",
+    "inspection": "فحص المركبة",
+    "inspectionAvailable": "مرفق صور الفحص",
+    "inspectionEvidence": "أدلة وصور فحص المركبة (5 صور + العداد)",
+    "viewInspection": "معاينة الفحص",
+    "viewFullInspection": "معاينة الفحص الكامل",
+    "replacementVehicleInspection": "فحص المركبة البديلة (الجديدة)",
+    "returnVehicleInspection": "فحص المركبة المعادة (الحالية)",
+    "inspectionRequired": "يرجى رفع صور الفحص الـ 5 المطلوبة وإدخال قراءة العداد",
+    "mileageKm": "قراءة العداد (كم)",
+    "frontImage": "صورة الواجهة الأمامية",
+    "backImage": "صورة الواجهة الخلفية",
+    "rightImage": "صورة الجانب الأيمن",
+    "leftImage": "صورة الجانب الأيسر",
+    "odometerImage": "صورة عداد المسافات"
   },
   "employees": {
     "title": "الموظفين",

@@ -196,6 +196,7 @@ export const API_ENDPOINTS = {
     DELETE: (vehicleNumber) => `/api/vehicles/${vehicleNumber}`,
     TAKE: "/api/vehicles/take",
     RETURN: "/api/vehicles/return",
+    SWITCH: "/api/vehicles/switch",
     TAKEN_VEHICLES: "/api/vehicles/taken",
     AVAILABLE_VEHICLES: "/api/vehicles/available",
     HISTORY: (plateNumber) => `/api/vehicles/vehicle-history/${plateNumber}`,
@@ -732,3 +733,4 @@ export const API_ENDPOINTS = {
     },
   },
 };
+

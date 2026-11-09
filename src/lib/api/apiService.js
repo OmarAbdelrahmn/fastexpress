@@ -1,7 +1,7 @@
 // File: src/lib/api/apiService.js
 'use client';
 
-import { TokenManager } from '../auth/tokenManager';
+import { TokenManager } from '../auth/tokenManager.js';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fastexpress.tryasp.net';
 
@@ -31,14 +31,26 @@ export class ApiService {
   static async request(endpoint, options = {}) {
     const token = TokenManager.getToken();
     
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const defaultHeaders = {};
+    if (!isFormData) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+    if (token) {
+      defaultHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
     const config = {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...defaultHeaders,
         ...options.headers,
       },
     };
+
+    if (isFormData && config.headers && config.headers['Content-Type']) {
+      delete config.headers['Content-Type'];
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
@@ -109,10 +121,15 @@ export class ApiService {
   static post(endpoint, data, params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
     return this.request(url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: isFormData ? data : (data !== undefined ? JSON.stringify(data) : undefined),
     });
+  }
+
+  static postFormData(endpoint, formData, params = {}) {
+    return this.post(endpoint, formData, params);
   }
 
   static put(endpoint, data, params = {}) {
@@ -180,40 +197,9 @@ export class ApiService {
   }
 
   static async uploadFormData(endpoint, formData, method = 'POST') {
-    const token = TokenManager.getToken();
-    if (!token) {
-      throw new Error('لا يوجد رمز مصادقة. يرجى تسجيل الدخول مرة أخرى');
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (response.status === 401) {
-        TokenManager.clearToken();
-        redirectToCurrentLogin();
-        throw new Error('انتهت صلاحية الجلسة');
-      }
-
-      if (!response.ok) {
-        const errorMessage = data?.title || data?.detail || data?.error?.description || `خطأ: ${response.status}`;
-        const error = new Error(errorMessage);
-        error.status = response.status;
-        error.fullError = data;
-        throw error;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Upload Form Error:', error);
-      throw error;
-    }
+    return this.request(endpoint, {
+      method,
+      body: formData,
+    });
   }
 }

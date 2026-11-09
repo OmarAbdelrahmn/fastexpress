@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionUploader from "@/components/vehicles/VehicleInspectionUploader";
+import {
+    VehicleInspectionService,
+    validateInspection
+} from "@/lib/services/vehicleInspectionService";
 import {
     Car,
     IdCard,
@@ -28,6 +33,29 @@ export default function VehicleSwitchRequestPage() {
         newVehiclePlate: "",
         reason: ""
     });
+
+    // Inspection for replacement vehicle (Inspection.*)
+    const [inspection, setInspection] = useState({
+        frontImage: null,
+        backImage: null,
+        rightImage: null,
+        leftImage: null,
+        odometerImage: null,
+        mileageKm: ""
+    });
+    const [inspectionErrors, setInspectionErrors] = useState({});
+
+    // Inspection for returned vehicle (ReturnInspection.*)
+    const [returnInspection, setReturnInspection] = useState({
+        frontImage: null,
+        backImage: null,
+        rightImage: null,
+        leftImage: null,
+        odometerImage: null,
+        mileageKm: ""
+    });
+    const [returnInspectionErrors, setReturnInspectionErrors] = useState({});
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -103,21 +131,37 @@ export default function VehicleSwitchRequestPage() {
             return;
         }
 
+        // Validate BOTH inspection sets (replacement & return)
+        const checkNew = validateInspection(inspection, 'Inspection');
+        const checkReturn = validateInspection(returnInspection, 'ReturnInspection');
+
+        if (!checkNew.valid || !checkReturn.valid) {
+            setInspectionErrors(checkNew.errors);
+            setReturnInspectionErrors(checkReturn.errors);
+            setMessage({
+                type: "error",
+                text: "يرجى استكمال جميع صور فحص المركبتين الـ 10 وقراءة العداد لكل منهما (المركبة البديلة والمركبة المعادة)"
+            });
+            return;
+        }
+        setInspectionErrors({});
+        setReturnInspectionErrors({});
+
         setLoading(true);
         setMessage({ type: "", text: "" });
 
         try {
-            const payload = {
-                riderIqamaNo: parseInt(formData.riderIqamaNo),
+            await VehicleInspectionService.submitMemberRequestSwitch({
+                riderIqamaNo: formData.riderIqamaNo,
                 newVehiclePlate: formData.newVehiclePlate,
-                reason: formData.reason
-            };
-
-            await ApiService.post(API_ENDPOINTS.MEMBER.VEHICLE_REQUEST_SWITCH, payload);
+                reason: formData.reason,
+                inspection,
+                returnInspection
+            });
 
             setMessage({
                 type: "success",
-                text: "تم إرسال طلب استبدال المركبة بنجاح"
+                text: "تم إرسال طلب استبدال المركبة ورفع فحوصات المركبتين بنجاح"
             });
 
             // Reset form
@@ -126,6 +170,24 @@ export default function VehicleSwitchRequestPage() {
                 newVehiclePlate: "",
                 reason: ""
             });
+            setInspection({
+                frontImage: null,
+                backImage: null,
+                rightImage: null,
+                leftImage: null,
+                odometerImage: null,
+                mileageKm: ""
+            });
+            setReturnInspection({
+                frontImage: null,
+                backImage: null,
+                rightImage: null,
+                leftImage: null,
+                odometerImage: null,
+                mileageKm: ""
+            });
+            setInspectionErrors({});
+            setReturnInspectionErrors({});
             setSelectedVehicle(null);
             loadVehicles(); // Reload vehicles
         } catch (error) {
@@ -143,7 +205,7 @@ export default function VehicleSwitchRequestPage() {
             {/* Page Header */}
             <div>
                 <h3 className="text-lg md:text-2xl font-bold text-gray-900">طلب استبدال مركبة</h3>
-                <p className="text-gray-500">اختر مركبة جديدة متاحة وأرسل طلب استبدال للمركبة الحالية</p>
+                <p className="text-gray-500">اختر مركبة جديدة، ارفع فحص المركبة البديلة وفحص المركبة المعادة، ثم أرسل الطلب</p>
             </div>
 
             {/* Message Alert */}
@@ -159,83 +221,13 @@ export default function VehicleSwitchRequestPage() {
                     ) : (
                         <AlertCircle size={20} className="mt-0.5 flex-shrink-0" />
                     )}
-                    <span className="font-medium">{message.text}</span>
+                    <span>{message.text}</span>
                 </div>
             )}
 
-            {/* Available Vehicles Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                    <h4 className="text-md font-bold text-gray-900 flex items-center gap-2">
-                        <RefreshCw className="text-blue-600" size={20} />
-                        المركبات المتاحة للاستبدال
-                        <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
-                            {filteredVehicles.length}
-                        </span>
-                    </h4>
-                </div>
-
-                <div className="p-6">
-                    {/* Search */}
-                    <div className="mb-4">
-                        <div className="relative">
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type="text"
-                                placeholder="البحث برقم اللوحة، رقم المركبة، أو الموقع..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                            />
-                        </div>
-                    </div>
-
-                    {loadingVehicles ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="animate-spin text-blue-600" size={32} />
-                        </div>
-                    ) : filteredVehicles.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 max-h-96 overflow-y-auto">
-                            {filteredVehicles.map((vehicle) => (
-                                <div
-                                    key={vehicle.plateNumberA || vehicle.vehicleNumber}
-                                    onClick={() => handleVehicleSelect(vehicle)}
-                                    className={`p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
-                                        ? "border-blue-500 bg-blue-50"
-                                        : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Car className="text-blue-600" size={16} />
-                                        <span className="text-sm md:text-base font-bold text-gray-900">{formatPlateNumber(vehicle.plateNumberA)}</span>
-                                    </div>
-                                    <div className="text-xs md:text-sm text-gray-600 space-y-1">
-                                        <p>رقم المركبة: {vehicle.vehicleNumber || '-'}</p>
-                                        <p>الموقع: {vehicle.location || '-'}</p>
-                                        {vehicle.vehicleType && <p>النوع: {vehicle.vehicleType}</p>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-12 text-gray-500">
-                            <Car className="mx-auto mb-2 text-gray-300" size={48} />
-                            <p>لا توجد مركبات متاحة</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Request Form */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-md font-bold text-gray-900 flex items-center gap-2">
-                        <Send className="text-blue-600" size={20} />
-                        نموذج طلب الاستبدال
-                    </h2>
-                </div>
-
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Main Form */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Rider Iqama Number */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
@@ -248,26 +240,86 @@ export default function VehicleSwitchRequestPage() {
                             name="riderIqamaNo"
                             value={formData.riderIqamaNo}
                             onChange={handleInputChange}
-                            placeholder="أدخل رقم إقامة المندوب"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            placeholder="أدخل رقم الإقامة (10 أرقام)"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono"
                             disabled={loading}
                         />
                     </div>
 
-                    {/* New Vehicle Plate (Auto-filled) */}
+                    {/* New Vehicle Selection */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                             <Car size={16} />
-                            رقم لوحة المركبة الجديدة المختارة
+                            اختيار المركبة البديلة (الجديدة)
                             <span className="text-red-500">*</span>
+                        </label>
+
+                        {/* Search Input */}
+                        <div className="relative mb-3">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="ابحث برقم اللوحة، رقم المركبة، أو الموقع..."
+                                className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={loading || loadingVehicles}
+                            />
+                            <Search size={18} className="absolute right-3 top-3 text-gray-400" />
+                        </div>
+
+                        {/* Vehicles List */}
+                        {loadingVehicles ? (
+                            <div className="text-center py-8 text-gray-500">
+                                <Loader2 size={24} className="animate-spin mx-auto mb-2" />
+                                جاري تحميل المركبات المتاحة...
+                            </div>
+                        ) : filteredVehicles.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                                <Car size={32} className="mx-auto mb-2 text-gray-400" />
+                                لا توجد مركبات متاحة حالياً
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1 border border-gray-200 rounded-lg">
+                                {filteredVehicles.map((vehicle) => (
+                                    <div
+                                        key={vehicle.vehicleNumber || vehicle.plateNumberA}
+                                        onClick={() => handleVehicleSelect(vehicle)}
+                                        className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedVehicle?.plateNumberA === vehicle.plateNumberA
+                                            ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                                            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className="font-bold text-gray-900 font-mono">
+                                                {formatPlateNumber(vehicle.plateNumberA)}
+                                            </span>
+                                            <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
+                                                متاح
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-gray-500 space-y-0.5">
+                                            {vehicle.vehicleNumber && (
+                                                <p>رقم المركبة: {vehicle.vehicleNumber}</p>
+                                            )}
+                                            {vehicle.location && (
+                                                <p>الموقع: {vehicle.location}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Selected Vehicle Display */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            المركبة البديلة المختارة
                         </label>
                         <input
                             type="text"
-                            name="newVehiclePlate"
-                            value={formatPlateNumber(formData.newVehiclePlate)}
-                            onChange={handleInputChange}
-                            placeholder="اختر مركبة من القائمة أعلاه"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            value={selectedVehicle ? formatPlateNumber(selectedVehicle.plateNumberA) : "لم يتم اختيار مركبة بعد"}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-mono font-bold"
                             disabled={loading}
                             readOnly
                         />
@@ -285,7 +337,7 @@ export default function VehicleSwitchRequestPage() {
                             value={formData.reason}
                             onChange={handleInputChange}
                             placeholder="اذكر سبب طلب استبدال المركبة (مثل: المركبة الحالية معطلة، تغيير موقع العمل، إلخ)"
-                            rows="4"
+                            rows="3"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                             disabled={loading}
                         />
@@ -294,22 +346,49 @@ export default function VehicleSwitchRequestPage() {
                         </p>
                     </div>
 
+                    {/* Dual Inspection Uploads: Replacement Vehicle + Returned Vehicle */}
+                    <div className="space-y-6 pt-2">
+                        {/* 1. Replacement Vehicle Inspection (Inspection.*) */}
+                        <VehicleInspectionUploader
+                            value={inspection}
+                            onChange={setInspection}
+                            errors={inspectionErrors}
+                            disabled={loading}
+                            prefix="Inspection"
+                            title="1. فحص المركبة البديلة (الجديدة المراد استلامها)"
+                            subtitle="التقط 5 صور للمركبة البديلة وسجل قراءة عدادها الحالية"
+                            isArabic={true}
+                        />
+
+                        {/* 2. Returned Vehicle Inspection (ReturnInspection.*) */}
+                        <VehicleInspectionUploader
+                            value={returnInspection}
+                            onChange={setReturnInspection}
+                            errors={returnInspectionErrors}
+                            disabled={loading}
+                            prefix="ReturnInspection"
+                            title="2. فحص المركبة المعادة (الحالية المراد إرجاعها)"
+                            subtitle="التقط 5 صور للمركبة التي بحوزة المندوب حالياً وسجل قراءة عدادها عند الإرجاع"
+                            isArabic={true}
+                        />
+                    </div>
+
                     {/* Submit Button */}
                     <div className="flex justify-end pt-4 border-t border-gray-100">
                         <button
                             type="submit"
                             disabled={loading || !selectedVehicle}
-                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                         >
                             {loading ? (
                                 <>
                                     <Loader2 size={18} className="animate-spin" />
-                                    جاري الإرسال...
+                                    جاري الإرسال والرفع...
                                 </>
                             ) : (
                                 <>
                                     <Send size={18} />
-                                    إرسال طلب الاستبدال
+                                    إرسال طلب الاستبدال مع الفحوصات
                                 </>
                             )}
                         </button>

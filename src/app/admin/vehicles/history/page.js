@@ -24,10 +24,12 @@ import { useLanguage } from '@/lib/context/LanguageContext';
 import { ApiService } from "@/lib/api/apiService";
 import { formatPlateNumber } from "@/lib/utils/formatters";
 import PageHeader from "@/components/layout/pageheader";
+import VehicleInspectionModal from "@/components/vehicles/VehicleInspectionModal";
+import { Camera, Gauge } from "lucide-react";
 
 
 export default function VehicleHistory() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Tab state
   const [activeTab, setActiveTab] = useState("vehicle"); // "vehicle" | "rider"
@@ -48,6 +50,7 @@ export default function VehicleHistory() {
   const [loadingRiders, setLoadingRiders] = useState(false);
   const [loadingRiderHistory, setLoadingRiderHistory] = useState(false);
   const [riderError, setRiderError] = useState(null);
+  const [selectedInspectionRecord, setSelectedInspectionRecord] = useState(null);
 
   useEffect(() => {
     loadAllVehicles();
@@ -488,6 +491,42 @@ export default function VehicleHistory() {
                   {t('vehicles.permissionEndDate')}: {new Date(record.permissionEndDate).toLocaleDateString()}
                 </p>
               )}
+            </div>
+          )}
+
+          {record.inspection && (
+            <div className="bg-purple-50 p-3 rounded-lg border-l-4 border-purple-500 col-span-1 md:col-span-2 lg:col-span-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-600 text-white rounded-lg shadow-sm">
+                  <Camera size={16} />
+                </div>
+                <div>
+                  <span className="text-xs text-purple-700 font-bold block">
+                    {t('vehicles.inspection') || 'فحص المركبة المعتمد'}
+                  </span>
+                  <div className="flex items-center gap-2 text-sm font-bold text-gray-900 mt-0.5">
+                    <Gauge size={14} className="text-gray-500" />
+                    <span>
+                      {record.inspection.mileageKm !== undefined && record.inspection.mileageKm !== null
+                        ? `${Number(record.inspection.mileageKm).toLocaleString()} كم`
+                        : '—'}
+                    </span>
+                    {record.inspection.capturedAtUtc && (
+                      <span className="text-xs text-gray-400 font-normal">
+                        • {new Date(record.inspection.capturedAtUtc).toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedInspectionRecord(record)}
+                className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+              >
+                <Eye size={14} />
+                {t('vehicles.viewInspection') || 'معاينة الفحص (5 صور)'}
+              </button>
             </div>
           )}
         </div>
@@ -1087,6 +1126,17 @@ export default function VehicleHistory() {
           </div>
         )}
       </div>
+      {/* Vehicle Inspection Modal */}
+      {selectedInspectionRecord && (
+        <VehicleInspectionModal
+          isOpen={Boolean(selectedInspectionRecord)}
+          onClose={() => setSelectedInspectionRecord(null)}
+          inspection={selectedInspectionRecord.inspection}
+          vehiclePlate={formatPlateNumber(selectedInspectionRecord.plateNumberA)}
+          riderName={selectedInspectionRecord.riderName || selectedInspectionRecord.riderNameE}
+          isArabic={locale === 'ar'}
+        />
+      )}
     </div>
   );
 }

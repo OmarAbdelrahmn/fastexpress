@@ -1078,7 +1078,21 @@
     "riderHistoryDesc": "Rider History",
     "outOfServiceDesc": "Out of Service Vehicles",
     "addoutofservicevehicle": "Add Out of Service Vehicle",
-    "addoutofservicevehiclesubtitle": "Add Out of Service Vehicle"
+    "addoutofservicevehiclesubtitle": "Add Out of Service Vehicle",
+    "inspection": "Vehicle Inspection",
+    "inspectionAvailable": "Inspection photos attached",
+    "inspectionEvidence": "Vehicle inspection evidence (5 photos + odometer)",
+    "viewInspection": "View Inspection",
+    "viewFullInspection": "View Full Inspection",
+    "replacementVehicleInspection": "Replacement Vehicle Inspection",
+    "returnVehicleInspection": "Returned Vehicle Inspection",
+    "inspectionRequired": "Please upload all 5 required inspection photos and enter the odometer reading.",
+    "mileageKm": "Odometer Reading (km)",
+    "frontImage": "Front Photo",
+    "backImage": "Back Photo",
+    "rightImage": "Right Side Photo",
+    "leftImage": "Left Side Photo",
+    "odometerImage": "Odometer Photo"
   },
   "employees": {
     "title": "Employees",

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionModal from "@/components/vehicles/VehicleInspectionModal";
+import { Camera, Gauge } from "lucide-react";
 import {
     Car,
     User,
@@ -22,6 +24,7 @@ export default function VehicleRequestsPage() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedInspectionRequest, setSelectedInspectionRequest] = useState(null);
 
     useEffect(() => {
         loadRequests();
@@ -190,6 +193,9 @@ export default function VehicleRequestsPage() {
                                     تاريخ الطلب
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الفحص
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     إلغاء
                                 </th>
                             </tr>
@@ -254,6 +260,20 @@ export default function VehicleRequestsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
+                                            {(request.inspection || request.returnInspection) ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedInspectionRequest(request)}
+                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition"
+                                                >
+                                                    <Camera size={13} />
+                                                    عرض الفحص
+                                                </button>
+                                            ) : (
+                                                <span className="text-xs text-gray-400">-</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <button
                                                 onClick={() => handleCancelRequest(request.id)}
                                                 className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
@@ -287,6 +307,19 @@ export default function VehicleRequestsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Inspection Modal */}
+            {selectedInspectionRequest && (
+                <VehicleInspectionModal
+                    isOpen={Boolean(selectedInspectionRequest)}
+                    onClose={() => setSelectedInspectionRequest(null)}
+                    inspection={selectedInspectionRequest.inspection}
+                    returnInspection={selectedInspectionRequest.returnInspection}
+                    vehiclePlate={formatPlateNumber(selectedInspectionRequest.vehiclePlate || selectedInspectionRequest.vehicleNumber)}
+                    riderName={selectedInspectionRequest.riderName || selectedInspectionRequest.riderIqamaNo}
+                    isArabic={true}
+                />
+            )}
         </div>
     );
 }

@@ -19,9 +19,11 @@ import {
   Package,
 } from "lucide-react";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionUploader from "@/components/vehicles/VehicleInspectionUploader";
+import { VehicleInspectionService, validateInspection } from "@/lib/services/vehicleInspectionService";
 
 export default function ReturnVehiclePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,6 +33,15 @@ export default function ReturnVehiclePage() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [riderIqama, setRiderIqama] = useState("");
   const [reason, setReason] = useState("");
+  const [inspection, setInspection] = useState({
+    frontImage: null,
+    backImage: null,
+    rightImage: null,
+    leftImage: null,
+    odometerImage: null,
+    mileageKm: "",
+  });
+  const [inspectionErrors, setInspectionErrors] = useState({});
 
   useEffect(() => {
     loadTakenVehicles();
@@ -108,12 +119,21 @@ export default function ReturnVehiclePage() {
     setErrorMessage("");
     setSuccessMessage("");
 
+    const inspCheck = validateInspection(inspection, 'Inspection');
+    if (!inspCheck.valid) {
+      setInspectionErrors(inspCheck.errors);
+      setErrorMessage(t("vehicles.inspectionRequired") || "يرجى رفع صور الفحص الـ 5 وإدخال قراءة العداد");
+      return;
+    }
+    setInspectionErrors({});
+
     try {
-      await ApiService.post(
-        `/api/vehicles/return?iqamaNo=${riderIqama}&vehicleNumber=${encodeURIComponent(
-          selectedVehicle.plateNumberA
-        )}&reason=${encodeURIComponent(reason)}`
-      );
+      await VehicleInspectionService.submitAdminReturn({
+        iqamaNo: riderIqama,
+        vehicleNumber: selectedVehicle.plateNumberA,
+        reason: reason,
+        inspection,
+      });
 
       setSuccessMessage(t("success.reternRequestSent"));
       setTimeout(() => {
@@ -121,6 +141,8 @@ export default function ReturnVehiclePage() {
         setSearchTerm("");
         setRiderIqama("");
         setReason("");
+        setInspection({ frontImage: null, backImage: null, rightImage: null, leftImage: null, odometerImage: null, mileageKm: "" });
+        setInspectionErrors({});
         loadTakenVehicles();
       }, 2000);
     } catch (err) {
@@ -432,6 +454,17 @@ export default function ReturnVehiclePage() {
                 />
               </div>
 
+              {/* Vehicle Inspection Uploads */}
+              <VehicleInspectionUploader
+                value={inspection}
+                onChange={setInspection}
+                errors={inspectionErrors}
+                disabled={loading}
+                prefix="Inspection"
+                title={t("vehicles.returnVehicleInspection") || "فحص إرجاع المركبة"}
+                isArabic={locale === 'ar'}
+              />
+
               <div className="flex gap-3 justify-end pt-4 border-t">
                 <Button
                   type="button"
@@ -441,6 +474,8 @@ export default function ReturnVehiclePage() {
                     setSearchTerm("");
                     setRiderIqama("");
                     setReason("");
+                    setInspection({ frontImage: null, backImage: null, rightImage: null, leftImage: null, odometerImage: null, mileageKm: "" });
+                    setInspectionErrors({});
                   }}
                   disabled={loading}
                 >

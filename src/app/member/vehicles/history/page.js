@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { ApiService } from "@/lib/api/apiService";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionModal from "@/components/vehicles/VehicleInspectionModal";
+import { Camera, Gauge } from "lucide-react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -25,6 +27,7 @@ export default function VehicleHistoryPage() {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedInspectionItem, setSelectedInspectionItem] = useState(null);
 
     useEffect(() => {
         if (!vehicleNumber) {
@@ -169,6 +172,9 @@ export default function VehicleHistoryPage() {
                                     تاريخ نهاية التصريح
                                 </th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    الفحص والعداد
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     ملاحظات
                                 </th>
                             </tr>
@@ -224,6 +230,27 @@ export default function VehicleHistoryPage() {
                                                 </span>
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.inspection ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-purple-900 bg-purple-50 px-2 py-1 rounded border border-purple-200 font-mono">
+                                                        {item.inspection.mileageKm !== undefined && item.inspection.mileageKm !== null
+                                                            ? `${item.inspection.mileageKm} كم`
+                                                            : 'فحص متاح'}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedInspectionItem(item)}
+                                                        className="p-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition"
+                                                        title="معاينة صور الفحص"
+                                                    >
+                                                        <Camera size={16} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">-</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-700">
                                                 {item.reason || '-'}
@@ -233,7 +260,7 @@ export default function VehicleHistoryPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                         لا يوجد سجل تصاريح لهذه المركبة
                                     </td>
                                 </tr>
@@ -242,6 +269,18 @@ export default function VehicleHistoryPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Inspection Modal */}
+            {selectedInspectionItem && (
+                <VehicleInspectionModal
+                    isOpen={Boolean(selectedInspectionItem)}
+                    onClose={() => setSelectedInspectionItem(null)}
+                    inspection={selectedInspectionItem.inspection}
+                    vehiclePlate={vehicleNumber}
+                    riderName={selectedInspectionItem.employeeName || selectedInspectionItem.employeeIqamaNo}
+                    isArabic={true}
+                />
+            )}
         </div>
     );
 }

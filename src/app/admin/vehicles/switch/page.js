@@ -19,10 +19,12 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionUploader from "@/components/vehicles/VehicleInspectionUploader";
+import { VehicleInspectionService, validateInspection } from "@/lib/services/vehicleInspectionService";
 
 export default function SwitchVehiclePage() {
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, locale } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -35,6 +37,24 @@ export default function SwitchVehiclePage() {
     const [riderIqama, setRiderIqama] = useState("");
     const [reason, setReason] = useState("");
     const [permission, setPermission] = useState("");
+    const [inspection, setInspection] = useState({
+        frontImage: null,
+        backImage: null,
+        rightImage: null,
+        leftImage: null,
+        odometerImage: null,
+        mileageKm: "",
+    });
+    const [inspectionErrors, setInspectionErrors] = useState({});
+    const [returnInspection, setReturnInspection] = useState({
+        frontImage: null,
+        backImage: null,
+        rightImage: null,
+        leftImage: null,
+        odometerImage: null,
+        mileageKm: "",
+    });
+    const [returnInspectionErrors, setReturnInspectionErrors] = useState({});
 
     useEffect(() => {
         loadAvailableVehicles();
@@ -119,18 +139,27 @@ export default function SwitchVehiclePage() {
         setErrorMessage("");
         setSuccessMessage("");
 
+        const checkNew = validateInspection(inspection, 'Inspection');
+        const checkReturn = validateInspection(returnInspection, 'ReturnInspection');
+        if (!checkNew.valid || !checkReturn.valid) {
+            setInspectionErrors(checkNew.errors);
+            setReturnInspectionErrors(checkReturn.errors);
+            setErrorMessage(t("vehicles.inspectionRequired") || "يرجى رفع صور الفحص الـ 10 وإدخال قراءة العداد للمركبتين");
+            return;
+        }
+        setInspectionErrors({});
+        setReturnInspectionErrors({});
+
         try {
-            const queryParams = {
-                IqamaNo: riderIqama,
+            await VehicleInspectionService.submitAdminSwitch({
+                iqamaNo: riderIqama,
                 newVehiclePlate: selectedVehicle.plateNumberA,
                 reason: reason,
                 permission: permission,
-                permissionEndDate: ""
-            };
-
-            // ApiService.post signature: post(endpoint, data, params)
-            // Since all data is in query params as requested
-            await ApiService.post("/api/vehicles/switch", {}, queryParams);
+                permissionEndDate: "",
+                inspection,
+                returnInspection,
+            });
 
             setSuccessMessage(t("vehicles.switchRequestSent") || "Vehicle switch request sent successfully");
             setTimeout(() => {
@@ -300,6 +329,28 @@ export default function SwitchVehiclePage() {
                                     rows={4}
                                     placeholder={t("vehicles.explainReason")}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
+                            </div>
+
+                            {/* Dual Inspections: Replacement Vehicle + Returned Vehicle */}
+                            <div className="space-y-6">
+                                <VehicleInspectionUploader
+                                    value={inspection}
+                                    onChange={setInspection}
+                                    errors={inspectionErrors}
+                                    disabled={loading}
+                                    prefix="Inspection"
+                                    title={t("vehicles.replacementVehicleInspection") || "1. فحص المركبة البديلة (الجديدة)"}
+                                    isArabic={locale === 'ar'}
+                                />
+                                <VehicleInspectionUploader
+                                    value={returnInspection}
+                                    onChange={setReturnInspection}
+                                    errors={returnInspectionErrors}
+                                    disabled={loading}
+                                    prefix="ReturnInspection"
+                                    title={t("vehicles.returnVehicleInspection") || "2. فحص المركبة المعادة (الحالية)"}
+                                    isArabic={locale === 'ar'}
                                 />
                             </div>
 

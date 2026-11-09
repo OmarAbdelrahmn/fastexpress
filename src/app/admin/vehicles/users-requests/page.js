@@ -23,10 +23,13 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/context/LanguageContext';
 import { formatPlateNumber } from "@/lib/utils/formatters";
+import VehicleInspectionModal from "@/components/vehicles/VehicleInspectionModal";
+import { resolveInspectionImageUrl } from "@/lib/services/vehicleInspectionService";
+import { Camera, Gauge, Eye } from "lucide-react";
 
 
 export default function PendingVehicleRequestsPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [resolving, setResolving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -38,6 +41,7 @@ export default function PendingVehicleRequestsPage() {
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [permission, setPermission] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [inspectionModalData, setInspectionModalData] = useState(null);
 
   useEffect(() => {
     loadPendingRequests();
@@ -441,6 +445,29 @@ export default function PendingVehicleRequestsPage() {
                           </p>
                         </div>
                       )}
+
+                      {(request.inspection || request.returnInspection) && (
+                        <div className="flex items-center justify-between bg-purple-50/80 border border-purple-200 rounded-lg p-2 mt-2">
+                          <div className="flex items-center gap-1.5 text-xs text-purple-800 font-bold">
+                            <Camera size={14} className="text-purple-600" />
+                            <span>{t('vehicles.inspectionAvailable') || 'مرفق صور الفحص'}</span>
+                            {request.inspection?.mileageKm !== undefined && (
+                              <span className="font-mono text-[11px] text-purple-600">({request.inspection.mileageKm} كم)</span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectionModalData(request);
+                            }}
+                            className="px-2 py-0.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-[11px] font-bold flex items-center gap-1 transition shadow-sm"
+                          >
+                            <Eye size={12} />
+                            {t('vehicles.view') || 'عرض'}
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t">
@@ -552,6 +579,65 @@ export default function PendingVehicleRequestsPage() {
                   </div>
                 </div>
 
+                {/* Inspection Review Section */}
+                {(selectedRequest.inspection || selectedRequest.returnInspection) && (
+                  <div className="mb-6 bg-purple-50/60 border border-purple-200 rounded-2xl p-4 sm:p-5">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-purple-100">
+                      <div className="flex items-center gap-2">
+                        <Camera size={18} className="text-purple-700" />
+                        <h4 className="text-sm font-bold text-purple-900">
+                          {t('vehicles.inspectionEvidence') || 'أدلة وصور فحص المركبة (5 صور + العداد)'}
+                        </h4>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => setInspectionModalData(selectedRequest)}
+                        variant="primary"
+                        className="text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-sm"
+                      >
+                        <Eye size={13} className="ml-1" />
+                        {t('vehicles.viewFullInspection') || 'معاينة الفحص الكامل'}
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      {selectedRequest.inspection && (
+                        <div className="bg-white p-3 rounded-xl border border-purple-100">
+                          <span className="text-gray-500 font-semibold block mb-1">
+                            {selectedRequest.operationType?.toLowerCase() === 'switched'
+                              ? (t('vehicles.replacementVehicleInspection') || 'فحص المركبة البديلة (الجديدة)')
+                              : (t('vehicles.inspection') || 'فحص المركبة')}
+                          </span>
+                          <div className="flex items-center gap-2 font-mono font-bold text-gray-900 text-sm">
+                            <Gauge size={15} className="text-purple-600" />
+                            <span>
+                              {selectedRequest.inspection.mileageKm !== undefined && selectedRequest.inspection.mileageKm !== null
+                                ? `${selectedRequest.inspection.mileageKm} كم`
+                                : '—'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedRequest.returnInspection && (
+                        <div className="bg-white p-3 rounded-xl border border-purple-100">
+                          <span className="text-gray-500 font-semibold block mb-1">
+                            {t('vehicles.returnVehicleInspection') || 'فحص المركبة المعادة (الحالية)'}
+                          </span>
+                          <div className="flex items-center gap-2 font-mono font-bold text-gray-900 text-sm">
+                            <Gauge size={15} className="text-purple-600" />
+                            <span>
+                              {selectedRequest.returnInspection.mileageKm !== undefined && selectedRequest.returnInspection.mileageKm !== null
+                                ? `${selectedRequest.returnInspection.mileageKm} كم`
+                                : '—'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Form */}
                 <div className="space-y-4">
                   {(selectedRequest.operationType?.toLowerCase() === 'taken' || selectedRequest.operationType?.toLowerCase() === 'switched') && (
@@ -619,6 +705,18 @@ export default function PendingVehicleRequestsPage() {
               </div>
             </div>
           </div>
+        )}
+        {/* Vehicle Inspection Modal */}
+        {inspectionModalData && (
+          <VehicleInspectionModal
+            isOpen={Boolean(inspectionModalData)}
+            onClose={() => setInspectionModalData(null)}
+            inspection={inspectionModalData.inspection}
+            returnInspection={inspectionModalData.returnInspection}
+            vehiclePlate={formatPlateNumber(inspectionModalData.vehiclePlateNumber || inspectionModalData.newVehiclePlate)}
+            riderName={inspectionModalData.riderIqamaNo}
+            isArabic={locale === 'ar'}
+          />
         )}
       </div>
     </div>
